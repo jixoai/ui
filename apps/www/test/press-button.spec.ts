@@ -500,8 +500,11 @@ describe('press-button effects', () => {
     // custom properties; the paints the ports DO own (shimmer's face,
     // rainbow's layered stack) ride the class + var channel — never a
     // declared property in the style attribute.
-    // (ripple feeds its options to the svg layer, so its HOST carries
-    // no inline style at all.)
+    // (ripple feeds its options to the svg layer. W3-B (explicit-props):
+    // the host may still carry the §10/§3 axis carriers — the family's
+    // own custom-property stamps (--jx-radius-consumed & kin), never a
+    // declared property; the ripple case asserts the same custom-prop
+    // shape the other effects do instead of a bare null.)
     for (const fx of [shimmer(), pulse(), rainbow()]) {
       const { container } = render(PressButtonHost, {
         props: { attach: pressEffect(fx) },
@@ -524,7 +527,13 @@ describe('press-button effects', () => {
     rainbowed.unmount();
     // unmount tears the whole stamp down with the host
     const rippled = render(PressButtonHost, { props: { attach: pressEffect(ripple()) } });
-    expect(rippled.container.querySelector('button')!.getAttribute('style')).toBeNull();
+    const rippleStyle = rippled.container.querySelector('button')!.getAttribute('style') ?? '';
+    for (const d of rippleStyle
+      .split(';')
+      .map((x) => x.trim())
+      .filter(Boolean)) {
+      expect(d.startsWith('--'), `ripple paints the host inline: ${d}`).toBe(true);
+    }
   });
 
   it('plain buttons keep the click contract untouched (no ink layers, no stacking pose)', () => {

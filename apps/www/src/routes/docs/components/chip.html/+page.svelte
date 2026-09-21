@@ -222,6 +222,15 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- seven axes (the shape name collides with the silhouette
+     vocabulary — unruled, left out) -->
+<Chip size={14} density="small">px number</Chip>
+<Chip size="large" radius="medium">named steps</Chip>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/chip-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -588,6 +597,25 @@ ${close}
   </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="Chip usage" /></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The §2 shape axis is deliberately absent: the square|pill silhouette vocabulary collides with the axis name and §13 rules no mapping — the seven other axes landed, the collision is flagged for a ruling."
+    >
+      <ComponentCanvas title="Chip · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Chip size={14} density="small">size 14 · density small</Chip></div>
+        <div class={cx(rt.panel)}><Chip size="large" radius="medium" density="large">size large · radius medium</Chip></div>
+        <div class={cx(rt.panel)}><Chip radius={10} color="primary">radius 10 · primary</Chip></div>
+        <div class={cx(rt.panel)}><Chip radius="auto" shape="pill">radius auto · pill silhouette</Chip></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The public contract: the ladder, the silhouette, one optional effect through the component tag, navigation, and two snippet lanes around the required children.">
       <PropsTable props={[

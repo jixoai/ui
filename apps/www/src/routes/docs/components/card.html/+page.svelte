@@ -223,6 +223,18 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the concentric anchor: radius 20 + the 14px ruler inset →
+     the auto-radius button computes max(0px, 20 − 14) = 6px -->
+<Card title="anchor" radius={20}>
+  <PressButton radius="auto">concentric child</PressButton>
+</Card>
+<Card title="squircle" shape="squircle" radius={20}>×2 through the factor ladder</Card>
+<Card title="named step" radius="large">var(--jx-radius-large) — zero inline values</Card>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/card-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 {#snippet xGlyph()}
@@ -428,5 +440,50 @@ ${close}
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The card is a generic section container; the separators are decorative chrome, the zones carry no semantics of their own."><A11yTable keys={[{ key: 'Escape / close', action: 'Not applicable — no close affordance ships; the action seat is the consumer’s own control' }]} aria={[{ name: 'root', value: '<section>', description: 'A generic container; give it an accessible name via its content when the region is navigable' }, { name: 'separators', value: 'aria-hidden', description: 'The structural lines are decorative — hidden from AT' }, { name: 'action seat', value: 'consumer-owned', description: 'Whatever sits in the actions slot keeps its own role, name, and activation behavior' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The inline ruler, verbatim: the root owns five named tracks ([inset] 14px · [start seat] auto · [fill] minmax(10px,1fr) · [end seat] auto · [inset] 14px); head/foot zones rent them via subgrid. Zones paint nothing; no face carries an inline padding utility — tracks paint the axis. The card is not density-scaled."><div class={cx(rt.col24)}><TokenTable tokens={[{ name: 'text seats (head title, foot start/end)', default: 'content axis (track)', source: 'law', description: 'Passive content ENTERS at card-content lines — 14px from each edge arrives BY TRACK. Foot text carries NO padding-block: it centers against the row and never sizes it.' }, { name: 'edge riders (actions slot, foot cluster)', default: 'flush, span to -1', source: 'law', description: 'The head actions slot is a CORNER (align-self: start, dialog × verbatim). The foot cluster is a CARVED CELL: it fills the band vertically — separator as its top rim, leading seam as its carved left edge; the buttons’ min-h economy is a floor, never a cap (a floating 40px button in a taller band reads as a hole dug out, not a cell cut out). The shared end column is as wide as its widest resident, like a table’s last column.' }, { name: 'body cell', default: 'py-3.5 + inline compensation', source: 'component', description: 'The full-bleed exception: the scroll ring owns its inline geometry — max(0.875rem − probed thin scrollbar, 0), a width tracks cannot see.' }, { name: '--card-foreground', default: 'theme', source: 'color', description: 'Body text at 80% via color-mix.' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The card is the §3 concentric ANCHOR: an explicit radius supplies --jx-radius-effective while the ruler's inline inset track supplies --jx-inset-effective — descendants at radius='auto' compute max(0px, R − P), and shape='squircle' doubles the resolved corner through the §14 factor ladder (reversing on degrade)."
+    >
+      <ComponentCanvas title="Card · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}>
+          <Card title="radius 20 · the concentric anchor" radius={20}>
+            <p class={cx(rt.pb8, rt.textVar2)}>children at radius="auto" compute max(0px, 20 − 14) = 6px</p>
+            <div class={cx(rt.wrap12)}>
+              <PressButton radius="auto">auto radius</PressButton>
+              <PressButton radius={4}>explicit 4</PressButton>
+            </div>
+          </Card>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Card title="shape squircle · radius 20" shape="squircle" radius={20}>
+            <p class={cx(rt.pb8, rt.textVar2)}>the §14 factor doubles the resolved corner (and reverses on degrade)</p>
+            <PressButton shape="squircle" radius={10}>squircle child</PressButton>
+          </Card>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Card title="named step" radius="large">
+            <p class={cx(rt.pb8, rt.textVar2)}>var(--jx-radius-large) — the §12 indirection, zero inline values</p>
+            <PressButton radius="small">small step</PressButton>
+          </Card>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Card title="size 14 · density small" size={14} density="small">
+            <p class={cx(rt.pb8, rt.textVar2)}>one number moves the family; the rung scopes the channels</p>
+            <PressButton size="medium">medium child</PressButton>
+          </Card>
+        </div>
+        </div>
+        <div class={cx(rt.panel)}>
+          <PressButton radius="auto" ariaLabel="bare auto">bare auto — no supplying ancestor → 0px via the root invariants</PressButton>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Card keeps the bands and the snippet transports; CardHeader / CardBody / CardFooter are the content faces — usable standalone too (their own ruler mirrors carry them outside any band)."><div class={cx(rt.col32)}><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Heading of the default head face (CardHeader). Omit with no head snippet for a chrome-less card.' }, { name: 'head', type: 'Snippet', default: '—', description: 'Raw head override — enters at the content axis (typically wraps CardHeader).' }, { name: 'actions', type: 'Snippet', default: '—', description: 'The inline-end action seat — dialog × position, edge-riding flush. Absent, the slot never renders; no close button ships.' }, { name: 'foot', type: 'Snippet', default: '—', description: 'Raw full override of the foot zone; the standard face is CardFooter.' }, { name: 'scroll', type: 'boolean', default: 'true', description: 'Body scroll authority; false retires it together with the gutter reservation.' }, { name: 'class', type: 'string', default: "''", description: 'Root utilities appended after the law’s own.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The body — the only scrollable zone.', required: true }]} /><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'CardHeader: the default title row (h2, py-2.5 — the inline inset is the ruler’s track); yields to children.' }, { name: 'children', type: 'Snippet', default: '—', description: 'CardHeader: custom head content at the content axis — owns its own block geometry.' }, { name: 'class', type: 'string', default: "''", description: "CardHeader: appended to the face — the FLUSH escape hatch: class='col-start-1' pins the column start to the grid's first line (flush past the inset track) while the × seat keeps its row (the search-field head idiom)." }]} /><PropsTable props={[{ name: 'start', type: 'Snippet', default: '—', description: 'CardFooter: the inline-start TEXT seat — the content axis.' }, { name: 'end', type: 'Snippet', default: '—', description: 'CardFooter: the inline-end TEXT seat; replaces the grouped arrangement.' }, { name: 'label', type: 'string', default: "'Actions'", description: 'CardFooter: the ButtonGroup accessible name (neutral since the kernel — the footer family serves every carrier).' }, { name: 'children', type: 'Snippet', default: '—', description: 'CardFooter: action buttons — the CLUSTER seat: one leadingSeam ButtonGroup riding the card edge flush.' } ]} /><PropsTable props={[{ name: 'scroll', type: 'boolean', default: 'true', description: 'CardBody: the band scroll authority (the host never scrolls) — the cell is the ring with a stable both-edges gutter; false retires the authority and the gutter together.' }, { name: 'children', type: 'Snippet', default: '—', description: 'CardBody: the content — enters at the cell content axis, the single-sourced gutter-compensation formula padding it.', required: true }]} /></div></SectionCard></div>
 </div>

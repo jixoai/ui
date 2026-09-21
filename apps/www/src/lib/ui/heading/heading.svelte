@@ -36,21 +36,93 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { HeadingDefaults } from './heading-defaults.svelte';
   import { headingStyles } from './heading.stylex';
 
-  interface Props extends HTMLAttributes<HTMLHeadingElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLHeadingElement>, 'color'> {
     /** the heading level 1–6; out-of-range values clamp (rounded to
      *  the nearest integer, then bounded) — the rendered truth is
-     *  what the hook stamps */
+     *  what the hook stamps. KEPT per design §13 (component-specific,
+     *  no collision with the size axis) */
     level?: number;
     /** optional explicit address (the document addressing surface) */
     id?: string;
+    /** inline style passthrough — composed AFTER the family's carrier
+     *  stamp (the #4 seam law: never clobbered, never dropped) */
+    style?: string | null;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the em ladder scales with
+     *  it) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the heading text */
     children?: Snippet;
     class?: string;
   }
 
-  let { level = 2, id, children, class: className = '', ...rest }: Props = $props();
+  let {
+    level = 2,
+    id,
+    style: callerStyle,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    children,
+    class: className = '',
+    ...rest
+  }: Props = $props();
+
+  // the family Defaults is the single read point (explicit-props W3-B):
+  // the eight universal axes resolve in one record, all no-own — the
+  // em ladder keeps scaling with the ambient font-size
+  const d = $derived(HeadingDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLHeadingElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the #4 composition: carriers first, the caller's own style LAST
+  const rootStyle = $derived([carriers, callerStyle].filter(Boolean).join('; ') || undefined);
 
   // the payload's own join (separator's serialize law): atoms are
   // objects in dev — composition goes through THIS joiner (all string
@@ -75,8 +147,10 @@
   const tag = $derived(`h${clamped}`);
 
   // the em ladder (deterministic map, index = level; slot 0 unused)
-  // — em, never rem: the ladder scales with the ambient preset
-  const size = [
+  // — em, never rem: the ladder scales with the ambient preset.
+  // Renamed from `size` (W3-B): the universal §1 axis owns that name
+  // now — the local ladder is the panelMotion precedent (local yields)
+  const sizeLadder = [
     null,
     headingStyles.h1,
     headingStyles.h2,
@@ -93,9 +167,13 @@
      F5 against the repo's cn config (text-color group) -->
 <svelte:element
   this={tag}
+  bind:this={uniRoot}
   data-jx-heading={clamped}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   {id}
-  class={cn(cx(headingStyles.base, size[clamped]), className)}
+  style={rootStyle}
+  class={cn(cx(headingStyles.base, sizeLadder[clamped]), className)}
   {...rest}
 >
   {@render children?.()}

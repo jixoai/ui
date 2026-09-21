@@ -115,6 +115,16 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the group forwards; the items inherit -->
+<ToggleGroup name="scale" label="scale" density="small">
+  <ToggleGroupItem value="sm">small</ToggleGroupItem>
+  <ToggleGroupItem value="md">medium</ToggleGroupItem>
+</ToggleGroup>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/toggle-group-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -217,5 +227,24 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose a group from ToggleGroupItem parts; item values become the form payload identity."><CodeBlock code={usage} lang="svelte" meta="Toggle group usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The group is a labelled landmark over real native inputs — the radio semantics (arrow-walk, one tab stop, checked state) come from the platform, not ARIA re-creation."><A11yTable keys={[{ key: 'Tab', action: 'Enter the group once (single) / walk items (multiple)' }, { key: 'Arrow ← → ↑ ↓', action: 'Walk single-mode segments (native radio)' }, { key: 'Space', action: 'Toggle the focused segment' }]} aria={[{ name: 'role', value: 'radiogroup | group', description: 'Names the set as one landmark (single | multiple)' }, { name: 'aria-label', value: 'label', description: 'Provides the group accessible name' }, { name: 'input checked', value: 'native', description: 'The real radio/checkbox state IS the item state' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Group buttons use the shared hit target, inset, and typography tokens."><div class={cx(rt.col20)}><DensityDemo><ToggleGroup name="density-group" type="single" label="density"><ToggleGroupItem value="one">one</ToggleGroupItem><ToggleGroupItem value="two">two</ToggleGroupItem></ToggleGroup></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The group supplies the lanes to its item radios through the §11 broadcast."
+    >
+      <ComponentCanvas title="ToggleGroup · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><ToggleGroup name="univ-scale" label="density small" density="small"><ToggleGroupItem value="sm">small</ToggleGroupItem><ToggleGroupItem value="md">medium</ToggleGroupItem></ToggleGroup></div>
+        <div class={cx(rt.panel)}><ToggleGroup name="univ-scale2" label="density large" density="large"><ToggleGroupItem value="sm">small</ToggleGroupItem><ToggleGroupItem value="md">medium</ToggleGroupItem></ToggleGroup></div>
+        <div class={cx(rt.panel)}><ToggleGroup name="univ-scale3" label="radius medium" radius="medium"><ToggleGroupItem value="sm">small</ToggleGroupItem><ToggleGroupItem value="md">medium</ToggleGroupItem></ToggleGroup></div>
+        <div class={cx(rt.panel)}><ToggleGroup name="univ-scale4" label="theme dark" theme="dark"><ToggleGroupItem value="sm">small</ToggleGroupItem><ToggleGroupItem value="md">medium</ToggleGroupItem></ToggleGroup></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root owns value semantics; item parts contribute their string identities."><PropsTable props={[{ name: 'name', type: 'string', default: '—', description: 'Form field name for submitted values.' }, { name: 'type', type: "'single' | 'multiple'", default: "'single'", description: 'Select one value or a set.' }, { name: 'value', type: 'string | string[]', default: '[]', description: 'Active value(s), bindable.', bindable: true }, { name: 'label', type: 'string', default: 'required', description: 'Accessible group label.', required: true }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the whole group.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'onchange', type: '(value) => void', default: '—', description: 'Called after the active value changes.' }, { name: 'children', type: 'Snippet', default: 'required', description: 'ToggleGroupItem parts.', required: true }]} /></SectionCard></div>
 </div>

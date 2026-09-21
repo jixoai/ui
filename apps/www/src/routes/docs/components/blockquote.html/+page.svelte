@@ -73,6 +73,14 @@
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface; ruleSize stays (§13) -->
+<Blockquote label="note" size={14} density="small">px number</Blockquote>
+<Blockquote label="note" size="large">named steps</Blockquote>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/blockquote-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -261,6 +269,25 @@
           { name: 'data-jx-blockquote-rule', value: '{rule}-{size}', description: 'The rule channel hook (e.g. shadow-1, border-4) — tests and tooling read the channel without reverse-engineering utility soup.' },
         ]}
       />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The 0.875em body voice rescales with the size axis; ruleSize stays per §13 (component-specific, no collision)."
+    >
+      <ComponentCanvas title="Blockquote · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Blockquote label="note" size={14} density="small">size 14 · density small</Blockquote></div>
+        <div class={cx(rt.panel)}><Blockquote label="note" size="large" density="large">size large · density large</Blockquote></div>
+        <div class={cx(rt.panel)}><Blockquote label="note" radius="medium">radius medium</Blockquote></div>
+        <div class={cx(rt.panel)}><Blockquote label="note" color="primary">primary</Blockquote></div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

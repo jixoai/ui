@@ -31,12 +31,51 @@
 -->
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
-  import { type Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { KbdDefaults, type KbdVariant } from './kbd-defaults.svelte';
   import { kbdStyles } from './kbd.stylex';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
-    density?: Density;
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
+    /** inline style passthrough — composed AFTER the family's carrier
+     *  stamp (the #4 seam law: never clobbered, never dropped) */
+    style?: string | null;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (the engraved glyph's own 2px corner stays unless an
+     *  explicit lane or a supplying ancestor speaks) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the glyph's paint ladder — prominence, never semantic hue
      *  (inject with jx-hue-* utilities); tonal rides primary by default */
     variant?: KbdVariant;
@@ -44,15 +83,33 @@
 
   let {
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     variant,
+    style: callerStyle,
     class: className = '',
     children,
     ...rest
   }: Props = $props();
   // the family Defaults is the single read point (context-defaults-
   // economy 2.3): explicit ?? ambient/own per slot, one line, no
-  // legacy helper channels
-  const d = $derived(KbdDefaults.resolve({ variant, density }));
+  // legacy helper channels — W3-B: the eight universal axes ride the
+  // same record
+  const d = $derived(KbdDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the #4 composition: carriers first, the caller's own style LAST
+  const rootStyle = $derived([carriers, callerStyle].filter(Boolean).join('; ') || undefined);
 
   // the payload's own join (the separator serialize law): every
   // stylex.create member is an OBJECT in dev and the joined string in
@@ -81,9 +138,12 @@
 </script>
 
 <kbd
+  bind:this={uniRoot}
   data-jx-kbd={d.variant}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   class={cx(VARIANT_CLASS[d.variant], className)}
+  style={rootStyle}
   {...rest}
 >
   {@render children?.()}

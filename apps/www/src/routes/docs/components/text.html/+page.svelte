@@ -226,6 +226,14 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface on the reading family -->
+<Text size={14} density="small">px number</Text>
+<Text size="large">named steps</Text>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/text-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -413,6 +421,25 @@ ${close}
           { name: 'data-jx-text', value: 'form', description: 'Hook attribute carrying the rendered form (the mark, or p) for styling.' },
         ]}
       />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The reading family flows by inheritance — the size axis is the root font-size lever, the modifier kernel's own fontSize prop stays a separate (non-colliding) name."
+    >
+      <ComponentCanvas title="Text · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Text size={14} density="small">size 14 · density small</Text></div>
+        <div class={cx(rt.panel)}><Text size="large" density="large">size large · density large</Text></div>
+        <div class={cx(rt.panel)}><Text mark="strong" size="medium">strong · medium</Text></div>
+        <div class={cx(rt.panel)}><Text mark="mark" color="primary">mark · primary</Text></div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

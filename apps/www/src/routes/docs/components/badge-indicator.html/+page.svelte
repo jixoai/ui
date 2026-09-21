@@ -50,6 +50,14 @@
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface, all no-own -->
+<BadgeIndicator dot label="live" size={14} density="small" />
+<BadgeIndicator count={120} size="large" radius="medium" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/badge-indicator-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -144,5 +152,24 @@
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Anything with a corner carries the badge; omit children for the standalone chip."><CodeBlock code={usage} lang="svelte" meta="BadgeIndicator usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The overlay is decoration riding the child; the meaning lives in the label/count text."><A11yTable keys={[{ key: '—', action: 'Not focusable — the wrapped child keeps its own interaction' }]} aria={[{ name: 'aria-label', value: 'label | count', description: 'The dot requires a label (its accessible name); counts announce their text.' }, { name: 'role', value: 'img', description: 'On the dot only — presence with no text content of its own.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Fixed micro geometry — the dot (10px) and count chip (18px min) do not ride the density scale."><div class={cx(rt.col20)}><DensityDemo><div class={cx(rt.rowC24)}><BadgeIndicator dot label="2 unread"><span class={cx(rt.biChild)}>GB</span></BadgeIndicator><BadgeIndicator count={12}><span class={cx(rt.biChild)}>AL</span></BadgeIndicator><BadgeIndicator count={250} /></div></DensityDemo><TokenTable tokens={[{ name: '--radius', default: 'theme radius', source: 'structural', description: 'The chip corner — the jixoai radius law.' }, { name: 'dot box', default: '10px (w-2.5 h-2.5)', source: 'structural' }, { name: 'count chip', default: '18px min (min-w-[1.125rem])', source: 'structural' }, { name: 'text', default: '10px, fixed', source: 'structural' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. An overlay indicator takes its scale from the element it rides on — every axis is no-own (auto forwards the ambient), the carriers stamp only what an explicit lane supplies."
+    >
+      <ComponentCanvas title="BadgeIndicator · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><BadgeIndicator dot label="live" size={14} density="small" /></div>
+        <div class={cx(rt.panel)}><BadgeIndicator count={120} size="large" radius="medium" /></div>
+        <div class={cx(rt.panel)}><BadgeIndicator count={8} radius={10} color="error" /></div>
+        <div class={cx(rt.panel)}><BadgeIndicator dot label="auto" radius="auto" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Seven props; dot beats count, zero hides honestly."><PropsTable props={[{ name: 'dot', type: 'boolean', default: '—', description: 'The presence idiom — beats count when only presence matters.' }, { name: 'count', type: 'number', default: '—', description: 'The count idiom; hidden at 0 unless showZero.' }, { name: 'overflow', type: 'number', default: '99', description: 'Cap before "n+".' }, { name: 'showZero', type: 'boolean', default: 'false', description: 'Render count=0 instead of hiding.' }, { name: 'children', type: 'Snippet', default: '—', description: 'What the indicator rides on; omitted = standalone chip.' }, { name: 'label', type: 'string', default: "'new activity'", description: 'Accessible name for the dot (required in dot mode).' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the wrapper/standalone element.' }]} /></SectionCard></div>
 </div>

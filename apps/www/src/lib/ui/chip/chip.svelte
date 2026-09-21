@@ -48,7 +48,20 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { type Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { ChipDefaults, type ChipShape, type ChipVariant } from './chip-defaults.svelte';
   import { chipStyles } from './chip.stylex';
   // the press law's pose sheet (.jx-press) — shared from the
@@ -65,10 +78,30 @@
    * data-jx-attach="root" stays as the optional named stamp */
   interface Props extends Omit<
     HTMLAttributes<HTMLElement>,
-    'onclick' | 'class' | 'aria-label' | 'style' | 'type'
+    'onclick' | 'class' | 'color' | 'aria-label' | 'style' | 'type'
   > {
-    /** DENSITY override: explicit ?? ambient scope, else unstamped */
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (§3's §14-factor composition — the silhouette's
+     *  square|pill paint stays the family's own until §13 rules the
+     *  collided shape name) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the grammar ladder — prominence, never semantic hue; omitted →
      *  the ambient paint zone, else the frozen own 'tonal' */
     variant?: ChipVariant;
@@ -93,6 +126,12 @@
 
   let {
     density,
+    size,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     variant,
     shape,
     href,
@@ -109,8 +148,21 @@
 
   // the family Defaults is the single read point (context-defaults-
   // economy 2.3): variant rides the paint axis slot (zone ambient,
-  // frozen own 'tonal'), shape/density their literal/no-opinion slots
-  const d = $derived(ChipDefaults.resolve({ variant, shape, density }));
+  // frozen own 'tonal'), shape/density their literal/axis slots —
+  // W3-B: the seven non-collided universal axes ride the same record
+  const d = $derived(ChipDefaults.resolve({ variant, shape, density, size, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers). The lanes record SELECTS the axis
+  // members — the resolve record also carries the literal silhouette
+  // (square|pill), which is NOT the §2 axis lane (the unruled
+  // collision) and never reaches the carriers
+  const carriers = $derived(
+    stampCarriersForLanes({ density: d.density, size: d.size, radius: d.radius, color: d.color, theme: d.theme, elevation: d.elevation, motion: d.motion }),
+  );
+  provideUniversalLanes({ density, size, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   // the payload's own join (the separator serialize law): every
   // stylex.create member is an OBJECT in dev (dev names + the $$css
@@ -179,15 +231,18 @@
 
 {#if href}
   <a
+    bind:this={uniRoot}
     {...rest}
     {href}
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     data-jx-chip={d.variant}
     data-jx-attach="root"
     class={classes}
+    style={carriers || undefined}
     onclick={onclick}
   >
     {@render start()}
@@ -196,14 +251,17 @@
   </a>
 {:else}
   <button
+    bind:this={uniRoot}
     {...rest}
     {type}
     onclick={onclick}
     aria-label={ariaLabel}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     data-jx-chip={d.variant}
     data-jx-attach="root"
     class={classes}
+    style={carriers || undefined}
   >
     {@render start()}
     {@render children()}

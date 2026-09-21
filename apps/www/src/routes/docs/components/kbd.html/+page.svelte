@@ -97,6 +97,14 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface on the glyph -->
+<Kbd size={14} density="small">⌘</Kbd>
+<Kbd size="large" radius="medium">K</Kbd>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/kbd-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -216,6 +224,25 @@ ${close}
     <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage" summary="The platform gives the semantics: <kbd> means keyboard input to assistive tech with zero ARIA. We add only the ladder paint — 1px border, the engrave inset, mono — and nothing else."><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'kbd', value: 'native element', description: 'Communicates keyboard input without extra ARIA.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Kbd>K</Kbd></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-tonal', default: 'var(--primary)', source: 'variant grammar' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Kbd props"><PropsTable props={[{ name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal' · Own default, not ambient", description: 'Paint-ladder rung; tonal (primary) is the default. Own default, not ambient (the glyph is outside the paint zone\'s frozen availability table). Semantic hue injects via jx-hue-* classes, never as a variant name.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
+    <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The engraved glyph keeps its own 2px corner; an explicit radius lane supplies through the carriers for descendants."
+    >
+      <ComponentCanvas title="Kbd · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Kbd size={14} density="small">⌘</Kbd> <Kbd size={14} density="small">K</Kbd></div>
+        <div class={cx(rt.panel)}><Kbd size="large" radius="medium" density="large">shift</Kbd></div>
+        <div class={cx(rt.panel)}><Kbd shape="squircle" radius={6}>squircle</Kbd></div>
+        <div class={cx(rt.panel)}><Kbd radius="auto">auto</Kbd></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Kbd props"><PropsTable props={[{ name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal' · Own default, not ambient", description: 'Paint-ladder rung; tonal (primary) is the default. Own default, not ambient (the glyph is outside the paint zone\'s frozen availability table). Semantic hue injects via jx-hue-* classes, never as a variant name.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
   </div>
 </div>

@@ -167,16 +167,27 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     return holder.value;
   };
 
+  // W3-B (explicit-props): kbd/badge/chip joined the eight-axis surface
+  // MINUS shape on badge/chip (the square|pill corner-law collides with
+  // the axis name; design §13 rules no mapping — unruled, left out).
+  // Every axis resolves 'auto' in a silent window (无意见不盖章).
+  const KBD_AXES = ['size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'];
+  const NO_SHAPE_AXES = KBD_AXES.filter((a) => a !== 'shape');
+  const autoProj = (axes: string[]): Record<string, unknown> => ({
+    density: 'auto',
+    ...Object.fromEntries(axes.map((axis) => [axis, 'auto'])),
+  });
+
   it('BadgeDefaults: own tonal/square, no density opinion (ambient silent, no throw)', () => {
     expect(resolveInWindow(() => BadgeDefaults.resolve({}))).toEqual({
       variant: 'tonal',
       shape: 'square',
-      density: undefined,
+      ...autoProj(NO_SHAPE_AXES),
     });
     expect(resolveInWindow(() => BadgeDefaults.resolve({ variant: 'fill' }))).toEqual({
       variant: 'fill',
       shape: 'square',
-      density: undefined,
+      ...autoProj(NO_SHAPE_AXES),
     });
   });
 
@@ -184,19 +195,19 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     expect(resolveInWindow(() => ChipDefaults.resolve({}))).toEqual({
       variant: 'tonal',
       shape: 'square',
-      density: undefined,
+      ...autoProj(NO_SHAPE_AXES),
     });
   });
 
   it('KbdDefaults: own tonal (the literal family), no density opinion', () => {
     expect(resolveInWindow(() => KbdDefaults.resolve({}))).toEqual({
       variant: 'tonal',
-      density: undefined,
+      ...autoProj(KBD_AXES),
     });
     // the literal slot never reads context: an explicit value passes through
     expect(resolveInWindow(() => KbdDefaults.resolve({ variant: 'outline' }))).toEqual({
       variant: 'outline',
-      density: undefined,
+      ...autoProj(KBD_AXES),
     });
   });
 });

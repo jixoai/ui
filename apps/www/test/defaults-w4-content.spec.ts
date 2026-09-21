@@ -279,7 +279,22 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
   // pure-literal families: no slot reads context — the plain unit
   // calls hold on the legal side too
   it('AvatarDefaults / ThemeToggleDefaults / LanguageSwitcherDefaults / TourDefaults (pure literals)', () => {
-    expect(AvatarDefaults.resolve({})).toEqual({ size: 'md', variant: 'bevel' });
+    // W3-B (explicit-props, task 3.6): avatar's size slot is the §13
+    // ADOPTED axis (sm/md/lg alias onto small/medium/large; a silent
+    // window resolves auto — the 32px geometry baseline is the
+    // component's, not a slot own), so the call joins the in-window
+    // form like every context-reading contract
+    expect(resolveInWindow(() => AvatarDefaults.resolve({}))).toEqual({
+      size: 'auto',
+      variant: 'bevel',
+      density: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
     expect(ThemeToggleDefaults.resolve({})).toEqual({ variant: 'compact' });
     expect(LanguageSwitcherDefaults.resolve({})).toEqual({ variant: 'pair' });
     expect(TourDefaults.resolve({})).toEqual({ variant: 'auto' });

@@ -137,6 +137,11 @@ describe('the nineteen contract surfaces', () => {
     'input-group': { defaults: InputGroupDefaults, axes: UNIVERAL_AXES },
     'input-otp': { defaults: InputOtpDefaults, axes: UNIVERAL_AXES },
     'number-input': { defaults: NumberInputDefaults, axes: UNIVERAL_AXES },
+    // W3 batch B: the toggle pair joins (its kernel formulas are the
+    // §4 frozen effective-operand exception — the AXIS surface still
+    // applies verbatim)
+    toggle: { defaults: ToggleDefaults, axes: UNIVERAL_AXES },
+    'toggle-group': { defaults: ToggleGroupDefaults, axes: UNIVERAL_AXES },
   } as const;
 
   it.each(Object.entries(universalDensityOnly))(
@@ -145,20 +150,6 @@ describe('the nineteen contract surfaces', () => {
       expect(Object.isFrozen(defaults.slots)).toBe(true);
       expect(Object.keys(defaults.slots)).toEqual(axisSurface([...axes]));
       expect(resolveInWindow(() => defaults.resolve({}))).toEqual(autoProjection([...axes]));
-    },
-  );
-
-  const densityOnly = {
-    toggle: ToggleDefaults,
-    'toggle-group': ToggleGroupDefaults,
-  } as const;
-
-  it.each(Object.entries(densityOnly))(
-    '%s declares exactly { density }, shallow-frozen, no-opinion',
-    (_name, defaults) => {
-      expect(Object.isFrozen(defaults.slots)).toBe(true);
-      expect(Object.keys(defaults.slots)).toEqual(['density']);
-      expect(resolveInWindow(() => defaults.resolve({}))).toEqual({ density: undefined });
     },
   );
 

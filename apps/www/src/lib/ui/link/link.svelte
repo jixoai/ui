@@ -39,10 +39,12 @@
   gains the @jixoai/icon edge (the edge ownership rule: import the
   component, never the generated set).
 
-  NO defaults file: the Defaults law covers families with public
-  style props, and link declares none — paint is fixed, externalness
-  derives from href (the heading/list precedent of components without
-  a Defaults consumer).
+  NO style props before W3-B (the heading/list precedent of
+  components without a Defaults consumer) — explicit-props W3 batch
+  B joins the eight-axis surface: LinkDefaults (link-defaults.
+  svelte.ts) resolves the universal axes (all no-own), the anchor
+  root stamps the §10 carriers, and the §11 broadcast supplies
+  downward.
 
   Component-owned semantics land AFTER the spread (the separator
   law): href/title and the external-contract pair are the component's
@@ -53,6 +55,22 @@
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import Icon from '../icon/icon.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { LinkDefaults } from './link-defaults.svelte';
   import { linkStyles } from './link.stylex';
 
   // the payload's own join (separator's serialize law): atoms are
@@ -72,7 +90,7 @@
       )
       .join(' ');
 
-  interface Props extends HTMLAnchorAttributes {
+  interface Props extends Omit<HTMLAnchorAttributes, 'color'> {
     /** the link target; an absolute http(s) href makes the link external */
     href: string;
     /** advisory title, passthrough to the native attribute */
@@ -81,25 +99,81 @@
      *  default externalLink glyph shown IFF external; null → the lane
      *  OFF; a snippet → custom glyph content */
     icon?: Snippet | null;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the 0.8em glyph lane
+     *  rescales with it) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the link label; omit for attribute-only anchors */
     children?: Snippet;
     class?: string;
   }
 
-  let { href, title, icon, children, class: className = '', ...rest }: Props = $props();
+  let {
+    href,
+    title,
+    icon,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    children,
+    class: className = '',
+    style: callerStyle,
+    ...rest
+  }: Props = $props();
+
+  // the family Defaults is the single read point (explicit-props W3-B):
+  // the eight universal axes resolve in one record, all no-own
+  const d = $derived(LinkDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLAnchorElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the #4 composition: carriers first, the caller's own style LAST
+  const rootStyle = $derived([carriers, callerStyle].filter(Boolean).join('; ') || undefined);
 
   // absolute http(s) opens externally; app routes keep same-tab default
   const external = $derived(/^https?:\/\//i.test(href));
 </script>
 
 <a
+  bind:this={uniRoot}
   {...rest}
   href={href}
   title={title}
   target={external ? '_blank' : undefined}
   rel={external ? 'noreferrer' : undefined}
   data-jx-link={external ? 'external' : 'internal'}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   class={cn(cx(linkStyles.anchor), className)}
+  style={rootStyle}
 >
   <!-- the lane rides directly after the children with NO intervening
        text node (the label-row adjacency discipline): the lane's own

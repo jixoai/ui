@@ -58,6 +58,21 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { resolveTextStyle, type TextStyleProps } from '$lib/text-style.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TextDefaults, type TextMark } from './text-defaults.svelte';
   import { textStyles } from './text.stylex';
 
@@ -78,14 +93,46 @@
       )
       .join(' ');
 
-  interface Props extends HTMLAttributes<HTMLElement>, TextStyleProps {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'>, TextStyleProps {
     /** the element vocabulary — prop value = sugar name = HTML
      *  element; omitted → the literal slot's frozen own 'p' */
     mark?: TextMark;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the modifier kernel's
+     *  fontSize prop is a different, non-colliding name) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
     mark,
+    style: callerStyle,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     lineHeight,
     weight,
     italic,
@@ -99,8 +146,18 @@
 
   // the family Defaults is the single read point (the kbd resolution
   // path): explicit ?? frozen own 'p' — a literal slot never reads
-  // context, an element choice is never zone-ambient
-  const d = $derived(TextDefaults.resolve({ mark }));
+  // context, an element choice is never zone-ambient — W3-B: the
+  // eight universal axes ride the same record
+  const d = $derived(TextDefaults.resolve({ mark, density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the #4 composition: carriers first, the caller's own style LAST
+  const rootStyle = $derived([carriers, callerStyle].filter(Boolean).join('; ') || undefined);
 
   // the form map (design §1.5, verbatim) — element + own ATOM group
   // per mark (tailwindless W1b: the utility strings became the
@@ -127,8 +184,12 @@
   (the absent-ambient law) -->
 <svelte:element
   this={forms[d.mark].element}
+  bind:this={uniRoot}
   {...rest}
   data-jx-text={d.mark}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={cn(
     cx(forms[d.mark].atoms),
     resolveTextStyle({ lineHeight, weight, italic, tracking, family, fontSize }),

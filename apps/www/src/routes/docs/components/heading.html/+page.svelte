@@ -81,6 +81,14 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface; level stays structural (§13) -->
+<Heading level={2} size={14} density="small">px number</Heading>
+<Heading level={2} size="large">named steps</Heading>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/heading-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -201,6 +209,25 @@ ${close}
           { name: 'data-jx-heading', value: 'clamped level', description: 'Hook attribute carrying the rendered level (1–6) — the clamped truth, never the raw prop.' },
         ]}
       />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The em ladder scales with the ambient font-size — the size axis is that ambient's lever; level stays the structural prop per §13."
+    >
+      <ComponentCanvas title="Heading · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Heading level={3} size={14} density="small">size 14 · density small</Heading></div>
+        <div class={cx(rt.panel)}><Heading level={3} size="large" density="large">size large · density large</Heading></div>
+        <div class={cx(rt.panel)}><Heading level={3} color="primary">primary ink</Heading></div>
+        <div class={cx(rt.panel)}><Heading level={3} size="medium" radius="medium">radius medium</Heading></div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

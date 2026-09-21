@@ -149,7 +149,6 @@
       },
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/density",
         "@jixoai/icon",
         "@jixoai/paint",
         "@jixoai/defaults",
@@ -888,6 +887,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/card-grid/card-grid-defaults.svelte.ts",
+          "target": "@ui/card-grid/card-grid-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/card-grid/card-grid.stylex.ts",
           "target": "@ui/card-grid/card-grid.stylex.ts",
           "type": "registry:file"
@@ -904,6 +908,7 @@
         "href": "/docs/components/card-grid.html"
       },
       "registryDependencies": [
+        "@jixoai/defaults",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ]
@@ -951,6 +956,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/card/card-defaults.svelte.ts",
+          "target": "@ui/card/card-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/card/card.stylex.ts",
           "target": "@ui/card/card.stylex.ts",
           "type": "registry:file"
@@ -967,6 +977,7 @@
         "href": "/docs/components/card.html"
       },
       "registryDependencies": [
+        "@jixoai/defaults",
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
         "@jixoai/button-group"
@@ -1598,7 +1609,6 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/paint"
       ]
     },
@@ -1620,6 +1630,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/heading/heading-defaults.svelte.ts",
+          "target": "@ui/heading/heading-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/heading/heading.stylex.ts",
           "target": "@ui/heading/heading.stylex.ts",
           "type": "registry:file"
@@ -1636,6 +1651,7 @@
         "href": "/docs/components/heading.html"
       },
       "registryDependencies": [
+        "@jixoai/defaults",
         "@jixoai/utils",
         "@jixoai/jixoai-theme"
       ]
@@ -2029,8 +2045,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -2516,8 +2531,7 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/paint",
-        "@jixoai/density"
+        "@jixoai/paint"
       ]
     },
     {
@@ -2566,8 +2580,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -3312,8 +3325,7 @@
       },
       "registryDependencies": [
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -3418,8 +3430,7 @@
         "@jixoai/jixoai-theme",
         "@jixoai/press-button",
         "@jixoai/defaults",
-        "@jixoai/paint",
-        "@jixoai/density"
+        "@jixoai/paint"
       ]
     },
     {
@@ -3440,6 +3451,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/link/link-defaults.svelte.ts",
+          "target": "@ui/link/link-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/link/link.stylex.ts",
           "target": "@ui/link/link.stylex.ts",
           "type": "registry:file"
@@ -3456,6 +3472,7 @@
         "href": "/docs/components/link.html"
       },
       "registryDependencies": [
+        "@jixoai/defaults",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/icon"
@@ -3547,8 +3564,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -3922,7 +3938,6 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/control-chrome"
       ],
       "meta": {
@@ -4470,7 +4485,6 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/spin-set"
       ]
     },
@@ -4849,6 +4863,11 @@
           "type": "registry:file"
         },
         {
+          "path": "registry/files/ui/badge-indicator/badge-indicator-defaults.svelte.ts",
+          "target": "@ui/badge-indicator/badge-indicator-defaults.svelte.ts",
+          "type": "registry:file"
+        },
+        {
           "path": "registry/files/ui/badge-indicator/badge-indicator.stylex.ts",
           "target": "@ui/badge-indicator/badge-indicator.stylex.ts",
           "type": "registry:file"
@@ -4865,6 +4884,7 @@
         "href": "/docs/components/badge-indicator.html"
       },
       "registryDependencies": [
+        "@jixoai/defaults",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -5610,8 +5630,7 @@
         "@jixoai/tooltip",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/paint",
-        "@jixoai/density"
+        "@jixoai/paint"
       ],
       "files": [
         {

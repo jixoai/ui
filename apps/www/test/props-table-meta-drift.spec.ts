@@ -164,6 +164,10 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'tracking', type: 'string', default: '—', description: "A letter-spacing word or length — 'wide' → tracking-wide, '-0.02em' → tracking-[-0.02em]. An explicit utility override — absent emits nothing and the ambient tracking flows." },
     { name: 'family', type: 'string', default: '—', description: 'A font-family value — verbatim [font-family:…] (spaces escape to underscores). An explicit utility override — absent emits nothing and the ambient family flows.' },
     { name: 'fontSize', type: 'string', default: '—', description: 'A CSS length — verbatim [font-size:…], never named size (the axis-word law). An explicit utility override — absent emits nothing and the ambient scale flows.' },
+    // W3-B: the inline style passthrough became a declared prop (the #4
+    // seam law — composed AFTER the family's carrier stamp, never
+    // clobbered, never dropped)
+    { name: 'style', type: 'unknown', default: '—', description: '' },
     { name: 'children', type: 'Snippet', default: '—', description: 'The inline content.' },
     { name: 'class', type: 'string', default: "''", description: 'Forwarded to the rendered element; consumer classes land last.' },
     { name: 'rest', type: 'HTMLAttributes<HTMLElement>', default: 'spread', description: 'Every other attribute passes through to the chosen element untouched.' },
@@ -219,7 +223,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'card-grid',
     meta: cardGridMeta,
     docs: CARD_GRID_DOCS,
-    renderedOrder: ['min', 'foot', 'class', 'children'],
+    renderedOrder: ['min', 'foot', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'class', 'children'],
   },
   {
     name: 'date-picker',
@@ -243,7 +247,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'text',
     meta: textMeta,
     docs: TEXT_DOCS,
-    renderedOrder: ['mark', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'children', 'class', 'rest', 'Raw exports'],
+    renderedOrder: ['mark', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'style', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'children', 'class', 'rest', 'Raw exports'],
   },
   {
     name: 'inline-code',
@@ -263,7 +267,10 @@ describe('props-table meta migration — zero content drift (pilot nine)', () =>
   // shared Universal props section). The legacy rows must still
   // survive byte-for-byte; the axis rows ride the ambient-scope marker.
   const AXIS_ROWS = ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'];
-  const UNIVERSAL_PILOTS = new Set(['checkbox', 'combobox', 'date-picker']);
+  // W3 batch B: card-grid and text join the eight-axis surface (the
+  // same intended, additive drift — their legacy rows survive, the
+  // axis rows ride the ambient-scope marker in the shared section)
+  const UNIVERSAL_PILOTS = new Set(['checkbox', 'combobox', 'date-picker', 'card-grid', 'text']);
   for (const pilot of PILOTS) {
     it(`${pilot.name}: every legacy row's content survives byte-for-byte`, () => {
       const rendered = propsFromMeta(pilot.meta, pilot.docs);

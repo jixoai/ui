@@ -36,7 +36,9 @@ describe('pilot page schema playground', () => {
     // the head's density select; the body and the rows pane have none)
     expect(container.querySelector('[data-jx-canvas-dock-scroll] select')).toBeNull();
     const selects = [...container.querySelectorAll('select')];
-    expect(selects.length).toBe(3);
+    // W3-B (explicit-props): the universal-props demo canvas joined —
+    // four canvases, four density selects
+    expect(selects.length).toBe(4);
     expect(selects.every((s) => s.getAttribute('aria-label') === 'Density')).toBe(true);
     expect(container.querySelector('select')!.getAttribute('aria-label')).toBe('Density');
 

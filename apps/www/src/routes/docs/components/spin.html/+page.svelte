@@ -192,6 +192,14 @@ export default {
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- §13: the number lane verbatim -->
+<Spin spinner="blocks-wave" size={24} label="loading" />
+<Spin spinner="dots" label="loading" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/spin-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -531,6 +539,25 @@ export default {
           ]}
         />
       </div>
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. §13: size numbers are the axis' number lane VERBATIM (px); the absent state keeps riding the density ruler's --jx-icon."
+    >
+      <ComponentCanvas title="Spin · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Spin spinner="blocks-wave" size={28} label="loading" /></div>
+        <div class={cx(rt.panel)}><Spin spinner="dots" label="loading" /></div>
+        <div class={cx(rt.panel)}><Spin spinner="blocks-wave" size={20} color="primary" label="loading" /></div>
+        <div class={cx(rt.panel)}><Spin spinner="dots" size={20} density="small" label="loading" /></div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

@@ -41,7 +41,7 @@
     type SystemDialogActionVariant,
   } from './system-dialog-defaults.svelte';
 
-  interface Props extends Omit<HTMLButtonAttributes, 'onclick'> {
+  interface Props extends Omit<HTMLButtonAttributes, 'onclick' | 'color'> {
     /** confirm paint on the ladder: fill (destructive pair by default) |
      *  tonal | outline. Omitted → the contract own 'fill'
      *  (SystemDialogDefaults.actionVariant — a declared own, not ambient) */

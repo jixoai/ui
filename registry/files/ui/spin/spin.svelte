@@ -235,6 +235,20 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { getSpin } from '$lib/spin-set.gen';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { SpinDefaults } from './spin-defaults.svelte';
   import './spin.css';
 
@@ -243,7 +257,10 @@
     spinner?: SpinName | TextSpinnerName;
     /** announced to assistive tech ("loading checks") */
     label?: string;
-    /** the svg posture's square edge — absent rides var(--jx-icon), the density ruler */
+    /** the svg posture's square edge — absent rides var(--jx-icon), the density ruler.
+     *  §13/W3-B: a NUMBER is the universal size axis' number lane verbatim
+     *  (px — it additionally stamps the §1 carrier); a string is any CSS
+     *  length */
     size?: number | string;
     /** the frame step in ms — 'auto' (default) = the catalog's tuned pair; explicit > Defaults slot > tuned */
     interval?: number | 'auto';
@@ -251,6 +268,25 @@
     linger?: number | 'auto';
     /** the opacity animation mode — 'auto' (default) = the catalog's tuned type; 'end' fades out, 'start' fades in, 'both' breathes */
     lingerType?: LingerType | 'auto';
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** wrapping content = container posture with scrim + aria-busy */
     children?: Snippet;
     class?: string;
@@ -263,6 +299,13 @@
     interval,
     linger,
     lingerType,
+    density,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     children,
     class: className = '',
   }: Props = $props();
@@ -285,7 +328,8 @@
   // and the component falls back: size rides the density ruler's
   // --jx-icon (review R1), the timings ride the catalog's tuned pair
   // ('auto' and non-positive numbers both mean absent here; linger
-  // carries 0 through — it is the explicit "no residue" setting)
+  // carries 0 through — it is the explicit "no residue" setting).
+  // W3-B: the seven other universal axes ride the same record
   const resolved = $derived(
     SpinDefaults.resolve({
       size,
@@ -293,8 +337,28 @@
       linger:
         linger === 0 ? 0 : linger !== undefined && linger !== 'auto' && linger > 0 ? linger : undefined,
       lingerType: lingerType !== undefined && lingerType !== 'auto' ? lingerType : undefined,
+      density,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
     }),
   );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor. The SIZE lane rides the
+  // carriers only for EXPLICIT NUMBERS (the axis' number lane, §13;
+  // strings and the absent state stay the family's own — the loader
+  // takes no §1 font-size opinion it was not given). The stamp lands
+  // on the OUTERMOST root (the wrap div / the inline span), never on
+  // the SMIL-driven svg (its `root` binding belongs to the engine).
+  const carriers = $derived(
+    stampCarriersForLanes({ ...resolved, size: typeof size === 'number' ? size : undefined }),
+  );
+  provideUniversalLanes({ density, size: typeof size === 'number' ? size : undefined, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   // CSS lengths need a unit — numeric sizes px-coerce, strings verbatim
   const cssSize = $derived(
@@ -425,7 +489,15 @@
        (a modal dim, never the retired hand-mixed background tint).
        isolate (stacking-isolation, 2026-09-09): the badge's z-[1] is
        this wrap's private rung — the spin is demo-able anywhere -->
-  <div data-jx-spin-wrap="" class={cx(spinStyles.wrap, className)} aria-busy="true">
+  <div
+    bind:this={uniRoot}
+    data-jx-spin-wrap=""
+    class={cx(spinStyles.wrap, className)}
+    data-density={densityRungOf(resolved.density)}
+    class:dark={resolved.theme === 'dark'}
+    style={carriers || undefined}
+    aria-busy="true"
+  >
     <div data-jx-spin-live="" class={cx(spinStyles.live)} role="status" aria-label={label}>
       {#if svgData}
         <!-- {#key} forces a FRESH <svg> element on every svg→svg switch
@@ -448,7 +520,16 @@
     <div data-jx-spin-scrim="" class={cx(spinStyles.scrim)} aria-hidden="true"></div>
   </div>
 {:else}
-  <span data-jx-spin-inline="" class={cx(spinStyles.inline, className)} role="status" aria-label={label}>
+  <span
+    bind:this={uniRoot}
+    data-jx-spin-inline=""
+    class={cx(spinStyles.inline, className)}
+    role="status"
+    aria-label={label}
+    data-density={densityRungOf(resolved.density)}
+    class:dark={resolved.theme === 'dark'}
+    style={carriers || undefined}
+  >
     {#if svgData}
       {#key svgData}
         {@render svgGlyph(svgData)}

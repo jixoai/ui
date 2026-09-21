@@ -49,6 +49,28 @@
 :where([data-jx-press-button]) {
   font-weight: 500;
 }
+/* ── the §3/§14 radius + shape consumption (explicit-props W3-B) ────
+   The CONCENTRIC LAW: the button's corner geometry reads the §11
+   carrier chain, never a literal. --jx-radius-consumed is stamped by
+   the component per render (the explicit lane: radius-effective ×
+   the per-shape factor; auto: §3's max(0px, R − P) × the factor —
+   the ×2-follows-resolved-shape law, §2); the fallback below is the
+   auto form verbatim, so a bare button with NO supplying ancestor
+   resolves 0px through the root sheet's invariants (the var()
+   fallbacks are load-bearing — IACVT never reaches the property).
+   corner-shape rides the alias ladder the same way: the resolved
+   shape picks --jx-shape-<shape> under the §14 @supports verdict,
+   round by default. */
+:where([data-jx-press-button]) {
+  corner-shape: var(--jx-shape-effective, round);
+  border-radius: var(
+    --jx-radius-consumed,
+    calc(
+      max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+      var(--jx-radius-factor-effective, 1)
+    )
+  );
+}
 :where([data-jx-press-button='ghost']) {
   --jx-press-shadow: none;
   --jx-press-shadow-hover: none;

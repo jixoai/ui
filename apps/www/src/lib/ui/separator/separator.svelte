@@ -35,11 +35,26 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { SeparatorDefaults, type SeparatorVariant } from './separator-defaults.svelte';
   import { separatorStyles } from './separator.stylex';
   import './separator.css';
 
-  interface Props extends HTMLAttributes<HTMLHRElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLHRElement>, 'color'> {
     orientation?: 'horizontal' | 'vertical';
     /** the ink geometry: fused (the ghost itself), masks over the
      *  contrast ghost (dashed/dense/dotted/wavy), the blend engine
@@ -48,6 +63,31 @@
      *  exception); omitted → the contract own 'fused'
      *  (SeparatorDefaults — a declared own, not ambient) */
     variant?: SeparatorVariant;
+    /** inline style passthrough — composed AFTER the family's carrier
+     *  stamp (the #4 seam law: never clobbered, never dropped) */
+    style?: string | null;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   // the payload's own join (scripts/lib/stylex-payload.mjs
@@ -100,32 +140,61 @@
     },
   };
 
-  let { orientation = 'horizontal', variant, class: className = '', ...rest }: Props =
-    $props();
+  let {
+    orientation = 'horizontal',
+    variant,
+    style: callerStyle,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+    ...rest
+  }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
   // economy 3.2): the ink geometry rides its literal slot (own
-  // 'fused'); density is the no-opinion slot — nothing stamps, the
-  // ambient css scope channel keeps flowing
-  const d = $derived(SeparatorDefaults.resolve({ variant }));
+  // 'fused') — W3-B: the eight universal axes ride the same record
+  const d = $derived(SeparatorDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the #4 composition: carriers first, the caller's own style LAST
+  const rootStyle = $derived([carriers, callerStyle].filter(Boolean).join('; ') || undefined);
 </script>
 
 {#if orientation === 'vertical'}
   <!-- component-owned semantics land AFTER the spread: role/aria here
        are not overridable — the separator contract is the component's -->
   <div
+    bind:this={uniRoot}
     data-jx-separator={d.variant}
     data-orientation="vertical"
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     class={cn(VARIANT_CLASS.vertical[d.variant], className)}
+    style={rootStyle}
     {...(rest as HTMLAttributes<HTMLDivElement>)}
     role="separator"
     aria-orientation="vertical"
   ></div>
 {:else}
   <hr
+    bind:this={uniRoot}
     data-jx-separator={d.variant}
     data-orientation="horizontal"
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     class={cn(VARIANT_CLASS.horizontal[d.variant], className)}
+    style={rootStyle}
     {...rest}
   />
 {/if}

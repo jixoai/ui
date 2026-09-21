@@ -112,6 +112,15 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- seven axes (the shape name collides with the corner-law
+     vocabulary — unruled, left out) -->
+<Badge size={14} density="small">px number</Badge>
+<Badge size="large" radius="medium">named steps</Badge>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/badge-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -238,6 +247,25 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'span', value: 'inline status', description: 'Use visible text; do not rely on color alone. Under forced colors the chip degrades to Canvas/CanvasText with the 1px border intact.' }, { name: 'aria-label', value: 'consumer supplied', description: 'Add context when the visible label is abbreviated.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><p class={cx(rt.bodyMuted)}>the chip rides the density scale through tokens — flip the canvas dock's density select (xs / sm / default / lg) above to re-scope the stage alone; the four-copy DensityDemo row is retired by that select.</p><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border.' }, { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected with --jx-fill.' }, { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue source — the status injection seam: jx-hue-* intent utilities, arbitrary form only outside the closed set.' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The §2 shape axis is deliberately absent: the square|pill corner-law collides with the axis name and §13 rules no mapping — the seven other axes landed, the collision is flagged for a ruling."
+    >
+      <ComponentCanvas title="Badge · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Badge size={14} density="small">size 14 · density small</Badge></div>
+        <div class={cx(rt.panel)}><Badge size="large" radius="medium" density="large">size large · radius medium</Badge></div>
+        <div class={cx(rt.panel)}><Badge radius={10} color="error">radius 10 · error</Badge></div>
+        <div class={cx(rt.panel)}><Badge radius="auto" shape="pill">radius auto · pill corner-law</Badge></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Badge props"><PropsTable props={[{ name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal' · ambient zone", description: 'Prominence ladder. Hue comes from the global tokens — never a local override. Omitted → the ambient paint zone (ButtonGroup / zone scope), else the frozen own.' }, { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Corner law: --radius (square) or fully round (pill). Own default, not ambient.' }, { name: 'slotStart', type: 'Snippet', description: 'Icon lane before the label; svg sized to the secondary text, inline padding adapts.' }, { name: 'slotEnd', type: 'Snippet', description: 'Icon lane after the label; same adaptive law.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'class', type: 'string', description: 'Consumer classes — also the hue-injection seam, e.g. jx-hue-error (arbitrary form for values outside the closed set).' }]} /></SectionCard></div>
   </div>
 </div>

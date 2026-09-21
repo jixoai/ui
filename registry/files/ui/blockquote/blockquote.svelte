@@ -110,6 +110,21 @@
   import type { HTMLBlockquoteAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import {
     BlockquoteDefaults,
     type BlockquoteRule,
     type BlockquoteRuleSize,
@@ -118,7 +133,7 @@
   import { blockquoteStyles } from './blockquote.stylex';
   import './blockquote.css';
 
-  interface Props extends HTMLBlockquoteAttributes {
+  interface Props extends Omit<HTMLBlockquoteAttributes, 'color'> {
     /** ladder prominence: outline (plain quote) | tonal (tinted
      *  admonition); omitted → the ambient paint zone, else the frozen
      *  own 'outline' */
@@ -127,8 +142,31 @@
      *  border consumes it — a LITERAL axis, never zone-ambient */
     rule?: BlockquoteRule;
     /** the rule's literal px ladder (1/4/8, own 1 — the Owner's
-     *  explicit enumeration, not a derived scale) */
+     *  explicit enumeration, not a derived scale); KEPT per §13 */
     ruleSize?: BlockquoteRuleSize;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the 0.875em body voice
+     *  rescales with it) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** one-line uppercase heading in the alert title-row form; omitted
      *  renders a bare body block */
     label?: string;
@@ -146,20 +184,37 @@
     variant,
     rule,
     ruleSize,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     label,
     icon,
     cite,
     children,
     class: className = '',
+    style: callerStyle,
     ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
   // economy 3.2): variant rides the paint axis slot (zone ambient,
   // frozen own 'outline'); rule/ruleSize are LITERAL slots the zone
-  // never moves; density is the no-opinion slot — nothing stamps, the
-  // ambient css scope channel keeps flowing
-  const d = $derived(BlockquoteDefaults.resolve({ variant, rule, ruleSize }));
+  // never moves — W3-B: the eight universal axes ride the same record
+  const d = $derived(BlockquoteDefaults.resolve({ variant, rule, ruleSize, density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLQuoteElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the #4 composition: carriers first, the caller's own style LAST
+  const rootStyle = $derived([carriers, callerStyle].filter(Boolean).join('; ') || undefined);
 
   // the payload's own join (separator's serialize law): every string
   // declaration except the $$css marker, space-joined — atoms are
@@ -233,6 +288,7 @@
 </script>
 
 <blockquote
+  bind:this={uniRoot}
   class={cn(
     cx(
       blockquoteStyles.root,
@@ -244,6 +300,9 @@
   )}
   data-jx-blockquote={d.variant}
   data-jx-blockquote-rule={`${d.rule}-${d.ruleSize}`}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   {...rest}
 >
   {#if label}

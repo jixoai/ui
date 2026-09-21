@@ -47,10 +47,20 @@ const wrappedVariantOf = (container: HTMLElement, id: string) =>
 // =========================================================================
 describe('the button families\' contract surfaces', () => {
   it('each declares exactly { variant, density }, shallow-frozen', () => {
-    for (const Defaults of [PressButtonDefaults, IconButtonDefaults, ButtonGroupDefaults]) {
+    // W3-B (explicit-props): press-button/icon-button joined the
+    // eight-axis surface — the contract carries the seven axis slots
+    // beside the paint ladder (density rides the universal lane, so a
+    // silent window resolves 'auto' instead of the legacy undefined —
+    // same no-opinion law, the §0.1 spelling); button-group stays the
+    // pre-W3 two-slot zone family until its own batch folds it
+    for (const Defaults of [PressButtonDefaults, IconButtonDefaults]) {
       expect(Object.isFrozen(Defaults.slots)).toBe(true);
-      expect(Object.keys(Defaults.slots).sort()).toEqual(['density', 'variant']);
+      expect(Object.keys(Defaults.slots).sort()).toEqual(
+        ['color', 'density', 'elevation', 'motion', 'radius', 'shape', 'size', 'theme', 'variant'].sort(),
+      );
     }
+    expect(Object.isFrozen(ButtonGroupDefaults.slots)).toBe(true);
+    expect(Object.keys(ButtonGroupDefaults.slots).sort()).toEqual(['density', 'variant']);
   });
 });
 
@@ -77,9 +87,19 @@ describe('惰性律 — unit resolves inside the window (unit-resolve-host)', ()
   };
 
   it('PressButtonDefaults: the silent ambient keeps the frozen own; density stays no-opinion', () => {
+    // W3-B: the seven axes resolve 'auto' in a silent window (the §0.1
+    // default — no opinion, stamps nothing); density's no-opinion is
+    // the same law in its new spelling
     expect(resolveInWindow(() => PressButtonDefaults.resolve({}))).toEqual({
       variant: 'outline',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
     expect(resolveInWindow(() => PressButtonDefaults.resolve({ variant: 'link' }).variant)).toBe(
       'link',
@@ -92,11 +112,25 @@ describe('惰性律 — unit resolves inside the window (unit-resolve-host)', ()
     // IS the content (Dialog's close zone already scoped ghost ambient)
     expect(resolveInWindow(() => IconButtonDefaults.resolve({}))).toEqual({
       variant: 'ghost',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
     expect(resolveInWindow(() => IconButtonDefaults.resolve({ variant: 'outline', density: 'sm' }))).toEqual({
       variant: 'outline',
       density: 'sm',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
   });
 

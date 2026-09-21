@@ -192,6 +192,14 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface; the kernel formulas stay frozen (§4) -->
+<Toggle label="autopilot" density="small" />
+<Toggle label="autopilot" radius="medium" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/toggle-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -366,5 +374,24 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Use bind:checked for controlled state; a named toggle remains a native checkbox field in forms."><CodeBlock code={usage} lang="svelte" meta="Toggle usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The hidden native checkbox stays keyboard reachable and the visible rail receives the focus indication."><A11yTable keys={[{ key: 'Space', action: 'Toggle the focused switch' }, { key: 'Tab', action: 'Move focus to or past the switch' }]} aria={[{ name: 'role', value: 'checkbox', description: 'Native input semantics are preserved' }, { name: 'aria-checked', value: 'native', description: 'State is exposed by the checkbox input' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The shared density scope controls label rhythm and the proportional rail geometry."><div class={cx(rt.col20)}><DensityDemo><Toggle label="density sample" name="density-toggle" /></DensityDemo><TokenTable tokens={[{ name: '--jx-toggle-track', default: 'var(--jx-line)', source: 'component' }, { name: '--jx-toggle-width', default: 'calc(var(--jx-toggle-track) * 2)', source: 'component' }, { name: '--jx-toggle-knob', default: 'calc(var(--jx-toggle-track) - var(--jx-unit))', source: 'component' }, { name: '--jx-toggle-knob-border', default: '1px', source: 'component' }, { name: '--jx-toggle-knob-border-color', default: 'var(--primary)', source: 'component' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. §4's frozen exception: the toggle's kernel formulas (--jx-toggle-track/width/knob) are effective-operand compositions and stay EXACTLY as-is — only the axis surface changed."
+    >
+      <ComponentCanvas title="Toggle · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Toggle label="density small" density="small" /></div>
+        <div class={cx(rt.panel)}><Toggle label="density large" density="large" /></div>
+        <div class={cx(rt.panel)}><Toggle label="radius medium" radius="medium" /></div>
+        <div class={cx(rt.panel)}><Toggle label="theme dark" theme="dark" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend native HTML input attributes; these additions define the toggle contract."><PropsTable props={[{ name: 'checked', type: 'boolean', default: 'false', description: 'Bindable on/off state.', bindable: true }, { name: 'label', type: 'string', default: '—', description: 'Text rendered before the rail.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables interaction and mutes the control.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'name', type: 'string', default: '—', description: 'Form field name passed to the native input.' }]} /></SectionCard></div>
 </div>

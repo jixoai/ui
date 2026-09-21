@@ -293,7 +293,21 @@ export interface PulseOptions {
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import Icon from '$lib/ui/icon';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { PressButtonDefaults } from './press-button-defaults.svelte';
   import { pressButtonStyles } from './press-button.stylex';
   import './press-button.css';
@@ -322,12 +336,35 @@ export interface PulseOptions {
    * lane never leaks button-only attributes onto the <a> */
   interface Props extends Omit<
     HTMLAttributes<HTMLElement>,
-    'onclick' | 'class' | 'aria-disabled' | 'aria-label' | 'type'
+    'onclick' | 'class' | 'color' | 'aria-disabled' | 'aria-label' | 'type'
   > {
-    /** DENSITY override: explicit ?? ambient ?? no-opinion — resolved
-     *  through PressButtonDefaults (the family contract); undefined
-     *  stamps nothing and the ambient css scope channel flows */
-    density?: Density;
+    /** inline style passthrough — composed AFTER the family's carrier
+     *  stamp (the #4 seam law: never clobbered, never dropped) */
+    style?: string | null;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; `auto` (the default)
+     *  is the CONCENTRIC consumption — press-button.css composes
+     *  §3's max(0px, radius-effective − inset-effective) × the §14
+     *  per-shape factor (an explicit lane supplies instead) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the ladder rung; semantic hue is injected through the grammar
      *  tokens (--jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline) at
      *  the call site, never a variant. Ambient-manageable: an absent
@@ -391,6 +428,13 @@ export interface PulseOptions {
 
   let {
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     variant = undefined,
     href,
     external = undefined,
@@ -404,6 +448,7 @@ export interface PulseOptions {
     'aria-disabled': ariaDisabledAttr = undefined,
     square = false,
     raised = undefined,
+    style: callerStyle,
     class: className = '',
     children,
     ...rest
@@ -417,8 +462,42 @@ export interface PulseOptions {
   // the same frame), the density slot wraps resolveDensity's full
   // semantics (plugin chain included, no-opinion stays undefined).
   // explicit prop → ambient → the frozen own 'outline': the
-  // stamped-attribute law's consumer face (explicit ALWAYS wins)
-  const d = $derived(PressButtonDefaults.resolve({ variant, density }));
+  // stamped-attribute law's consumer face (explicit ALWAYS wins).
+  // W3-B: the eight universal axes ride the same resolve record.
+  const d = $derived(
+    PressButtonDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+
+  // ---- the §3/§14 radius consumption (the concentric wiring) --------
+  // The consumed radius lands as ONE custom-property expression per
+  // render (§10 carrier law — a CSS expression on the root, zero
+  // class identities). An EXPLICIT lane supplies
+  // --jx-radius-effective (stampCarriers) and resets its own inset to
+  // 0 (the §3 supply: a button's descendants sit flush to its own
+  // radius, and the own paint must not subtract an ANCESTOR's inset);
+  // `auto` (the default) consumes the concentric broadcast — §3's
+  // frozen calc against the nearest supplying ancestor, falling to
+  // the root sheet's 0px invariants when none does (the var()
+  // fallbacks are load-bearing, IACVT). The §2 ×2 law rides the §14
+  // factor var in BOTH branches: the squircle doubling follows the
+  // RESOLVED shape (inherited shape × concentric radius is a legal
+  // composition) and square zeroes the lane outright.
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1)); --jx-inset-effective: 0px'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // the #4 composition: carriers + the radius stamp + the caller's
+  // own style LAST (the consumer escape hatch always wins)
+  const rootStyle = $derived([carriers, radiusConsumed, callerStyle].filter(Boolean).join('; ') || undefined);
+
   // the flat-pose block reads the resolved variant through this alias —
   // same value as d.variant, named beside resolvedRaised for the
   // pose-vs-texture pairing
@@ -578,6 +657,7 @@ export interface PulseOptions {
 
 {#if href}
   <a
+    bind:this={uniRoot}
     {...rest}
     {href}
     target={isExternal ? '_blank' : undefined}
@@ -585,11 +665,13 @@ export interface PulseOptions {
     aria-label={ariaLabel ?? ariaLabelAttr}
     aria-disabled={loading || disabled ? 'true' : ariaDisabledAttr}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     data-jx-press-button={d.variant}
     data-jx-press-flat={flat ? '' : undefined}
     data-jx-attach="root"
     class={classes}
+    style={rootStyle}
     onclick={onAnchorClick}
   >
     {@render leadingLane()}
@@ -597,6 +679,7 @@ export interface PulseOptions {
   </a>
 {:else}
   <button
+    bind:this={uniRoot}
     {...rest}
     {type}
     onclick={onButtonClick}
@@ -604,12 +687,14 @@ export interface PulseOptions {
     aria-label={ariaLabel ?? ariaLabelAttr}
     aria-disabled={loading || disabled ? 'true' : ariaDisabledAttr}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     data-jx-press-button={d.variant}
     data-jx-press-flat={flat ? '' : undefined}
     popovertarget={popovertarget}
     data-jx-attach="root"
     class={classes}
+    style={rootStyle}
   >
     {@render leadingLane()}
     {@render children()}

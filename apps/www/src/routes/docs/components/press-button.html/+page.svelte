@@ -281,6 +281,17 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface: named steps · auto (inherit) · exact
+     numbers · query() for conditional values; auto stamps nothing -->
+<PressButton size={14} density="small">px number · sm rung</PressButton>
+<PressButton size="large" radius="medium">named steps</PressButton>
+<PressButton shape="squircle" radius={10}>squircle ×2</PressButton>
+<PressButton radius="auto">concentric auto</PressButton>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/press-button-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -701,6 +712,25 @@ ${close}
   </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="PressButton usage" /></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. radius auto is the §3 concentric consumption — inside a radius-supplying ancestor the corner computes max(0px, R − inset); with none it falls to the root sheet's 0px invariants (the button's own rest look, unchanged)."
+    >
+      <ComponentCanvas title="PressButton · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><PressButton size={14} density="small">size 14 · density small</PressButton></div>
+        <div class={cx(rt.panel)}><PressButton size="large" radius="medium" density="large">size large · radius medium</PressButton></div>
+        <div class={cx(rt.panel)}><PressButton shape="squircle" radius={10}>shape squircle · radius 10</PressButton></div>
+        <div class={cx(rt.panel)}><PressButton radius="auto" color="primary">radius auto (concentric)</PressButton></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and the rest lane every arbitrary attribute — the component-tag attachment included — rides to the root.">
       <PropsTable props={[

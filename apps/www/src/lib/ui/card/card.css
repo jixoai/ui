@@ -88,6 +88,27 @@
        retire it below; card-grid's 320px floor keeps them above the
        reversal width anyway */
     container: jx-card / inline-size;
+    /* ── the §3 concentric supply + consumption (explicit-props W3-B)
+       The root SUPPLIES its effective inset — the ruler's inline
+       inset track (0.875rem), the P in a descendant's
+       max(0px, R − P) — and consumes the radius chain like every
+       family: --jx-radius-consumed is stamped per render by the
+       component (explicit lane: radius-effective × the §14 factor;
+       auto: the §3 concentric calc × the factor against the card's
+       OWN ancestors). The fallback below is the auto form verbatim —
+       a bare card with no supplying ancestor resolves 0px through
+       the root sheet's invariants (var() fallbacks load-bearing,
+       IACVT never reaches the property). corner-shape rides the
+       alias ladder (§14), round by default. */
+    --jx-inset-effective: 0.875rem;
+    corner-shape: var(--jx-shape-effective, round);
+    border-radius: var(
+      --jx-radius-consumed,
+      calc(
+        max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+        var(--jx-radius-factor-effective, 1)
+      )
+    );
   }
   /* THE TENANCY GUARD: inside card-grid the root IS a subgrid tenant
      (rows) — a container-type on it broke the rented rows. The

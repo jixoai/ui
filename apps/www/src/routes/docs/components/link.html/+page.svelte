@@ -69,6 +69,14 @@ const external = /^https?:\\/\\//i.test(href);
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface on the prose link -->
+<Link href="/docs.html" size={14} density="small">px number</Link>
+<Link href="/docs.html" size="large" radius="medium">named steps</Link>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/link-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -228,6 +236,25 @@ const external = /^https?:\\/\\//i.test(href);
           { name: 'data-jx-link-icon', value: 'aria-hidden lane', description: 'The suffix-icon span is decorative: the accessible name is the link text alone, and the target/rel pair — never a glyph — carries the departure semantics.' },
         ]}
       />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The 0.8em suffix glyph rescales with the size axis; the anchor root stamps the carriers."
+    >
+      <ComponentCanvas title="Link · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Link href="/docs.html" size={14} density="small">size 14 · density small</Link></div>
+        <div class={cx(rt.panel)}><Link href="/docs.html" size="large" density="large">size large · density large</Link></div>
+        <div class={cx(rt.panel)}><Link href="https://jixoai.com" size="medium" color="primary">external · primary</Link></div>
+        <div class={cx(rt.panel)}><Link href="/docs.html" radius="medium">radius medium</Link></div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

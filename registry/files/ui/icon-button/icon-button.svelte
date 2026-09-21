@@ -38,12 +38,23 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { Density } from '$lib/density.svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import PressButton, {
     type PressButtonVariant,
   } from '$lib/ui/press-button/press-button.svelte';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
+  import {
+    provideUniversalLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { IconButtonDefaults } from './icon-button-defaults.svelte';
   import { iconButtonStyles } from './icon-button.stylex';
 
@@ -56,10 +67,31 @@
    * button element — one mechanism, two hops */
   interface Props extends Omit<
     HTMLAttributes<HTMLElement>,
-    'onclick' | 'class' | 'style' | 'type' | 'aria-label'
+    'onclick' | 'class' | 'color' | 'style' | 'type' | 'aria-label'
   > {
-    /** DENSITY override forwarded to the press-button control root */
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + aliases ·
+     *  auto · coefficient · query()) — resolved here, forwarded to the
+     *  press-button control root as its explicit prop */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named · auto · px ·
+     *  query(); SUPPLIED to the wrapped press-button (ambient lane —
+     *  the restate reads the same tree) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (consumed by press-button.css) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = the .dark
+     *  class bridge inheritance */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the glyph — always decorative; an svg or character snippet */
     icon: Snippet;
     /** the ONE label: visible text by default, tooltip + accessible name in iconOnly */
@@ -109,6 +141,13 @@
 
   let {
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     icon,
     text,
     variant = undefined,
@@ -131,8 +170,15 @@
   // slot's ambient lane (zone key → legacy ButtonGroup fallback)
   // lands here, and the RESOLVED values flow down as press-button's
   // explicit props (its own slots then short-circuit on the explicit
-  // lane — same ambient, same window, identical values on every path)
-  const d = $derived(IconButtonDefaults.resolve({ variant, density }));
+  // lane — same ambient, same window, identical values on every path).
+  // W3-B: the eight universal axes resolve through the same record;
+  // variant/density ride the explicit-prop restate, the other seven
+  // ride the §11 ambient SUPPLY (provideUniversalLanes) — the wrapped
+  // press-button reads them as ambient in this same tree and stamps
+  // the §10 carriers on the shared control root (this family has no
+  // root element of its own; the tooltip shell is not a carrier).
+  const d = $derived(IconButtonDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
 
   // the payload's own join (separator's serialize law): atoms are
   // objects in dev — composition goes through THIS joiner (all string

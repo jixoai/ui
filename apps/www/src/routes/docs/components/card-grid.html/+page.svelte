@@ -4,6 +4,7 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import Card from '$lib/ui/card/card.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -91,6 +92,16 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the landlord forwards to the tenants -->
+<CardGrid density="small" size={14}>
+  <Card title="tenant one">…</Card>
+  <Card title="tenant two">…</Card>
+</CardGrid>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/card-grid-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -269,6 +280,25 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Pure layout — no semantics added or removed; the entrance stagger respects reduced motion."><A11yTable keys={[{ key: '—', action: 'Not interactive — a layout container; children keep their own semantics' }]} aria={[{ name: '(none)', value: '—', description: 'The grid adds no roles or labels; DOM order is the reading order.' }, { name: 'prefers-reduced-motion', value: 'reduce', description: 'The internal entrance cascade is skipped — cards render fully visible.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Column geometry rides the inline --jx-grid-min token; the entrance stagger is a per-index delay."><div class={cx(rt.col20)}><DensityDemo><CardGrid min="220px" class={cx(rt.wFull)}><SectionCard eyebrow="card 01" title="Shared header" summary="Header row shared across the grid."><p class={cx(rt.body13)}>Body fills to the tallest row.</p></SectionCard><SectionCard eyebrow="card 02" title="Another header" summary="Second card in the density demo."><p class={cx(rt.body13)}>The gap and rows are fixed; density does not rescale the grid.</p></SectionCard></CardGrid></DensityDemo><TokenTable tokens={[{ name: '--jx-grid-min', default: '320px (min prop)', source: 'component', description: 'Column collapse width — auto-fit minmax floor.' }, { name: '--jx-card-i', default: '0–7', source: 'component', description: 'Per-child stagger index driving the entrance delay.' }, { name: 'stagger step', default: '70ms (capped at 8th child)', source: 'structural' }, { name: 'gap', default: '20px (gap-5)', source: 'structural' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The landlord forwards — it stamps nothing itself; the tenant cards read the resolved lanes through the §11 broadcast."
+    >
+      <ComponentCanvas title="CardGrid · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.panel)}>
+        <CardGrid density="small" size={14}>
+          <Card title="tenant one"><p class={cx(rt.pb8, rt.textVar2)}>the grid supplied density small · size 14</p></Card>
+          <Card title="tenant two"><p class={cx(rt.pb8, rt.textVar2)}>every axis forwards the same way</p></Card>
+        </CardGrid>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Three props — the grid is layout only; everything else is the children's own contract."><PropsTable meta={cardGridMeta} docs={CARD_GRID_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from

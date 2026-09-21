@@ -266,12 +266,51 @@ describe('in-window unit resolution — the own-defaults projection', () => {
       // spin review rounds (2026-09-12): the three absent slots — size
       // (absent rides the density ruler's var(--jx-icon)), interval and
       // linger (absent = the catalog step / the component's 'auto').
-      // ABSENT IS the state: unset resolves undefined, explicit wins
-      { density: undefined, size: undefined, interval: undefined, linger: undefined },
-      { density: undefined, size: 24, interval: undefined, linger: undefined },
+      // ABSENT IS the state: unset resolves undefined, explicit wins.
+      // W3-B (explicit-props): the seven axis slots joined (density
+      // rides the universal lane — silent 'auto' now); lingerType was
+      // always the fourth absent slot
+      {
+        density: 'auto',
+        size: undefined,
+        interval: undefined,
+        linger: undefined,
+        lingerType: undefined,
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        size: 24,
+        interval: undefined,
+        linger: undefined,
+        lingerType: undefined,
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
       { density: undefined },
       { density: undefined },
-      { variant: 'fused', density: undefined },
+      // separator W3-B: the eight-axis surface joined the ink-geometry
+      // literal — every axis silent-'auto'
+      {
+        variant: 'fused',
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
       { variant: 'auto', density: undefined },
       { variant: 'auto', density: undefined },
     ]);

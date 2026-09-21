@@ -52,6 +52,22 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { CardGridDefaults } from './card-grid-defaults.svelte';
   import { cardGridStyles } from './card-grid.stylex';
   import './card-grid.css';
 
@@ -78,13 +94,64 @@
     /** Declare the THIRD shared row (head/body/FOOT equalization) for
         zone-trio cards — explicit, never inferred from the children. */
     foot?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — forwarded to the tenant cards via the §11
+     *  broadcast; the landlord stamps nothing itself */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     children: import('svelte').Snippet;
   }
 
-  let { min = '320px', foot = false, class: className = '', children }: Props = $props();
+  let {
+    min = '320px',
+    foot = false,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+    children,
+  }: Props = $props();
 
+  // the family Defaults is the single read point (explicit-props W3-B):
+  // the eight universal axes resolve in one record, all no-own — the
+  // landlord forwards, the tenants paint
+  const d = $derived(CardGridDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers; the grid ITSELF is not a container-type
+  // source — the tenants' own reversal containers own that role)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
   let gridEl = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => gridEl ?? null);
+  // the #4 composition: the grid's own --jx-grid-min custom prop first,
+  // the axis carriers after (the caller style prop rides the class
+  // surface here — the grid predates a style passthrough)
+  const rootStyle = $derived(`--jx-grid-min: ${min}${carriers ? `; ${carriers}` : ''}`);
 
   // the internal entrance: ONE observer on the grid; the first
   // intersection arms .is-entered and the CSS time-cascade takes over
@@ -119,8 +186,10 @@
     cx('jx-card-grid', cardGridStyles.grid),
     className,
   )}
-  style="--jx-grid-min: {min}"
+  style={rootStyle}
   data-rows={foot ? 'foot' : undefined}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   bind:this={gridEl}
 >
   {@render children()}

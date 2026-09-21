@@ -184,6 +184,14 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface on the ink strip -->
+<Separator density="small" />
+<Separator size={14} variant="dashed" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/separator-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -341,5 +349,24 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="One prop, no length API on purpose — length is your layout's job."><CodeBlock code={usage} lang="svelte" meta="Separator usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Horizontal needs no ARIA at all — the browser announces hr natively; vertical carries the WAI-ARIA separator pattern."><A11yTable keys={[]} aria={[{ name: 'hr', value: 'native', description: 'Announced as a separator/thematic break by the platform — zero wiring owed' }, { name: 'role', value: 'separator', description: 'On the vertical path only (component-owned, not overridable)' }, { name: 'aria-orientation', value: '"vertical"', description: 'Set with the role on the vertical path' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No color decision of its own — the ink is physics, not palette: the contrast ghost adapts to whatever ground it crosses, the blend fade inverts it, and the one plain fill (solid) simply reads the --border token. Length comes from layout."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.sepRow8)}><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: 'contrast ghost', default: 'backdrop-filter: contrast(0.5)', source: 'ink engine', description: 'The default ink — the backdrop\'s own tonal shift, over any ground' }, { name: 'blend fade', default: 'mix-blend-mode: difference', source: 'ink engine', description: 'The alpha-ramped gradient inverts the backdrop toward mid: transparent → light → dark → light → transparent' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. A strip consumes little of the paint surface — the supply chain is the point: the resolved lanes flow to sibling content through the broadcast."
+    >
+      <ComponentCanvas title="Separator · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Separator density="small" /></div>
+        <div class={cx(rt.panel)}><Separator density="large" /></div>
+        <div class={cx(rt.panel)}><Separator variant="dashed" /></div>
+        <div class={cx(rt.panel)}><Separator orientation="vertical" radius="medium" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div. The mask axis swaps with it.' }, { name: 'variant', type: "'fused' | 'solid' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade'", default: "'fused' · Own default, not ambient", description: 'The ink geometry: fused is the bare contrast ghost (the named default); dashed (6/4), dense (3/3), dotted and wavy are masks over it; fade rides the blend engine; solid is the plain-fill var(--border) escape — the subtraction-ink exception (Owner 2026-09-08). Own default, not ambient (ink geometry is never a paint-zone rung).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
 </div>

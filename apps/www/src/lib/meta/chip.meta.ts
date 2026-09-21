@@ -7,7 +7,37 @@ export const meta = defineComponentMeta(
     "props": {
       "density": {
         "kind": "opaque",
-        "typeText": "Density",
+        "typeText": "DensityLane | QueryResult<DensityLane>",
+        "ambient": "scope"
+      },
+      "size": {
+        "kind": "opaque",
+        "typeText": "SizeLane | QueryResult<SizeLane>",
+        "ambient": "scope"
+      },
+      "radius": {
+        "kind": "opaque",
+        "typeText": "RadiusLane | QueryResult<RadiusLane>",
+        "ambient": "scope"
+      },
+      "color": {
+        "kind": "opaque",
+        "typeText": "ColorLane | QueryResult<ColorLane>",
+        "ambient": "scope"
+      },
+      "theme": {
+        "kind": "opaque",
+        "typeText": "ThemeLane | QueryResult<ThemeLane>",
+        "ambient": "scope"
+      },
+      "elevation": {
+        "kind": "opaque",
+        "typeText": "ElevationLane | QueryResult<ElevationLane>",
+        "ambient": "scope"
+      },
+      "motion": {
+        "kind": "opaque",
+        "typeText": "MotionLane | QueryResult<MotionLane>",
         "ambient": "scope"
       },
       "variant": {

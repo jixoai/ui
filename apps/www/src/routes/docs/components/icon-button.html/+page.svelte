@@ -158,6 +158,14 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface rides the restate supply (§11) -->
+<IconButton text="px number" size={14} density="small">{#snippet icon()}…{/snippet}</IconButton>
+<IconButton text="named steps" size="large" radius="medium" iconOnly>{#snippet icon()}…{/snippet}</IconButton>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/icon-button-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -408,6 +416,25 @@ ${close}
   </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="IconButton usage" /></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The restate resolves here and supplies the wrapped press-button through the §11 ambient broadcast — the shared control root stamps the carriers."
+    >
+      <ComponentCanvas title="IconButton · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><IconButton text="size 14 · density small" size={14} density="small">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton></div>
+        <div class={cx(rt.panel)}><IconButton text="size large · radius medium" size="large" radius="medium">{#snippet icon()}{@html playGlyph}{/snippet}</IconButton></div>
+        <div class={cx(rt.panel)}><IconButton text="squircle" shape="squircle" radius={10} iconOnly>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton></div>
+        <div class={cx(rt.panel)}><IconButton text="concentric auto" radius="auto" iconOnly>{#snippet icon()}{@html playGlyph}{/snippet}</IconButton></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="IconButton composes the press-button contract with an explicit label and decorative icon.">
       <PropsTable props={[

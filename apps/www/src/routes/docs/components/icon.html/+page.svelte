@@ -109,6 +109,15 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- §13: the number lane verbatim -->
+<Icon name="check" size={24} />
+<Icon name="check" size="1.25em" />
+<Icon name="check" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/icon-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -268,6 +277,25 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
           { name: 'data-jx-icon', value: 'on the root', description: 'Stable hook for consumer CSS that must target the rendered svg.' },
         ]}
       />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. §13: size numbers are the axis' number lane VERBATIM (px, same semantics — explicit numbers additionally stamp the size carrier); strings and the absent state (the density ruler's --jx-icon) stay the glyph's own per its recorded no-ambient-size law."
+    >
+      <ComponentCanvas title="Icon · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Icon name="check" size={24} /> <Icon name="check" size={16} /> <Icon name="check" size={12} /></div>
+        <div class={cx(rt.panel)}><Icon name="check" size="1.25em" /> <Icon name="check" /></div>
+        <div class={cx(rt.panel)}><Icon name="check" size={20} color="primary" /></div>
+        <div class={cx(rt.panel)}><Icon name="check" size={20} density="small" /></div>
+        </div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

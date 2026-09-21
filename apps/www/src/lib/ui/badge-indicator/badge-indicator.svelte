@@ -24,6 +24,22 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { BadgeIndicatorDefaults } from './badge-indicator-defaults.svelte';
   import { badgeIndicatorStyles } from './badge-indicator.stylex';
 
   interface Props {
@@ -39,11 +55,62 @@
     children?: Snippet;
     /** accessible name for the dot (required in dot mode) */
     label?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
-  let { dot, count, overflow = 99, showZero = false, children, label, class: className = '' }: Props =
-    $props();
+  let {
+    dot,
+    count,
+    overflow = 99,
+    showZero = false,
+    children,
+    label,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+  }: Props = $props();
+
+  // the family Defaults is the single read point (explicit-props W3-B):
+  // the eight universal axes resolve in one record, all no-own — the
+  // indicator rides the ambient context of the element it decorates
+  const d = $derived(
+    BadgeIndicatorDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the ROOT is the wrap span
+  // when riding a child, else the standalone chip)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLSpanElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   const visible = $derived(dot || (count !== undefined && (count > 0 || showZero)));
   const text = $derived.by(() => {
@@ -78,7 +145,14 @@
 </script>
 
 {#if children}
-  <span data-jx-bi-wrap class={cx(badgeIndicatorStyles.wrap, className)}>
+  <span
+    bind:this={uniRoot}
+    data-jx-bi-wrap
+    class={cx(badgeIndicatorStyles.wrap, className)}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={carriers || undefined}
+  >
     {@render children()}
     {#if visible}
       <span
@@ -94,12 +168,16 @@
   </span>
 {:else if visible}
   <span
+    bind:this={uniRoot}
     data-jx-bi
     data-jx-bi-dot={dot ? '' : undefined}
     data-jx-bi-standalone={children ? undefined : ''}
     class={cx(chip, placement, className)}
     role={dot ? 'img' : undefined}
     aria-label={dot ? (label ?? 'new activity') : `${text}`}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={carriers || undefined}
     >{text}</span
   >
 {/if}

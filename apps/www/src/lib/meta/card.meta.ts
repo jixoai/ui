@@ -24,6 +24,46 @@ export const meta = defineComponentMeta(
         "kind": "boolean",
         "default": true
       },
+      "density": {
+        "kind": "opaque",
+        "typeText": "DensityLane | QueryResult<DensityLane>",
+        "ambient": "scope"
+      },
+      "size": {
+        "kind": "opaque",
+        "typeText": "SizeLane | QueryResult<SizeLane>",
+        "ambient": "scope"
+      },
+      "shape": {
+        "kind": "opaque",
+        "typeText": "ShapeLane | QueryResult<ShapeLane>",
+        "ambient": "scope"
+      },
+      "radius": {
+        "kind": "opaque",
+        "typeText": "RadiusLane | QueryResult<RadiusLane>",
+        "ambient": "scope"
+      },
+      "color": {
+        "kind": "opaque",
+        "typeText": "ColorLane | QueryResult<ColorLane>",
+        "ambient": "scope"
+      },
+      "theme": {
+        "kind": "opaque",
+        "typeText": "ThemeLane | QueryResult<ThemeLane>",
+        "ambient": "scope"
+      },
+      "elevation": {
+        "kind": "opaque",
+        "typeText": "ElevationLane | QueryResult<ElevationLane>",
+        "ambient": "scope"
+      },
+      "motion": {
+        "kind": "opaque",
+        "typeText": "MotionLane | QueryResult<MotionLane>",
+        "ambient": "scope"
+      },
       "class": {
         "kind": "string",
         "default": ""
