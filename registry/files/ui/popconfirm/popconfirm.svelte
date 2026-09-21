@@ -187,7 +187,7 @@
   // bridged provideDensity write above; this supply carries the other
   // seven axes downward
   const carriers = $derived(stampCarriersForLanes(d));
-  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
   // §3/§14 radius consumption (the fallback is the auto concentric
   // form verbatim — the root sheet's invariants close it)
   const radiusConsumed = $derived(

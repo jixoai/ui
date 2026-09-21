@@ -192,7 +192,7 @@
   // universal density supply rides the bridged provideDensity write
   // above; this supply carries the other seven axes downward
   const carriers = $derived(stampCarriersForLanes(d));
-  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
   let uniRoot = $state<HTMLDivElement>();
   provideQueryAnchor(() => uniRoot ?? null);
 

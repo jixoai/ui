@@ -218,7 +218,7 @@ import { NavigationMenuDefaults, type NavigationMenuSurfaceVariant } from './nav
   // PANEL (a top-layer promotion) reads them through the context
   // supply, which follows the COMPONENT tree, never the promotion
   const carriers = $derived(stampCarriersForLanes(d));
-  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
   // §3/§14 radius consumption (the fallback is the auto concentric
   // form verbatim — the root sheet's invariants close it)
   const radiusConsumed = $derived(

@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-21T17:55:32.058Z",
+  "generatedAt": "2026-09-21T18:07:57.263Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1514,8 +1514,8 @@
           "source": "registry/files/ui/markdown/markdown.svelte",
           "mirror": "apps/www/src/lib/ui/markdown/markdown.svelte",
           "target": "@ui/markdown/markdown.svelte",
-          "sourceSha": "53ac34400ad1bf8aeeff45196f3279ac0ac5d4d53ba011e723bfe81892eba521",
-          "mirrorSha": "53ac34400ad1bf8aeeff45196f3279ac0ac5d4d53ba011e723bfe81892eba521"
+          "sourceSha": "4940d9c80bae8a30ae25893be253b9af4a6f42e10c41a70ff3ef477a4ca1e9d8",
+          "mirrorSha": "4940d9c80bae8a30ae25893be253b9af4a6f42e10c41a70ff3ef477a4ca1e9d8"
         },
         {
           "source": "registry/files/ui/markdown/markdown-defaults.svelte.ts",
@@ -3064,8 +3064,8 @@
           "source": "registry/files/ui/dropdown-menu/dropdown-menu.svelte",
           "mirror": "apps/www/src/lib/ui/dropdown-menu/dropdown-menu.svelte",
           "target": "@ui/dropdown-menu/dropdown-menu.svelte",
-          "sourceSha": "ba04441249483c8db209b08d4ff8838944a8fa7828a3f37947e0d44d8d3ff434",
-          "mirrorSha": "ba04441249483c8db209b08d4ff8838944a8fa7828a3f37947e0d44d8d3ff434"
+          "sourceSha": "14dd5ea667beb02ba6be22f3721f3bbd54a041cd873a630fa414ba6f7034c969",
+          "mirrorSha": "14dd5ea667beb02ba6be22f3721f3bbd54a041cd873a630fa414ba6f7034c969"
         },
         {
           "source": "registry/files/ui/dropdown-menu/dropdown-menu-item.svelte",
@@ -4030,8 +4030,8 @@
           "source": "registry/files/ui/navigation-menu/navigation-menu.svelte",
           "mirror": "apps/www/src/lib/ui/navigation-menu/navigation-menu.svelte",
           "target": "@ui/navigation-menu/navigation-menu.svelte",
-          "sourceSha": "17080733e2d4dbeb6b205845913b69e700d7b3583c0327e65a2343acad06554d",
-          "mirrorSha": "17080733e2d4dbeb6b205845913b69e700d7b3583c0327e65a2343acad06554d"
+          "sourceSha": "caada91bb449f790fc97bc58a9a577bbe0216bd41d883558cc5e38a45b82b9f6",
+          "mirrorSha": "caada91bb449f790fc97bc58a9a577bbe0216bd41d883558cc5e38a45b82b9f6"
         },
         {
           "source": "registry/files/ui/navigation-menu/navigation-menu-defaults.svelte.ts",
@@ -4111,8 +4111,8 @@
           "source": "registry/files/ui/menubar/menubar.svelte",
           "mirror": "apps/www/src/lib/ui/menubar/menubar.svelte",
           "target": "@ui/menubar/menubar.svelte",
-          "sourceSha": "bae3e39d08fcd22fb82426d4537b8ff3aebbfd4221f6ffaf01f515d8fc46612f",
-          "mirrorSha": "bae3e39d08fcd22fb82426d4537b8ff3aebbfd4221f6ffaf01f515d8fc46612f"
+          "sourceSha": "08421c1d39c47576eebbb9ac525f7d2ba33643335ff876af9d86b3a4781b1cf8",
+          "mirrorSha": "08421c1d39c47576eebbb9ac525f7d2ba33643335ff876af9d86b3a4781b1cf8"
         },
         {
           "source": "registry/files/ui/menubar/menubar-defaults.svelte.ts",
@@ -4157,8 +4157,8 @@
           "source": "registry/files/ui/popconfirm/popconfirm.svelte",
           "mirror": "apps/www/src/lib/ui/popconfirm/popconfirm.svelte",
           "target": "@ui/popconfirm/popconfirm.svelte",
-          "sourceSha": "9762a8aa0a2e4cf34ebbf61d9b5bf552bff63918ea1603b5bff6e39b09650ad1",
-          "mirrorSha": "9762a8aa0a2e4cf34ebbf61d9b5bf552bff63918ea1603b5bff6e39b09650ad1"
+          "sourceSha": "833932a1a95f99d341f912bab5a03eedd7f173fe4097b79bb4c0c51dddf83e70",
+          "mirrorSha": "833932a1a95f99d341f912bab5a03eedd7f173fe4097b79bb4c0c51dddf83e70"
         },
         {
           "source": "registry/files/ui/popconfirm/popconfirm-defaults.svelte.ts",
@@ -5688,8 +5688,8 @@
           "source": "registry/files/ui/input-group/input-group.svelte",
           "mirror": "apps/www/src/lib/ui/input-group/input-group.svelte",
           "target": "@ui/input-group/input-group.svelte",
-          "sourceSha": "1cb29fa42da7ba157a27811e4b08ffed53f22d0b07bc84a0abd4f8ff4cce08e5",
-          "mirrorSha": "1cb29fa42da7ba157a27811e4b08ffed53f22d0b07bc84a0abd4f8ff4cce08e5"
+          "sourceSha": "70559e757f412add190a4b1db68667858aebac777b8d6ccc629b5c12a1fb5087",
+          "mirrorSha": "70559e757f412add190a4b1db68667858aebac777b8d6ccc629b5c12a1fb5087"
         },
         {
           "source": "registry/files/ui/input-group/input-group-addon.svelte",

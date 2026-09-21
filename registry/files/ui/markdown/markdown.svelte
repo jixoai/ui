@@ -127,7 +127,10 @@
     MarkdownDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
   );
   const carriers = $derived(stampCarriersForLanes(d));
-  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // density rides the REACTIVE bridged provideDensity write below — the
+  // object literal would SNAPSHOT the prop at init and freeze the explicit
+  // lane over the bridge (the D1 provider-snapshot law)
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
   let uniRoot = $state<HTMLDivElement>();
   provideQueryAnchor(() => uniRoot ?? null);
   const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
