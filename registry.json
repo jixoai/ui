@@ -44,6 +44,11 @@
           "type": "registry:file",
           "path": "registry/files/lib/universal-props.css",
           "target": "@lib/universal-props.css"
+        },
+        {
+          "type": "registry:file",
+          "path": "registry/files/lib/universal-props-query.svelte.ts",
+          "target": "@lib/universal-props-query.svelte.ts"
         }
       ],
       "dependencies": [],
@@ -1861,6 +1866,7 @@
         "@jixoai/list-item",
         "@jixoai/density",
         "@jixoai/defaults",
+        "@jixoai/universal-props",
         "@jixoai/separator",
         "@jixoai/native-select",
         "@jixoai/stack",

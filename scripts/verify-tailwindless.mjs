@@ -1400,6 +1400,57 @@ const RATCHET = {
 };
 const RATCHET_ZONE_KEYS = ['routes', 'site-libs', 'ui'];
 
+// ── the exact-constants ratchet receipt (explicit-props W5 task 5.2,
+// design §16.2 — Codex r2's binding) ────────────────────────────────
+// The W5 receipt pins the totals VERBATIM: the RATCHET (the ceilings)
+// AND the pinned allowlist's measured totals must BOTH equal these
+// numbers — any drift in EITHER direction is red, never "reviewed".
+// A legitimate change (a class retires, the census moves) is made by
+// editing RATCHET and RECEIPT together IN THIS SCRIPT — the gate
+// source, review-visible — then re-pinning; never by editing the
+// allowlist alone.
+const RECEIPT = {
+  files: 2,
+  identities: 7,
+  occurrences: 7,
+  zones: { routes: 1, 'site-libs': 0, ui: 6 },
+  forms: 42,
+};
+
+/** the one-line canonical receipt (the --receipt mode's output) */
+function receiptLine(totals, forms) {
+  return `files=${totals.files} identities=${totals.identities} occurrences=${totals.occurrences} zones={routes:${totals.zones.routes}, site-libs:${totals.zones['site-libs']}, ui:${totals.zones.ui}} forms=${forms}`;
+}
+
+/** the exact-constants assertion — drift either direction is red */
+function receiptViolations(pinned) {
+  const drift = [];
+  // (1) the RATCHET itself must BE the receipt — the ceilings cannot
+  //     silently drift away from the bound numbers
+  for (const key of ['files', 'identities', 'occurrences', 'forms']) {
+    if (RATCHET[key] !== RECEIPT[key]) drift.push(`RATCHET.${key}=${RATCHET[key]} ≠ RECEIPT.${key}=${RECEIPT[key]} — the ceiling and the receipt are bound together (design §16.2); edit both in this script`);
+  }
+  for (const z of RATCHET_ZONE_KEYS) {
+    if ((RATCHET.zones[z] ?? 0) !== RECEIPT.zones[z]) drift.push(`RATCHET.zones.${z}=${RATCHET.zones[z] ?? 0} ≠ RECEIPT.zones.${z}=${RECEIPT.zones[z]} — the ceiling and the receipt are bound together (design §16.2)`);
+  }
+  // (2) the pinned totals must equal the receipt exactly (decrease is
+  //     NOT silently-legal headroom anymore: the pin moved, so the
+  //     receipt must be re-bound at the gate source)
+  const rt = totalsOf(pinned);
+  if (rt.files !== RECEIPT.files) drift.push(`pinned files ${rt.files} ≠ receipt ${RECEIPT.files}`);
+  if (rt.identities !== RECEIPT.identities) drift.push(`pinned identities ${rt.identities} ≠ receipt ${RECEIPT.identities}`);
+  if (rt.occurrences !== RECEIPT.occurrences) drift.push(`pinned occurrences ${rt.occurrences} ≠ receipt ${RECEIPT.occurrences}`);
+  for (const z of RATCHET_ZONE_KEYS) {
+    if ((rt.zones[z] ?? 0) !== RECEIPT.zones[z]) drift.push(`pinned zone ${z} ${rt.zones[z] ?? 0} ≠ receipt ${RECEIPT.zones[z]}`);
+  }
+  const rtsP = (pinned.producers ?? []).find((p) => p.id === 'resolveTextStyle()');
+  const formsTotal = Array.isArray(rtsP?.formsByFile)
+    ? rtsP.formsByFile.reduce((a, e) => a + (Array.isArray(e.forms) ? e.forms.length : 0), 0)
+    : undefined;
+  if (formsTotal !== RECEIPT.forms) drift.push(`pinned formsByFile census ${formsTotal} ≠ receipt ${RECEIPT.forms}`);
+  return { drift, totals: rt, formsTotal };
+}
+
 // ── canonical JSON (sorted keys, 2-space indent, trailing newline) ──
 function canonicalize(value) {
   if (Array.isArray(value)) return value.map(canonicalize);
@@ -2622,6 +2673,16 @@ function check(root, allowlistPath) {
     red.push(`pinned budget RAISED above the script ratchet: ${over} — the RATCHET constants live in scripts/verify-tailwindless.mjs; lifting a ceiling is a gate-source change (review-visible), never an allowlist edit`);
   }
 
+  // the exact-constants ratchet receipt (explicit-props W5 task 5.2,
+  // design §16.2): the bound numbers are EQUALITY, not ceilings —
+  // drift in either direction is red, never "reviewed". A legitimate
+  // census move edits RATCHET and RECEIPT together in this script
+  // (review-visible), then re-pins.
+  const { drift: receiptDrift } = receiptViolations(pinned);
+  for (const d of receiptDrift) {
+    red.push(`ratchet receipt DRIFT: ${d} — the exact constants (files=2 · identities=7 · occurrences=7 · zones{routes:1, site-libs:0, ui:6} · forms=42) are bound verbatim by design §16.2; re-bind RATCHET + RECEIPT in scripts/verify-tailwindless.mjs and re-pin`);
+  }
+
   // re-extract
   const { entries, violations } = extractAll(root);
   for (const v of violations) red.push(v.detail);
@@ -2765,19 +2826,14 @@ function check(root, allowlistPath) {
   }
   const totals = totalsOf(pinned);
   console.log(`[tailwindless] ✓ GREEN — ${entries.size} class-bearing files against the pin (pinned ${totals.files} files · ${totals.identities} identities · ${totals.occurrences} occurrences); no growth, no new identities, no unregistered producers, contract intact (producers/semantics = script-defined), @utility freeze ${pinned.jxCssUtilities.count}, tier-2 literals ${Object.keys(pinnedTier2).length} file(s)`);
-  // Gate-5: pinned < ratchet means the migration moved — surface the
-  // headroom so the constants get lowered at the next pin (a ratchet
-  // that never ratchets down is just a ceiling)
-  const headroom = [];
-  if (rt.files < RATCHET.files) headroom.push(`files ${RATCHET.files}→${rt.files}`);
-  if (rt.identities < RATCHET.identities) headroom.push(`identities ${RATCHET.identities}→${rt.identities}`);
-  if (rt.occurrences < RATCHET.occurrences) headroom.push(`occurrences ${RATCHET.occurrences}→${rt.occurrences}`);
-  for (const z of RATCHET_ZONE_KEYS) if ((rt.zones[z] ?? 0) < RATCHET.zones[z]) headroom.push(`${z} ${RATCHET.zones[z]}→${rt.zones[z]}`);
-  if (Array.isArray(pinnedFormsByFile)) {
-    const formsTotal = pinnedFormsByFile.reduce((a, e) => a + (Array.isArray(e.forms) ? e.forms.length : 0), 0);
-    if (formsTotal < RATCHET.forms) headroom.push(`forms ${RATCHET.forms}→${formsTotal}`);
-  }
-  if (headroom.length) console.log(`[tailwindless] ratchet headroom (migration progressed — lower the RATCHET constants at the next pin): ${headroom.join(', ')}`);
+  // the exact-constants receipt (W5 task 5.2, design §16.2): printed
+  // on every GREEN — and drift in EITHER direction already went red
+  // above, so what prints here is the bound state verbatim. (The old
+  // headroom report is retired: a decrease is no longer silently-
+  // legal migration progress, it is receipt drift — re-bind at the
+  // gate source.)
+  const { formsTotal } = receiptViolations(pinned);
+  console.log(`[tailwindless] receipt: ${receiptLine(totals, formsTotal)} — bound verbatim (explicit-props design §16.2); drift either direction is red`);
   return { ok: true, red: [] };
 }
 
@@ -3102,7 +3158,25 @@ if (mode === '--pin') {
   if (!ok) process.exit(1);
 } else if (mode === '--selftest') {
   selftest();
+} else if (mode === '--receipt') {
+  // the W5 receipt mode (task 5.2): print the measured totals against
+  // the bound constants; any drift in either direction exits 1
+  const allowlistPath = allowlistPathFor(root);
+  if (!existsSync(allowlistPath)) {
+    console.error(`[tailwindless] ✗ allowlist missing: ${ALLOWLIST_REL} (archive fallback ${ALLOWLIST_ARCHIVE_REL} absent too) — run --pin first`);
+    process.exit(1);
+  }
+  const pinned = JSON.parse(readFileSync(allowlistPath, 'utf8'));
+  const { drift, totals, formsTotal } = receiptViolations(pinned);
+  console.log(`[tailwindless] measured receipt: ${receiptLine(totals, formsTotal)}`);
+  console.log(`[tailwindless] bound constants:   ${receiptLine(RECEIPT, RECEIPT.forms)}`);
+  if (drift.length) {
+    for (const d of drift) console.error(`  ✗ ${d}`);
+    console.error('[tailwindless] ✗ receipt DRIFT — the constants are bound verbatim (design §16.2); edit RATCHET + RECEIPT in scripts/verify-tailwindless.mjs (review-visible) and re-pin');
+    process.exit(1);
+  }
+  console.log('[tailwindless] ✓ receipt bound verbatim — no drift in either direction');
 } else {
-  console.error('usage: node scripts/verify-tailwindless.mjs --pin | --check | --selftest');
+  console.error('usage: node scripts/verify-tailwindless.mjs --pin | --check | --receipt | --selftest');
   process.exit(2);
 }
