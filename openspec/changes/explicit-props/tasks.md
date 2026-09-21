@@ -177,7 +177,11 @@ before the next batch opens; a batch is the rollback unit)
       exemption-ledger candidate for 4.6; own-elevation mapping table in
       the census; orchestrator gates re-run green)
 - [ ] 3.4 batch D — composite/long-tail (the rest of the 115), batched ~15/round —
-      D1 IN FLIGHT (carousel…math-inline); prose's §13 rename rides D
+      D1 LANDED 3e8c38ec + the fleet-wide provider-snapshot sweep 2b28536c
+      (15 components + color-utils the rootless lib; code-card 7 lanes —
+      the shiki-theme collision; the provider-snapshot kernel law is now
+      census text — 5.1's lint must encode it); D2 IN FLIGHT (mermaid →
+      scroll-area, prose's §13 rename rides it); prose's rename rides D
 - [ ] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …) —
       sheet LANDED with batch C (09d64fb0); prose size→measure rides
       batch D; avatar/icon/spin were 3.6 (done)

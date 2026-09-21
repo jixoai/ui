@@ -127,6 +127,41 @@ search-palette).
 > The canonical partition is `universal-props.inventory.json` (W0, task
 > 0.7) — this section is the draft map; on conflict the inventory wins.
 
+LANDED D1 (3e8c38ec; probe-w3d1-spot 10/10 — code-card size=18 carrier +
+computed 18px, ItemGroup radius=20 → auto row computes through the §3
+expression, named steps via the ladder vars, zero inline px; orchestrator
+gates re-run green — mirror 772 pairs, tailwindless 2·7·7 unmoved,
+meta/context/deps 16+3, `Type Errors: no errors`, suite 86F/2784P ≈ the
+standing set, family battery EXACTLY its baseline). Outcomes,
+census-recorded:
+- **code-card** carries SEVEN lanes — the shiki `theme` literal owns the
+  name ('light'/'dark' are legal shiki themes: a genuinely colliding
+  value space); §13 rules no rename → axis left out (carriers stamp
+  `{...d, theme: undefined}`), W6-dossier-flagged beside the
+  terminal/ghostty twins.
+- **color-utils** is the SECOND rootless lib (registry:lib pure TS, no
+  component — the glass precedent): exemption-ledger candidate for 4.6.
+- **chart**: the `size` prop splits — the NUMBER lane feeds the
+  pre-existing donut-diameter literal (the icon/spin §13 law applied by
+  analogy — the prop's number semantics are load-bearing), while the
+  ensemble ROOT carries the size axis whole (named steps); census-recorded
+  as an analogy-extension, dossier-noted.
+- **command** carries own elevation **level4** (the modal rung — batch
+  C's dialog law).
+- **THE PROVIDER-SNAPSHOT KERNEL LAW** (D1's finding, swept fleet-wide by
+  2b28536c): wherever a family has the REACTIVE bridged
+  `provideDensity(() => …)`, `density` must NOT ride the
+  `provideUniversalLanes` object literal — the literal SNAPSOTS the prop
+  at init and freezes the explicit lane over the bridge. Six latent
+  violators (markdown, dropdown-menu, popconfirm, input-group, menubar,
+  navigation-menu — every one's comment already stated the law while its
+  code didn't) fixed beside D1's original three; all batches' briefs and
+  the 5.1 lint must encode this law.
+- list-item joined the §3 concentric chain (item.css swapped to the
+  consumed-radius form); markdown's founding law (the root never stamps
+  a rung for the PRESET — only an explicit lane does) rides the bridge
+  alone now.
+
 ## The one-off prop mappings (design §13)
 
 | family | today | action |
