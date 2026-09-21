@@ -116,11 +116,12 @@ LAWS:
 
 ## §4 density — spacing/leading scale (renamed from `compact`, Owner-agreed)
 
-- Named: `small | medium | large` as the DOCUMENTED vocabulary, backed by the
-  EXISTING five kernel rungs — the plugin's default alias table registers
-  `2xs|xs|sm|default|lg` alongside (legacy names keep working everywhere;
-  the kernel channels `--jx-gap/--jx-stack/--jx-inset/--jx-hit/…` are
-  UNCHANGED).
+- Named: `small | medium | large` as the DOCUMENTED vocabulary, **mapped
+  VERBATIM onto three of the EXISTING rungs (frozen, Codex r5 B6):
+  `small → sm · medium → default · large → lg`** — `xs` and `2xs` remain
+  directly addressable aliases (the full five-rung set survives); the
+  plugin's default alias table registers all eight names. The kernel
+  channels `--jx-gap/--jx-stack/--jx-inset/--jx-hit/…` are UNCHANGED.
 - `auto`: inherit — EXACTLY today's `densitySlot` (`explicit ?? ambient ??
   own`, 「无意见不盖章」); the fleet law survives verbatim.
 - **The coefficient carrier, frozen** (Codex r2 B2; the channel list
@@ -137,10 +138,17 @@ LAWS:
   converts the five-rung scopes to define them), the effective channel
   composes
   `--jx-<channel>: calc(var(--jx-<channel>-base) * var(--jx-density-coefficient, 1))`
-  — one pattern, all channels, floors preserved where the base already
-  rides one (`--jx-hit-floor`/`--jx-row-min` compose AFTER the max() the
-  kernel applies, never inside it). The component root stamps
-  `--jx-density-coefficient` when the number lane is used.
+  — one pattern for the PLAIN channels. **The four DERIVED channels carry
+  guardrails and freeze differently** (Codex r5 B5 — floors are absolute
+  protection, the coefficient NEVER scales them):
+  - `--jx-row-min: max(var(--jx-row-min-floor), calc(var(--jx-row-min-base) * coef))`
+  - `--jx-hit:     max(var(--jx-hit-floor),     calc(var(--jx-hit-base) * coef))`
+  - `--jx-textarea-min: max(var(--jx-textarea-min-floor), calc(var(--jx-textarea-min-base) * coef))`
+  - `--jx-color-lane:   max(var(--jx-color-lane-floor),   calc(var(--jx-color-lane-base) * coef))`
+  The `-floor` values migrate from today's nested max() literals; the
+  three-way computed fixture (below) extends to `--jx-hit` so the
+  guardrail behavior is receipted, not asserted. The component root
+  stamps `--jx-density-coefficient` when the number lane is used.
   **Precedence**: a NAMED lane sets the rung scope AND resets the
   coefficient to 1 (explicit rung = exact rung, never double-scaled); the
   NUMBER lane sets the coefficient and leaves the rung at ambient; `auto`
@@ -237,30 +245,27 @@ LAWS:
 ```ts
 // the public API (ships from the kernel lib; the component props accept
 // the return value on every axis). The DEFAULT scales are literal unions;
-// plugin-registered scales widen them at BUILD time (Codex r3 B3 — the
-// grammar rejects free-form strings):
-type ViewportScale = 'xs' | 'sm' | 'md' | 'lg';            // the registered default table
-type ContainerScale = '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';  // --container-* scale
-declare const brand: unique symbol;
-export type MediaQueryKey  = ViewportScale & { [brand]?: 'media' };
-export type ContainerQueryKey = `${'@'}${ContainerScale}` | `@${ContainerScale}/${string}` & { [brand]?: 'container' };
-export type QueryKey = MediaQueryKey | ContainerQueryKey;
-// unknown scale names / duplicate keys / '@name' without '/' in a named
-// context = BUILD errors listing the offending key AND the registered
-// scale tables (the plugin's registration is the compiler's dictionary).
-type AxisName = 'size' | 'shape' | 'radius' | 'density' | 'color' | 'theme' | 'elevation' | 'motion';
+// plugin-registered scales widen them at BUILD time. Public keys are
+// UNBRANDED (Codex r5 B1 — branded intersections refuse object-literal
+// keys at tsc; branding lives on INTERNAL resolved types only):
+type ViewportScale = 'xs' | 'sm' | 'md' | 'lg';                       // the registered default table
+type ContainerScale = '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // the --container-* scale
+export type QueryKey = ViewportScale | `@${ContainerScale}` | `@${ContainerScale}/${string}`;
+// unknown scale names / duplicate keys / malformed named-container forms
+// are BUILD errors listing the offending key AND the registered scale
+// tables (the plugin's registration is the compiler's dictionary). An
+// empty container name in `@md/` is malformed (the parser rejects it).
+//
+// axis binding + value typing: the CONSUMING SLOT constrains both —
+// sizeSlot(query({...})) types T as SizeLane, radiusSlot as RadiusLane…
+// a bare query() is never user-facing; the tsc positive/negative fixture
+// pair ships in W2's test battery.
 type QueryCase<T> = readonly [key: QueryKey, value: T];
-interface AxisQuery<T> { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T }
-// Partial is LOAD-BEARING (Codex r4 B1): Record<QueryKey, T> demands EVERY
-// key of the union — the canonical {sm, '@md/card'} example would not
-// compile. `axis` is NOT a user input: the CONSUMING slot stamps it
-// (sizeSlot(query(...)) knows its axis); user-facing overloads hide it.
-interface StampedAxisQuery<T> extends AxisQuery<T> { readonly axis: AxisName }
 type QueryCases<T> = Partial<Record<QueryKey, T>>;
 declare function query<T>(cases: QueryCases<T>): { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: undefined };
 declare function query<T>(cases: QueryCases<T>, base: T): { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T };
-// the slot helper lifts either form into the axis-stamped internal type;
-// a tsc compile fixture ships in W2's test battery
+interface StampedAxisQuery<T> { readonly $query: true; readonly axis: AxisName; readonly cases: readonly QueryCase<T>[]; readonly base: T } // internal, post-slot
+type AxisName = 'size' | 'shape' | 'radius' | 'density' | 'color' | 'theme' | 'elevation' | 'motion';
 ```
 
 - **Parse**: the object-literal form is sugar; `query()` normalizes to an
@@ -284,8 +289,9 @@ declare function query<T>(cases: QueryCases<T>, base: T): { readonly $query: tru
   `mountQueryShim(instance)` — one ResizeObserver per unresolved `@` key,
   re-stamping the winning lane's vars POST-paint only (idempotent, no
   hydration surface); a per-route manifest of un-desugarable cases drives
-  the dynamic `import()`; the manifest schema — `{ route: string,
-  instances: string[] }` — is W2's first test fixture).
+  the dynamic `import()` — manifest schema (Codex r5): `{ route: string,
+  instances: [{ id: string; key: QueryKey; reason: 'no-container' |
+  'dynamic'; module?: string }] }` — W2's first test fixture).
 - **Missing named container** (`@sm/card` with no `container-name: card`
   ancestor): the case never matches (CSS semantics); the build warns, the
   shim logs once in dev.
@@ -458,10 +464,12 @@ or files their exemption in the gate's exception ledger with reasons.
    captures (the splash-fan capture discipline: pin, assert same-moment,
    then judge).
 
-## §17 The meta/IR pipeline freeze (W4's contract — Codex r1 B4, r2 B5)
+## §17 The meta/IR pipeline contract (PRESCRIBED — W4 transcribes; Codex r5 B3)
 
 The W4 docs/canvas wave implements THIS, not an improvisation. The
-interfaces are frozen HERE (types verbatim; W4 transcribes them):
+interfaces are PRESCRIBED HERE in full (complete, no placeholders —
+"FROZEN" in §18's vocabulary: binding on the change text; the code delta
+is W4's to land; code-absence before the wave is not a defect):
 
 ```ts
 // universal-props.schema.ts — the ONE shared artifact (www + registry mirror)
@@ -520,5 +528,29 @@ export interface ComponentMeta {
 3. **`--check` failure format** (the drift gate): one line per divergence —
    `<family>: <field> expected <value> got <value>` — plus a summary count;
    exit 1.
-4. **Fixtures** (committed under `research/`): one NORMAL family's expected
-   merged meta + one EXEMPT family's (block absent, ledger entry present).
+4. **Fixtures** (committed under `research/`): the NORMAL fixture carries
+   `card`'s REAL extracted meta (the generator's own output, verbatim) +
+   the universal delta; the EXEMPT fixture is the shape contract (no live
+   exemption exists at W0 — see §18). The `--check` gate (W4 wiring)
+   loads and asserts BOTH.
+
+## §18 Contract-status vocabulary (Codex r5 — the scope ruling)
+
+To keep "what the change binds" and "what the code has" from colliding
+again, EVERY interface/artifact in this change carries exactly one status:
+
+- **FROZEN** — the TEXT here is binding, complete, compilable where it is
+  code, placeholder-free. Waves implement it verbatim.
+- **PRESCRIBED for W\<n\>** — same binding force, and the code lands in
+  wave W\<n\>. The artifact's absence from today's tree is EXPECTED — it
+  is the wave's deliverable, never a review blocker.
+- **DONE** — the artifact exists in this change's commits already.
+
+Statuses in this change: the §0.1 table, §3/§4 formulas, §9.1 types, §11
+supply table, §14 ladder = FROZEN. ir.ts additions (§17), the query-shim
+export, universal-props.schema.ts/css, the registry item (§12, registry
+spec) = PRESCRIBED for W1-W4 as marked. research/universal-props.inventory.json
+= DONE (W0). A completed task's checkbox means its WAVE-scope work is
+done — W0's fixture task produced the shape contract + the real card
+extract; the `--check` LOADING is W4's gate task (4.6), tracked there,
+not hidden inside 0.7.

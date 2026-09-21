@@ -21,10 +21,10 @@
       concrete interfaces + inventory/ledger/fixtures, the registry
       artifact chain, the ratchet receipt bound to exact constants, the
       degrade consumption chain, census receipts reproducible)
-- [x] 0.7 the canonical `universal-props.inventory.json` + the two frozen
-      fixtures committed at research/ (115 families generated + verified
-      against the dir census; exemptions open EMPTY; W1 promotes the
-      inventory beside the schema file) — design §17.2
+- [x] 0.7 the canonical `universal-props.inventory.json` (115 families,
+      unique+sorted, exemptions EMPTY, the four site-only families marked)
+      + the fixtures doc (card's REAL extracted meta + the exempt shape)
+      committed at research/ — per §18: the `--check` LOADING is task 4.6
 
 ## W1 — token core (theme + slot helpers)
 
@@ -46,8 +46,14 @@
 - [ ] 1.7 `context-coverage.config.json` synced to the eight-axis supply set
       (design §11 — the coverage gate knows every context key)
 - [ ] 1.8 the density coefficient carrier lands: every kernel channel
-      splits base/effective per the frozen §4 pattern; precedence +
-      legacy-alias mapping + computed-style probe receipts
+      splits base/effective per the frozen §4 pattern (the four guardrail
+      channels ride their max() forms); precedence + legacy-alias mapping
+      (small→sm · medium→default · large→lg) + computed-style probe
+      receipts incl. the --jx-hit guardrail case
+- [ ] 1.9 the shared artifact lands EARLY (moved from W4 — the W3 batch
+      gate and PropsTable both consume it, it cannot arrive after):
+      `universal-props.schema.ts` (the §17 interfaces + UNIVERSAL_AXES) +
+      the generator's merge step + the inventory promoted beside the schema
 
 ## W2 — plugin layer
 
@@ -68,8 +74,8 @@
 
 ## W3 — component migration (batched, the 0.4 map; EVERY batch closes on
 its own gate — slot-surface lint green for its families + doc pages
-rendering the shared section + svelte-check clean — before the next batch
-opens; a batch is the rollback unit)
+rendering the shared section from the 1.9 artifact + svelte-check clean —
+before the next batch opens; a batch is the rollback unit)
 
 - [ ] 3.1 batch A — the 16 native families: collision rule (destructured prop
       wins, rest forwards), axis surface, supply set
@@ -81,12 +87,12 @@ opens; a batch is the rollback unit)
 - [ ] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …)
 - [ ] 3.6 avatar/icon/spin mapping verified (aliases + number lanes)
 
-## W4 — canvas + docs (the §17 pipeline freeze is the contract)
+## W4 — canvas + docs (the §17 contract; the shared artifact itself landed
+## EARLY as 1.9 — W4 wires the consumers)
 
-- [ ] 4.1 the shared artifact `universal-props.schema.ts` (grammar types +
-      alias defaults + query key grammar + docs metadata, ONE source) +
-      generator merge rule (inject into every generated zone) + the
-      115-family inventory & exemption ledger (design §17)
+- [ ] 4.1 ir.ts gains the prescribed additions (ControlHint's three new
+      members + ComponentMeta.universal) + schema2form/playground render
+      the per-axis controls (axis-enum / axis-number / query-editor)
 - [ ] 4.2 schema2form/playground: per-axis control hints (enum select, number
       spinner, query editor); componentCanvas controls adapted
 - [ ] 4.3 PropsTable: the universal section rendered from the ONE shared
@@ -94,7 +100,9 @@ opens; a batch is the rollback unit)
 - [ ] 4.4 110 doc pages: universal props section + per-page example updates
       (batched with W3 batches where possible)
 - [ ] 4.5 registry.json `docs` strings + the universal-props concept page
-      (one doc explaining the grammar once) + llms mirror regenerated
+      (route frozen: docs/universal-props.html) + llms mirror regenerated
+- [ ] 4.6 the `--check` gate LOADS and asserts both research fixtures
+      (card's real extract + the exempt shape) per design §17.4
 
 ## W5 — gates
 

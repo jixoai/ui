@@ -6,13 +6,18 @@ The registry SHALL ship the alias ladder as a CONCRETE artifact chain
 (Codex r2 B6, r3 sharpened — not deferred to W5). The frozen entries:
 
 ```jsonc
-// registry.json — the kernel lib item (new; deps use the @jixoai/ namespace
-// form the registry already speaks — Codex r4 B3):
+// registry.json — the kernel lib item (new; PRESCRIBED for W1 — Codex r5
+// §18 vocabulary; deps use the @jixoai/ namespace form the registry
+// already speaks, and files[] entries carry the "type" every real record
+// carries):
 {
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "universal-props", "type": "registry:lib",
+  "title": "jixoai universal props (the eight-axis kernel)",
+  "description": "The shared explicit-props kernel: the schema (grammar types + alias defaults) and the generated CSS ladder (alias vars, @supports verdicts, density composition).",
   "files": [
-    { "path": "registry/files/lib/universal-props.schema.ts", "target": "@lib/universal-props.schema.ts" },
-    { "path": "registry/files/lib/universal-props.css",      "target": "@lib/universal-props.css" }
+    { "type": "registry:file", "path": "registry/files/lib/universal-props.schema.ts", "target": "@lib/universal-props.schema.ts" },
+    { "type": "registry:file", "path": "registry/files/lib/universal-props.css",      "target": "@lib/universal-props.css" }
   ]
 }
 // every migrated ui item gains:

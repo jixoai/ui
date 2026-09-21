@@ -118,5 +118,14 @@
     "tree-view",
     "website-scaffold"
   ],
-  "exemptions": []
+  "exemptions": [],
+  "siteOnly": [
+    "a11y-table",
+    "density-demo",
+    "props-table",
+    "token-table"
+  ],
+  "notes": {
+    "siteOnly": "the four families that live under apps/www/src/lib/ui but ship NO registry:ui item (registry:ui = 111; the census 115 = dirs) — they adopt the axes like everyone, their universality is site-side only"
+  }
 }
