@@ -158,6 +158,16 @@ LAWS:
   The computed fixture covers `sm` AND `2xs` (the scoped hit-floor case)
   across row-min/hit/textarea-min/color-lane. The component root stamps
   `--jx-density-coefficient` when the number lane is used.
+
+  **Two landing exceptions, reconciled W1** (stream-A feedback, receipts
+  in `scripts/probe-density-coefficient.mjs`): (a) the `--jx-text`
+  channel CANNOT take a `-base` twin — the name `--jx-text-base` is the
+  ruler's 13px constant already consumed elsewhere — the text channel
+  composes INLINE (rung scope × coefficient in one declaration, no
+  intermediate var); (b) the toggle/slider family (`--jx-toggle-track/
+  width/knob`, `--jx-slider-track`) are effective-operand compositions
+  like textarea-min/color-lane — verbatim from today, zero coefficient
+  of their own (they ride the operands' scaling).
   **Precedence**: a NAMED lane sets the rung scope AND resets the
   coefficient to 1 (explicit rung = exact rung, never double-scaled); the
   NUMBER lane sets the coefficient and leaves the rung at ambient; `auto`

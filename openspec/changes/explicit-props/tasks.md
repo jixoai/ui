@@ -30,7 +30,32 @@
       + the fixtures doc (card's REAL extracted meta + the exempt shape)
       committed at research/ — per §18: the `--check` LOADING is task 4.6
 
-## W1 — token core (theme + slot helpers)
+## W1 — token core (theme + slot helpers) — LANDED 5d9810e5 + b4e88525
+
+- [x] 1.1 surface ladder: light AND dark + the -1dp deepest rung
+      (`--surface-concave`), auto-dark projection regenerated, mirrors
+      byte-identical
+- [x] 1.2 elevation level table: 7 levels × (shadow recipe, surface
+      role) per profile, NO tint, M3-Expressive recipes
+- [x] 1.3 the carriers' CSS side: the §11 root invariants on :root
+      (+ --jx-color-effective across all three theme scopes)
+- [x] 1.4 the eight slot helpers, real implementations (explicit ??
+      ambient ?? own; jx.<axis> context keys; stampCarriers inline-style
+      emitter; query resolves to base until W2)
+- [x] 1.5 density rename: small/medium/large aliases over the legacy
+      rungs (zero migration; the five spellings untouched)
+- [x] 1.6 fixed micro-typography exemption receipted (caption 9px /
+      micro 10px absolute under a 1.5rem size override — probe 29/29)
+- [x] 1.7 context-coverage synced (axisContextKeys + amendment note, v2)
+- [x] 1.8 the coefficient carrier: base/effective split (the text
+      channel's inline-composition exception + toggle/slider
+      effective-operand exception reconciled into design §4), the four
+      derived channels per the frozen table, 2xs floor override kept;
+      probe `scripts/probe-density-coefficient.mjs` 29/29
+- [x] 1.9 the shared artifact EARLY: universal-props.schema.ts (§17 +
+      §9.1 verbatim) + inventory promoted + generator merge + all 32
+      metas regenerated (annotation zones byte-identical) + ir.ts's
+      minimal `universal?` field
 
 - [ ] 1.1 surface ladder: `surface`, `surface-container-lowest…highest` (+ the
       `-1dp` deepest rung) for light AND dark in `registry/files/theme/jixoai.css`
