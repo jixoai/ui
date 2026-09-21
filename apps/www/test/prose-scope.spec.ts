@@ -84,7 +84,7 @@ const resolveInWindow = <T,>(compute: () => T): T => {
 describe('unit — resolveTypoStyle', () => {
   it('the 11-knob bag: inheritance declarations, var mirrors, presence attrs', () => {
     const bag = resolveTypoStyle({
-      size: '1.125rem',
+      measure: '1.125rem',
       leading: 1.9,
       family: 'serif',
       ink: 'primary',
@@ -175,9 +175,9 @@ describe('unit — resolveTypoStyle', () => {
 // 2 · unit — the Defaults audit surface
 // =========================================================================
 describe('unit — ProseDefaults', () => {
-  it('resolve({}) — every one of the 11 knobs absent (no own, no fallback)', () => {
+  it('resolve({}) — every one of the 11 knobs absent (no own, no fallback); the axis lanes rest at auto', () => {
     expect(resolveInWindow(() => ProseDefaults.resolve({}))).toEqual({
-      size: undefined,
+      measure: undefined,
       leading: undefined,
       family: undefined,
       ink: undefined,
@@ -188,12 +188,22 @@ describe('unit — ProseDefaults', () => {
       initialLetter: undefined,
       wrap: undefined,
       hyphens: undefined,
+      // the W3-D2 eight-axis lanes (§0.1: every axis defaults 'auto' —
+      // no opinion, nothing stamps)
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
   });
 
-  it('every knob set — the absentSlot identity passthrough', () => {
+  it('every knob set — the absentSlot identity passthrough (the axis lanes rest at auto)', () => {
     const knobs = {
-      size: '2rem',
+      measure: '2rem',
       leading: 2,
       family: 'mono' as const,
       ink: 'muted' as const,
@@ -205,13 +215,27 @@ describe('unit — ProseDefaults', () => {
       wrap: 'stable' as const,
       hyphens: 'manual' as const,
     };
-    expect(resolveInWindow(() => ProseDefaults.resolve(knobs))).toEqual(knobs);
+    expect(resolveInWindow(() => ProseDefaults.resolve(knobs))).toEqual({
+      ...knobs,
+      // the W3-D2 eight-axis lanes (§0.1: 'auto' — no opinion)
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
   });
 
-  it('the slots surface is exactly the 11 knobs — density deliberately missing', () => {
+  it('the slots surface is the 11 knobs + the eight axis lanes (W3-D2)', () => {
     expect(Object.keys(ProseDefaults.slots).sort()).toEqual(
       [
         'align',
+        'color',
+        'density',
+        'elevation',
         'family',
         'gradient',
         'ground',
@@ -220,13 +244,19 @@ describe('unit — ProseDefaults', () => {
         'initialLetter',
         'ink',
         'leading',
+        'measure',
+        'motion',
+        'radius',
+        'shape',
         'size',
+        'theme',
         'wrap',
       ].sort(),
     );
-    // the trio's own naming argument, shared: prose has no density
-    // opinion and stamps no data-density
-    expect('density' in ProseDefaults.slots).toBe(false);
+    // the trio's founding naming argument SURVIVES at the stamp level
+    // (W3-D2, revised): the universal density LANE exists (no-own),
+    // but the region stamps a rung only for an EXPLICIT lane —
+    // ambient control chrome inside the region keeps flowing
   });
 });
 
@@ -283,7 +313,7 @@ describe('the provider', () => {
     expect(byTestid(container, 'reader-inner').textContent).toBe('ink=muted');
     // the outer provider's bag reads from OUTSIDE the inner region
     // but inside its own — the nearest provider, not the outermost
-    expect(byTestid(container, 'reader-outer-mid').textContent).toBe('size=16px|leading=1.8');
+    expect(byTestid(container, 'reader-outer-mid').textContent).toBe('measure=16px|leading=1.8');
     // outside every prose region: no provider, no opinion
     expect(byTestid(container, 'reader-outer-after').textContent).toBe('NONE');
   });

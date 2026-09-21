@@ -326,13 +326,13 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             <P>The face's own channels carry this region: 14px body, the p lane at 1.6, ink at the foreground token. Nothing was stamped.</P>
           </Prose>
           <span class={cx(rt.note11)}>size + leading — scale and flow</span>
-          <Prose size="1.0625rem" leading={1.9}>
+          <Prose measure="1.0625rem" leading={1.9}>
             <P>17px by inheritance; the P rides the region's 1.9 leading through the presence-gated residue rule. The same string would move a heading's em ladder for free — ambient size scales the ladder.</P>
           </Prose>
         </div>
         <div class={cx(rt.col8)}>
           <span class={cx(rt.note11)}>align justify + hyphens auto (lang on the host)</span>
-          <Prose align="justify" hyphens="auto" lang="en" size="13.5px">
+          <Prose align="justify" hyphens="auto" lang="en" measure="13.5px">
             <P>Justified columns read best when the engine may break words: hyphens auto needs a lang on the host or an ancestor, and the two knobs are documented as a pair — justify without hyphens rivers, hyphens without justify never shows its work.</P>
           </Prose>
           <span class={cx(rt.note11)}>wrap pretty — the prose word</span>

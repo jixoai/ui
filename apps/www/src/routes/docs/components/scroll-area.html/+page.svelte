@@ -6,6 +6,7 @@
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import ScrollArea from '$lib/ui/scroll-area/scroll-area.svelte';
+  import Card from '$lib/ui/card/card.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import Toc from '$lib/ui/toc/toc.svelte';
@@ -201,6 +202,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<ScrollArea size={18} density="small">…</ScrollArea>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/scroll-area-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -518,6 +525,22 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a height, a label, and pad for the thumb lane; the rest is a native scroll container."><div class={cx(rt.col16)}><CodeBlock code={basicUsage} lang="svelte" meta="basic" /><CodeBlock code={horizontalUsage} lang="svelte" meta="horizontal" /><CodeBlock code={tocUsage} lang="ts" meta="toc-outline" /></div></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The WAI scrollable-region pattern, PLUS the thumb's own scrollbar contract — mounted by the kit's adapter."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the scrollable area (the region, then the thumb)' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'arrows / PgUp / PgDn / Home / End on the thumb', action: 'Keyboard-drag the thumb itself — steps, pages, jumps (role=scrollbar contract)' }, { key: 'pointer drag / track click', action: 'The thumb drags with pointer capture; a track click pages toward the click' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern' }, { name: 'role (thumb)', value: 'scrollbar', description: 'The thumb\'s contract: aria-controls → the viewport, aria-valuenow tracking 0..100, aria-orientation, focusable, keyboard-draggable' }, { name: 'the four pins', value: 'focus-within / thumb focus / drag / hover', description: 'Each suspends the idle fade; while any pin holds the thumb stays in the accessibility tree ("AT-engaged" is not a detectable platform state and is deliberately not a pin)' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The capsule look rides the scrollbar-token law: currentColor family, no JS."><div class={cx(rt.col24)}><DensityDemo><ScrollArea class={cx(rt.saStage36)} label="density sample" pad="0.75rem"><ol class={cx(rt.col8)}>{#each Array(10) as _, i (i)}<li class={cx(rt.frame40, rt.bgMuted40, rt.px12, rt.py6, rt.text125)}>item {i + 1}</li>{/each}</ol></ScrollArea></DensityDemo><TokenTable tokens={[{ name: '--scrollbar-thumb / -hover / -active', default: 'currentColor steps', source: 'theme', description: 'The token law the capsule paints with — dark stages restyle for free' }, { name: '--jx-scroll-thumb-radius', default: '0px (square-cut)', source: 'component', description: 'The thumb\'s corner radius — set by the radius prop (px or the \'full\' capsule); 0 by default' }, { name: '--jx-scroll-track-w', default: '12px (width tiers: 8/12/16)', source: 'component', description: 'The drawn lane\'s size — the width prop\'s tier table (thumb rides at track − 2×2px resting, growing +2px inward on hover/drag)' }, { name: '--jx-scroll-pad', default: 'pad prop', source: 'component', description: 'The ring padding keeping content clear of the thumb lane' }] } /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. SEVEN lanes — the thumb-corner chrome param owns the radius name (a px number or the full capsule, never the concentric corner axis; §13 rules no rename); the axis surface rides the region root, the kit's hand-drawn engine stays outside the supply set."
+    >
+      <ComponentCanvas title="ScrollArea · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><ScrollArea label="axes" size={18} density="small" style="height: 8rem"><p>line one</p><p>line two</p><p>line three</p><p>line four</p></ScrollArea></div>
+<div class={cx(rt.panel)}><ScrollArea label="named steps" size="medium" style="height: 8rem"><p>medium via the alias ladder</p><p>the thumb-corner radius prop keeps its own name</p></ScrollArea></div>
+<div class={cx(rt.panel)}><ScrollArea label="the concentric chain" radius={20} style="height: 8rem"><Card radius="auto"><p style="padding: .5rem">radius 20 on the region; the auto card computes max(0px, 20px − 0.875rem)</p></Card></ScrollArea></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollArea Props interface (the scrollbar variant prop retired with the dual-mode era); getViewport()/scrollTo() are the imperative exports."><PropsTable props={[{ name: 'orientation', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes scroll: overflow-y/x mapping.' }, { name: 'label', type: 'string', default: "'scrollable content'", description: 'a11y name for the region.' }, { name: 'pad', type: 'string', default: '0', description: 'Ring padding (CSS length), inline-axis — keeps content clear of the thumb lane.' }, { name: 'radius', type: "number | 'full'", default: '—', description: 'Thumb corner radius: a px number or the \'full\' capsule. Omitted → 0 (square-cut, the r2 default — the hard capsule retired).' }, { name: 'width', type: "'auto' | 'thin' | 'wide'", default: "'auto'", description: 'The chrome width tier sizing the drawn lane (8/12/16px; thumb resting 6/10/14 = track − 2 with the edge side AT the region edge, hover/drag 8/12/16 = the track). \'none\' is native-only vocabulary.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'style', type: 'string', default: '—', description: 'Style passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'Scroll callback from the viewport.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The scrolling content.', required: true }, { name: 'getViewport()', type: '() => HTMLDivElement | null', default: 'export', description: 'The scrollport element — Toc scrollRoot / engine-direct linkage.' }]} /></SectionCard></div>
   </div>
 </div>

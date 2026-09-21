@@ -51,6 +51,12 @@
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PrototypeFlex size={18} density="small">…</PrototypeFlex>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/prototype-flex-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -123,6 +129,21 @@
 </div>
 
 <div class={cx(rt.shellFlush)}>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the alpha lane's zero-translation posture extends to the paint axes — the carriers join the consumer style attr, the layout style: directives stay untouched."
+    >
+      <ComponentCanvas title="PrototypeFlex · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PrototypeFlex gap={12} size={18} density="small"><span>one</span><span>two</span><span>three</span></PrototypeFlex></div>
+<div class={cx(rt.panel)}><PrototypeFlex gap={12} size="medium" radius="large"><span>named</span><span>steps</span></PrototypeFlex></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"

@@ -319,7 +319,19 @@ describe('in-window unit resolution — the own-defaults projection', () => {
         elevation: 'auto',
         motion: 'auto',
       },
-      { density: undefined },
+      // progress W3-D2: the eight-axis surface joined the readout
+      // family's contract — every axis silent-'auto' (the zero-hit
+      // ruling stands: value/max/label are data semantics)
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
       { density: undefined },
       // separator W3-B: the eight-axis surface joined the ink-geometry
       // literal — every axis silent-'auto'

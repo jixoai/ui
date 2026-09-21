@@ -61,6 +61,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PatternFaq size={18} density="small">…</PatternFaq>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pattern-faq-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -163,6 +169,21 @@ ${close}
       summary="One frame, authored questions — the accordion family carries the disclosure."
     >
       <CodeBlock code={usage} lang="svelte" meta="pattern-faq usage" />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the man framing is a composition product — the size axis scales the article root, the Accordion rides the ambient chain (吃也供)."
+    >
+      <ComponentCanvas title="PatternFaq · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PatternFaq size={16} density="small"><details open><summary>does the man page scale?</summary>yes — the framing sizes in em, the accordion rides the ambient chain.</details></PatternFaq></div>
+<div class={cx(rt.panel)}><PatternFaq size="medium" radius="large"><details><summary>and named steps?</summary>medium/large resolve through the alias-ladder vars.</details></PatternFaq></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

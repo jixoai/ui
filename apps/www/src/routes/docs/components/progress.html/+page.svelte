@@ -70,6 +70,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<Progress size={18} density="small">…</Progress>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/progress-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -154,5 +160,20 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pass a 0..max value, or omit it for the honest 'something is happening' state."><CodeBlock code={usage} lang="svelte" meta="Progress usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native element already exposes value semantics; the component adds only a polite % readout."><A11yTable keys={[]} aria={[{ name: 'aria-valuenow / min / max', value: 'native', description: 'Exposed by the <progress> element itself; indeterminate simply omits valuenow' }, { name: 'aria-label', value: 'label ?? "progress"', description: 'Names the bar when no visible label is given' }, { name: 'role: status', value: 'on the % readout', description: 'Polite live region — announced when the reader is idle' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The paint resets both engines' ::-progress pseudo-elements and draws from theme colors — no jx density tokens of its own."><div class={cx(rt.col24)}><DensityDemo><Progress value={0.42} label="sync" /></DensityDemo><TokenTable tokens={[{ name: 'brand fill', default: '--primary', source: 'color', description: 'The determinate bar fill' }, { name: '1px frame', default: 'border-border', source: 'color' }, { name: 'stripe sweep', default: 'indeterminate run', source: 'component', description: 'Terminal stripe animation when value is omitted' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The zero-hit ruling stands (value/max/label are data semantics); the size axis scales the readout root around the native bar."
+    >
+      <ComponentCanvas title="Progress · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Progress value={0.7} label="axes" size={18} density="small" /></div>
+<div class={cx(rt.panel)}><Progress label="named steps" size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Progress Props interface — the rest of the element's attributes ride through natively."><PropsTable props={[{ name: 'value', type: 'number', default: '—', description: '0..max; omitted ⇒ indeterminate ("activity", not "progress").' }, { name: 'max', type: 'number', default: '1', description: "The element's own spec default." }, { name: 'label', type: 'string', default: '—', description: 'Visible label above the bar (also names the element).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 </div>

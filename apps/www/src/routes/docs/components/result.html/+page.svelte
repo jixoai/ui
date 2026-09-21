@@ -59,6 +59,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<Result size={18} density="small">…</Result>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/result-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -117,6 +123,21 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'status', value: 'visible glyph and title', description: 'Status is communicated with text, not color alone.' }, { name: 'actions', value: 'native controls', description: 'Keep recovery actions keyboard reachable.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Result status="info" title="No changes" /></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The outcome panel is flat content, all no-own; the size axis scales the root and the supply chain is the point."
+    >
+      <ComponentCanvas title="Result · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Result status="success" title="axes joined" description="One number moves the outcome panel." size={18} density="small" /></div>
+<div class={cx(rt.panel)}><Result status="info" title="named steps" description="medium/large resolve through the alias-ladder vars." size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Result props"><PropsTable props={[{ name: 'title', type: 'string', description: 'Outcome heading.', required: true }, { name: 'status', type: "'success' | 'error' | 'warning' | 'info'", default: "'info'", description: 'Outcome tone and glyph.' }, { name: 'description', type: 'string', description: 'Optional supporting copy.' }, { name: 'icon', type: 'Snippet', description: 'Replaces the default glyph.' }, { name: 'actions', type: 'Snippet', description: 'Renders next steps.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
   </div>
 </div>

@@ -90,6 +90,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PatternHeroSet size={18} density="small">…</PatternHeroSet>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pattern-hero-set-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -244,6 +250,21 @@ ${close}
       summary="One import per form; the set's barrel exports the canonical main as default and the two siblings as named exports."
     >
       <CodeBlock code={usage} lang="svelte" meta="pattern-hero-set usage" />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The set's canonical main is the NO-ROOT composition form (seven lanes — the terminal bezel theme pin owns that name, the context round-2 passthrough exemption): it supplies the axes through the ambient chain and HeroSection stamps the carriers on its root; the ascii/marquee siblings own their roots and stamp directly."
+    >
+      <ComponentCanvas title="PatternHeroAscii / PatternHeroMarquee · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PatternHeroAscii art="jixoai" eyebrow="$ figlet axes" summary="the ascii banner keeps its own viewport-clamped scale; the chrome scales." size={16} density="small" /></div>
+<div class={cx(rt.panel)}><PatternHeroMarquee items={["core", "atoms", "axes"]} eyebrow="$ npm ls --depth 0" summary="named steps resolve via the alias ladder." size="medium" radius="large" /></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

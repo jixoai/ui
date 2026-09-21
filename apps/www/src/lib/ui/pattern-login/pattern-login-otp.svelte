@@ -15,6 +15,22 @@
 <script lang="ts">
   import InputOtp from '$lib/ui/input-otp/input-otp.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { PatternLoginDefaults } from './pattern-login-defaults.svelte';
   import { loginStyles } from './pattern-login.stylex';
   import './pattern-login.css';
 
@@ -29,6 +45,30 @@
     hint?: string;
     /** fires with the joined code on submit */
     onverify?: (code: string) => void;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the composed InputOtp rides
+     *  the ambient chain — the composition law) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -38,8 +78,27 @@
     value = $bindable(''),
     hint = '',
     onverify,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D2 — the login family's shared
+  // contract; the next screen stamps the same lanes as the card)
+  const d = $derived(
+    PatternLoginDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   function submit(event: SubmitEvent): void {
     event.preventDefault();
@@ -67,6 +126,10 @@
 
 <section
   data-jx-pattern-login-otp=""
+  bind:this={uniRoot}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={`jx-pattern-login ${cx(loginStyles.card)} ${className}`}
   aria-label="terminal two-factor verification"
 >

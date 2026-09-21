@@ -269,6 +269,12 @@ ${close}
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<Mermaid size={18} density="small">…</Mermaid>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/mermaid-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -581,6 +587,21 @@ ${close}
       />
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. SEVEN lanes — the engine-token theme literal owns the theme name (the code-card precedent, §13 rules no rename); the axis surface rides the figure root, the diagram engine itself stays outside the supply set."
+    >
+      <ComponentCanvas title="Mermaid · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Mermaid source={'flowchart LR\n  axes[size] --> engine{render}'} name="axes.mmd" size={18} density="small" /></div>
+<div class={cx(rt.panel)}><Mermaid source={'flowchart LR\n  named[steps resolve via the alias ladder]'} name="steps.mmd" size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"

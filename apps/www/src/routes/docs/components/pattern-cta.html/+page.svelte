@@ -58,6 +58,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PatternCta size={18} density="small">…</PatternCta>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pattern-cta-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -121,6 +127,21 @@ ${close}
       summary="One band, one payload: the command. Everything else has a quiet default."
     >
       <CodeBlock code={usage} lang="svelte" meta="pattern-cta usage" />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: a composition product over batch A-D1 children — the size axis scales the band root, the children ride the ambient chain (吃也供)."
+    >
+      <ComponentCanvas title="PatternCta · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PatternCta heading="scale the band" summary="One number moves the whole ensemble — the code card and the buttons reflow in em." size={16} density="small" /></div>
+<div class={cx(rt.panel)}><PatternCta heading="named steps" summary="size=medium · radius=large resolve through the alias-ladder vars." size="medium" radius="large" /></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

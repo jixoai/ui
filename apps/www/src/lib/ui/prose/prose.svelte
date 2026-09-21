@@ -2,12 +2,15 @@
   jixoai prose (registry/files/ui/prose/prose.svelte,
   typography-context-and-parts Lane A, 2026-09-07).
 
-  The reading region PROVIDER: <Prose size leading family ink gradient
-  ground align indent initialLetter wrap hyphens> renders a
+  The reading region PROVIDER: <Prose measure leading family ink
+  gradient ground align indent initialLetter wrap hyphens> renders a
   div.jx-pure[data-jx-prose] host — NOT <Typography>: the word
   `typography` is markdown's live user-facing vocabulary
   (<Markdown typography="relaxed">); two concepts under one name is
-  documentation debt forever (ruling A1).
+  documentation debt forever (ruling A1). The §13 rename (W3-D2): the
+  type-scale knob is `measure` now — the freed `size` belongs to the
+  universal size axis (the eight-axis surface below; a css measure is
+  not the base-scale axis).
 
   THE TWO-CHANNEL LAW (the density contract verbatim):
     JS  — this provider resolves the 11 knobs through ProseDefaults
@@ -30,10 +33,10 @@
           scope-owned residue sheet.
 
   THE SOVEREIGNTY CONTRACT (design §1.3 — pure cascade, zero JS
-  masking, zero markdown changes): size/leading paint ONLY through
+  masking, zero markdown changes): measure/leading paint ONLY through
   inheritance and presence-gated (0,2,0) rules that LOSE to the
   markdown sheet's §2a (0,2,1) inside [data-jx-markdown] — an outer
-  <Prose size leading> can never fight <Markdown typography=…>;
+  <Prose measure leading> can never fight <Markdown typography=…>;
   ink/flow knobs pass through (the trio owns scale only; links keep
   primary by the face B2 element rule — the recorded exception);
   chrome stays unaffected BY CASCADE (element-level declarations beat
@@ -61,6 +64,21 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import {
     applyTypoScope,
     provideTypography,
     resolveTypoStyle,
@@ -77,10 +95,13 @@
   import { ProseDefaults } from './prose-defaults.svelte';
   import './prose.css';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** the region's type size — inheritance ONLY (CssLength; markdown
-     *  sovereignty is a cascade fact, not a JS mask) */
-    size?: CssLength;
+     *  sovereignty is a cascade fact, not a JS mask). RENAMED from
+     *  `size` (explicit-props §13, W3-D2): a css measure is not the
+     *  scale axis — the freed name belongs to the universal size
+     *  lane below */
+    measure?: CssLength;
     /** P-only line-height (headings keep their 1.25); number */
     leading?: number;
     /** 'sans' | 'mono' | 'serif' → the theme --font-* tokens ('serif'
@@ -116,13 +137,38 @@
     /** 'auto' (needs lang on the host or an ancestor — documented) |
      *  'none' | 'manual' */
     hyphens?: ProseHyphens;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — an EXPLICIT lane is the only thing that
+     *  stamps a rung (the markdown trio's founding law: the region
+     *  never re-scopes ambient control chrome) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the §13-freed name) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the region's content */
     children?: Snippet;
     class?: string;
   }
 
   let {
-    size,
+    measure,
     leading,
     family,
     ink,
@@ -133,18 +179,28 @@
     initialLetter,
     wrap,
     hyphens,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     children,
     class: className = '',
     style,
     ...rest
   }: Props = $props();
 
-  // the family Defaults is the single read point (ruling A2): every
-  // knob an absentSlot — an unset knob resolves undefined and emits
-  // nothing; there is no own to fall back to
-  const knobs = $derived(
+  // the family Defaults is the single read point (ruling A2 + W3-D2):
+  // every knob an absentSlot — an unset knob resolves undefined and
+  // emits nothing; there is no own to fall back to. The eight axis
+  // lanes ride the SAME record (all no-own — the reading region's
+  // paint opinions live in the knobs, never the axes)
+  const d = $derived(
     ProseDefaults.resolve({
-      size,
+      measure,
       leading,
       family,
       ink,
@@ -155,13 +211,37 @@
       initialLetter,
       wrap,
       hyphens,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
     }),
   );
 
-  // the plugin chain AT THE PROVIDER: the whole bag through the
+  // the plugin chain AT THE PROVIDER: the knob bag through the
   // nearest plugin root (identity fast path when no plugin targets
   // the typography def); read inside the $derived so medium-gated
-  // filters re-run when the medium flips
+  // filters re-run when the medium flips. The projection is
+  // load-bearing (W3-D2): the typography context carries ONLY the 11
+  // knobs — the axis lanes stay on the §11 supply below, so the lib's
+  // TypoScope and the plugin chain's purity contract stay axis-free
+  const knobs = $derived({
+    measure: d.measure,
+    leading: d.leading,
+    family: d.family,
+    ink: d.ink,
+    gradient: d.gradient,
+    ground: d.ground,
+    align: d.align,
+    indent: d.indent,
+    initialLetter: d.initialLetter,
+    wrap: d.wrap,
+    hyphens: d.hyphens,
+  });
   const effective = $derived(applyTypoScope(knobs));
 
   // the context pair (F4-promoted lib posture): getter-endorsed, so
@@ -173,22 +253,42 @@
   // lane). PURE resolution, mounted here
   const bag = $derived(resolveTypoStyle(effective));
 
-  // the style string: declarations then vars, consumer style LAST
-  // (consumer wins on conflict — the layer law's spirit at the
-  // inline seam); undefined when nothing is set (no empty attr)
+  // ── the eight-axis surface (W3-D2 — carriers first in the join:
+  //  the knobs are the region's SOVEREIGN type scale, so a `measure`
+  //  declaration beats the axis' font-size carrier on conflict; the
+  //  --jx-size-effective carrier still supplies the parts below)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the founding stamp law (the markdown trio's): ONLY an explicit
+  // density lane stamps a rung — the region never re-scopes ambient
+  // control chrome inside it
+  const rootDensityRung = $derived(density === undefined ? undefined : densityRungOf(d.density));
+
+  // the style string: carriers then declarations then vars, consumer
+  // style LAST (consumer wins on conflict — the layer law's spirit
+  // at the inline seam); undefined when nothing is set (no empty
+  // attr)
   const hostStyle = $derived.by(() => {
-    const parts: string[] = [
-      ...Object.entries(bag.declarations),
-      ...Object.entries(bag.vars),
-    ].map(([prop, value]) => `${prop}:${value}`);
+    const parts: string[] = [];
+    if (carriers !== '') parts.push(carriers);
+    parts.push(
+      ...[...Object.entries(bag.declarations), ...Object.entries(bag.vars)].map(
+        ([prop, value]) => `${prop}:${value}`,
+      ),
+    );
     if (style !== undefined) parts.push(style);
     return parts.length > 0 ? parts.join(';') : undefined;
   });
 </script>
 
 <div
+  bind:this={uniRoot}
   class={cn('jx-pure', className)}
   data-jx-prose
+  data-density={rootDensityRung}
+  class:dark={d.theme === 'dark'}
   style={hostStyle}
   {...bag.attrs}
   {...rest}

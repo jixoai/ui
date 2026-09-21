@@ -192,16 +192,27 @@ describe('the scrollbar mode prop is gone (the three-part acceptance)', () => {
 
   it('(1) pinned Props snapshot — the COMPLETE allowlist, frozen: no scrollbar field, no mode-shaped field of any name', () => {
     // axis capabilities (orientation) and the r2 chrome parameters
-    // (radius/width — Owner 2026-09-15 r2) are NOT mode-shaped — they stay
+    // (radius/width — Owner 2026-09-15 r2) are NOT mode-shaped — they
+    // stay. W3-D2 widened the allowlist: the seven universal axis
+    // lanes (density · size · shape · color · theme · elevation ·
+    // motion) join the surface; the radius axis is NOT among them
+    // (the thumb-corner chrome param owns the name)
     expect(parsePropsKeys(source).sort()).toEqual([
       'children',
       'class',
+      'color',
+      'density',
+      'elevation',
       'label',
+      'motion',
       'onscroll',
       'orientation',
       'pad',
       'radius',
+      'shape',
+      'size',
       'style',
+      'theme',
       'width',
     ]);
     // the retired type is absent from the item's exports
@@ -243,7 +254,26 @@ describe('the scrollbar mode prop is gone (the three-part acceptance)', () => {
     expect(matchRetired(plantedInterface)).toContain('scrollbar prop'); // scan detector reds
     expect(parsePropsKeys(plantedInterface)).toContain('scrollbar'); // snapshot detector reds
     // against the frozen allowlist the plant is exactly the delta
-    const frozen = ['children', 'class', 'label', 'onscroll', 'orientation', 'pad', 'radius', 'style', 'width'];
+    // (the W3-D2 widened surface: the seven axis lanes ride beside
+    // the historical chrome allowlist)
+    const frozen = [
+      'children',
+      'class',
+      'color',
+      'density',
+      'elevation',
+      'label',
+      'motion',
+      'onscroll',
+      'orientation',
+      'pad',
+      'radius',
+      'shape',
+      'size',
+      'style',
+      'theme',
+      'width',
+    ];
     expect(parsePropsKeys(plantedInterface).filter((k) => !frozen.includes(k))).toEqual(['scrollbar']);
   });
 });

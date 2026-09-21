@@ -37,6 +37,12 @@
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<Reference size={18} density="small">…</Reference>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/reference-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -116,7 +122,22 @@
       </SectionCard>
     </div>
 
-    <div id="api" data-reveal="">
+    <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the citation is an inline anchor — the size axis scales the label through plain inheritance, the document-ontology machinery is structural context orthogonal to the axes."
+    >
+      <ComponentCanvas title="Reference · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><NumberingProvider><Figure kind="equation" id="eq-axes" caption="the scale lane"><CodeBlock code="size = 18" lang="ts" meta="eq axes" /></Figure><p style="margin-top: .5rem">see <Reference to="eq-axes" size={18} density="small" /></p></NumberingProvider></div>
+<div class={cx(rt.panel)}><NumberingProvider><Figure kind="equation" id="eq-named" caption="the alias ladder"><CodeBlock code="size = medium" lang="ts" meta="eq named" /></Figure><p style="margin-top: .5rem">see <Reference to="eq-named" size="medium" radius="large" /></p></NumberingProvider></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
       <SectionCard eyebrow="api" title="Reference props">
         <PropsTable
           props={[

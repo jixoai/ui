@@ -19,7 +19,7 @@
  * SOVEREIGNTY: every residue rule here is DELIBERATELY (0,2,0) — it
  * beats every face element rule (max (0,1,1)) regardless of bundle
  * order, and LOSES to the markdown sheet's §2a (0,2,1) and typography
- * trio (0,3,0) inside [data-jx-markdown]: an outer <Prose size
+ * trio (0,3,0) inside [data-jx-markdown]: an outer <Prose measure
  * leading> can never fight <Markdown typography=…> (the sovereignty
  * contract, by cascade, zero JS masking). The hooks are data-jx-* only
  * (shadow-clean; no invented jx-* classes); the .jx-pure face is

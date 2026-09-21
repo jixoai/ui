@@ -60,15 +60,29 @@
   import { cn } from '$lib/utils';
   import { createHandDrawnScrollbar, type HandDrawnHandle } from '$lib/scroll-area-kit/hand-drawn.svelte';
   import type { OverflowVerdict } from '$lib/scroll-area-kit/core';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { scrollAreaStyles } from './scroll-area.stylex';
   import { ScrollAreaDefaults } from './scroll-area-defaults.svelte';
   import './scroll-area.css';
 
   export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
   /** the chrome width tiers (Owner r2): the drawn lane's size —
-   * thin 8px / auto 12px / wide 16px. `none` is native-only
-   * vocabulary (a hand-drawn scrollbar that draws nothing is the
-   * platform tier, not this component's). */
+   *  thin 8px / auto 12px / wide 16px. `none` is native-only
+   *  vocabulary (a hand-drawn scrollbar that draws nothing is the
+   *  platform tier, not this component's). */
   export type ScrollWidthTier = 'auto' | 'thin' | 'wide';
   export type ViewportScrollEvent = HTMLElementEventMap['scroll'] & {
     currentTarget: EventTarget & HTMLDivElement;
@@ -84,11 +98,35 @@
     pad?: string;
     /** thumb corner radius: a px number, or 'full' for the capsule.
      *  Default undefined → 0 (square-cut) — the hard capsule retired
-     *  (Owner r2); stamped as --jx-scroll-thumb-radius on the region. */
+     *  (Owner r2); stamped as --jx-scroll-thumb-radius on the region.
+     *  NOT the radius axis (W3-D2): this chrome param owns the name
+     *  ('full' is outside RadiusLane and the target is the THUMB,
+     *  never the region's concentric corner; §13 rules no rename —
+     *  the chip/badge shape precedent). */
     radius?: number | 'full';
     /** the chrome width tier sizing the drawn lane (thin 8 / auto 12
      *  / wide 16); stamped data-width on the region. Default 'auto'. */
     width?: ScrollWidthTier;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     style?: string;
     onscroll?: (event: ViewportScrollEvent) => void;
@@ -101,6 +139,13 @@
     pad,
     radius,
     width = 'auto',
+    density,
+    size,
+    shape,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
     style,
     onscroll,
@@ -108,10 +153,27 @@
     ...restProps
   }: Props = $props();
 
-  // the family Defaults is the single read point (the A1 contract):
-  // absence IS the state — resolved undefined paints nothing and the
-  // sheet's 0px default applies (square-cut, the r2 default look)
-  const d = $derived(ScrollAreaDefaults.resolve({ radius }));
+  // the family Defaults is the single read point (the A1 contract +
+  // W3-D2): the thumb-corner literal keeps its absentSlot semantics —
+  // absence IS the state, resolved undefined paints nothing and the
+  // sheet's 0px default applies (square-cut, the r2 default look).
+  // SEVEN universal lanes join (density · size · shape · color ·
+  // theme · elevation · motion); the radius AXIS is left out — the
+  // chrome param owns the name (see the defaults file's collision
+  // note); the axis surface rides the family's OWN region root, the
+  // engine (the kit's hand-drawn chrome) stays outside the supply set
+  const d = $derived(
+    ScrollAreaDefaults.resolve({ radius, density, size, shape, color, theme, elevation, motion }),
+  );
+  // SEVEN lanes stamp — plus the radius NUMBER lane by the chart §13
+  // analogy (the D1 precedent, census-recorded there): a px number is
+  // load-bearing thumb chrome AND the universal radius axis' number
+  // lane verbatim, so the region becomes the concentric ANCHOR for
+  // descendants; 'full' (outside RadiusLane) and the ambient stay out
+  const carriers = $derived(
+    stampCarriersForLanes({ ...d, radius: typeof radius === 'number' ? radius : undefined }),
+  );
+  provideUniversalLanes({ density, size, shape, color, theme, elevation, motion });
 
   // the thumb radius as a CSS value — stamped on the REGION (the
   // sheet's var consumer)
@@ -119,9 +181,24 @@
     d.radius === undefined ? undefined : d.radius === 'full' ? 'calc(infinity * 1px)' : `${d.radius}px`,
   );
 
+  // the region-root style: the axis carriers + the thumb-corner
+  // literal, ONE joined stamp (consumer `style` rides the VIEWPORT
+  // below, its historical lane — untouched)
+  const rootStyle = $derived(
+    [
+      carriers,
+      thumbRadius === undefined ? undefined : `--jx-scroll-thumb-radius: ${thumbRadius}`,
+    ]
+      .filter(Boolean)
+      .join('; ') || undefined,
+  );
+
   const viewportId = `jx-scroll-viewport-${++nextViewportId}`;
 
+  // the query() anchor rides the region root — declared AFTER the
+  // anchor state (the W3-C TDZ kernel note)
   let regionEl = $state<HTMLDivElement | null>(null);
+  provideQueryAnchor(() => regionEl ?? null);
   let viewportEl = $state<HTMLDivElement | null>(null);
   let contentEl = $state<HTMLDivElement | null>(null);
   let trackYEl = $state<HTMLDivElement | null>(null);
@@ -221,7 +298,9 @@
   data-chrome={chromeOn ? 'on' : undefined}
   data-verdict-y={verdictY}
   data-verdict-x={verdictX}
-  style={thumbRadius === undefined ? undefined : `--jx-scroll-thumb-radius: ${thumbRadius}`}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   bind:this={regionEl}
 >
   <!-- svelte-ignore a11y_no_noninteractive_tabindex (the WAI scrollable-

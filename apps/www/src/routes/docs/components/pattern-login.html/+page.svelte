@@ -70,6 +70,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PatternLogin size={18} density="small">…</PatternLogin>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pattern-login-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -177,6 +183,21 @@ ${close}
           { name: 'error lanes', value: 'Input error prop', description: 'Pass an error string to any lane: aria-invalid + aria-describedby + the dashed ! message line, all the Input\'s own' },
         ]}
       />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: a composition product — the size axis scales the card root, the Input/PressButton lanes ride the ambient chain (吃也供)."
+    >
+      <ComponentCanvas title="PatternLogin / PatternLoginOtp · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PatternLogin size={16} density="small" /></div>
+<div class={cx(rt.panel)}><PatternLoginOtp hint="one-time, scaled" size="medium" radius="large" /></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

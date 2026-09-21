@@ -63,6 +63,20 @@
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
+  import {
     createRenderIdMinter,
     isDarkHex,
     MermaidRenderError,
@@ -76,7 +90,7 @@
   import { MermaidDefaults } from './mermaid-defaults.svelte';
   import './mermaid.css';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     /** diagram source (runtime prop — the code-card rule: never markup-inlined text) */
     source: string;
     /** head tab label + render-id base */
@@ -91,6 +105,26 @@
     labels?: MermaidLabels;
     /** mermaid's own config — the engine's precedence ladder applies (§3.3) */
     config?: MermaidConfig;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -103,15 +137,37 @@
     zoomable = true,
     labels = {},
     config,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
     ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults
-  // round 2): theme rides its literal slot — own 'auto' (resolve
-  // against the figure's effective scope) lives in the contract,
-  // never a destructure default
-  const d = $derived(MermaidDefaults.resolve({ theme }));
+  // round 2 + W3-D2): theme rides its literal slot — own 'auto'
+  // (resolve against the figure's effective scope) lives in the
+  // contract, never a destructure default. SEVEN universal lanes
+  // join (density · size · shape · radius · color · elevation ·
+  // motion); the theme AXIS is left out — the engine-token literal
+  // owns the name ('system' has no engine meaning; the code-card
+  // precedent, §13 rules no rename)
+  const d = $derived(
+    MermaidDefaults.resolve({ theme, density, size, shape, radius, color, elevation, motion }),
+  );
+  // SEVEN lanes stamp on the family's OWN figure root (the axis
+  // surface; the diagram ENGINE — the rendered SVG — is outside the
+  // supply set); theme feeds the literal, never the axis carriers
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
 
   // rest spreads BEFORE the component's own stamps (Svelte: later
   // attributes win) — consumer data-testid/title/aria-*/handlers pass
@@ -125,6 +181,9 @@
   const ids = createRenderIdMinter(name);
 
   let figureEl = $state<HTMLElement>();
+  // the query() anchor sits AFTER the anchor state declaration (the
+  // W3-C TDZ kernel note — the getter stays lazy either way)
+  provideQueryAnchor(() => figureEl ?? null);
   /** null = the floor paints (also the error fallback — never a blank) */
   let svg = $state<string | null>(null);
   let dataState = $state<'floor' | 'rendering' | 'rendered' | 'error'>('floor');
@@ -328,6 +387,8 @@
   data-kind="diagram"
   data-jx-mermaid
   data-state={dataState}
+  data-density={densityRungOf(d.density)}
+  style={rootStyle}
   class={cn(
     'jx-mermaid',
     cx(mermaidStyles.figure),

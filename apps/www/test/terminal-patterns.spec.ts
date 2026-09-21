@@ -73,20 +73,33 @@ const uiRoot = resolve(here, '../src/lib/ui');
 /** tasks 4b: the DIRECT atom closure each pattern declares — the exact
  *  registryDependencies list the integrator applies to registry.json
  *  (`@jixoai/jixoai-theme` is the structured install prerequisite:
- *  declared, never imported — PASS by design in verify:deps) */
+ *  declared, never imported — PASS by design in verify:deps). W3-D2
+ *  (explicit-props): `defaults` joins every closure — the eight-axis
+ *  surface resolves through the shared Defaults seam
+ *  ($lib/defaults.svelte, the @jixoai/defaults item), so the pattern
+ *  families now carry one item-owned lib edge beside their atoms */
 const DECLARED: Record<string, { deps: string[]; theme: true }> = {
-  'pattern-login': { deps: ['input', 'input-otp', 'press-button', 'icon'], theme: true },
-  'pattern-pricing': { deps: ['table', 'code-card', 'press-button', 'badge', 'icon'], theme: true },
-  'pattern-hero-set': { deps: ['hero-section', 'terminal-card', 'press-button', 'icon'], theme: true },
-  'pattern-faq': { deps: ['accordion', 'icon'], theme: true },
-  'pattern-cta': { deps: ['press-button', 'code-card', 'icon'], theme: true },
+  'pattern-login': { deps: ['input', 'input-otp', 'press-button', 'icon', 'defaults'], theme: true },
+  'pattern-pricing': {
+    deps: ['table', 'code-card', 'press-button', 'badge', 'icon', 'defaults'],
+    theme: true,
+  },
+  'pattern-hero-set': {
+    deps: ['hero-section', 'terminal-card', 'press-button', 'icon', 'defaults'],
+    theme: true,
+  },
+  'pattern-faq': { deps: ['accordion', 'icon', 'defaults'], theme: true },
+  'pattern-cta': { deps: ['press-button', 'code-card', 'icon', 'defaults'], theme: true },
 };
 
 /** cross-item owners reachable from a $lib import spec (folder law:
- * ui items map 1:1 to their folder — the icon component barrel
- * '$lib/ui/icon' included; '$lib/icon-set.gen' is the icon-set item,
- * the artifact-level owner for direct getIcon/IconName imports) */
+ *  ui items map 1:1 to their folder — the icon component barrel
+ *  '$lib/ui/icon' included; '$lib/icon-set.gen' is the icon-set item,
+ *  the artifact-level owner for direct getIcon/IconName imports;
+ *  '$lib/defaults.svelte' is the @jixoai/defaults lib item, the
+ *  one blessed lib edge of the W3 axis surface) */
 function ownerOfSpec(spec: string): string | null {
+  if (spec === '$lib/defaults.svelte') return 'defaults';
   if (spec === '$lib/icon-set.gen') return 'icon-set';
   const ui = /^\$lib\/ui\/([^/]+)(?:\/|$)/.exec(spec);
   return ui ? ui[1] : null;

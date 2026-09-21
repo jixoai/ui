@@ -14,13 +14,32 @@
  *     lib/mermaid-engine's MermaidThemeMode (the values are the one
  *     source there; the slot re-states them as its own contract —
  *     Props ⊆ values is compile-checked at the resolve call site).
+ *     W3-D2: the theme AXIS is left out — this engine-token literal
+ *     owns the name ('system' has no engine meaning, and the pin
+ *     semantics are engine-internal, never the axis' .dark class
+ *     bridge; the code-card / terminal bezel precedent, §13 rules no
+ *     rename). SEVEN axis lanes join below.
+ *   - density · size · shape · radius · color · elevation · motion
+ *     (W3-D2): the universal axes, all no-own — the axis surface
+ *     rides the family's OWN figure root; the diagram ENGINE (the
+ *     rendered SVG) is outside the supply set.
  *
  * 惰性律: construction captures own only; context reads happen at
  * resolve time inside the consumer's $derived window. This file is a
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+} from '$lib/defaults.svelte';
 import type { MermaidThemeMode } from '$lib/mermaid-engine';
 
 export const mermaidThemeSlot = defineLiteralSlot(['auto', 'light', 'dark'], 'auto');
@@ -35,4 +54,11 @@ export type MermaidTheme = ReturnType<typeof mermaidThemeSlot>;
 
 export const MermaidDefaults = defineComponentDefaults({
   theme: mermaidThemeSlot,
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

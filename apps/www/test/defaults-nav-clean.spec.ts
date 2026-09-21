@@ -40,7 +40,12 @@ const children = (() => {}) as unknown as Snippet;
 describe('the clean-consumer families\' contract surfaces', () => {
   it('each declares exactly its slot set, shallow-frozen', () => {
     for (const [defaults, keys] of [
-      [PaginationDefaults, ['density']],
+      // pagination W3-D2: the eight-axis surface joined the landmark
+      // nav's contract (density rides the bridged lane)
+      [
+        PaginationDefaults,
+        ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
+      ],
       [StepsDefaults, ['density']],
       [SectionCardDefaults, ['tone']],
       [TimelineDefaults, ['density', 'variant']],
@@ -72,7 +77,18 @@ describe('the clean-consumer families\' contract surfaces', () => {
     flushSync();
     expect(holder.error).toBeUndefined();
     expect(holder.value).toEqual([
-      { density: undefined },
+      // pagination W3-D2: every axis silent-'auto' (§0.1 — no
+      // opinion, nothing stamps)
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
       { density: 'xs' },
       { density: undefined, variant: 'square' },
       { density: undefined, variant: 'ring' },

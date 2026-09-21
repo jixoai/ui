@@ -96,6 +96,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<Pagination size={18} density="small">…</Pagination>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pagination-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -256,6 +262,21 @@ ${close}
   </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="Pagination usage" /></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The landmark nav carries no own — the size axis scales the root, the link parts ride plain inheritance."
+    >
+      <ComponentCanvas title="Pagination · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Pagination size={18} density="small"><PaginationContent><PaginationItem><PaginationPrevious href="#" /></PaginationItem><PaginationItem><PaginationLink page={1} href="#" isActive /><PaginationLink page={2} href="#" /><PaginationEllipsis /></PaginationItem><PaginationItem><PaginationNext href="#" /></PaginationItem></PaginationContent></Pagination></div>
+<div class={cx(rt.panel)}><Pagination size="medium" radius="large"><PaginationContent><PaginationItem><PaginationLink page={1} href="#" isActive /></PaginationItem></PaginationContent></Pagination></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The root and links carry the core public contract; composition supplies list structure and page-window policy.">
       <div class={cx(rt.col24)}>

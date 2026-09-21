@@ -41,6 +41,21 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import {
     PROTOTYPE_KIT_KEY,
     derivePrototypeFromLocation,
     getPrototypeContext,
@@ -48,10 +63,11 @@
     isStudioHost,
     type PrototypeKitContext,
   } from './context';
+  import { PrototypeKitDefaults } from './prototype-kit-defaults.svelte';
   import { prototypeKitStyles } from './prototype-kit.stylex';
   import { installOverlayScrollbar } from './overlay-scrollbar';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     /** explicit column tracks: number → repeat(N, minmax(0,1fr)),
      *  string → verbatim; omitted → the adaptive auto-fill default */
     gridCols?: number | string;
@@ -66,6 +82,33 @@
     prototype?: string;
     /** full-row caption above the grid (chrome, never a heading) */
     label?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (scales the caption chrome;
+     *  the FRAMES are separate iframe documents — their content
+     *  never sees the carriers) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) — NOT the framed
+     *  documents' environment channel (that rides the frames' own
+     *  `theme` prop, the context round-2 exemptions) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -74,10 +117,36 @@
     gap = 16,
     prototype = undefined,
     label = undefined,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
     children,
     ...rest
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D2 — FIRST-TIME contract, all
+  // no-own, carried by the CANVAS root — the family's one container
+  // face; the ENGINE half — PrototypePage/PrototypeComponent frames,
+  // frame-view, the URL contract — is outside the supply set: a
+  // frame's content is a separate iframe document, and neither the
+  // CSS carriers nor the context chain cross the frame boundary)
+  const d = $derived(
+    PrototypeKitDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
 
   // context resolution: explicit ?? inherited ?? canvas-page URL
   const inherited = getPrototypeContext();
@@ -150,8 +219,12 @@
 
 <section
   data-jx-prototype-canvas
+  bind:this={uniRoot}
   aria-label={label}
   class={cn(cx(prototypeKitStyles.canvas), className)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   style:display="grid"
   style:grid-template-columns={columnsStyle}
   style:grid-template-rows={rowsStyle}

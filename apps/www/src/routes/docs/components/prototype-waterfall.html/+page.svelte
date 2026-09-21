@@ -58,6 +58,12 @@
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PrototypeWaterfall size={18} density="small">…</PrototypeWaterfall>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/prototype-waterfall-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -136,6 +142,21 @@
 </div>
 
 <div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the alpha lane's zero-translation posture extends to the paint axes — the carriers join the consumer style attr, the column style: directives stay untouched."
+    >
+      <ComponentCanvas title="PrototypeWaterfall · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PrototypeWaterfall columns={2} gap={12} size={18} density="small"><p>one</p><p>two</p><p>three</p></PrototypeWaterfall></div>
+<div class={cx(rt.panel)}><PrototypeWaterfall columns={3} gap={12} size="medium" radius="large"><p>named</p><p>steps</p></PrototypeWaterfall></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"

@@ -76,6 +76,12 @@ ${close}
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PatternPricing size={18} density="small">…</PatternPricing>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pattern-pricing-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -197,6 +203,21 @@ ${close}
       summary="One section: authored matrix + tier payload. The recommended column is the opt-in, not a prop."
     >
       <CodeBlock code={usage} lang="svelte" meta="pattern-pricing usage" />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: a composition product — the size axis scales the section root, the Table/Badge/CodeCard surfaces ride the ambient chain (吃也供)."
+    >
+      <ComponentCanvas title="PatternPricing · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PatternPricing tiers={[{ plan: 'core', command: 'npx jixoai-ui add button' }]} size={16} density="small"><thead><tr><th>plan</th><th>source</th></tr></thead><tbody><tr><td>core</td><td>yours</td></tr></tbody></PatternPricing></div>
+<div class={cx(rt.panel)}><PatternPricing tiers={[{ plan: 'pro', command: 'npx jixoai-ui add dialog' }]} size="medium" radius="large"><thead><tr><th>plan</th></tr></thead><tbody><tr><td>pro</td></tr></tbody></PatternPricing></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

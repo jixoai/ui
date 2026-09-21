@@ -24,6 +24,22 @@
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Table from '$lib/ui/table/table.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { PatternPricingDefaults } from './pattern-pricing-defaults.svelte';
   import { patternPricingStyles } from './pattern-pricing.stylex';
   import './pattern-pricing.css';
 
@@ -67,6 +83,31 @@
     /** the comparison matrix: author thead/tbody here (Table contract);
      *  recommended cells opt in with data-jx-recommended */
     children: Snippet;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the composed Table/Badge/
+     *  CodeCard surfaces ride the ambient chain — the composition
+     *  law) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -75,8 +116,29 @@
     caption = 'plans — feature matrix',
     tiers,
     children,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D2 — FIRST-TIME contract, all
+  // no-own: a composition product; the size axis scales the section
+  // root, the Table/Badge/CodeCard axis surfaces ride the ambient
+  // chain — the whole point of 吃也供)
+  const d = $derived(
+    PatternPricingDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   /** the plan whose command was just copied ('' = none) */
   let copiedPlan = $state('');
@@ -100,7 +162,14 @@
   }
 </script>
 
-<section data-jx-pattern-pricing="" class={cx('jx-pattern-pricing', patternPricingStyles.root, className)}>
+<section
+  data-jx-pattern-pricing=""
+  bind:this={uniRoot}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+  class={cx('jx-pattern-pricing', patternPricingStyles.root, className)}
+>
   <p class={cx(patternPricingStyles.eyebrow)}>{eyebrow}</p>
 
   <div class={cx(patternPricingStyles.tableBand)}>
