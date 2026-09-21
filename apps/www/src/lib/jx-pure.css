@@ -2371,6 +2371,59 @@
          law; same 0.32 veil strength as light mode's black) */
       --scrim: hsl(0 0% 100% / 0.1);
       --surface-shadow: oklch(0 0 0 / 0.32); /* black — r14-17, Owner */
+
+      /* ── the surface ladder, dark side (explicit-props §7 / task 1.1):
+         the M3 dark law — shadows are weak here, the STEPS carry the
+         hierarchy; the rungs LIGHTEN upward, away from the page void,
+         and stay below --card (0.3211 — the existing panel tokens keep
+         their place above the ladder). 减色墨律: role steps, never
+         overlays. This block feeds the generated prefers-color-scheme
+         projection in jx-pure.css (gen-jx-auto-dark — single source). */
+      --surface: var(--background);
+      --surface-container-lowest: oklch(0.115 0 0);
+      --surface-container-low: oklch(0.185 0 0);
+      --surface-container: oklch(0.205 0 0);
+      --surface-container-high: oklch(0.245 0 0);
+      --surface-container-highest: oklch(0.29 0 0);
+      --surface-concave: var(--background);
+
+      /* ── the elevation level table, dark side (explicit-props §0.1/§7 /
+         task 1.2): geometry pinned rung for rung with light (the
+         2026-09-01 law — sizes never drift between themes), the ink
+         inverted to white at reduced alpha — the soft-lens compensation
+         (dark hierarchy rides the LADDER; full-alpha white glow through
+         a 12px blur would wash it). level-1 keeps the inset duet's
+         single shade wall at the well-tier strength. */
+      --jx-elevation-level-1-shadow:
+        inset 1px 1px 0px 0px hsl(0 0% 100% / 0.12);
+      --jx-elevation-level-1-surface: var(--surface-concave);
+      --jx-elevation-level0-shadow: none;
+      --jx-elevation-level0-surface: var(--surface);
+      --jx-elevation-level1-shadow:
+        0px 1px 2px 0px hsl(0 0% 100% / 0.16),
+        0px 1px 3px 1px hsl(0 0% 100% / 0.08);
+      --jx-elevation-level1-surface: var(--surface-container-lowest);
+      --jx-elevation-level2-shadow:
+        0px 1px 2px 0px hsl(0 0% 100% / 0.16),
+        0px 2px 6px 2px hsl(0 0% 100% / 0.08);
+      --jx-elevation-level2-surface: var(--surface-container-low);
+      --jx-elevation-level3-shadow:
+        0px 1px 3px 0px hsl(0 0% 100% / 0.16),
+        0px 4px 8px 3px hsl(0 0% 100% / 0.08);
+      --jx-elevation-level3-surface: var(--surface-container);
+      --jx-elevation-level4-shadow:
+        0px 2px 3px 0px hsl(0 0% 100% / 0.16),
+        0px 6px 10px 4px hsl(0 0% 100% / 0.08);
+      --jx-elevation-level4-surface: var(--surface-container-high);
+      --jx-elevation-level5-shadow:
+        0px 4px 4px 0px hsl(0 0% 100% / 0.16),
+        0px 8px 12px 6px hsl(0 0% 100% / 0.08);
+      --jx-elevation-level5-surface: var(--surface-container-highest);
+
+      /* the color axis' effective carrier — dark's own --primary (the
+         hue-drifted one; re-declared per theme scope, the canvas-bug
+         law) */
+      --jx-color-effective: var(--primary);
     color-scheme: dark;
   }
   /* the scope-root companion: without it B0's color-scheme: light would
