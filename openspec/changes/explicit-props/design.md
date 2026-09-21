@@ -325,7 +325,9 @@ scale tables) — the layer split is type=lanes, build=keys.
   'dynamic'; module?: string }] }` — W2's first test fixture).
 - **Missing named container** (`@sm/card` with no `container-name: card`
   ancestor): the case never matches (CSS semantics); the build warns, the
-  shim logs once in dev.
+  shim logs once in dev. **Empty container names (`@md/` — nothing after
+  the slash) are REJECTED at parse**: the key grammar demands a non-empty
+  name segment; `@md/` is a build error naming the key and the rule.
 - **Test matrix** (W2 gate): desugar snapshots × {media, container, named,
   ladder-order, base-default} + shim parity cases + SSR snapshot + the
   no-container warning.

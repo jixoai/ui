@@ -3,8 +3,12 @@
 ## W0 — change alignment (remix round 0)
 
 - [ ] 0.1 change docs written (proposal/design/tasks/spec deltas) — THIS commit
-- [ ] 0.2 Codex reviews the change docs (herdr, gpt-5.6-terra/xhigh) → blocking
-      findings folded back; ≥8/10 with no blockers before W1 starts
+- [x] 0.2 Codex reviews the change docs (herdr, gpt-5.6-terra/xhigh) → blocking
+      findings folded back; ≥8/10 with no blockers before W1 starts —
+      TEN rounds, 4.5→6.3→7.0→7.3→5.8→7.6→7.7→7.3→7.7→**8.4 GO**
+      (codex-explicit-final; the non-blocking notes folded: the @md/
+      empty-name rejection rule made explicit; the M3 token tables and
+      shape-alias values named as W1 deliverables)
 - [x] 0.3 research/tailwind-container-syntax.md — the named-container key
       grammar resolved against Tailwind v4's source (design §9):
       `@sm/card` (size-first, own --container-* scale)
