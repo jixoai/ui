@@ -46,6 +46,32 @@ press-button, icon-button, chip, badge, badge-indicator, card, card-grid,
 separator, kbd, link, text, heading, blockquote, avatar, icon, spin,
 toggle, toggle-group, checkbox-adjacent primitives as they land in B rounds.
 
+LANDED (4a96996f; probe-w3b-concentric 18/18 — §3's expression stamped +
+computed 6px under card 20/0.875rem inset, squircle ×2 live + factor-1
+degrade branch, IACVT 0px fallback, named step via the alias ladder var;
+orchestrator gates re-run green — mirror 761 pairs, tailwindless 2·7·7
+unmoved, meta/context/deps 16+3, `Type Errors: no errors`, suite EXACTLY
+the 87/2782 standing baseline, zero delta both directions). Axis-surface
+outcomes, census-recorded:
+- `chip` + `badge` carry SEVEN lanes each — their family-local `shape`
+  (`'square' | 'pill'`, the silhouette/corner-law vocabulary) owns the prop
+  name and `pill` is outside ShapeLane; NOT a §13-ruled rename family, so
+  the axis is left out (forwarding ambient) rather than renamed — FLAGGED
+  for the W6 Owner dossier as an open refinement (a future rename ruling
+  could adopt the axis).
+- `icon` / `spin` carry seven lanes + the size NUMBER lane verbatim (§13's
+  ruling — explicit px numbers stamp the size carrier; named/auto stay
+  unadopted on glyphs per each family's recorded no-ambient-size law).
+- `avatar` adopts the size axis with the sm/md/lg → small/medium/large
+  alias table (`AvatarSizeInput`; the DENSITY_NAMED_ALIASES precedent).
+- Out-of-scope rest-forwarding consumers that broke on the widened prop
+  unions got minimal mirrored Omits forced by the family need
+  (button-group-divider, system-dialog-action) — batch C/D do their full
+  surfaces.
+- heading's local `size` em-ladder const renamed `sizeLadder` (the
+  local-yields-to-axis precedent); text's 8 Raw sugars retyped to
+  `ComponentProps<typeof Text>`.
+
 ## Batch C — overlays/surfaces (elevation × surface ladder receipts)
 
 dialog, sheet, popover, tooltip, hover-card, popconfirm, system-dialog,

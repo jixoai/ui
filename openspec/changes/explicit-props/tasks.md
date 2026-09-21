@@ -162,13 +162,20 @@ before the next batch opens; a batch is the rollback unit)
       object, no unruled rename; orchestrator re-run: mirror/tailwindless
       2·7·7/meta/context/deps + `Type Errors: no errors`; suite failures
       100-baseline → 87, all pre-existing categories)
-- [ ] 3.2 batch B — primitives (press-button, icon-button, chip, badge,
-      card…): full eight axes + concentric radius receipts
+- [x] 3.2 batch B — primitives (press-button, icon-button, chip, badge,
+      card…): full eight axes + concentric radius receipts — LANDED 4a96996f
+      (18 families; probe-w3b 18/18 incl. squircle ×2 + IACVT fallback;
+      chip/badge 7 lanes — the unruled family-local `shape` collision,
+      census-recorded + W6-dossier-flagged; suite delta EXACTLY zero vs the
+      87/2782 standing baseline; orchestrator gates re-run green)
 - [ ] 3.3 batch C — overlays/surfaces (dialog, sheet, popover, tooltip,
       system-dialog…): elevation × surface ladder pairing receipts
 - [ ] 3.4 batch D — composite/long-tail (the rest of the 115), batched ~15/round
 - [ ] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …)
-- [ ] 3.6 avatar/icon/spin mapping verified (aliases + number lanes)
+- [x] 3.6 avatar/icon/spin mapping verified (aliases + number lanes) —
+      LANDED with batch B (4a96996f): avatar adopts size via the
+      sm/md/lg→small/medium/large alias table; icon/spin take the number
+      lane verbatim (named/auto unadopted per the no-ambient-size law)
 
 ## W4 — canvas + docs (the §17 contract; the shared artifact itself landed
 ## EARLY as 1.9 — W4 wires the consumers)
