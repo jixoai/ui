@@ -236,7 +236,13 @@ LAWS:
   the two scales must not collapse into one).
 - Values: any lane value of the wrapped axis (named/auto/number).
 - **Semantics: min-width ladder, later keys override at wider matches**
-  (mobile-first). Container keys resolve against the NEAREST qualifying
+  (mobile-first). **The desugarer EMITS blocks in REGISTERED-SCALE order
+  (narrow → wide), never raw insertion order** — override semantics are
+  authoring-order-independent: `{lg:'a', sm:'b'}` and `{sm:'b', lg:'a'}`
+  compile to IDENTICAL css (the scale tables own the order, not the
+  object). Media and container keys of the same width compose media-first
+  (container wins where both match — the ancestor-nesting intuition).
+  Container keys resolve against the NEAREST qualifying
   ancestor container — **a component cannot query itself** (CSS law; never
   document otherwise).
 - **Carrier dual-track** (Owner: 编译期脱糖不绝对): the build desugars what
@@ -292,7 +298,9 @@ caught by the build-time key diagnostics (the desugarer's registered
 scale tables) — the layer split is type=lanes, build=keys.
 
 - **Parse**: the object-literal form is sugar; `query()` normalizes to an
-  ordered `cases` array (insertion order = the ladder) + an optional
+  ordered `cases` array (normalized to REGISTERED-SCALE order, narrow →
+  wide — see the Semantics bullet; insertion order is NOT the ladder) +
+  an optional
   unconditional `base` (default: the axis default, `auto`).
 - **Compile output** (the desugarer, W2): per consumer instance, custom
   property re-assignment blocks — media keys → `@media (min-width: …)`,
