@@ -99,7 +99,7 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'indeterminate', type: 'boolean', default: 'false', description: 'Sets the native indeterminate IDL state.' },
     { name: 'bare', type: 'boolean', default: 'false', description: 'Presentation-only single input — no wrapper/lane/label chrome (the markdown task-item unlock: a direct-child input keeps the container-level DOM-shape laws working).' },
     { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and an associated message.' },
-    { name: 'density', type: 'Density', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    { name: 'density', type: 'DensityLane | QueryResult<DensityLane>', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
     { name: 'checked', type: 'boolean', default: '—', description: 'Bindable controlled checked state.', bindable: true },
   ],
   'card-grid': [
@@ -213,7 +213,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'checkbox',
     meta: checkboxMeta,
     docs: CHECKBOX_DOCS,
-    renderedOrder: ['label', 'error', 'labelSide', 'indeterminate', 'bare', 'checked', 'density'],
+    renderedOrder: ['label', 'error', 'labelSide', 'indeterminate', 'bare', 'checked', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
   },
   {
     name: 'card-grid',
@@ -225,7 +225,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'date-picker',
     meta: datePickerMeta,
     docs: DATE_PICKER_DOCS,
-    renderedOrder: ['value', 'range', 'mode', 'showTime', 'label', 'error', 'placeholder', 'min', 'max', 'format', 'locale', 'presets', 'preset', 'isDisabled', 'id', 'variant', 'class'],
+    renderedOrder: ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'value', 'range', 'mode', 'showTime', 'label', 'error', 'placeholder', 'min', 'max', 'format', 'locale', 'presets', 'preset', 'isDisabled', 'id', 'variant', 'class'],
   },
   {
     name: 'toast',
@@ -237,7 +237,7 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'combobox',
     meta: comboboxMeta,
     docs: COMBOBOX_DOCS,
-    renderedOrder: ['options', 'value', 'multiple', 'placeholder', 'label', 'name', 'error', 'id', 'allowCustom', 'showClear', 'disabled', 'variant', 'class'],
+    renderedOrder: ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'options', 'value', 'multiple', 'placeholder', 'label', 'name', 'error', 'id', 'allowCustom', 'showClear', 'disabled', 'variant', 'class'],
   },
   {
     name: 'text',
@@ -257,12 +257,24 @@ const cell = (row: PropEntry): string =>
   JSON.stringify([row.type, row.default ?? null, row.description, row.required ?? false, row.bindable ?? false, row.ambient ?? null]);
 
 describe('props-table meta migration — zero content drift (pilot nine)', () => {
+  // explicit-props W3 batch A: checkbox/combobox/date-picker carry the
+  // universal eight-axis surface now — their metas gain the axis rows
+  // (an INTENDED, additive drift; the docs table renders them as the
+  // shared Universal props section). The legacy rows must still
+  // survive byte-for-byte; the axis rows ride the ambient-scope marker.
+  const AXIS_ROWS = ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'];
+  const UNIVERSAL_PILOTS = new Set(['checkbox', 'combobox', 'date-picker']);
   for (const pilot of PILOTS) {
     it(`${pilot.name}: every legacy row's content survives byte-for-byte`, () => {
       const rendered = propsFromMeta(pilot.meta, pilot.docs);
       const legacy =
         pilot.name === 'date-picker' ? [...LEGACY['date-picker'], DATE_PICKER_LOCALE_ROW] : LEGACY[pilot.name];
-      expect(rendered.length, 'row count').toBe(legacy.length);
+      const axisCount = UNIVERSAL_PILOTS.has(pilot.name)
+        ? AXIS_ROWS.filter(
+            (axis) => rendered.some((r) => r.name === axis) && !legacy.some((r) => r.name === axis),
+          ).length
+        : 0;
+      expect(rendered.length, 'row count').toBe(legacy.length + axisCount);
 
       const renderedByName = new Map(rendered.map((r) => [r.name, r]));
       for (const row of legacy) {
@@ -270,9 +282,12 @@ describe('props-table meta migration — zero content drift (pilot nine)', () =>
         expect(got, `row ${pilot.name}.${row.name} present`).toBeDefined();
         expect(cell(got!), `row ${pilot.name}.${row.name} content`).toBe(cell(row));
       }
-      // no extra rows beyond the legacy set
+      // no extra rows beyond the legacy set + the family's axis surface
       for (const name of renderedByName.keys()) {
-        expect(legacy.some((r) => r.name === name), `no unlisted row ${pilot.name}.${name}`).toBe(true);
+        expect(
+          legacy.some((r) => r.name === name) || (axisCount > 0 && AXIS_ROWS.includes(name)),
+          `no unlisted row ${pilot.name}.${name}`,
+        ).toBe(true);
       }
     });
 

@@ -67,7 +67,7 @@
   Surface motion kernel (2026-08-25): popover.svelte law adopted — the
   toggle seam drives the shared WAAPI kernel (lib/surface-motion.ts)
   against the live wrap anchor; the panel carries jx-waapi behind
-  motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
+  panelMotion.supported plus the REAL .jx-surface-shadow child; jixoai.css
   owns every visible formula.
 
   MULTIPLE + SHOWCLEAR (2026-08-30, expand-form-family F1):
@@ -116,13 +116,55 @@
   import type { FormField } from '$lib/form-field';
   import { onDestroy } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { ComboboxDefaults } from './combobox-defaults.svelte';
   import { cbxStyles } from './combobox.stylex';
   import './combobox.css';
 
-  interface Props extends Omit<HTMLInputAttributes, 'value'> {
+  interface Props extends Omit<HTMLInputAttributes, 'value' | 'size' | 'color'> {
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the full option list (order = panel order) */
     options: ComboboxOption[];
     /** committed value; bind:value — SINGLE mode: a listed option's
@@ -162,6 +204,14 @@
   const autoId = $props.id();
 
   let {
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     options,
     value = $bindable(),
     multiple = false,
@@ -188,7 +238,16 @@
   // this Props interface feeds the GENERATED meta chain (drift-locked),
   // whose ambient annotation is the doc batch's 先破再立 — the
   // contract's own 'auto' is the same value (combobox-defaults.svelte.ts)
-  const d = $derived(ComboboxDefaults.resolve({ variant }));
+  const d = $derived(
+    ComboboxDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
   let formDisabled = $state(false);
   const isDisabled = $derived(disabled || formDisabled);
 
@@ -309,12 +368,12 @@
   function onPanelToggle(): void {
     open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     } else {
       panelEl?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
     }
   }
 
@@ -322,8 +381,8 @@
   // lib/surface-motion.ts): WAAPI animates ONE @property number (--jx-p);
   // every visible property is a CSS formula of it (jixoai.css). Here it
   // wires only this panel's toggle seam and live wrap anchor
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
-  onDestroy(() => motion.destroy());
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  onDestroy(() => panelMotion.destroy());
 
   function showPanel(): void {
     if (panelEl?.isConnected && !panelEl.matches(':popover-open')) {
@@ -536,7 +595,12 @@
       .join(' ');
 </script>
 
-<div class="jx-field">
+<div
+  bind:this={uniRoot}
+  class="jx-field"
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}>
   <!-- faceless form bridge (form-field.ts law): the committed VALUE (not
        the display text) rides ElementInternals into FormData; the native
        input carries NO name of its own. jx-reset / jx-disabled bubble the
@@ -681,7 +745,7 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class={cn('jx-combobox-panel jx-surface', motion.supported && 'jx-waapi')}
+    class={cn('jx-combobox-panel jx-surface', panelMotion.supported && 'jx-waapi')}
     data-variant={d.variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}

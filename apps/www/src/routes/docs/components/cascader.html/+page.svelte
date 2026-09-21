@@ -62,6 +62,14 @@ const options = [
 
 <Cascader {options} label="region" bind:value />`;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<Cascader {options} label="px number" size={14} density="small" />
+<Cascader {options} label="named steps" size="large" radius="medium" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/cascader-universal.svelte', content: universalUsage },
+  ];
+
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/cascader.svelte', content: cascaderSource },
     { name: 'src/lib/ui/cascader-usage.svelte', content: usage },
@@ -165,5 +173,22 @@ const options = [
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Feed the tree; bind the path; picking a parent grows the chain, re-picking truncates deeper levels."><CodeBlock code={usage} lang="svelte" meta="Cascader usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Every level is a real native select — the platform's keyboard and mobile pickers come free."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the chain, level by level' }, { key: '↑ / ↓', action: 'Move within the focused select’s options (native)' }, { key: 'Enter / Space', action: 'Open the focused select and commit a pick (native)' }]} aria={[{ name: 'role', value: 'group', description: 'On the root; aria-label defaults to the label prop (“cascade” if omitted).' }, { name: 'aria-label', value: 'level n', description: 'Per select — each level is independently named.' }, { name: 'aria-labelledby', value: '{id}-label', description: 'The chain is labelled by the visible label when present.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The select shells are fixed utility paint; the corner rides the theme radius."><div class={cx(rt.col20)}><DensityDemo><Cascader {options} label="density" /></DensityDemo><TokenTable tokens={[{ name: '--radius', default: 'theme radius', source: 'structural', description: 'Select shell corner (rounded-(--radius)).' }, { name: 'select rhythm', default: '13px text, fixed padding', source: 'structural' }, { name: 'chain gap', default: '6px (gap-1.5)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props; the value is the picked path, the submission is the joined string."><PropsTable props={[{ name: 'options', type: 'CascaderOption[]', default: '—', description: 'The tree: { value, label, disabled?, children? }.', required: true }, { name: 'name', type: 'string', default: '—', description: 'Form field name — the joined path submits under it through the bridge.' }, { name: 'value', type: 'string[]', default: '[]', description: 'The selected path (bind:value) — e.g. [\'asia\', \'japan\'].', bindable: true }, { name: 'separator', type: 'string', default: "'/'", description: 'Path join for the submitted string.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks the whole chain (form disable propagates too).' }, { name: 'label', type: 'string', default: '—', description: 'Reads above the chain; names the group.' }, { name: 'placeholder', type: 'string', default: "'select…'", description: 'Placeholder for the first select.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the root.' }]} /></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="cascader · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Cascader {options} label="size 14 · density small" size={14} density="small" /></div>
+        <div class={cx(rt.panel)}><Cascader {options} label="size large · radius medium" size="large" density="large" radius="medium" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props; the value is the picked path, the submission is the joined string."><PropsTable universal props={[{ name: 'options', type: 'CascaderOption[]', default: '—', description: 'The tree: { value, label, disabled?, children? }.', required: true }, { name: 'name', type: 'string', default: '—', description: 'Form field name — the joined path submits under it through the bridge.' }, { name: 'value', type: 'string[]', default: '[]', description: 'The selected path (bind:value) — e.g. [\'asia\', \'japan\'].', bindable: true }, { name: 'separator', type: 'string', default: "'/'", description: 'Path join for the submitted string.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Blocks the whole chain (form disable propagates too).' }, { name: 'label', type: 'string', default: '—', description: 'Reads above the chain; names the group.' }, { name: 'placeholder', type: 'string', default: "'select…'", description: 'Placeholder for the first select.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the root.' }]} /></SectionCard></div>
 </div>

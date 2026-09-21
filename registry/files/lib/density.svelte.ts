@@ -17,7 +17,7 @@
 
 import { getContext, setContext } from 'svelte';
 import { getContextPlugins, defineContextDef, type ContextDef } from './context-plugin.svelte';
-import { defineAxisSlot, type DefaultsSlot } from './defaults.svelte';
+import { defineAxisSlot, UNIVERSAL_DENSITY_KEY, type DefaultsSlot } from './defaults.svelte';
 import { DENSITY_NAMED_ALIASES } from './universal-props.schema';
 
 export type Density = 'lg' | 'default' | 'sm' | 'xs' | '2xs';
@@ -122,6 +122,24 @@ export function provideDensity(density: () => Density | undefined): DensityConte
     },
   };
   setContext(DENSITY_KEY, context);
+  // ---- the W3 bridge (explicit-props, design §11's density row) ------
+  // ONE provider writes BOTH channels: the legacy DENSITY_KEY (the
+  // ~60 migrated consumers + the plugin chain keep flowing untouched)
+  // AND the universal `jx.density` key (defaults.svelte.ts's density
+  // slot / densityAxisSlot members read it). Direction: legacy →
+  // universal only — the cycle law (defaults.svelte.ts cannot import
+  // this module) forbids the reverse here, and the universal slot
+  // seam is the migration's direction of record. Note for the ledger:
+  // the universal lane does NOT re-run resolveDensity's context-
+  // plugin chain (scope.apply) — a plugin targeting DENSITY_DEF still
+  // rides every legacy read, and a bridged provider writes the value
+  // AFTER its own chain has shaped it, so consumers below a provider
+  // see the chained value on both keys.
+  setContext(UNIVERSAL_DENSITY_KEY, {
+    get lane() {
+      return density();
+    },
+  });
   return context;
 }
 

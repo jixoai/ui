@@ -141,7 +141,21 @@
     import { cn } from '$lib/utils';
   import { getContext } from 'svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { InputDefaults } from './input-defaults.svelte';
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
@@ -157,11 +171,36 @@
   import { inputStyles } from './input.stylex';
   import './input.css';
 
-  interface Props extends HTMLInputAttributes {
+  interface Props extends Omit<HTMLInputAttributes, 'size' | 'color'> {
     /** any native input type (default 'text') */
     type?: string;
-    /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (explicit-props §1): root font-size — named
+     *  steps · auto (inherit) · a px number · query(). CONSUMED by the
+     *  family (the native <input> NEVER receives a size attribute from
+     *  it — the §1 native collision rule; everything the family does
+     *  not own still rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** field label; renders label[for] above the control.
         skipped when outerBlockStart takes the slot over */
     label?: string;
@@ -249,6 +288,13 @@
   let {
     type = 'text',
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     label,
     id = autoId,
@@ -286,9 +332,19 @@
 
   const errorId = $derived(`${id}-error`);
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.1): explicit ?? ambient scope per slot, one line, no
-  // legacy helper channels
-  const d = $derived(InputDefaults.resolve({ density }));
+  // economy 3.1 + explicit-props W3-A): explicit ?? ambient scope per
+  // slot, one line, no legacy helper channels — the eight universal
+  // axes ride the same resolve record
+  const d = $derived(
+    InputDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the field root's ANCESTORS
+  // are the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let fieldEl = $state<HTMLDivElement>();
+  provideQueryAnchor(() => fieldEl ?? null);
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
   const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
@@ -483,8 +539,8 @@
   let timeStepperRef = $state<{ focusFirst: () => void } | null>(null);
   // the shared surface motion kernel (popover.svelte wiring law):
   // WAAPI drives --jx-p; the axis tracks the control↔panel vector
-  const motion = createSurfaceMotion(() => pickerPanelEl, { anchor: () => pickerAnchorEl });
-  onDestroy(() => motion.destroy());
+  const panelMotion = createSurfaceMotion(() => pickerPanelEl, { anchor: () => pickerAnchorEl });
+  onDestroy(() => panelMotion.destroy());
   const pickerAnchor = $derived(`--jx-input-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
 
   /** the date part of the current value ("YYYY-MM-DD" or undefined) */
@@ -541,8 +597,8 @@
       light dismiss, Escape, our own calls) — popover.svelte law */
   function onPickerToggle(e: ToggleEvent): void {
     if (e.newState === 'open') {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
       // type-routed focus: exactly one fragment is mounted per panel,
       // the others' refs stay null — the calls are inert no-ops
       calendarRef?.focusGrid();
@@ -550,8 +606,8 @@
       monthGridRef?.focusGrid();
       timeStepperRef?.focusFirst();
     } else {
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       inputEl?.focus();
     }
   }
@@ -602,13 +658,16 @@
 
 {#if isHidden}
   <!-- hidden: bare native passthrough (value rides as a plain attribute) -->
-  <input {id} {type} {value} {placeholder} {...rest} data-density={d.density} />
+  <input {id} {type} {value} {placeholder} {...rest} data-density={densityRungOf(d.density)} />
 {:else}
   <div
-  class="jx-field"
-  data-density={d.density}
+    bind:this={fieldEl}
+    class="jx-field"
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={carriers || undefined}
     data-self-inset={showClear || customPicker || innerInlineEnd || (semanticGlyph && iconPosition !== 'start') ? '' : undefined}
->
+  >
     {#if outerBlockStart}
       <div data-jx-outer data-jx-outer-start class={cx(inputStyles.outerStart)}>{@render outerBlockStart()}</div>
     {:else if label && !floating}<label class="jx-label" for={id}>{label}</label>{/if}
@@ -787,7 +846,7 @@
         bind:this={pickerPanelEl}
         id="{id}-picker-panel"
         popover="auto"
-        class={cn('jx-picker-panel jx-surface', motion.supported && 'jx-waapi')}
+        class={cn('jx-picker-panel jx-surface', panelMotion.supported && 'jx-waapi')}
         data-variant="auto"
         style="position-anchor: {pickerAnchor}; inset-area: bottom span-all; position-area: bottom span-all;"
         ontoggle={onPickerToggle}

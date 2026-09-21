@@ -67,7 +67,7 @@
   Surface motion kernel (2026-08-25): popover.svelte law adopted — the
   toggle seam drives the shared WAAPI kernel (lib/surface-motion.ts)
   against the live wrap anchor; the panel carries jx-waapi behind
-  motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
+  panelMotion.supported plus the REAL .jx-surface-shadow child; jixoai.css
   owns every visible formula.
 
   Standard-layer adoption (2026-08-28, ui-plugin-followup B5): the
@@ -100,17 +100,57 @@
   import { cn } from '$lib/utils';
   import { getContext } from 'svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TagsInputDefaults, type TagsInputSurfaceVariant } from './tags-input-defaults.svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
   import { tagsStyles } from './tags-input.stylex';
   import './tags-input.css';
 
-  interface Props extends Omit<HTMLInputAttributes, 'value' | 'type'> {
+  interface Props extends Omit<HTMLInputAttributes, 'value' | 'type' | 'size' | 'color'> {
     /** the committed tag set; bind:tags */
     tags?: Tag[];
     /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** optional suggestion list filtered into the popover while typing */
     suggestions?: Tag[];
     /** form field name — the bridge submits the tag VALUES as one JSON
@@ -143,6 +183,13 @@
   let {
     tags = $bindable([]),
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     suggestions = [],
     name,
@@ -193,7 +240,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): variant rides the literal slot (own 'auto', ambient
   // when a surface axis opens), density the no-opinion axis slot
-  const d = $derived(TagsInputDefaults.resolve({ variant, density }));
+  const d = $derived(
+    TagsInputDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -243,12 +299,12 @@
   function onPanelToggle(): void {
     open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     } else {
       panelEl?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
     }
   }
 
@@ -256,8 +312,8 @@
   // lib/surface-motion.ts): WAAPI animates ONE @property number (--jx-p);
   // every visible property is a CSS formula of it (jixoai.css). Here it
   // wires only this panel's toggle seam and live wrap anchor
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
-  onDestroy(() => motion.destroy());
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  onDestroy(() => panelMotion.destroy());
 
   function syncPanel(): void {
     if (filtered.length > 0) {
@@ -398,7 +454,12 @@
   });
 </script>
 
-<div class="jx-field" data-density={d.density}>
+<div
+  bind:this={uniRoot}
+  class="jx-field"
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}>
   <!-- faceless form bridge (form-field.ts law): the tag VALUES ride
        ElementInternals into FormData as one JSON array string; the
        typing input carries NO name. jx-reset / jx-disabled bubble the
@@ -494,9 +555,9 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class={cn('jx-tags-panel jx-surface', motion.supported && 'jx-waapi')}
+    class={cn('jx-tags-panel jx-surface', panelMotion.supported && 'jx-waapi')}
     data-variant={d.variant}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >

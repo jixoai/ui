@@ -38,6 +38,14 @@ ${close}
 
   const canvasUsage = `<InputOtp name="otp" length={6} label="one-time code" bind:value />`;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<InputOtp label="px number" size={14} density="small" />
+<InputOtp label="named steps" size="large" radius="medium" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/input-otp-universal.svelte', content: universalUsage },
+  ];
+
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/input-otp.svelte', content: inputOtpSource },
     { name: 'src/lib/ui/input-otp-usage.svelte', content: canvasUsage },
@@ -247,6 +255,23 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="input-otp · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><InputOtp label="size 14 · density small" size={14} density="small" name="univ-otp-px" /></div>
+        <div class={cx(rt.panel)}><InputOtp label="size large · radius medium" size="large" density="large" radius="medium" name="univ-otp-named" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -256,7 +281,8 @@ ${close}
       summary="Props spread onto every slot input; form submission (joined value, required, reset) rides the jx-form-field bridge."
     >
       <PropsTable
-        props={[
+        universal
+          props={[
           { name: 'name', type: 'string', default: '—', description: 'Form field name — the joined code submits under it.' },
           { name: 'length', type: 'number', default: '6', description: 'Slot count, clamped to 1…12.' },
           { name: 'value', type: 'string', default: "''", description: 'The joined code; bind:value for controlled use.', bindable: true },

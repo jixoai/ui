@@ -64,7 +64,21 @@
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { FileInputDefaults, type FileInputVariant } from './file-input-defaults.svelte';
   import { fileStyles } from './file-input.stylex';
   import './file-input.css';
@@ -76,7 +90,7 @@
   interface Props
     extends Omit<
       HTMLInputAttributes,
-      'type' | 'files' | 'accept' | 'multiple' | 'disabled' | 'size'
+      'type' | 'files' | 'accept' | 'multiple' | 'disabled' | 'size' | 'color'
     > {
     /** native accept attribute, passed to the platform picker; dropped
         files that violate it are gate-rejected (never enter the value) */
@@ -97,7 +111,33 @@
         omitted → the contract's own 'drop' (FileInputDefaults) */
     variant?: FileInputVariant;
     /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** overflow limit — renders an error, never truncates the array */
     maxFiles?: number;
     /** secondary hint inside the drop zone; defaults to a composed
@@ -140,6 +180,13 @@
     files = $bindable([]),
     variant,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     maxFiles,
     hint,
@@ -154,7 +201,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): variant rides the literal slot (own 'drop'), density
   // the no-opinion axis slot
-  const d = $derived(FileInputDefaults.resolve({ variant, density }));
+  const d = $derived(
+    FileInputDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   const errorId = $derived(`${id}-error`);
   const listId = $derived(`${id}-list`);
@@ -454,7 +510,13 @@
   {/if}
 {/snippet}
 
-<div data-jx-file={disabled ? 'disabled' : undefined} data-density={d.density} class={cn('jx-file', cx(fileStyles.root), densitySeams, disabled && cx(fileStyles.rootDisabled), className)}>
+<div
+  bind:this={uniRoot}
+  data-jx-file={disabled ? 'disabled' : undefined}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  class={cn('jx-file', cx(fileStyles.root), densitySeams, disabled && cx(fileStyles.rootDisabled), className)}>
   {#if label}<label class="jx-label {cx(fileStyles.labelLine)}" for={id}>{label}</label>{/if}
 
   {@render triggerShell(id)}

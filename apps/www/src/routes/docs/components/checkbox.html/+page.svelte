@@ -93,6 +93,14 @@
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<Checkbox label="px number" size={14} density="small" />
+<Checkbox label="named steps" size="large" radius="medium" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/checkbox-universal.svelte', content: universalUsage },
+  ];
+
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/checkbox/checkbox.svelte', content: checkboxSource },
     { name: 'registry/files/ui/checkbox/checkbox.css', content: checkboxCssSource },
@@ -377,6 +385,23 @@ ${close}
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component preserves native checkbox semantics and wires validation text to the input."><A11yTable keys={[{ key: 'Space', action: 'Toggle the focused checkbox' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Density scopes resize the hit target, glyph, and label rhythm together."><div class={cx(rt.col20)}><DensityDemo><Checkbox label="density sample" name="density-checkbox" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="checkbox · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Checkbox label="size 14 · density small" size={14} density="small" name="univ-cb-px" /></div>
+        <div class={cx(rt.panel)}><Checkbox label="size large · radius medium" size="large" density="large" radius="medium" name="univ-cb-named" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native HTML input attributes; the entries below are checkbox-specific additions."><PropsTable meta={checkboxMeta} docs={CHECKBOX_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from

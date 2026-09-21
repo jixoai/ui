@@ -44,6 +44,14 @@ const stackSuggestions: Tag[] = [
      existing chip instead of adding; removable={false} pins a chip -->
 <TagsInput label="targets" bind:tags={targets} maxTags={3} />`;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<TagsInput label="px number" size={14} density="small" />
+<TagsInput label="named steps" size="large" radius="medium" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/tags-input-universal.svelte', content: universalUsage },
+  ];
+
   const tagsInputFiles: TreeFile[] = [
     { name: 'registry/files/ui/tags-input.svelte', content: tagsInputSource },
     { name: 'src/lib/ui/tags-input-usage.svelte', content: tagsUsage },
@@ -443,6 +451,23 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="tags-input · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><TagsInput label="size 14 · density small" size={14} density="small" name="univ-tags-px" /></div>
+        <div class={cx(rt.panel)}><TagsInput label="size large · radius medium" size="large" density="large" radius="medium" name="univ-tags-named" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -452,7 +477,8 @@ ${close}
       summary="Props extend the native HTML input attributes on the typing input; chips reach FormData through the faceless jx-form-field bridge as one JSON array of values."
     >
       <PropsTable
-        props={[
+        universal
+          props={[
           { name: 'tags', type: 'Tag[]', default: '[]', description: 'The committed tag set; bind:tags is the two-way contract.', bindable: true },
           { name: 'suggestions', type: 'Tag[]', default: '[]', description: 'Filtered into the popover while typing (label-or-value contains, case-insensitive).' },
           { name: 'name', type: 'string', default: '—', description: 'Form field name — the bridge submits the tag values as one JSON array string.' },

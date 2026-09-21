@@ -37,6 +37,14 @@
 <!-- decimal steps snap to the step's precision -->
 <NumberInput label="timeout (s)" bind:value={timeout} min={0.5} max={5} step={0.5} />`;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<NumberInput label="px number" size={14} density="small" />
+<NumberInput label="named steps" size="large" radius="medium" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/number-input-universal.svelte', content: universalUsage },
+  ];
+
   const numberInputFiles: TreeFile[] = [
     { name: 'registry/files/ui/number-input.svelte', content: numberInputSource },
     { name: 'src/lib/ui/number-input-usage.svelte', content: numberUsage },
@@ -346,6 +354,23 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="number-input · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><NumberInput label="size 14 · density small" size={14} density="small" name="univ-num-px" /></div>
+        <div class={cx(rt.panel)}><NumberInput label="size large · radius medium" size="large" density="large" radius="medium" name="univ-num-named" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -355,7 +380,8 @@ ${close}
       summary="Props extend the native HTML input attributes; the entries below are the component-owned additions. Everything else (name, placeholder, autocomplete…) rides through restProps."
     >
       <PropsTable
-        props={[
+        universal
+          props={[
           { name: 'value', type: 'number', default: '—', description: 'Committed quantity; undefined renders empty.', bindable: true },
           { name: 'min', type: 'number', default: '—', description: 'Lower bound; stepping and the change-commit clamp into it.' },
           { name: 'max', type: 'number', default: '—', description: 'Upper bound; stepping and the change-commit clamp into it.' },

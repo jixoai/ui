@@ -91,6 +91,14 @@
   multiple
   bind:files
 />`;
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<FileInput label="px number" size={14} density="small" />
+<FileInput label="named steps" size="large" radius="medium" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/file-input-universal.svelte', content: universalUsage },
+  ];
+
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/file-input.svelte', content: fileInputSource },
     { name: 'src/lib/ui/file-input-usage.svelte', content: canvasUsage, kind: 'usage' },
@@ -542,6 +550,23 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="file-input · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><FileInput label="size 14 · density small" size={14} density="small" name="univ-file-px" /></div>
+        <div class={cx(rt.panel)}><FileInput label="size large · radius medium" size="large" density="large" radius="medium" name="univ-file-named" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -551,7 +576,8 @@ ${close}
       summary="Props spread onto the visually hidden native input; the File[] value is the $bindable contract and FileItem adds component-managed identity + previews."
     >
       <PropsTable
-        props={[
+        universal
+          props={[
           { name: 'files', type: 'File[]', default: '[]', description: 'Selected files; bound ⇒ controlled — removal and drops write back.', bindable: true },
           { name: 'variant', type: "'drop' | 'button'", default: "'drop' · Own default, not ambient", description: 'Dashed drop zone or compact inline trigger; both are buttons AND drop targets. Defaults: literal slot — own ’drop’, not ambient (a presentation mode, no axis).' },
           { name: 'accept', type: 'string', default: '—', description: 'Native accept attribute; dropped files violating it are gate-rejected.' },

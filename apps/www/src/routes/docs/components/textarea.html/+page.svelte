@@ -86,6 +86,14 @@
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<Textarea label="px number" size={14} density="small" rows={2} />
+<Textarea label="named steps" size="large" radius="medium" rows={2} />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/textarea-universal.svelte', content: universalUsage },
+  ];
+
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/textarea/textarea.svelte', content: textareaSource },
     { name: 'src/lib/ui/textarea-usage.svelte', content: usage },
@@ -375,6 +383,23 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="textarea · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Textarea label="size 14 · density small" size={14} density="small" rows={2} name="univ-ta-px" placeholder="px number · sm rung" /></div>
+        <div class={cx(rt.panel)}><Textarea label="size large · radius medium" size="large" density="large" radius="medium" rows={2} name="univ-ta-named" placeholder="named steps" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -384,7 +409,8 @@ ${close}
       summary="Props extend the native HTML textarea attributes; the entries below are the component-owned additions. Everything else (placeholder, maxlength, disabled, name, required…) rides through restProps."
     >
       <PropsTable
-        props={[
+        universal
+          props={[
           { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
           { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
           { name: 'count', type: 'boolean', default: 'false', description: 'Appends an "N / maxLength" readout to the inner-block-end row.' },

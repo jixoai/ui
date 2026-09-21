@@ -51,7 +51,21 @@
   import { getContext } from 'svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import type { Snippet } from 'svelte';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TextareaDefaults } from './textarea-defaults.svelte';
   import { textareaStyles } from './textarea.stylex';
 
@@ -73,12 +87,38 @@
       )
       .join(' ');
 
-  interface Props extends HTMLTextareaAttributes {
+  interface Props extends Omit<HTMLTextareaAttributes, 'color'> {
     /** field label; renders label[for] above the control.
         skipped when outerBlockStart takes the slot over */
     label?: string;
     /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
@@ -103,6 +143,13 @@
   let {
     label,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     id = autoId,
     error,
@@ -125,7 +172,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): explicit ?? ambient scope per slot, one line, no
   // legacy helper channels
-  const d = $derived(TextareaDefaults.resolve({ density }));
+  const d = $derived(
+    TextareaDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -157,7 +213,12 @@
   }
 </script>
 
-<div class="jx-field" data-density={d.density}>
+<div
+  bind:this={uniRoot}
+  class="jx-field"
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}>
   {#if outerBlockStart}
     <div data-jx-outer data-jx-outer-start class={cx(textareaStyles.outerStart)}>{@render outerBlockStart()}</div>
   {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}

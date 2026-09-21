@@ -22,8 +22,17 @@
  * registry:ui item (installs with the family, byte mirrored, zero
  * kernel imports).
  */
-import { defineComponentDefaults, absentSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  absentSlot,
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+} from '$lib/defaults.svelte';
 import type { GhosttyTermTheme } from './ghostty-term';
 
 /**
@@ -37,6 +46,12 @@ import type { GhosttyTermTheme } from './ghostty-term';
 export const ghosttyTermThemeSlot = absentSlot<GhosttyTermTheme>();
 
 export const GhosttyTermDefaults = defineComponentDefaults({
-  density: densitySlot('default'),
+  density: densityAxisSlot('default'),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
   theme: ghosttyTermThemeSlot,
 });

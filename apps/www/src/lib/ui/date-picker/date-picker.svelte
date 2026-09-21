@@ -86,6 +86,33 @@
   }
 
   interface DatePickerCommon {
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** ISO "YYYY-MM-DD" (date mode) or canonical "YYYY-MM-DDTHH:mm"
         (showTime); $bindable — single mode's committed value */
     value?: string;
@@ -132,6 +159,21 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { cn } from '$lib/utils';
   import { DatePickerDefaults } from './date-picker-defaults.svelte';
   import {
@@ -172,6 +214,14 @@
   const autoId = $props.id();
 
   let {
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     value = $bindable(),
     range = $bindable(),
     mode = 'single',
@@ -197,7 +247,16 @@
   // this Props interface feeds the GENERATED meta chain (drift-locked),
   // whose ambient annotation is the doc batch's 先破再立 — the
   // contract's own 'auto' is the same value (date-picker-defaults.svelte.ts)
-  const d = $derived(DatePickerDefaults.resolve({ variant }));
+  const d = $derived(
+    DatePickerDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   // ---- committed state views ----------------------------------------------
   // single + showTime rides the datetime domain: the canonical value is
@@ -365,16 +424,16 @@
   function onPanelToggle(): void {
     open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
       // continue from context: the committed value, else today — the
       // calendar below mounts with this initialView, resetting view and
       // cursor on EVERY open (the pre-extraction behavior)
       openAnchor = mode === 'range' ? (startIso ?? todayIso()) : (selectedIso ?? todayIso());
     } else {
       panelEl?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       // focus restitution on EVERY close path
       triggerEl?.focus();
     }
@@ -385,9 +444,9 @@
   // (--jx-p); every visible property is a CSS formula of it (the
   // declarative motion law in jixoai.css). The kernel here only wires
   // the panel's toggle seam and live anchor
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
 
   // the calendar mounts inside {#if open}; bind:this lands during that
   // render, so this post-flush effect sees the ref and focuses the grid
@@ -422,7 +481,13 @@
       .join(' ');
 </script>
 
-<div data-jx-date-field class={cx(datePickerStyles.field)}>
+<div
+  bind:this={uniRoot}
+  data-jx-date-field
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  class={cx(datePickerStyles.field)}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <span data-jx-date-wrap class={cx(datePickerStyles.wrap)} style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <!-- jx-html-input (B3, ui-plugin-followup): the trigger's form-lane
@@ -479,7 +544,7 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class={cn('jx-date-panel jx-surface', motion.supported && 'jx-waapi')}
+    class={cn('jx-date-panel jx-surface', panelMotion.supported && 'jx-waapi')}
     data-variant={d.variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}

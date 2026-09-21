@@ -66,6 +66,14 @@
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<Radio label="px number" size={14} density="small" value="a" group={g} />
+<Radio label="named steps" size="large" radius="medium" value="b" group={g} />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/radio-universal.svelte', content: universalUsage },
+  ];
+
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/radio/radio.svelte', content: radioSource },
     { name: 'src/lib/ui/radio-usage.svelte', content: usage },
@@ -229,5 +237,22 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give every option the same name and bind the selected value when the parent needs it."><CodeBlock code={usage} lang="svelte" meta="Radio usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Native radio grouping supplies arrow-key walking and form semantics; the component adds explicit validation wiring."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move selection within same-name radio group' }, { key: 'Space', action: 'Select the focused radio' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The ring, dot, and label all consume the shared density scale."><div class={cx(rt.col20)}><DensityDemo><Radio label="density sample" name="density-radio" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend native HTML input attributes; these additions define the radio-specific contract."><PropsTable props={[{ name: 'label', type: 'string', default: '—', description: 'Same-row label rendered with label[for].' }, { name: 'group', type: 'string | number', default: '—', description: 'Bindable selected value for the radio channel.', bindable: true }, { name: 'labelSide', type: "'left' | 'right'", default: "'right'", description: 'Places the label before or after the control.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and an associated message.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="radio · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Radio label="size 14 · density small" size={14} density="small" value="a" group="univ-a" name="univ-radio-px" /></div>
+        <div class={cx(rt.panel)}><Radio label="size large · radius medium" size="large" density="large" radius="medium" value="b" group="univ-b" name="univ-radio-named" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend native HTML input attributes; these additions define the radio-specific contract."><PropsTable universal props={[{ name: 'label', type: 'string', default: '—', description: 'Same-row label rendered with label[for].' }, { name: 'group', type: 'string | number', default: '—', description: 'Bindable selected value for the radio channel.', bindable: true }, { name: 'labelSide', type: "'left' | 'right'", default: "'right'", description: 'Places the label before or after the control.' }, { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and an associated message.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
 </div>

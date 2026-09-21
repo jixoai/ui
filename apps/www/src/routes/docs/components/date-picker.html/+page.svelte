@@ -71,6 +71,14 @@ const at = $state('2026-08-30T14:05'); // canonical datetime
      not-allowed, uncommittable); the arrow walk skips them -->
 <DatePicker label="weekdays only" isDisabled={(iso) => [0, 6].includes(new Date(iso + 'T00:00:00Z').getUTCDay())} bind:value={deploy} />`;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<DatePicker label="px number" size={14} density="small" />
+<DatePicker label="named steps" size="large" radius="medium" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/date-picker-universal.svelte', content: universalUsage },
+  ];
+
   const datePickerFiles: TreeFile[] = [
     { name: 'registry/files/ui/date-picker.svelte', content: datePickerSource },
     { name: 'src/lib/ui/date-picker-usage.svelte', content: dateUsage },
@@ -398,6 +406,23 @@ ${close}
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The grid is one focus stop: arrows walk the cursor across month boundaries and skip disabled days, Enter commits, Escape and light dismiss are the platform's."><A11yTable keys={[{ key: '↑ ↓ ← →', action: 'On the trigger: open the panel; in the grid: walk the cursor across month boundaries (the view follows) — disabled days (min/max, isDisabled) are skipped' }, { key: 'Enter / Space', action: 'Commit the focused day; open the panel from the trigger; preset lane buttons commit like a grid pick' }, { key: 'Escape', action: 'Native popover dismiss — focus restitutes to the trigger on every close path' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set on the trigger when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }, { name: 'role: grid', value: 'one focus stop', description: 'The calendar grid is a single tab stop with a roving day cursor' }, { name: 'aria-disabled', value: 'true', description: 'Painted on disabled day cells (min/max bounds and isDisabled days)' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The trigger inherits the family's density rhythm; the panel anchors via a generated --jx-date-* anchor name and opens through the shared --jx-p motion number."><div class={cx(rt.col24)}><DensityDemo><DatePicker label="deploy date" id="density-date" /></DensityDemo><TokenTable tokens={[{ name: '--jx-date-{id}', default: 'anchor-name', source: 'component' }, { name: '--jx-p', default: '0 → 1', source: 'component', description: 'WAAPI-animated @property progress every panel formula derives from' }, { name: 'variant', default: "'solid' | 'acrylic' | 'auto'", source: 'component', description: 'Floating-surface fill; auto defers to reduced-transparency' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="date-picker · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><DatePicker label="size 14 · density small" size={14} density="small" /></div>
+        <div class={cx(rt.panel)}><DatePicker label="size large · radius medium" size="large" density="large" radius="medium" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the DatePicker Props interface; value and range are bindable commit seams."><PropsTable meta={datePickerMeta} docs={DATE_PICKER_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from

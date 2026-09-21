@@ -81,7 +81,21 @@
   import { onDestroy, onMount, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
 
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { GhosttyTermDefaults } from './ghostty-term-defaults.svelte';
   import { ghosttyTermStyles } from './ghostty-term.stylex';
 
@@ -265,7 +279,30 @@
 
   /** Fires when the auto-mode grid derivation changes. */
     onResize?: (detail: GhosttyTermResizeDetail) => void;
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     /** Overlay slot; when provided it also replaces the default error
      * fallback UI (the consumer owns the degraded face). */
@@ -283,6 +320,12 @@
     onData,
     onResize,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     cursor = true,
     selection = true,
     mouse = true,
@@ -374,8 +417,20 @@
   // 'default' — the design-frozen migration path for the terminal's
   // always-concrete cell math (explicit ?? ambient scope ?? 'default';
   // the plugin chain rides the terminal value inside the slot)
-  const d = $derived(GhosttyTermDefaults.resolve({ density, theme }));
-  const resolvedDensity: Density = $derived(d.density ?? 'default');
+  const d = $derived(
+    GhosttyTermDefaults.resolve({ density, theme, size, shape, radius, color, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  // the root already binds rootEl (the keyboard surface) — it IS the
+  // query anchor; no second element state
+  provideQueryAnchor(() => rootEl ?? null);
+  // the legacy-typed view (Density rung) over the universal lane —
+  //  auto/number resolve the group default rung for the ruler math
+  const resolvedDensity = $derived(densityRungOf(d.density) ?? 'default');
 
   let warnedFontSize = '';
 
@@ -1574,7 +1629,8 @@
   onfocus={handleRootFocus}
   onblur={handleFocusOut}
   {...rest}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  style={carriers || undefined}
   data-state={phase}
   data-jx-ghostty-term
 >

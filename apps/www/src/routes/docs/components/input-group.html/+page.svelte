@@ -56,6 +56,16 @@
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<InputGroup label="px number" size={14} density="small">
+  <InputGroupAddon>https://</InputGroupAddon>
+  <InputGroupInput placeholder="jixoai.com" />
+</InputGroup>`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/input-group-universal.svelte', content: universalUsage },
+  ];
+
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/input-group/input-group.svelte', content: inputGroupSource },
     { name: 'registry/files/ui/input-group/input-group-addon.svelte', content: inputGroupAddonSource },
@@ -320,6 +330,33 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="input-group · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}>
+          <InputGroup label="size 14 · density small" size={14} density="small">
+            <InputGroupAddon>https://</InputGroupAddon>
+            <InputGroupInput name="univ-igroup-px" placeholder="jixoai.com" />
+          </InputGroup>
+        </div>
+        <div class={cx(rt.panel)}>
+          <InputGroup label="size large · radius medium" size="large" density="large" radius="medium">
+            <InputGroupAddon>https://</InputGroupAddon>
+            <InputGroupInput name="univ-igroup-named" placeholder="jixoai.com" />
+          </InputGroup>
+        </div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -330,6 +367,7 @@ ${close}
     >
       <div class={cx(rt.col24)}>
         <PropsTable
+          universal
           props={[
             { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
             { name: 'disabled', type: 'boolean', default: 'false', description: 'THE propagation rule: native disabled on the lane + inert on every addon.' },

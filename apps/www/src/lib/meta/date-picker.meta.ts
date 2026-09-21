@@ -5,6 +5,46 @@ export const meta = defineComponentMeta(
   {
     "source": "registry/files/ui/date-picker/date-picker.svelte",
     "props": {
+      "density": {
+        "kind": "opaque",
+        "typeText": "unknown",
+        "ambient": "scope"
+      },
+      "size": {
+        "kind": "opaque",
+        "typeText": "unknown",
+        "ambient": "scope"
+      },
+      "shape": {
+        "kind": "opaque",
+        "typeText": "unknown",
+        "ambient": "scope"
+      },
+      "radius": {
+        "kind": "opaque",
+        "typeText": "unknown",
+        "ambient": "scope"
+      },
+      "color": {
+        "kind": "opaque",
+        "typeText": "unknown",
+        "ambient": "scope"
+      },
+      "theme": {
+        "kind": "opaque",
+        "typeText": "unknown",
+        "ambient": "scope"
+      },
+      "elevation": {
+        "kind": "opaque",
+        "typeText": "unknown",
+        "ambient": "scope"
+      },
+      "motion": {
+        "kind": "opaque",
+        "typeText": "unknown",
+        "ambient": "scope"
+      },
       "value": {
         "kind": "opaque",
         "typeText": "unknown"

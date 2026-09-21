@@ -46,7 +46,11 @@
         }
       ],
       "dependencies": [],
-      "registryDependencies": []
+      "registryDependencies": [],
+      "meta": {
+        "group": "engines",
+        "href": "/docs/universal-props.html"
+      }
     },
     {
       "$schema": "https://ui.shadcn.com/schema/registry-item.json",
@@ -708,7 +712,6 @@
         "@jixoai/ghostty-vt",
         "@jixoai/jixoai-theme",
         "@jixoai/color-utils",
-        "@jixoai/density",
         "@jixoai/defaults"
       ],
       "dependencies": []
@@ -1058,7 +1061,6 @@
         "@jixoai/icon",
         "@jixoai/icon-set",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/control-chrome"
       ],
       "meta": {
@@ -1156,7 +1158,6 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/control-chrome"
       ]
     },
@@ -1951,8 +1952,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -1991,8 +1991,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/checkbox",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -2075,7 +2074,6 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/control-chrome"
       ]
     },
@@ -2121,7 +2119,6 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/control-chrome"
       ],
       "meta": {
@@ -2176,8 +2173,7 @@
       "registryDependencies": [
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "data-entry",
@@ -2253,8 +2249,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "data-entry",
@@ -2308,8 +2303,7 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -2373,8 +2367,7 @@
         "@jixoai/native-select",
         "@jixoai/icon-button",
         "@jixoai/icon",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -2419,8 +2412,7 @@
         "@jixoai/form-field",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "data-entry",
@@ -2471,7 +2463,6 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/control-chrome"
       ],
       "meta": {
@@ -3881,8 +3872,7 @@
         "@jixoai/form-field",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "data-entry",
@@ -4745,8 +4735,7 @@
         "@jixoai/form-field",
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "data-entry",

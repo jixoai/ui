@@ -22,8 +22,24 @@
 -->
 <script lang="ts">
   import '$lib/form-field';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { cn } from '$lib/utils';
   import { cascaderStyles } from './cascader.stylex';
+  import { CascaderDefaults } from './cascader-defaults.svelte';
   import './cascader.css';
 
   export interface CascaderOption {
@@ -34,6 +50,33 @@
   }
 
   interface Props {
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     options: CascaderOption[];
     /** form field name — the joined path submits under it */
     name?: string;
@@ -55,6 +98,14 @@
   const isDisabled = $derived(disabled || formDisabled);
 
   let {
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     options,
     name,
     value = $bindable<string[]>([]),
@@ -64,6 +115,17 @@
     placeholder = 'select…',
     class: className = '',
   }: Props = $props();
+
+  const d = $derived(
+    CascaderDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   /** the chain of option lists: level 0 = options, level i = children of
    * the level i-1 pick (stops at the first leaf-less pick) */
@@ -119,7 +181,15 @@
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
-<div data-jx-cascader class={cn(cx(cascaderStyles.group), className)} role="group" aria-label={label ?? 'cascade'}>
+<div
+  bind:this={uniRoot}
+  data-jx-cascader
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  class={cn(cx(cascaderStyles.group), className)}
+  role="group"
+  aria-label={label ?? 'cascade'}>
   {#if label}
     <span data-jx-cascader-label class={cx(cascaderStyles.label)} id="{autoId}-label">{label}</span>
   {/if}

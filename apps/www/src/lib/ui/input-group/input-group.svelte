@@ -68,13 +68,28 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
-  import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { getDensityContext, provideDensity, resolveDensity } from '$lib/density.svelte';
   import { InputGroupDefaults } from './input-group-defaults.svelte';
   import { inputGroupStyles } from './input-group.stylex';
 
   import './input-group.css';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** accessible group name (aria-label). Pass aria-labelledby
         through the rest props instead when an external label owns
         the name — a nameless group is announced as nothing */
@@ -84,7 +99,36 @@
     disabled?: boolean;
     /** density policy: explicit, inherited, then default — provided
         to the subtree so addon children adopt the tier */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()); the
+     *  group PROVIDES its resolved rung to the subtree so addon
+     *  children adopt the tier */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
+
     'data-density'?: string;
     /** the group landmark role. The law is group; an explicit
         consumer override (labeled toolbar) is honored, never default */
@@ -97,6 +141,13 @@
     label,
     disabled = false,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     role = 'group',
     class: className = '',
@@ -116,8 +167,14 @@
   // derived_references_self. The returned getter reads ONLY the
   // captured object (reactive through its getters, never re-entering
   // the context machinery)
+  // the W3 universal lane narrows at the legacy edge: 'auto'/number/
+  //  query lanes carry no legacy rung (the rung stays ambient, §4 —
+  //  the coefficient rides the carriers on the root)
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
 
@@ -127,7 +184,17 @@
   // group's own write, whose getter is the captured-parent resolution
   // above, so the chain TERMINATES (it never re-enters this derived)
   // and lands the same value on every lane
-  const d = $derived(InputGroupDefaults.resolve({ density }));
+  const d = $derived(
+    InputGroupDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query anchor
+  // (the group root's ANCESTORS are the candidate containers). The
+  // universal density supply rides the bridged provideDensity write
+  // above; this supply carries the other seven axes downward
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
 
   // the payload's own join (the separator serialize law): every
@@ -156,10 +223,13 @@
 </script>
 
 <div
+  bind:this={uniRoot}
   {...rest}
   {role}
   data-jx-igroup
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
   aria-label={ariaLabel ?? label}
   class={cx(inputGroupStyles.root, className)}
 >

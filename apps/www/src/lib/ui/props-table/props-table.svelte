@@ -17,7 +17,13 @@
 -->
 <script lang="ts">
   import { cn } from '$lib/utils';
-  import { propsFromMeta, type PropsDocs } from './from-meta';
+  import {
+    propsFromMeta,
+    universalRows,
+    UNIVERSAL_AXIS_NAMES,
+    metaHasUniversalSurface,
+    type PropsDocs,
+  } from './from-meta';
   import { propsTableStyles } from './props-table.stylex';
   import './props-table.css';
   import type { AmbientKind, ComponentMeta } from '$lib/schema/ir';
@@ -60,10 +66,23 @@
     /** docs curation layered over the meta (prose, flags, corrections) */
     docs?: PropsDocs;
     title?: string;
+    /** render the shared "Universal props" section (the eight-axis
+     * surface, from the ONE shared source — explicit-props W3-A
+     * pulled-forward 4.3). Meta tables auto-detect (the family's own
+     * props carry the axis names); hand-written tables pass it once —
+     * the rows themselves are never hand-copied */
+    universal?: boolean;
     class?: string;
   }
 
-  let { props, meta, docs, title = 'Properties', class: className = '' }: Props = $props();
+  let {
+    props,
+    meta,
+    docs,
+    title = 'Properties',
+    universal = false,
+    class: className = '',
+  }: Props = $props();
 
   // the payload's own join (the separator serialize law): plain strings
   // pass through whole; dev objects contribute their string members ($$css dropped).
@@ -83,9 +102,14 @@
 
   // meta wins when both are given (the migration's direction); neither
   // is a dev-mode bug, named loudly instead of rendering an empty table
-  let rows: PropEntry[] = $derived(
-    meta ? propsFromMeta(meta, docs) : (props ?? []),
-  );
+  let rows: PropEntry[] = $derived(meta ? propsFromMeta(meta, docs) : (props ?? []));
+  // the universal section: meta tables auto-detect the family's axis
+  // surface; hand-written tables opt in with the bare flag. When it
+  // renders, the eight axis rows leave the main table (the section is
+  // their one home — no duplication)
+  let showUniversal = $derived(universal || (meta != null && metaHasUniversalSurface(meta)));
+  let mainRows = $derived(showUniversal ? rows.filter((row) => !UNIVERSAL_AXIS_NAMES.has(row.name)) : rows);
+  let uniRows = $derived(showUniversal ? universalRows(meta) : []);
   if (!meta && !props) {
     console.warn('[PropsTable] neither `meta` nor `props` given — empty table');
   }
@@ -110,7 +134,7 @@
       </tr>
     </thead>
     <tbody>
-      {#each rows as prop (prop.name)}
+      {#each mainRows as prop (prop.name)}
         <tr class={cx(propsTableStyles.bodyRow)}>
           <td class={cx(propsTableStyles.nameCell)}>
             {prop.name}
@@ -130,4 +154,40 @@
       {/each}
     </tbody>
   </table>
+  {#if showUniversal}
+    <!-- the universal eight-axis section (explicit-props §0/§17): rows
+         from the ONE shared source (meta.universal / the shared
+         artifact); every axis defaults 'auto' and resolves
+         explicit ?? ambient ?? 'auto'; query() wraps any lane for
+         responsive/container-conditional values -->
+    <h4 data-jx-props-table-universal="" class={cx(propsTableStyles.title)}>Universal props</h4>
+    <table data-doc-props-table="" class={cx(propsTableStyles.table)}>
+      <thead>
+        <tr class={cx(propsTableStyles.headRow)}>
+          <th class={cx(propsTableStyles.headCell)}>Property</th>
+          <th class={cx(propsTableStyles.headCell)}>Type</th>
+          <th class={cx(propsTableStyles.headCell)}>Default</th>
+          <th class={cx(propsTableStyles.headCell)}>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each uniRows as prop (prop.name)}
+          <tr class={cx(propsTableStyles.bodyRow)}>
+            <td class={cx(propsTableStyles.nameCell)}>
+              {prop.name}
+            </td>
+            <td class={cx(propsTableStyles.typeCell)}>
+              {prop.type}
+            </td>
+            <td class={cx(propsTableStyles.defaultCell)}>
+              {defaultCell(prop)}
+            </td>
+            <td class={cx(propsTableStyles.descriptionCell)}>
+              {prop.description}
+            </td>
+          </tr>
+        {/each}
+      </tbody>
+    </table>
+  {/if}
 </div>

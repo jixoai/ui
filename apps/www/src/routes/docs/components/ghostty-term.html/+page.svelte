@@ -49,6 +49,16 @@ ${close}
   const loop = `pty output ─▶ handle.write(bytes) ─▶ wasm vtWrite ─▶ dirty rows ─▶ canvas paint
 keys/paste ─▶ keyEncode + paste gate ─▶ onData(bytes) ─▶ your pty`;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<!-- ghostty-term: 7 of the 8 axes — 'theme' stays the family's own
+     shell-theme OBJECT (background/foreground/…), never the axis enum;
+     fontSize keeps its component-specific name (no collision) -->
+<GhosttyTerm rows={3} cols={40} size={13} density="small" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/ghostty-term-universal.svelte', content: universalUsage },
+  ];
+
   const files: TreeFile[] = [
     { name: 'registry/files/ui/ghostty-term/ghostty-term.svelte', content: ghosttyTermSource },
     { name: 'registry/files/ui/ghostty-term/vt-deps.ts', content: vtDepsSource },
@@ -859,7 +869,24 @@ export default {
     </div>
 
     <!-- api -->
-    <div id="api" data-reveal="">
+    <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The universal axis surface (explicit-props) — SEVEN of the eight axes here: size · shape · radius · density · color · elevation · motion take named steps, auto (inherit; stamps nothing), exact numbers, or query(). The theme axis is SHADOWED by the family's own `theme` prop (the terminal shell-theme OBJECT — background/foreground/…), and fontSize keeps its component-specific name (no collision, §13)."
+    >
+      <ComponentCanvas title="ghostty-term · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><GhosttyTerm rows={3} cols={40} size={13} density="small" wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" /></div>
+        <div class={cx(rt.panel)}><GhosttyTerm rows={3} cols={40} size="large" radius="medium" wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
       <SectionCard
         family="api"
         headerRegion="api"
@@ -869,7 +896,8 @@ export default {
       >
         <div class={cx(rt.col24)}>
           <PropsTable
-            props={[
+            universal
+          props={[
               { name: 'cols', type: 'number', default: '—', description: 'Fixed grid columns; any explicit cols/rows (or auto={false}) switches out of auto sizing.' },
               { name: 'rows', type: 'number', default: '—', description: 'Fixed grid rows.' },
               { name: 'auto', type: 'boolean', default: 'true', description: 'Derive the grid from the container box (ResizeObserver).' },

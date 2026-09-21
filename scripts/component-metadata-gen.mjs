@@ -300,6 +300,17 @@ let SLOT_FACTORIES_CACHE;
 const AMBIENT_OF_FACTORY = {
   definePaintSlot: 'zone',
   densitySlot: 'scope',
+  // the universal axis slots (explicit-props W3 batch A): the §9.1
+  // lanes resolve explicit ?? ambient ?? 'auto' — the same
+  // ambient-scope semantics the legacy density slot carries
+  sizeAxisSlot: 'scope',
+  shapeAxisSlot: 'scope',
+  radiusAxisSlot: 'scope',
+  densityAxisSlot: 'scope',
+  colorAxisSlot: 'scope',
+  themeAxisSlot: 'scope',
+  elevationAxisSlot: 'scope',
+  motionAxisSlot: 'scope',
 };
 
 function slotFactories() {

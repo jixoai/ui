@@ -293,7 +293,7 @@ describe('docs-route-model — install targets & the legacy map', () => {
       // (nothing in production imports it), likewise never a catalog page
       '/', '/probe-folder-css', '/probe-popover-area', '/probe-dropdown-area', '/probe-tooltip-area', '/probe-float-button-area', '/probe-menubar-area', '/probe-stylex-corpus', '/probe-timeline-progress', '/parity.html', '/prototypes/list-item-fusion', '/docs.html', '/docs/components.html',
       '/docs/components/form.html', '/docs/registry.html', '/docs/recipes.html',
-      '/docs/jx-pure.html', '/docs/variant-grammar.html', '/docs/context-defaults.html', '/docs/demo-standard.html', '/docs/density-2xs.html', '/docs/paged.html', '/docs/llms-txt.html', '/docs/icons.html', '/docs/install.html', '/tokens.html', '/blueprints.html', '/patterns.html',
+      '/docs/jx-pure.html', '/docs/universal-props.html', '/docs/variant-grammar.html', '/docs/context-defaults.html', '/docs/demo-standard.html', '/docs/density-2xs.html', '/docs/paged.html', '/docs/llms-txt.html', '/docs/icons.html', '/docs/install.html', '/tokens.html', '/blueprints.html', '/patterns.html',
       ...canonical,
     ]);
     const missing = [...expected].filter((e) => !entries.has(e));

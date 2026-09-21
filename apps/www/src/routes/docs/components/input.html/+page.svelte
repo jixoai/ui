@@ -53,6 +53,16 @@
 <!-- error wiring: aria-invalid + aria-describedby + dashed shell -->
 <Input type="email" label="email" value="not-an-email" error="email is required" />`;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<!-- the eight-axis surface: named steps · auto (inherit) · exact
+     numbers · query() for conditional values; auto stamps nothing -->
+<Input label="px number" size={14} density="small" placeholder="root 14px" />
+<Input label="named steps" size="large" radius="medium" placeholder="root 18px" />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/input-universal.svelte', content: universalUsage },
+  ];
+
   const inputFiles: TreeFile[] = [
     { name: 'registry/files/ui/input/input.svelte', content: inputSource },
     { name: 'src/lib/ui/input-usage.svelte', content: inputUsage },
@@ -784,6 +794,23 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+    >
+      <ComponentCanvas title="input · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Input label="size 14 · density small" size={14} density="small" name="univ-input-px" placeholder="px number · sm rung" /></div>
+        <div class={cx(rt.panel)}><Input label="size large · radius medium" size="large" density="large" radius="medium" name="univ-input-named" placeholder="named steps" /></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -793,7 +820,8 @@ ${close}
       summary="Props extend the native HTML input attributes; the entries below are the component-owned additions. Everything else (placeholder, name, min/max, accept…) rides through restProps."
     >
       <PropsTable
-        props={[
+        universal
+          props={[
           { name: 'type', type: 'string', default: "'text'", description: 'Any native input type; range/color/hidden switch to their own lanes.' },
           { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
           { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },

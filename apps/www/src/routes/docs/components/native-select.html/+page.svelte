@@ -92,6 +92,21 @@
     (file: TreeFile): string =>
       file.name.endsWith('usage.svelte') ? canvasUsage : file.content;
 
+  // ---- the universal props demo (explicit-props W3-A) --------------------
+  const universalUsage = `<!-- the universal axes EXCEPT size: the native 'size' attribute stays
+     the platform's rows-count passthrough (multiple-rows listbox mode)
+     — the family documents the collision instead of consuming it -->
+<NativeSelect label="density small" density="small" radius="medium">
+  <option>japan</option>
+</NativeSelect>
+<NativeSelect label="listbox" multiple size={3}>
+  <option>japan</option>
+</NativeSelect>`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/native-select-universal.svelte', content: universalUsage },
+  ];
+
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/native-select/native-select.svelte', content: nativeSelectSource },
     { name: 'src/lib/ui/native-select-usage.svelte', content: usage },
@@ -575,6 +590,31 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps · auto (inherit; stamps nothing) · exact numbers · query(). The family CONSUMES size and color (the native element never receives them, §1); native-select keeps the native size attribute as the rows-count passthrough instead of the axis."
+    >
+      <ComponentCanvas title="native-select · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}>
+          <NativeSelect label="density small · radius medium" density="small" radius="medium">
+            {#snippet children()}<option>japan</option><option>korea</option>{/snippet}
+          </NativeSelect>
+        </div>
+        <div class={cx(rt.panel)}>
+          <NativeSelect label="native size=3 (rows passthrough)" multiple size={3}>
+            {#snippet children()}<option>japan</option><option>korea</option><option>peru</option>{/snippet}
+          </NativeSelect>
+        </div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -584,7 +624,8 @@ ${close}
       summary="Props extend the native HTML select attributes; the entries below are the component-owned additions. Everything else (name, disabled, required, multiple, size…) rides through restProps."
     >
       <PropsTable
-        props={[
+        universal
+          props={[
           { name: 'children', type: 'Snippet', default: '—', description: 'The <option> / <optgroup> list, authored by the caller.', required: true },
           { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the control.' },
           { name: 'error', type: 'string', default: '—', description: 'Error text: sets aria-invalid, wires aria-describedby, dashes the shell.' },
