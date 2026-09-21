@@ -194,7 +194,7 @@ export async function resolveDshSettingsApiRequest(route: string, method: string
     }
     if (route === 'dsh.json' && method === 'POST') {
       await saveDshSettings(settingsFromBody(body));
-      // the VIEW (with keyPresence) — the panel treats every response
+      // the VIEW (with keys) — the panel treats every response
       // as its whole document; a bare doc would crash the rail
       return { status: 200, body: settingsView() };
     }

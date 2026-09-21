@@ -1,49 +1,29 @@
 <!--
-  @jixoai/ui-design (studio) — the Model settings panel
-  (design-settings-panel S5, Owner walkthrough-r4 2026-09-21; the
-  capability parity round settings-model-parity same day: "对于 model
-  配置的支持，和我在 skill-creator-v2 我打磨的那套，差距还是非常大的"
-  + "不要去强调 dsh"; Codex r2 hardening: the five P1s).
+  @jixoai/ui-design (studio) — the settings dialog
+  (design-settings-panel S5 → settings-model-parity → the sectioned
+  restructure, Owner walkthrough 2026-09-21 r5: 「Settings 的左侧应该
+  是一个竖导航…把其它的一些设置，比如"通用"设置放在这里…未来补充
+  "MCP"设置、"插件"设置」+「右侧是一个基于 tabs 来布局的页面。参考
+  skill-creator-v2」+「credential 就给一个带有 eye 的 input-password，
+  不用刻意去隐藏」+「test|edit|remove 改 icon-button」).
 
-  The skill-creator-v2 polished set, re-dressed in the studio's own
-  language (registry #jixoai components + layout-only studio CSS):
-  1. GALLERY — the new-route view opens on the provider catalog (the
-     pi-ai models.dev mirror served by catalog.json — STRICTLY decoded
-     at the fetch boundary, Codex r2 P1: a malformed payload degrades
-     to the typed notice, never a half-trusted list): search + card
-     grid (icon/letter avatar, label, host, model count, added ✓);
-     a card CLICK creates the route immediately — numbered slug,
-     catalog baseURL/api, top-4 image-first models richly prefilled.
-  2. CUSTOM FORM PARITY (Codex r2 P1) — "custom endpoint" is the SAME
-     editing machinery as the route detail: model cards (completion,
-     prefill, token shorthand, per-model probes with a test-only key),
-     a route key that lands FIRST (a failed key write aborts the
-     create — the reference's R13 law), probes against the not-yet-
-     stored route ride the dsh-test ad-hoc lane (baseURL+api required).
-  3. RAIL — one Item row per route: avatar (catalog icon on a
-     hue-tinted tile, or the deterministic hue letter), display label
-     (numbered slugs project back: zai-2 → "Z.ai (1)"), key-missing
-     amber dot, active badge.
-  4. MODEL CARDS — each model is a collapsible SettingsModelCard keyed
-     by a stable NONCE (Codex r2 P1: index keys rebound a card onto
-     its neighbor's local state on delete), with its SAVED twin for
-     the dirty dot, id completion over the purified pool, catalog-hit
-     prefill (switching ids re-derives EVERY untouched field — efforts
-     included, r2 P1), token shorthand, per-model probe.
-  5. ACTIVE MODEL — provider/model/effort selects fed by the routes
-     (DRAFT-aware for the open route: a renamed model re-points the
-     selection before the save — the referential gate never sees a
-     dangling reference). The studio has no composer picker, so the
-     selection lives HERE.
-  6. WRITE PATH — one global Save per route detail; credentials bypass
-     the dedicated set/clear lane (the server NEVER echoes a stored
-     key — presence only, this repo's non-disclosure law, a deliberate
-     divergence from skill-creator's objective echo); creation lands
-     a PENDING-KEY FOCUS (the reference's sticky guidance: focus the
-     credential input + a hint line, r2 Spec-P1); route removal is a
-     TWO-STEP footer arm (studio language — no nested confirm dialog);
-     load/loadCatalog run behind request-generation gates (r2 P2: a
-     stale response never overwrites a newer one).
+  Structure (skill-creator-v2's SettingsDialog posture, registry-dressed):
+  1. LEFT — a VERTICAL tabs nav (the registry Tabs family, TabsList
+     orientation="vertical"): "models" today, "general" scaffolded, MCP /
+     plugins are future rows. The section state is pure view state.
+  2. MODELS SECTION — the route TAB STRIP (a nested horizontal TabsList:
+     avatar + display label + amber dot + active badge per route, a fixed
+     "+ new route" seat at the end), then the shared detail below:
+     gallery pick / custom form / route editor.
+  3. CREDENTIAL — ONE input-password, no ceremony (no stored-badges, no
+     save/clear buttons): the registry Input's OWN reveal eye toggles the
+     mask. The stored key rides the view VERBATIM (the echo law — the
+     Owner's reversal of the earlier non-disclosure posture; masked
+     display, eye reveals), blur/Enter persists a changed non-empty
+     value, empty is a no-op.
+  4. Everything else (gallery, model cards, ad-hoc probes, pending-key
+     guidance, two-step remove, request-generation gates) carries over
+     from the parity round unchanged.
 
   No kernel name appears in user-visible copy (the Owner's ruling).
 -->
@@ -51,11 +31,12 @@
   import { untrack } from 'svelte';
   import Badge from '#jixoai/badge';
   import Dialog from '#jixoai/dialog';
+  import Icon from '#jixoai/icon';
   import Input from '#jixoai/input';
   import NativeSelect from '#jixoai/native-select';
   import PressButton from '#jixoai/press-button';
+  import Tabs, { TabsContent, TabsList, TabsTrigger } from '#jixoai/tabs';
   import { CardFooter } from '#jixoai/card';
-  import { Item, ItemContent, ItemTitle } from '#jixoai/list-item';
 
   import SettingsModelCard from './settings-model-card.svelte';
   import {
@@ -104,7 +85,8 @@
     revision: number;
     model: ActiveModel | null;
     modelRoutes: ModelRoute[];
-    keyPresence: Record<string, boolean>;
+    /** the stored keys, VERBATIM (the echo law) — present = stored */
+    keys: Record<string, string>;
   }
   interface ModelTestResult {
     ok: boolean;
@@ -138,20 +120,22 @@
   let rejection = $state<string | null>(null);
   let savedFlash = $state(false);
   let savedTimer: ReturnType<typeof setTimeout> | null = null;
-  /** request-generation gates (Codex r2 P2: a retry or fast close/reopen
-   *  must never let a STALE response overwrite newer state) */
+  /** request-generation gates (a retry or fast close/reopen must never
+   *  let a STALE response overwrite newer state) */
   let loadSeq = 0;
   let catalogSeq = 0;
 
-  /** the rail's selected route (null = the new-route view / onboarding) */
-  let selected = $state<string | null>(null);
+  /** the left nav's section (pure view state) and the route tab ('' =
+   *  none — the new-route view / onboarding owns the detail) */
+  let section = $state('models');
+  let selected = $state('');
   let newOpen = $state(false);
   let newMode = $state<'pick' | 'form'>('pick');
   /** the creation follow-through: focus + hint the credential input of
    *  the freshly created route (the reference's pendingKeyFocus) */
   let pendingKeyFocus = $state<string | null>(null);
   /** one-shot focus guard — reset at every pendingKeyFocus assignment
-   *  (a delete + recreate of the same slug focuses again, r2 partial) */
+   *  (a delete + recreate of the same slug focuses again) */
   let keyFocusDone = $state<string | null>(null);
   let credWrap = $state<HTMLElement | null>(null);
 
@@ -186,7 +170,7 @@
   /** the draft triple: entries + their NONCES (the each-key — stable
    *  across deletes/reorders, unlike index; not the user-editable id,
    *  which would remount on every keystroke) + each entry's SAVED twin
-   *  (null = brand-new) for the card's dirty dot (Codex r2 P1) */
+   *  (null = brand-new) for the card's dirty dot */
   let modelsDraft = $state<ModelDraftEntry[]>([]);
   let modelsNonces = $state<string[]>([]);
   let modelsSaved = $state<(ModelEntry | null)[]>([]);
@@ -196,9 +180,10 @@
   let activeProvider = $state('');
   let activeModel = $state('');
   let activeEffort = $state('');
-  /** credential lane (never part of the settings POST) */
+  /** credential lane: ONE password input + eye (the Owner's r5 ruling);
+   *  keyDraft mirrors the STORED key (echo law) and commits on blur/Enter
+   *  when changed and non-empty — empty is a no-op, never a clear */
   let keyDraft = $state('');
-  let keyVisible = $state(false);
   let keyBusy = $state(false);
   /** route-level test result (the footer's probe) */
   let testing = $state(false);
@@ -209,6 +194,8 @@
 
   const routes = $derived(doc?.modelRoutes ?? []);
   const selectedRoute = $derived(routes.find((route) => route.provider === selected) ?? null);
+  const storedKey = $derived(selected !== '' ? (doc?.keys[selected] ?? null) : null);
+  const keyPresent = $derived(storedKey !== null);
   const activeRoute = $derived(routes.find((route) => route.provider === activeProvider) ?? null);
   const activeModelEntry = $derived(activeRoute?.models.find((entry) => entry.id === activeModel) ?? null);
   /** the active-route's model list, DRAFT-AWARE: when the edited route IS
@@ -256,10 +243,10 @@
     return JSON.stringify(models.map((entry) => normalizedModel(entry) ?? { ...entry, efforts: entry.efforts ?? [] }));
   }
 
-  /** typed-UI boundary (Codex r4 P1-4): the registry Input syncs number
-   *  fields back as STRINGS (its oninput writes el.value) — parse strictly
-   *  at the commit edge: empty → undefined, anything not a finite positive
-   *  integer → null (= invalid, blocks save) */
+  /** typed-UI boundary: the registry Input syncs number fields back as
+   *  STRINGS — parse strictly at the commit edge: empty → undefined,
+   *  anything not a finite positive integer → null (= invalid, blocks
+   *  save) */
   function coercePositiveInt(value: unknown): number | undefined | null {
     if (value === undefined || value === null || value === '') return undefined;
     const parsed = typeof value === 'number' ? value : Number(String(value).trim());
@@ -298,18 +285,17 @@
   }
 
   /** runtime decoder for every settings response (the fetch boundary —
-   *  no `payload as SettingsDoc` leaps; field-level down to optional model
-   *  fields, matching the server's own gates so a malformed entry dies
-   *  HERE as a rejection, never later in a derived as a pageerror. Codex
-   *  r4-2/r4-3 P2-3 — the `efforts: {}` shape really crashed the panel) */
+   *  field-level down to optional model fields, matching the server's
+   *  own gates so a malformed entry dies HERE as a rejection, never
+   *  later in a derived as a pageerror) */
   function asSettingsDoc(value: unknown): SettingsDoc | null {
     if (typeof value !== 'object' || value === null) return null;
     const doc = value as Record<string, unknown>;
     if (doc.configVersion !== 1 || !Array.isArray(doc.modelRoutes) || typeof doc.revision !== 'number') return null;
-    const presence = doc.keyPresence;
-    if (typeof presence !== 'object' || presence === null) return null;
-    for (const v of Object.values(presence)) {
-      if (typeof v !== 'boolean') return null;
+    const keys = doc.keys;
+    if (typeof keys !== 'object' || keys === null) return null;
+    for (const v of Object.values(keys)) {
+      if (typeof v !== 'string' || v.length === 0) return null;
     }
     for (const route of doc.modelRoutes) {
       if (typeof route !== 'object' || route === null) return null;
@@ -368,8 +354,9 @@
     modelsNonces = route.models.map(() => crypto.randomUUID());
     modelsSaved = route.models.map((entry) => entry);
     modelsValidFlags = route.models.map(() => true);
-    keyDraft = '';
-    keyVisible = false;
+    // the credential input MIRRORS the stored key (echo law — masked,
+    // eye reveals; a fresh paste over it commits on blur/Enter)
+    keyDraft = doc?.keys[route.provider] ?? '';
     testResult = null;
     removeArmed = false;
     const active = doc?.model;
@@ -392,9 +379,9 @@
       if (seq !== loadSeq) return;
       doc = next;
       loadError = null;
-      // rail normalization: drop selections that no longer exist
-      if (selected !== null && !routes.some((route) => route.provider === selected)) selected = null;
-      if (selected === null && !newOpen && routes.length > 0) selected = routes[0]!.provider;
+      // tab normalization: drop selections that no longer exist
+      if (selected !== '' && !routes.some((route) => route.provider === selected)) selected = '';
+      if (selected === '' && !newOpen && routes.length > 0) selected = routes[0]!.provider;
       const active = doc.model;
       if (active !== null && activeProvider === '') {
         activeProvider = active.provider;
@@ -414,7 +401,7 @@
   async function save(): Promise<void> {
     if (doc === null || selectedRoute === null || saving) return;
     // explicit validity check at the commit edge — the disabled button is
-    // UX, this is the law (Codex r4-4 P2-1)
+    // UX, this is the law
     const models = normalizedModels(modelsDraft);
     if (models === null) {
       rejection = 'a model entry is invalid — fix the highlighted fields (id, numbers, effort levels) before saving';
@@ -449,7 +436,6 @@
       doc = next;
       // the saved twins re-derive from the RESPONSE (positionally aligned
       // with the drafts we just posted) so the cards' dirty dots retire
-      // (Codex r2 P1: the twins used to live forever at their init values)
       const savedRoute = next.modelRoutes.find((route) => route.provider === selectedRoute.provider);
       modelsSaved = modelsDraft.map((_, index) => savedRoute?.models[index] ?? null);
       savedFlash = true;
@@ -463,14 +449,12 @@
   }
 
   /** the credential lane for an arbitrary provider (the create form's
-   *  key-FIRST write and the detail view's set/clear share this) */
+   *  key-FIRST write and the detail's blur-commit share this) */
   async function writeKeyFor(provider: string, key: string | null): Promise<boolean> {
     if (keyBusy) return false;
     keyBusy = true;
     rejection = null;
     try {
-      // key rides EXPLICITLY (null included) — the API treats omitted and
-      // null alike now, but the explicit form is the contract (Codex r4 P1-2)
       const response = await fetch(`${settingsUrl.replace(/dsh\.json$/, 'dsh-credential')}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
@@ -485,7 +469,6 @@
       if (next === null) throw new Error('unexpected settings payload');
       doc = next;
       if (key !== null) {
-        keyDraft = '';
         // the pending-key guidance retires once a key actually lands
         if (pendingKeyFocus === provider) pendingKeyFocus = null;
       }
@@ -498,13 +481,18 @@
     }
   }
 
-  async function writeKey(key: string | null): Promise<void> {
-    if (selected === null) return;
-    await writeKeyFor(selected, key);
+  /** the single input's commit edge: a CHANGED non-empty value persists;
+   *  empty is a no-op (never an accidental clear — the API's null-clear
+   *  lane stays server-side tooling) */
+  async function commitKey(): Promise<void> {
+    if (selected === '' || keyBusy) return;
+    const value = keyDraft.trim();
+    if (value === '' || value === storedKey) return;
+    await writeKeyFor(selected, value);
   }
 
   async function testConnection(): Promise<void> {
-    if (selected === null || testing) return;
+    if (selected === '' || testing) return;
     testing = true;
     testResult = null;
     try {
@@ -554,7 +542,7 @@
   }
 
   /** the create-form's probe bridge: the route does not exist yet — the
-   *  AD-HOC lane (baseURL + api + provider, Codex r2 P1-1) */
+   *  AD-HOC lane (baseURL + api + provider) */
   async function testModelCreate(modelId: string, directKey: string | null): Promise<ModelTestResult | null> {
     try {
       const response = await fetch(`${settingsUrl.replace(/dsh\.json$/, 'dsh-test')}`, {
@@ -587,7 +575,7 @@
   }
 
   async function removeRoute(): Promise<void> {
-    if (doc === null || selected === null || saving) return;
+    if (doc === null || selected === '' || saving) return;
     saving = true;
     rejection = null;
     try {
@@ -611,7 +599,7 @@
       const next = asSettingsDoc(payload);
       if (next === null) throw new Error('unexpected settings payload');
       doc = next;
-      selected = null;
+      selected = '';
     } catch (cause) {
       rejection = cause instanceof Error ? cause.message : String(cause);
     } finally {
@@ -646,7 +634,6 @@
   /** the create form's route key (R13 law: it lands FIRST — a failed
    *  write aborts the create) + the form's model cards */
   let newFormKey = $state('');
-  let newFormKeyVisible = $state(false);
   let newModelsDraft = $state<ModelDraftEntry[]>([]);
   let newModelsNonces = $state<string[]>([]);
   let newModelsValidFlags = $state<boolean[]>([]);
@@ -681,7 +668,7 @@
   function openNew(mode: 'pick' | 'form'): void {
     newMode = mode;
     newOpen = true;
-    selected = null;
+    selected = '';
     removeArmed = false;
     if (mode === 'form') seedCreateForm();
   }
@@ -692,7 +679,6 @@
     newBaseURL = '';
     newApi = API_PROTOCOLS[0];
     newFormKey = '';
-    newFormKeyVisible = false;
     newModelsDraft = [{ id: '', name: '', contextWindow: '', maxOutputTokens: '' }];
     newModelsNonces = [crypto.randomUUID()];
     newModelsValidFlags = [false];
@@ -743,8 +729,8 @@
 
   /** a gallery card click = the route is created IMMEDIATELY (numbered
    *  slug + catalog baseURL/api + top-4 image-first models richly
-   *  prefilled — catalogRouteDraft); the editor opens on the new tab
-   *  with the pending-key guidance armed */
+   *  prefilled); the editor opens on the new tab with the pending-key
+   *  guidance armed */
   async function createFromCatalog(entry: CatalogProvider): Promise<void> {
     if (doc === null || saving) return;
     saving = true;
@@ -786,7 +772,7 @@
     };
   });
 
-  // draft re-init on RAIL SELECTION change only (the skill-creator {#key}
+  // draft re-init on ROUTE TAB change only (the skill-creator {#key}
   // remount law): a doc refresh after save/create must NOT reset the
   // credential draft, so everything but `selected` is read untracked
   $effect(() => {
@@ -824,8 +810,8 @@
       activeEffort = '';
     } else if (!effortOptions.includes(activeEffort)) {
       // capability REMOVED (efforts cleared or no longer offering the
-      // saved level) — the saved effort must drop with it (Codex r4-2
-      // P1-1: a stranded effort gets the profile refused at spawn time)
+      // saved level) — the saved effort must drop with it (a stranded
+      // effort gets the profile refused at spawn time)
       activeEffort = '';
     }
   });
@@ -845,294 +831,294 @@
   }
 </script>
 
-<!-- the r4-style pass (Owner 2026-09-21: "怎么风格都对不上"): every
-     interactive face is a REGISTRY component — Dialog (native
-     <dialog>: focus trap, Esc, scrim, the card structural kernel),
-     PressButton, NativeSelect, the Item rail, Input, Badge. Studio CSS
-     keeps ONLY layout geometry (rail width, the form grid, the gallery
-     grid) and the studio's status ink — no hand-rolled chrome remains.
-     User-visible copy names no kernel (Owner 2026-09-21) -->
+<!-- the r5 restructure (Owner 2026-09-21): a VERTICAL section nav on
+     the left (registry Tabs, orientation=vertical — "models" today,
+     "general" scaffolded, MCP/plugins are future rows) and the models
+     SECTION as a tabbed page (the route strip + shared detail,
+     skill-creator's ModelSettingsSection posture). Every interactive
+     face stays a registry component; studio CSS keeps only layout
+     geometry + status ink; user-visible copy names no kernel -->
 <Dialog title="settings" bind:open class="dsh-dialog">
-  <p class="dsh-sub">model routes — changes apply to the agent's next turn, no restart</p>
-
   {#if loadError !== null}
     <p class="dsh-error" role="alert">settings failed: {loadError} <PressButton variant="link" onclick={() => void load()}>retry</PressButton></p>
   {:else if doc === null}
     <p class="dsh-muted">loading…</p>
   {:else}
-    <div class="dsh-body">
-      <!-- the rail: one Item row per route + new -->
-      <div class="dsh-rail" role="listbox" aria-label="model routes">
-        {#each routes as route (route.provider)}
-          {@const active = doc.model?.provider === route.provider}
-          {@const hasKey = doc.keyPresence[route.provider] === true}
-          {@const base = numberedSlugParts(route.provider)?.base ?? route.provider}
-          {@const icon = catalog?.providers.find((candidate) => candidate.provider === base)?.icon ?? null}
-          {@const label = routeDisplayLabel(route, catalog)}
-          {@const hue = hueAvatarColor(route.provider)}
-          <Item
-            class="dsh-rail-row"
-            variant="default"
-            density="sm"
-            selected={!newOpen && selected === route.provider}
-            onclick={() => {
-              selected = route.provider;
-              newOpen = false;
-            }}
-            title="{label} ({route.provider}) — {route.baseURL}"
-          >
-            <ItemContent wrap="truncate">
-              <ItemTitle>
-                <span class="dsh-rail-line">
-                  {#if icon}
-                    <span class="dsh-avatar" style="background: color-mix(in srgb, {hue} 18%, transparent)"><img src={icon} alt="" /></span>
-                  {:else}
-                    <span class="dsh-avatar" style="background: {hue}">{label.slice(0, 1).toUpperCase()}</span>
-                  {/if}
-                  <span class="dsh-rail-name">{label}</span>
-                  {#if !hasKey}<span class="dsh-key-dot" title="API key missing"></span>{/if}
-                  {#if active}<Badge variant="tonal" class="jx-hue-success">active</Badge>{/if}
-                </span>
-              </ItemTitle>
-            </ItemContent>
-          </Item>
-        {/each}
-        <Item
-          class="dsh-rail-new"
-          variant="default"
-          density="sm"
-          selected={newOpen}
-          onclick={() => openNew(catalog === null && catalogError !== null ? 'form' : 'pick')}
-        >
-          <ItemContent wrap="truncate">
-            <ItemTitle>+ new route</ItemTitle>
-          </ItemContent>
-        </Item>
-      </div>
+    <Tabs bind:value={section} class="dsh-root">
+      <div class="dsh-body">
+        <!-- the left section nav (vertical tabs) -->
+        <div class="dsh-sidenav">
+          <TabsList orientation="vertical" aria-label="settings sections">
+            {#snippet iconModels()}<Icon name="boxes" size={14} />{/snippet}
+            <TabsTrigger value="models" icon={iconModels}>models</TabsTrigger>
+            {#snippet iconGeneral()}<Icon name="settings2" size={14} />{/snippet}
+            <TabsTrigger value="general" icon={iconGeneral}>general</TabsTrigger>
+          </TabsList>
+          <p class="dsh-sidenav-foot">mcp · plugins — soon</p>
+        </div>
 
-      <!-- the detail -->
-      <div class="dsh-detail">
-        {#if newOpen}
-          {#if newMode === 'pick'}
-            <!-- the gallery (pick state) -->
-            <div class="dsh-block">
-              <div class="dsh-gal-bar">
-                <Input class="dsh-gal-search" aria-label="search providers" placeholder="search providers…" bind:value={galleryFilter} />
-                <PressButton onclick={() => openNew('form')}>custom endpoint →</PressButton>
-              </div>
-              {#if catalogError !== null}
-                <p class="dsh-error" role="alert">catalog unavailable: {catalogError}</p>
-                <p class="dsh-muted">add the endpoint by hand instead.</p>
-                <div class="dsh-actions">
-                  <PressButton onclick={() => openNew('form')}>custom endpoint →</PressButton>
-                </div>
-              {:else if catalog === null}
-                <p class="dsh-muted">loading catalog…</p>
-              {:else}
-                <div class="dsh-gallery" role="listbox" aria-label="provider catalog">
-                  {#each galleryProviders as entry (entry.provider)}
-                    {@const copies = copyCount(entry.provider)}
-                    {@const hue = hueAvatarColor(entry.provider)}
-                    <button
-                      type="button"
-                      class="dsh-gal-card"
-                      role="option"
-                      aria-selected="false"
-                      title="{entry.baseURL} · {entry.api}{copies > 0 ? ` · ${copies} cop${copies === 1 ? 'y' : 'ies'} added — click to add another` : ''}"
-                      disabled={saving}
-                      onclick={() => void createFromCatalog(entry)}
-                    >
-                      {#if entry.icon}
-                        <span class="dsh-avatar dsh-avatar-lg" style="background: color-mix(in srgb, {hue} 18%, transparent)"><img src={entry.icon} alt="" /></span>
-                      {:else}
-                        <span class="dsh-avatar dsh-avatar-lg" style="background: {hue}">{entry.label.slice(0, 1).toUpperCase()}</span>
-                      {/if}
-                      <span class="dsh-gal-text">
-                        <span class="dsh-gal-label">{entry.label}</span>
-                        <span class="dsh-gal-host">{entry.baseURL.replace(/^https?:\/\//, '')}</span>
+        <!-- the section pages -->
+        <div class="dsh-section">
+          <TabsContent value="models">
+            <p class="dsh-sub">model routes — changes apply to the agent's next turn, no restart</p>
+            <Tabs bind:value={selected}>
+              <div class="dsh-tabbar">
+                <TabsList aria-label="model routes">
+                  {#each routes as route (route.provider)}
+                    {@const hasKey = doc.keys[route.provider] !== undefined}
+                    {@const base = numberedSlugParts(route.provider)?.base ?? route.provider}
+                    {@const icon = catalog?.providers.find((candidate) => candidate.provider === base)?.icon ?? null}
+                    {@const label = routeDisplayLabel(route, catalog)}
+                    {@const hue = hueAvatarColor(route.provider)}
+                    {#snippet iconRoute()}
+                      <span class="dsh-rail-line">
+                        {#if icon}
+                          <span class="dsh-avatar" style="background: color-mix(in srgb, {hue} 18%, transparent)"><img src={icon} alt="" /></span>
+                        {:else}
+                          <span class="dsh-avatar" style="background: {hue}">{label.slice(0, 1).toUpperCase()}</span>
+                        {/if}
+                        {#if !hasKey}<span class="dsh-key-dot" title="API key missing"></span>{/if}
                       </span>
-                      <span class="dsh-gal-meta">
-                        {#if copies > 0}<Badge variant="tonal">added ✓{copies > 1 ? ` ×${copies}` : ''}</Badge>{/if}
-                        <span class="dsh-gal-count" title="{entry.models.length} models in catalog">{entry.models.length}</span>
-                      </span>
-                    </button>
+                    {/snippet}
+                    <TabsTrigger value={route.provider} icon={iconRoute} title="{label} ({route.provider}) — {route.baseURL}">
+                      <span class="dsh-tab-label">{label}</span>
+                      {#if doc.model?.provider === route.provider}<Badge variant="tonal" class="jx-hue-success">active</Badge>{/if}
+                    </TabsTrigger>
                   {/each}
-                  {#if galleryProviders.length === 0}
-                    <p class="dsh-muted dsh-gal-empty">no providers match “{galleryFilter}”.</p>
+                </TabsList>
+                <PressButton class="dsh-tab-new" onclick={() => openNew(catalog === null && catalogError !== null ? 'form' : 'pick')}>+ new route</PressButton>
+              </div>
+
+              <!-- the shared detail -->
+              <div class="dsh-detail">
+                {#if newOpen}
+                  {#if newMode === 'pick'}
+                    <!-- the gallery (pick state) -->
+                    <div class="dsh-block">
+                      <div class="dsh-gal-bar">
+                        <Input class="dsh-gal-search" aria-label="search providers" placeholder="search providers…" bind:value={galleryFilter} />
+                        <PressButton onclick={() => openNew('form')}>custom endpoint →</PressButton>
+                      </div>
+                      {#if catalogError !== null}
+                        <p class="dsh-error" role="alert">catalog unavailable: {catalogError}</p>
+                        <p class="dsh-muted">add the endpoint by hand instead.</p>
+                        <div class="dsh-actions">
+                          <PressButton onclick={() => openNew('form')}>custom endpoint →</PressButton>
+                        </div>
+                      {:else if catalog === null}
+                        <p class="dsh-muted">loading catalog…</p>
+                      {:else}
+                        <div class="dsh-gallery" role="listbox" aria-label="provider catalog">
+                          {#each galleryProviders as entry (entry.provider)}
+                            {@const copies = copyCount(entry.provider)}
+                            {@const hue = hueAvatarColor(entry.provider)}
+                            <button
+                              type="button"
+                              class="dsh-gal-card"
+                              role="option"
+                              aria-selected="false"
+                              title="{entry.baseURL} · {entry.api}{copies > 0 ? ` · ${copies} cop${copies === 1 ? 'y' : 'ies'} added — click to add another` : ''}"
+                              disabled={saving}
+                              onclick={() => void createFromCatalog(entry)}
+                            >
+                              {#if entry.icon}
+                                <span class="dsh-avatar dsh-avatar-lg" style="background: color-mix(in srgb, {hue} 18%, transparent)"><img src={entry.icon} alt="" /></span>
+                              {:else}
+                                <span class="dsh-avatar dsh-avatar-lg" style="background: {hue}">{entry.label.slice(0, 1).toUpperCase()}</span>
+                              {/if}
+                              <span class="dsh-gal-text">
+                                <span class="dsh-gal-label">{entry.label}</span>
+                                <span class="dsh-gal-host">{entry.baseURL.replace(/^https?:\/\//, '')}</span>
+                              </span>
+                              <span class="dsh-gal-meta">
+                                {#if copies > 0}<Badge variant="tonal">added ✓{copies > 1 ? ` ×${copies}` : ''}</Badge>{/if}
+                                <span class="dsh-gal-count" title="{entry.models.length} models in catalog">{entry.models.length}</span>
+                              </span>
+                            </button>
+                          {/each}
+                          {#if galleryProviders.length === 0}
+                            <p class="dsh-muted dsh-gal-empty">no providers match “{galleryFilter}”.</p>
+                          {/if}
+                        </div>
+                      {/if}
+                      {#if rejection !== null}
+                        <p class="dsh-error" role="alert">{rejection}</p>
+                      {/if}
+                      <div class="dsh-actions">
+                        <PressButton onclick={() => (newOpen = false)}>cancel</PressButton>
+                      </div>
+                    </div>
+                  {:else}
+                    <!-- the custom-endpoint form (the SAME editing machinery
+                         as the route detail — model cards, key-first) -->
+                    <div class="dsh-block">
+                      <p class="dsh-block-title">new route</p>
+                      <div class="dsh-grid">
+                        <label class="dsh-field">
+                          <span class="dsh-label">provider</span>
+                          <Input placeholder="my-gateway" bind:value={newProvider} />
+                        </label>
+                        <label class="dsh-field">
+                          <span class="dsh-label">baseURL</span>
+                          <Input placeholder="https://api.example.com/anthropic" bind:value={newBaseURL} />
+                        </label>
+                      </div>
+                      <NativeSelect label="api" bind:value={newApi}>
+                        {#each API_PROTOCOLS as protocol (protocol)}<option value={protocol}>{protocol}</option>{/each}
+                      </NativeSelect>
+                      {#if !newNameValid && newProvider.trim() !== ''}
+                        <p class="dsh-error-inline" role="alert">route “{newProvider.trim()}” already exists.</p>
+                      {/if}
+                      {#if !newUrlValid && newBaseURL.trim() !== ''}
+                        <p class="dsh-error-inline" role="alert">custom route needs an http(s) base URL.</p>
+                      {/if}
+                      <div class="dsh-block-title dsh-block-gap">models</div>
+                      <div class="dsh-models">
+                        {#each newModelsDraft as model, index (newModelsNonces[index])}
+                          <SettingsModelCard
+                            entry={model}
+                            saved={null}
+                            candidates={newCandidates}
+                            provider={newProvider.trim() || 'new-route'}
+                            keyPresent={false}
+                            formKey={newFormKey}
+                            disabled={saving}
+                            onchange={(next) => (newModelsDraft[index] = next)}
+                            onremove={() => {
+                              newModelsDraft = newModelsDraft.filter((_, i) => i !== index);
+                              newModelsNonces = newModelsNonces.filter((_, i) => i !== index);
+                              newModelsValidFlags = newModelsValidFlags.filter((_, i) => i !== index);
+                            }}
+                            onvalidity={(valid) => (newModelsValidFlags[index] = valid)}
+                            ontest={(modelId, directKey) => testModelCreate(modelId, directKey)}
+                          />
+                        {/each}
+                      </div>
+                      <PressButton class="dsh-add-model" disabled={saving} onclick={() => addNewModel()}>+ add model</PressButton>
+                      <div class="dsh-block-title dsh-block-gap">api key</div>
+                      <div class="dsh-cred">
+                        <Input
+                          type="password"
+                          placeholder="paste the API key (saved on create)"
+                          bind:value={newFormKey}
+                        />
+                      </div>
+                      {#if rejection !== null}
+                        <p class="dsh-error" role="alert">{rejection}</p>
+                      {/if}
+                      <div class="dsh-actions">
+                        <PressButton onclick={() => openNew('pick')}>back to gallery</PressButton>
+                        <PressButton variant="fill" disabled={!newValid || saving} onclick={() => void createRoute()}>create</PressButton>
+                        <PressButton onclick={() => (newOpen = false)}>cancel</PressButton>
+                      </div>
+                    </div>
                   {/if}
-                </div>
-              {/if}
-              {#if rejection !== null}
-                <p class="dsh-error" role="alert">{rejection}</p>
-              {/if}
-              <div class="dsh-actions">
-                <PressButton onclick={() => (newOpen = false)}>cancel</PressButton>
-              </div>
-            </div>
-          {:else}
-            <!-- the custom-endpoint form (Codex r2 P1: the SAME editing
-                 machinery as the route detail — model cards, key-first) -->
-            <div class="dsh-block">
-              <p class="dsh-block-title">new route</p>
-              <div class="dsh-grid">
-                <label class="dsh-field">
-                  <span class="dsh-label">provider</span>
-                  <Input placeholder="my-gateway" bind:value={newProvider} />
-                </label>
-                <label class="dsh-field">
-                  <span class="dsh-label">baseURL</span>
-                  <Input placeholder="https://api.example.com/anthropic" bind:value={newBaseURL} />
-                </label>
-              </div>
-              <NativeSelect label="api" bind:value={newApi}>
-                {#each API_PROTOCOLS as protocol (protocol)}<option value={protocol}>{protocol}</option>{/each}
-              </NativeSelect>
-              {#if !newNameValid && newProvider.trim() !== ''}
-                <p class="dsh-error-inline" role="alert">route “{newProvider.trim()}” already exists.</p>
-              {/if}
-              {#if !newUrlValid && newBaseURL.trim() !== ''}
-                <p class="dsh-error-inline" role="alert">custom route needs an http(s) base URL.</p>
-              {/if}
-              <div class="dsh-block-title dsh-block-gap">models</div>
-              <div class="dsh-models">
-                {#each newModelsDraft as model, index (newModelsNonces[index])}
-                  <SettingsModelCard
-                    entry={model}
-                    saved={null}
-                    candidates={newCandidates}
-                    provider={newProvider.trim() || 'new-route'}
-                    keyPresent={false}
-                    formKey={newFormKey}
-                    disabled={saving}
-                    onchange={(next) => (newModelsDraft[index] = next)}
-                    onremove={() => {
-                      newModelsDraft = newModelsDraft.filter((_, i) => i !== index);
-                      newModelsNonces = newModelsNonces.filter((_, i) => i !== index);
-                      newModelsValidFlags = newModelsValidFlags.filter((_, i) => i !== index);
-                    }}
-                    onvalidity={(valid) => (newModelsValidFlags[index] = valid)}
-                    ontest={(modelId, directKey) => testModelCreate(modelId, directKey)}
-                  />
-                {/each}
-              </div>
-              <PressButton class="dsh-add-model" disabled={saving} onclick={() => addNewModel()}>+ add model</PressButton>
-              <div class="dsh-block-title dsh-block-gap">credential</div>
-              <div class="dsh-cred">
-                <Input
-                  type={newFormKeyVisible ? 'text' : 'password'}
-                  placeholder="paste the API key (saved on create)"
-                  bind:value={newFormKey}
-                />
-                <PressButton onclick={() => (newFormKeyVisible = !newFormKeyVisible)} aria-label="toggle key visibility">{newFormKeyVisible ? 'hide' : 'show'}</PressButton>
-              </div>
-              {#if rejection !== null}
-                <p class="dsh-error" role="alert">{rejection}</p>
-              {/if}
-              <div class="dsh-actions">
-                <PressButton onclick={() => openNew('pick')}>back to gallery</PressButton>
-                <PressButton variant="fill" disabled={!newValid || saving} onclick={() => void createRoute()}>create</PressButton>
-                <PressButton onclick={() => (newOpen = false)}>cancel</PressButton>
-              </div>
-            </div>
-          {/if}
-        {:else if selectedRoute !== null}
-          {#key selectedRoute.provider}
-            {@const hasKey = doc.keyPresence[selectedRoute.provider] === true}
-            <!-- active model -->
-            <div class="dsh-block">
-              <p class="dsh-block-title">active model</p>
-              <div class="dsh-grid">
-                <NativeSelect label="provider" bind:value={activeProvider}>
-                  {#each routes as route (route.provider)}<option value={route.provider}>{routeDisplayLabel(route, catalog)}</option>{/each}
-                </NativeSelect>
-                <NativeSelect label="model" bind:value={activeModel}>
-                  {#each activeRouteModels as entry (entry.id)}<option value={entry.id}>{entry.name ?? entry.id}</option>{/each}
-                </NativeSelect>
-                <!-- a select over the model's DECLARED efforts only — the
-                     kernel rejects an effort the model does not offer
-                     (UNSUPPORTED_REASONING_EFFORT); models with no
-                     declared efforts run at provider default -->
-                <NativeSelect label="effort" bind:value={activeEffort}>
-                  <option value="">default</option>
-                  {#each effortOptions as effort (effort)}<option value={effort}>{effort}</option>{/each}
-                </NativeSelect>
-              </div>
-            </div>
+                {:else if selectedRoute !== null}
+                  {#key selectedRoute.provider}
+                    <!-- active model -->
+                    <div class="dsh-block">
+                      <p class="dsh-block-title">active model</p>
+                      <div class="dsh-grid">
+                        <NativeSelect label="provider" bind:value={activeProvider}>
+                          {#each routes as route (route.provider)}<option value={route.provider}>{routeDisplayLabel(route, catalog)}</option>{/each}
+                        </NativeSelect>
+                        <NativeSelect label="model" bind:value={activeModel}>
+                          {#each activeRouteModels as entry (entry.id)}<option value={entry.id}>{entry.name ?? entry.id}</option>{/each}
+                        </NativeSelect>
+                        <!-- a select over the model's DECLARED efforts only —
+                             the kernel rejects an effort the model does not
+                             offer; models with no declared efforts run at
+                             provider default -->
+                        <NativeSelect label="effort" bind:value={activeEffort}>
+                          <option value="">default</option>
+                          {#each effortOptions as effort (effort)}<option value={effort}>{effort}</option>{/each}
+                        </NativeSelect>
+                      </div>
+                    </div>
 
-            <!-- credential -->
-            <div class="dsh-block">
-              <p class="dsh-block-title">credential {#if hasKey}<span class="dsh-ok">· key stored</span>{/if}</p>
-              {#if pendingKeyFocus === selectedRoute.provider}
-                <p class="dsh-ok dsh-key-hint">route “{selectedRoute.provider}” added — paste its API key to finish connecting.</p>
-              {/if}
-              <div class="dsh-cred" bind:this={credWrap}>
-                <Input
-                  type={keyVisible ? 'text' : 'password'}
-                  placeholder={hasKey ? 'stored — paste a new key to replace' : 'paste the API key'}
-                  bind:value={keyDraft}
-                  onkeydown={(event) => {
-                    if (event.key === 'Enter' && keyDraft.trim() !== '') void writeKey(keyDraft.trim());
-                  }}
-                />
-                <PressButton onclick={() => (keyVisible = !keyVisible)} aria-label="toggle key visibility">{keyVisible ? 'hide' : 'show'}</PressButton>
-                <PressButton disabled={keyDraft.trim() === '' || keyBusy} onclick={() => void writeKey(keyDraft.trim())}>save key</PressButton>
-                {#if hasKey}<PressButton disabled={keyBusy} onclick={() => void writeKey(null)}>clear</PressButton>{/if}
-              </div>
-            </div>
+                    <!-- credential: ONE input-password + eye (r5 ruling) -->
+                    <div class="dsh-block">
+                      <p class="dsh-block-title">api key</p>
+                      {#if pendingKeyFocus === selectedRoute.provider}
+                        <p class="dsh-ok dsh-key-hint">route “{selectedRoute.provider}” added — paste its API key to finish connecting.</p>
+                      {/if}
+                      <div class="dsh-cred" bind:this={credWrap}>
+                        <Input
+                          type="password"
+                          placeholder="API key"
+                          bind:value={keyDraft}
+                          onblur={() => void commitKey()}
+                          onkeydown={(event) => {
+                            if (event.key === 'Enter') void commitKey();
+                          }}
+                        />
+                      </div>
+                    </div>
 
-            <!-- endpoint -->
-            <div class="dsh-block">
-              <p class="dsh-block-title">endpoint</p>
-              <div class="dsh-grid">
-                <label class="dsh-field dsh-span2">
-                  <span class="dsh-label">baseURL</span>
-                  <Input placeholder="https://api.example.com/anthropic" bind:value={baseURLDraft} />
-                </label>
-                <NativeSelect label="api" bind:value={apiDraft}>
-                  {#each API_PROTOCOLS as protocol (protocol)}<option value={protocol}>{protocol}</option>{/each}
-                </NativeSelect>
-              </div>
-            </div>
+                    <!-- endpoint -->
+                    <div class="dsh-block">
+                      <p class="dsh-block-title">endpoint</p>
+                      <div class="dsh-grid">
+                        <label class="dsh-field dsh-span2">
+                          <span class="dsh-label">baseURL</span>
+                          <Input placeholder="https://api.example.com/anthropic" bind:value={baseURLDraft} />
+                        </label>
+                        <NativeSelect label="api" bind:value={apiDraft}>
+                          {#each API_PROTOCOLS as protocol (protocol)}<option value={protocol}>{protocol}</option>{/each}
+                        </NativeSelect>
+                      </div>
+                    </div>
 
-            <!-- models (collapsible cards, keyed by their stable nonces) -->
-            <div class="dsh-block">
-              <p class="dsh-block-title">models</p>
-              <div class="dsh-models">
-                {#each modelsDraft as model, index (modelsNonces[index])}
-                  <SettingsModelCard
-                    entry={model}
-                    saved={modelsSaved[index] ?? null}
-                    candidates={modelCandidates}
-                    provider={selectedRoute.provider}
-                    keyPresent={hasKey}
-                    disabled={saving}
-                    onchange={(next) => (modelsDraft[index] = next)}
-                    onremove={() => {
-                      modelsDraft = modelsDraft.filter((_, i) => i !== index);
-                      modelsNonces = modelsNonces.filter((_, i) => i !== index);
-                      modelsSaved = modelsSaved.filter((_, i) => i !== index);
-                      modelsValidFlags = modelsValidFlags.filter((_, i) => i !== index);
-                    }}
-                    onvalidity={(valid) => (modelsValidFlags[index] = valid)}
-                    ontest={(modelId, directKey) => testModel(modelId, directKey)}
-                  />
-                {/each}
+                    <!-- models (collapsible cards, keyed by their stable nonces) -->
+                    <div class="dsh-block">
+                      <p class="dsh-block-title">models</p>
+                      <div class="dsh-models">
+                        {#each modelsDraft as model, index (modelsNonces[index])}
+                          <SettingsModelCard
+                            entry={model}
+                            saved={modelsSaved[index] ?? null}
+                            candidates={modelCandidates}
+                            provider={selectedRoute.provider}
+                            keyPresent={keyPresent}
+                            disabled={saving}
+                            onchange={(next) => (modelsDraft[index] = next)}
+                            onremove={() => {
+                              modelsDraft = modelsDraft.filter((_, i) => i !== index);
+                              modelsNonces = modelsNonces.filter((_, i) => i !== index);
+                              modelsSaved = modelsSaved.filter((_, i) => i !== index);
+                              modelsValidFlags = modelsValidFlags.filter((_, i) => i !== index);
+                            }}
+                            onvalidity={(valid) => (modelsValidFlags[index] = valid)}
+                            ontest={(modelId, directKey) => testModel(modelId, directKey)}
+                          />
+                        {/each}
+                      </div>
+                      <PressButton class="dsh-add-model" disabled={saving} onclick={() => addModel()}>+ add model</PressButton>
+                    </div>
+                  {/key}
+                {:else}
+                  <div class="dsh-onboard">
+                    <p class="dsh-onboard-title">add your first model route</p>
+                    <p class="dsh-muted">pick a provider from the catalog, or point at any OpenAI/Anthropic-compatible endpoint — the route feeds the design agent directly.</p>
+                    <div class="dsh-onboard-actions">
+                      <PressButton variant="fill" onclick={() => openNew('pick')}>browse providers</PressButton>
+                      <PressButton onclick={() => openNew('form')}>custom endpoint</PressButton>
+                    </div>
+                  </div>
+                {/if}
               </div>
-              <PressButton class="dsh-add-model" disabled={saving} onclick={() => addModel()}>+ add model</PressButton>
+            </Tabs>
+          </TabsContent>
+          <TabsContent value="general">
+            <p class="dsh-sub">general</p>
+            <div class="dsh-onboard">
+              <p class="dsh-onboard-title">nothing here yet</p>
+              <p class="dsh-muted">studio-wide general settings land in this section — planned neighbors: mcp, plugins.</p>
             </div>
-          {/key}
-        {:else}
-          <div class="dsh-onboard">
-            <p class="dsh-onboard-title">add your first model route</p>
-            <p class="dsh-muted">pick a provider from the catalog, or point at any OpenAI/Anthropic-compatible endpoint — the route feeds the design agent directly.</p>
-            <div class="dsh-onboard-actions">
-              <PressButton variant="fill" onclick={() => openNew('pick')}>browse providers</PressButton>
-              <PressButton onclick={() => openNew('form')}>custom endpoint</PressButton>
-            </div>
-          </div>
-        {/if}
+          </TabsContent>
+        </div>
       </div>
-    </div>
+    </Tabs>
     {#if rejection !== null}
       <p class="dsh-error" role="alert">{rejection}</p>
     {/if}
@@ -1140,7 +1126,7 @@
 
   {#snippet footer()}
     <CardFooter>
-      {#if !newOpen && selectedRoute !== null}
+      {#if section === 'models' && !newOpen && selectedRoute !== null}
         <PressButton disabled={testing} onclick={() => void testConnection()}>test{testing ? '…' : ''}</PressButton>
         {#if testResult !== null}
           <span class={testResult.ok ? 'dsh-ok' : 'dsh-error-inline'}>{testResult.ok ? 'ok' : 'failed'} — {testResult.detail}</span>
@@ -1157,43 +1143,72 @@
 </Dialog>
 
 <style>
-  /* layout geometry ONLY — the interactive chrome is registry's */
-  .dsh-dialog {
-    width: min(46rem, 100%);
-  }
+  /* layout geometry ONLY — the interactive chrome is registry's
+     (component-root classes need :global — the scoped selector never
+     matches an element the component itself owns) */
   :global(.dsh-dialog) {
-    width: min(46rem, 100%);
+    width: min(50rem, 100%);
+  }
+  :global(.dsh-root) {
+    display: block;
+  }
+  .dsh-body {
+    display: grid;
+    grid-template-columns: 9.5rem 1fr;
+    gap: 0 1rem;
+    min-height: 0;
+  }
+  /* the left section nav */
+  .dsh-sidenav {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: 1px solid var(--border, #262320);
+    padding-right: 0.75rem;
+    gap: 0.5rem;
+  }
+  .dsh-sidenav-foot {
+    margin: auto 0 0;
+    font-size: 0.625rem;
+    color: var(--muted-foreground, #6f6759);
+    opacity: 0.7;
+  }
+  .dsh-section {
+    min-width: 0;
   }
   .dsh-sub {
     margin: 0 0 0.75rem;
     font-size: 0.6875rem;
     color: var(--muted-foreground, #6f6759);
   }
-  .dsh-body {
-    display: grid;
-    grid-template-columns: 11rem 1fr;
-    gap: 0 1rem;
-    min-height: 0;
-  }
-  .dsh-rail {
+  /* the route tab strip */
+  .dsh-tabbar {
     display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-    border-right: 1px solid var(--border, #262320);
-    padding-right: 0.5rem;
+    align-items: stretch;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--border, #262320);
+    margin-bottom: 0.875rem;
   }
-  .dsh-rail-line {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
+  .dsh-tabbar :global([role='tablist']) {
+    flex: 1;
     min-width: 0;
   }
-  .dsh-rail-name {
+  :global(.dsh-tab-new) {
+    align-self: center;
+    flex: none;
+  }
+  .dsh-tab-label {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 9rem;
+  }
+  .dsh-rail-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-width: 0;
   }
   /* the route/provider avatar: a catalog icon on a hue-tinted tile, or
      the deterministic hue letter (invert makes the dark-on-transparent
@@ -1385,7 +1400,7 @@
     color: var(--muted-foreground, #6f6759);
     font-size: 0.75rem;
   }
-  .dsh-remove :global(*) {
+  :global(.dsh-remove) {
     color: var(--destructive, #e08585);
   }
   .dsh-onboard {

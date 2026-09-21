@@ -22,8 +22,9 @@
      key input appears (direct probe, never persisted).
 -->
 <script lang="ts">
+  import Icon from '#jixoai/icon';
+  import IconButton from '#jixoai/icon-button';
   import Input from '#jixoai/input';
-  import PressButton from '#jixoai/press-button';
 
   import {
     THINKING_LEVELS,
@@ -305,16 +306,18 @@
       {/if}
     </span>
     <span class="dsh-model-trio">
-      <PressButton
-        variant="ghost"
+      {#snippet iconTest()}<Icon name="plugZap" size={14} />{/snippet}
+      <IconButton
+        iconOnly
+        icon={iconTest}
+        text={testing ? 'testing…' : 'test connection'}
         disabled={testDisabled}
-        title={hasFormKey ? 'probe with the route key above (saved on create)' : keyPresent ? 'probe this endpoint for the model id' : 'paste a test key, then probe (never stored)'}
         onclick={() => void runTest()}
-      >
-        {testing ? 'testing…' : 'test'}
-      </PressButton>
-      <PressButton variant="ghost" disabled={disabled} onclick={() => (expanded = !expanded)}>{expanded ? 'collapse' : 'edit'}</PressButton>
-      <PressButton variant="ghost" class="dsh-remove-model" disabled={disabled} onclick={() => onremove()}>remove</PressButton>
+      />
+      {#snippet iconEdit()}<Icon name={expanded ? 'chevronUp' : 'pencil'} size={14} />{/snippet}
+      <IconButton iconOnly icon={iconEdit} text={expanded ? 'collapse model form' : 'edit model fields'} disabled={disabled} onclick={() => (expanded = !expanded)} />
+      {#snippet iconRemove()}<Icon name="trash2" size={14} />{/snippet}
+      <IconButton iconOnly icon={iconRemove} class="dsh-remove-model" text="remove model" disabled={disabled} onclick={() => onremove()} />
     </span>
   </div>
 
@@ -463,9 +466,11 @@
   .dsh-model-card :global(.dsh-invalid) {
     border-color: var(--destructive, #e08585);
   }
-  /* the ghost trio's remove — destructive ink on the button itself
-     (the element has no children for a :global(*) descendant match) */
+  /* the icon trio's remove — destructive ink on the button itself */
   :global(.dsh-remove-model) {
+    color: var(--destructive, #e08585);
+  }
+  :global(.dsh-remove-model):hover {
     color: var(--destructive, #e08585);
   }
 </style>

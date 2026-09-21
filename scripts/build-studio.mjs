@@ -109,7 +109,11 @@ const rxFactor = exportFn(rxMod, "rx", "@jixoai/ui-vite-plugin/icons/rx");
 
 // ghostty OFF, icons channels ON — the design server's exact matrix
 // (create.ts:370-377): the studio resolves no wasm at startup and
-// scans only md:/ph:/rx: literals (studio sources carry none).
+// scans only md:/ph:/rx: literals (studio sources carry none). The
+// studio's glyphs ride the COMMITTED canonical artifact through the
+// $lib alias (apps/www/src/lib/icon-set.gen.ts) — NOT this options
+// face (the alias bypasses the plugin's generated module; config
+// icons here ship nothing, the r5 lesson).
 const jixoaiPlugins = jixoaiFactory({
   ghostty: false,
   icons: {

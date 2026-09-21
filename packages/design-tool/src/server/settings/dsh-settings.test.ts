@@ -198,7 +198,7 @@ test('unknown top-level settings.yaml sections survive a bridge sync (semantical
 
 /* ── the credentials face ─────────────────────────────────────────────── */
 
-test('a stored key rides the version-1 refs layout at 0600 and never crosses the view', async () => {
+test('a stored key rides the version-1 refs layout at 0600 and DOES ride the view (echo law, Owner 2026-09-21)', async () => {
   const home = freshHome();
   try {
     await inHome(home, async () => {
@@ -211,15 +211,15 @@ test('a stored key rides the version-1 refs layout at 0600 and never crosses the
       assert.equal(cred.version, 1);
       assert.deepEqual(cred.refs, { [dshRouteApiKeyEnv('my-gateway')]: 'sk-secret-123' });
       assert.equal(Object.keys(cred).every((k) => k === 'version' || k === 'refs'), true, 'no top-level keys beyond the version-1 vocabulary');
-      // the API-safe view: presence only
-      const view = settingsView() as { keyPresence: Record<string, boolean> };
-      assert.equal(view.keyPresence['my-gateway'], true);
-      assert.equal(JSON.stringify(view).includes('sk-secret-123'), false);
+      // the API-safe view: the key rides VERBATIM (echo law) — the
+      // panel's single password input shows it masked, the eye reveals
+      const view = settingsView() as { keys: Record<string, string> };
+      assert.equal(view.keys['my-gateway'], 'sk-secret-123');
       // clear removes the ref
       await setRouteCredential(ROUTE.provider, null);
       const cleared = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
       assert.equal(cleared.refs?.[dshRouteApiKeyEnv('my-gateway')], undefined);
-      assert.equal((settingsView() as { keyPresence: Record<string, boolean> }).keyPresence['my-gateway'], false);
+      assert.equal('my-gateway' in (settingsView() as { keys: Record<string, string> }).keys, false);
     });
   } finally {
     rmSync(home, { recursive: true, force: true });
@@ -273,7 +273,7 @@ test('the API lane saves, echoes the bumped view, and gates referential integrit
       // GET → the presence view
       const view = await resolveDshSettingsApiRequest('dsh.json', 'GET', undefined);
       assert.equal(view.status, 200);
-      assert.deepEqual((view.body as { keyPresence: Record<string, boolean> }).keyPresence, { 'api-route': false });
+      assert.deepEqual((view.body as { keys: Record<string, string> }).keys, {});
       // the active model must live in the routes being saved
       const rejected = await resolveDshSettingsApiRequest('dsh.json', 'POST', {
         model: { provider: 'ghost', model: 'm1' },
@@ -333,7 +333,7 @@ test('the credential lane writes through both faces; the test lane honors the ba
       await resolveDshSettingsApiRequest('dsh.json', 'POST', { model: null, modelRoutes: [API_ROUTE_BODY] });
       const write = await resolveDshSettingsApiRequest('dsh-credential', 'POST', { provider: 'api-route', key: 'sk-api-1' });
       assert.equal(write.status, 200);
-      assert.equal((write.body as { keyPresence: Record<string, boolean> }).keyPresence['api-route'], true);
+      assert.equal((write.body as { keys: Record<string, string> }).keys['api-route'], 'sk-api-1');
       // a probe against a dead port with the override → honest failure envelope
       const probe = await resolveDshSettingsApiRequest('dsh-test', 'POST', { provider: 'api-route', baseURL: 'http://127.0.0.1:1/v1' });
       assert.equal(probe.status, 200);
@@ -361,7 +361,7 @@ test('P1-2: clearing via an OMITTED key field is a 200 clear (not a 400)', async
       // the panel's clear button shape: {provider} with NO key field
       const clear = await resolveDshSettingsApiRequest('dsh-credential', 'POST', { provider: 'api-route' });
       assert.equal(clear.status, 200);
-      assert.equal((clear.body as { keyPresence: Record<string, boolean> }).keyPresence['api-route'], false);
+      assert.equal('api-route' in (clear.body as { keys: Record<string, string> }).keys, false);
       // all three faces dropped the secret: private JSON, kernel refs, view
       const privateFace = readFileSync(join(designStewardDir(), 'dsh-credentials.json'), 'utf8');
       assert.equal(privateFace.includes('sk-api-1'), false);

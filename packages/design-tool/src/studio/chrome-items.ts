@@ -52,6 +52,11 @@
  *   snippet extension, component/tree-view-caret); the native
  *   chevron look rides Icon
  *
+ * - tabs + icon-button (walkthrough r5, 2026-09-21): the settings
+ *   dialog's sectioned face — a vertical Tabs nav on the left, the
+ *   route tab strip inside the models section; the model cards'
+ *   test/edit/remove trio and the credential's eye ride icon-button
+ *   (iconOnly posture — the label lives in the tooltip/aria)
  * - dialog + native-select + card (walkthrough-r4 style lane,
  *   2026-09-21): the settings panel's chrome — the dsh-routes overlay
  *   rides the registry Dialog surface, its forms ride NativeSelect,
@@ -77,4 +82,6 @@ export const STUDIO_CHROME_ITEMS: readonly string[] = [
   'dialog',
   'native-select',
   'card',
+  'tabs',
+  'icon-button',
 ] as const;

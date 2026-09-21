@@ -37,4 +37,29 @@
       重建 modelsSaved；decoder 拒 dup/控制字符；候选链保序去重；
       keyFocusDone 事件化复位；supportsReasoningEffort=false 提示；种子卡
       name '' 未触语义。电池 617/617、探针 57/57、聚焦 24/24、build 零警告
-- [ ] T8 提交推送 + 5199 重启 + 汇报（进行中）
+- [x] T8 提交推送（2f4f869d）+ 5199 重启 + 汇报（R1-R3 收口轮）
+- [x] T9 Owner 走查 r5 重构（四项，2026-09-21）：
+      ① 凭据简化为单 input-password，ECHO LAW——settingsView() 携带
+      keys 原文回显（0600 落存 + refs 布局 + 测试道 scrub 不变）；
+      blur/Enter 提交，空值 no-op；pending-key hint 保留；reveal 眼
+      直接用 registry Input 内置 jx-input-reveal（vision 裁决轮删掉
+      自加的第二个 eye IconButton——「input-password 带 eye」本就是
+      原语自带）
+      ② 模型卡 test/edit/remove 换 iconOnly IconButton（plugZap/
+      pencil-chevronUp/trash2，稳定 aria-label 供探针与无障碍）
+      ③④ 面板重构为 registry Tabs 双层布局：左侧 TabsList vertical
+      分区导航（models/general + "mcp · plugins — soon" 注脚，为未来
+      MCP/插件分区留位），models 分区内嵌 route tabs（头像 + amber
+      点 + active Badge + "+ new route"）；general 为占位页。
+      STUDIO_CHROME_ITEMS 补 tabs/icon-button
+- [x] T9b vision 风格自检裁决轮（DOM 取证 + 修复）：vision 抓到
+      ①双 eye ②卡三钮/导航图标 glyph 不渲染 ③settings 标题冗余。
+      DOM 取证实锤根因：六个 lucide 名（boxes/settings2/chevronUp/
+      pencil/plugZap/trash2）不在 canonical icon-set（studio 的 $lib
+      别名直通已提交工件，build-studio 消费者配置是死路）——按消费
+      者增长先例入三处 canonical 面（apps/www + registry vite 配置
+      + gen-icon-set.mjs，字节等价），gen:icons 重生成 49 icons、
+      www 副本同步、verify:icons fresh；删 sidenav 冗余标题。
+      修复后 DOM 复证：导航/三钮 svg 真实渲染、凭据行唯一 eye、
+      右缘对齐 1214；探针 59/59 复绿、build:studio 绿
+- [ ] T10 r5 提交推送 + 5199 重启 + 汇报（进行中）

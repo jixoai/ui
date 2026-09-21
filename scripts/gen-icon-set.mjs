@@ -40,7 +40,23 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // (apps/www/vite.config.ts) — same generator, same inputs, same
 // scanned set (SCAN_ROOT below = the vite build's walk root), so the
 // dev drift-warns and the committed artifact never diverge.
-const LIBRARY_OPTIONS = { includeDefaults: true, channels: [md(), ph(), rx()] };
+const LIBRARY_OPTIONS = {
+  includeDefaults: true,
+  // studio-chrome set (walkthrough r5, 2026-09-21): the design studio's
+  // settings face consumes THIS canonical artifact through its build's
+  // $lib alias — its six glyphs pack here (the post-freeze consumer-need
+  // lane; byte-equivalent with apps/www/vite.config.ts + registry/
+  // vite.config.ts).
+  icons: {
+    boxes: 'lucide:boxes',
+    settings2: 'lucide:settings2',
+    chevronUp: 'lucide:chevronUp',
+    pencil: 'lucide:pencil',
+    plugZap: 'lucide:plugZap',
+    trash2: 'lucide:trash2',
+  },
+  channels: [md(), ph(), rx()],
+};
 // The scanner's project root: the www app's tree — exactly what the
 // vite buildStart walk sees when building apps/www (the docs pages'
 // own <Icon name="md:…"> literals are the collected set).

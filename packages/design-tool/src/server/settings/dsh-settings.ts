@@ -286,17 +286,28 @@ export async function setRouteCredential(provider: string, key: string | null): 
   });
 }
 
-/** the API-safe view: routes + active model + per-route key presence */
-export function settingsView(): DshSettings & { readonly keyPresence: Readonly<Record<string, boolean>> } {
+/** the API-safe view: routes + active model + the per-route KEYS.
+ *
+ * ECHO LAW (Owner 2026-09-21: 「你就给一个带有 eye 的 input-password 就好
+ * 了。不用刻意去隐藏。」— the earlier non-disclosure posture, keys as
+ * presence booleans only, is REVERSED by that ruling; the skill-creator
+ * R16 objective-echo precedent now governs): the stored key rides the
+ * view verbatim so the panel's single password input can show it
+ * (masked; the eye reveals). The view is same-origin, local-process —
+ * the 0600 private file stays the storage law, and the TEST lane's
+ * scrub (never echoing keys through probe details) is untouched. */
+export function settingsView(): DshSettings & { readonly keys: Readonly<Record<string, string>> } {
   const settings = loadDshSettings();
   let stored: Record<string, string> = {};
   try {
     const parsed: unknown = JSON.parse(readFileSync(credentialsFile(), 'utf8'));
     if (isObj(parsed)) stored = parsed as Record<string, string>;
   } catch { /* fresh */ }
-  const keyPresence: Record<string, boolean> = {};
-  for (const route of settings.modelRoutes) keyPresence[route.provider] = typeof stored[route.provider] === 'string' && stored[route.provider]!.length > 0;
-  return { ...settings, keyPresence };
+  const keys: Record<string, string> = {};
+  for (const route of settings.modelRoutes) {
+    if (typeof stored[route.provider] === 'string' && stored[route.provider]!.length > 0) keys[route.provider] = stored[route.provider]!;
+  }
+  return { ...settings, keys };
 }
 
 /** save + revision bump + bridge sync (one transaction: JSON first, YAML

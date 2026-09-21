@@ -171,7 +171,25 @@ const jixoaiPlugins = jixoai({
     // (Wording note: this comment deliberately avoids the tag-shaped
     // literal form — the scanner is text-level and collects comments
     // too.)
-    library: { includeDefaults: true, channels: [md(), ph(), rx()] },
+    library: {
+      includeDefaults: true,
+      // studio-chrome set (walkthrough r5, 2026-09-21): the design
+      // studio's settings face (packages/design-tool/src/studio) rides
+      // THIS committed artifact through its build's $lib alias — its
+      // six glyphs pack here, in the shared canonical face (the
+      // post-freeze growth lane: consumer need, config insertion
+      // order, deduping into lucide's canonical payload). MUST stay
+      // byte-equivalent with scripts/gen-icon-set.mjs.
+      icons: {
+        boxes: 'lucide:boxes',
+        settings2: 'lucide:settings2',
+        chevronUp: 'lucide:chevronUp',
+        pencil: 'lucide:pencil',
+        plugZap: 'lucide:plugZap',
+        trash2: 'lucide:trash2',
+      },
+      channels: [md(), ph(), rx()],
+    },
   },
   // spin-ora-svg-lane (2026-09-11) + review R2 (2026-09-12): the site
   // dogfoods the spinners face AND its loader packs. The picks mirror
