@@ -91,6 +91,12 @@ ${close}
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<WebsiteScaffold size={18} density="small">…</WebsiteScaffold>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/website-scaffold-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -236,6 +242,25 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The layout root: one named container, header/chrome/children/footer snippets in their final cells."><CodeBlock code={usage} lang="svelte" meta="WebsiteScaffold usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Skip link to main#main, one landmark per zone, and chrome reservations that keep reflow honest."><A11yTable keys={[{ key: 'Tab', action: 'The hidden Skip to content link is the first stop; then header nav, then main' }, { key: 'Enter', action: 'Follows the skip link — focus lands on #main content' }]} aria={[{ name: 'skip link', value: '"Skip to content"', description: 'Keyboard-reachable target on #main, hidden until focused' }, { name: 'landmarks', value: 'header / main#main / footer', description: 'The shell renders one landmark per zone; adopted nodes keep their authored semantics' }, { name: 'view-transition-names', value: 'site-header / page-main', description: 'Persist across navigations so chrome never flashes' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density tokens — the shell publishes structural measurements; everything else derives from them in CSS."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.frame, rt.bgMuted40, rt.px12, rt.py8, rt.fontMono, rt.text11)}>shell stand-in — a scaffold cannot nest</div></DensityDemo><TokenTable tokens={[{ name: '--jx-header-h', default: 'measured live', source: 'structural', description: 'The one measured value: body reservation, toc compaction, and the line all derive from it' }, { name: '--jx-rail-w', default: 'grid rail width', source: 'structural' }, { name: '--jx-toc-w', default: 'toc column width', source: 'structural' }, { name: '--jx-toc-line', default: '76px', source: 'structural', description: 'Shared with the toc family — the pick-line offset' }, { name: '--jx-chrome-bar', default: '44px', source: 'structural' }, { name: '--jx-chrome-top / --jx-chrome-bottom', default: 'zone insets', source: 'structural' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. Site chrome, a FIRST-TIME no-own CONTAINER surface: the zones/regions (header band, chrome slot, page main, float plane) stay structural — the size axis scales the HOST root (the site-level type-scale seam) and every axis supplies the header, rails and page content through the ambient chain."
+    >
+      <ComponentCanvas
+        title="WebsiteScaffold · universal props"
+        description="A scaffold cannot nest inside itself (the page's own canvas law above) — this site IS the running instance, and its host root now carries the eight-axis surface. The drawer holds the authored form."
+        stage="fill"
+        files={universalFiles}
+      >
+        {#snippet children()}{/snippet}
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the WebsiteScaffold Props interface — four snippet seams, no data."><PropsTable props={[{ name: 'header', type: 'Snippet', default: '—', description: 'The nav band chrome (usually terminal-header with composed nav).', required: true }, { name: 'chrome', type: 'Snippet', default: '—', description: 'Static chrome, SSR-stable: the toc rail and catalog tree render here, never moved by hydration.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The default snippet → main#main in the content column.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'Optional footer in the content flow.' }]} /></SectionCard></div>
 </div>
 

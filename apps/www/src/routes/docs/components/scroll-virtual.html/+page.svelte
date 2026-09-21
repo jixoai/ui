@@ -86,6 +86,13 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const uniRows = Array.from({ length: 60 }, (_, i) => ({ name: `row-${String(i + 1).padStart(2, '0')}` }));
+  const universalUsage = `<ScrollVirtual count={60} estimateSize={44} size={18} density="small">…</ScrollVirtual>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/scroll-virtual-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -189,6 +196,21 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Strong TanStack association, thin coupling: the props speak VirtualizerOptions; rows render through the children snippet."><CodeBlock code={virtualUsage} lang="svelte" meta="ScrollVirtual usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The composed ScrollArea carries the WAI scrollable-region pattern; rows are your content's semantics."><A11yTable keys={[{ key: 'Tab', action: 'Focuses the scrollable region (role=region + tabindex=0 from the composed ScrollArea)' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling; the window re-renders as rows enter and leave' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "virtual list")' }, { name: 'role', value: 'region', description: 'From the composed ScrollArea wrapper' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No tokens of its own: the scroller is the composed ScrollArea (the scrollbar law applies); row paint is fully yours."><div class={cx(rt.col24)}><DensityDemo><ScrollVirtual count={12} estimateSize={36} label="density sample" class={cx(rt.svH36, rt.frame)}>{#snippet children(item)}<div class="jx-vrow" class:odd={item.index % 2 === 1}>{rowItem(item.index)}</div>{/snippet}</ScrollVirtual></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'via ScrollArea', source: 'component', description: 'The composed ScrollArea supplies the scrollbar-token law (the hand-drawn capsule)' }, { name: 'row paint', default: 'yours', source: 'component', description: 'The children snippet owns the row; sizing is measured automatically' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The ENGINE-WRAPPER dialect (the mermaid/scroll-area posture): scroll-virtual owns no DOM root of its own — the resolved lanes forward to the composed ScrollArea region (the region stamps, supplies and anchors); the spacer and the absolutely-positioned rows are TanStack internals outside the supply set."
+    >
+      <ComponentCanvas title="ScrollVirtual · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><ScrollVirtual count={uniRows.length} estimateSize={44} size={18} density="small">{#snippet children(item)}<div style="padding: .25rem .5rem">{uniRows[item.index].name}</div>{/snippet}</ScrollVirtual></div>
+<div class={cx(rt.panel)}><ScrollVirtual count={uniRows.length} estimateSize={44} size="medium">{#snippet children(item)}<div style="padding: .25rem .5rem">{uniRows[item.index].name}</div>{/snippet}</ScrollVirtual></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollVirtual Props interface; bind:this exposes the TanStack passthroughs."><PropsTable props={[{ name: 'count', type: 'number', default: '—', description: 'Total item count (TanStack count).', required: true }, { name: 'estimateSize', type: 'number | ((index: number) => number)', default: '48', description: 'Estimated row size in px; dynamic measurement corrects it per row.' }, { name: 'overscan', type: 'number', default: '—', description: 'Items rendered beyond the visible window.' }, { name: 'horizontal', type: 'boolean', default: 'false', description: 'Virtualize along x instead of y.' }, { name: 'virtualOptions', type: 'Partial<VirtualizerOptions>', default: '{}', description: 'TanStack passthrough — scrollMargin / lanes / getItemKey / initialOffset / onChange / rangeExtractor; reserved keys are overridden.' }, { name: 'label', type: 'string', default: "'virtual list'", description: 'a11y name for the scrollable region.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'The composed ScrollArea viewport scroll event.' }, { name: 'children', type: 'Snippet<[VirtualItem]>', default: '—', description: 'Rendered per virtual item — receives TanStack VirtualItem (index/start/size/key/lane).', required: true }, { name: 'bind:this', type: 'scrollToIndex / scrollToOffset / measure / getVirtualizer', default: 'export', description: 'The imperative TanStack surface.' }]} /></SectionCard></div>
 </div>
 

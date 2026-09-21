@@ -165,6 +165,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<Stack gap="8" size={18} density="small">…</Stack>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/stack-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -355,6 +361,21 @@ ${close}
       <PropsTable props={[{ name: '--jx-space-2 … 80', type: '16 rungs', default: 'the sheet ladder', description: 'Every gap atom resolves one rung — spacing is never a free pixel value.' }]} />
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The structural props (direction/gap/align/justify) stay outside the contract exactly as founded; the paint axes join as a FIRST-TIME no-own container surface — the size axis scales the stack root, the children ride the supply chain."
+    >
+      <ComponentCanvas title="Stack · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Stack gap="8" size={18} density="small"><p>one number moves the stack</p><p>children inherit the root font-size</p></Stack></div>
+<div class={cx(rt.panel)}><Stack gap="8" size="medium" radius="large"><p>named steps resolve through the alias ladder</p></Stack></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Seven structural props plus the HTML rest — all optional, all never-ambient (no Defaults contract: an axis has nothing meaningful to inherit; a row is a row because its consumer says so).">
       <PropsTable props={[

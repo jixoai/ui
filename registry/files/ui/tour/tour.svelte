@@ -68,6 +68,22 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TourDefaults, type TourSurfaceVariant } from './tour-defaults.svelte';
   import { tourStyles } from './tour.stylex';
   import './tour.css';
@@ -99,7 +115,7 @@
     skip(): void;
   }
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     steps: TourStep[];
     /** bindable open state — the tour runs while true */
     open?: boolean;
@@ -117,6 +133,29 @@
         the environment asks for reduced transparency) — literal slot,
         own 'auto' */
     variant?: TourSurfaceVariant;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the walkthrough card) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — own level2 (the anchored card's menu rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -132,14 +171,42 @@
     onstep,
     card,
     variant,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
     ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.4): variant rides a literal slot (own 'auto', never
-  // reads context — the floating-surface grammar, dialog/sheet kin)
-  const d = $derived(TourDefaults.resolve({ variant }));
+  // economy 3.4 + W3-D3): one record — variant rides a literal slot
+  // (own 'auto', never reads context — the floating-surface grammar,
+  // dialog/sheet kin) and the eight universal axes ride the same
+  // record (elevation own level2 — the anchored card's menu rung).
+  // The carriers stamp the CARD root (popover="manual" promotion:
+  // self-carried, the batch C portal law); the anchor + consumption
+  // wires land after the panel state declarations (the W3-C TDZ law)
+  const d = $derived(
+    TourDefaults.resolve({
+      variant,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
 
   let index = $state(0);
   /** the resolved element of the CURRENT step (null = unavailable) */
@@ -148,12 +215,40 @@
   let panelEl = $state<HTMLElement | null>(null);
   let nextEl = $state<HTMLButtonElement | null>(null);
 
+  // the query() anchor rides the PANEL (declared above — the W3-C
+  // TDZ law); §3/§14 radius consumption (the popover dialect): an
+  // explicit lane composes radius-effective × the factor; auto
+  // computes the concentric max(0px, R − P) against the panel's own
+  // ancestors. §7's consumption pair + the solid-fill bridge ride
+  // with them; the consumer style joins LAST (the merge law —
+  // consumer declarations win the cascade)
+  provideQueryAnchor(() => panelEl ?? null);
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const panelStyle = $derived(
+    [
+      carriers,
+      radiusConsumed,
+      elevationConsumed,
+      `position-anchor: ${leaseName}`,
+      consumerStyle ?? undefined,
+    ]
+      .filter(Boolean)
+      .join('; ') || undefined,
+  );
+
   // the shared declarative motion kernel (r29) — anchored to the
   // CURRENT step's resolved target (the lease holder); the live axis
   // re-measures per step with zero extra wiring
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => targetEl });
+  // renamed panelMotion (W3-D3): the §8 axis prop owns the `motion`
+  // name now — the kernel local takes the popover.svelte spelling
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => targetEl });
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
 
   // the manual popover needs its explicit show — the panel is in the
   // top layer while the tour renders, hidden on removal. Open/step
@@ -167,8 +262,8 @@
     if (!(open && panelEl) || index < 0) return;
     if (typeof panelEl.showPopover === 'function' && !panelEl.matches(':popover-open')) {
       panelEl.showPopover();
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     }
     requestAnimationFrame(() => {
       if (typeof requestAnimationFrame === 'function' && panelEl?.matches(':popover-open')) {
@@ -180,8 +275,8 @@
     return () => {
       if (panelEl && typeof panelEl.hidePopover === 'function' && panelEl.matches(':popover-open')) {
         panelEl.classList.remove('jx-rest');
-        motion.play(0);
-        motion.stopTracking();
+        panelMotion.play(0);
+        panelMotion.stopTracking();
         panelEl.hidePopover();
       }
     };
@@ -364,9 +459,11 @@
     tabindex="-1"
     aria-modal="false"
     aria-label={step.title}
-    class={cn('jx-tour jx-surface', motion.supported && 'jx-waapi', className)}
+    class={cn('jx-tour jx-surface', panelMotion.supported && 'jx-waapi', className)}
     data-variant={d.variant}
-    style="position-anchor: {leaseName}"
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={panelStyle}
     bind:this={panelEl}
     onkeydown={handleKeydown}
   >

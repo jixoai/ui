@@ -82,6 +82,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<Toc title="on this page" size={18} density="small">…</Toc>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/toc-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -228,5 +234,20 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Both modes in one copyable sample; the rail needs an aside shell and (overlay shells) the scrollRoot."><CodeBlock code={usage} lang="svelte" meta="Toc usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A labeled nav of real anchors; scrollspy writes aria-current, never focus."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the rail links in tree order; focus is never stolen by scrollspy' }, { key: 'Enter', action: 'Follows the anchor — the heading lands exactly on the pick line' }]} aria={[{ name: 'aria-label', value: '"Table of contents"', description: 'On the desktop nav landmark (plus your aside label)' }, { name: 'aria-current', value: '"true"', description: 'Written on the active link(s) by the engine each update' }, { name: 'aria-expanded', value: 'boolean', description: 'On the mobile bar disclosure toggle ("Expand table of contents")' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Chrome sizing and the scrollspy paint are token-driven custom properties the engine writes at runtime."><div class={cx(rt.col24)}><DensityDemo><Toc title="density sample"><TocList><TocItem><TocLink href="#types">Types</TocLink></TocItem><TocItem><TocLink href="#api">API</TocLink></TocItem></TocList></Toc></DensityDemo><TokenTable tokens={[{ name: '--jx-toc-line', default: '76px', source: 'component', description: 'The line-pick offset — derives from the measured header height + toc bar' }, { name: '--jx-cur', default: '0 | 1', source: 'component', description: 'The pick marker flag the engine writes per link' }, { name: '--jx-progress', default: '0 → 1', source: 'component', description: 'Spine fill scale (IoM weights)' }, { name: '--jx-chrome-bar', default: '44px', source: 'component', description: 'Mobile glass bar height' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The rail is placement chrome — a FIRST-TIME no-own contract: the size axis scales the rail root and the List/Item/Link parts ride the ambient chain (吃也供)."
+    >
+      <ComponentCanvas title="Toc · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Toc title="axes" size={18} density="small"><TocList><TocItem><TocLink href="#toc-what">what it tracks</TocLink></TocItem><TocItem><TocLink href="#toc-anatomy">two modes</TocLink></TocItem></TocList></Toc></div>
+<div class={cx(rt.panel)}><Toc title="named steps" size="medium" radius="large"><TocList><TocItem><TocLink href="#toc-what">what it tracks</TocLink></TocItem></TocList></Toc></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Toc and TocList Props interfaces; TocItem/TocLink are the same shape passthrough."><PropsTable props={[{ name: 'outline', type: 'TocOutlineConfig', default: '—', description: 'AUTO mode: derive the outline from a content root headings ({ root, levels? }).' }, { name: 'title', type: 'string', default: "'reading progress'", description: 'The desktop rail label.' }, { name: 'scrollRoot', type: 'string | HTMLElement | null', default: 'document', description: 'Scroll root for overlay-shell layouts (selector or element).' }, { name: 'children', type: 'Snippet', default: '—', description: 'MANUAL mode: the composed TocList tree.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough (root / list).' }, { name: 'TocList: children', type: 'Snippet', default: '—', description: 'TocItem children; nesting is a TocList inside a TocItem.', required: true }, { name: '...rest', type: 'HTMLAttributes', default: 'spread', description: 'TocList spreads onto the ul; TocLink is a plain anchor with your href.' }]} /></SectionCard></div>
 </div>

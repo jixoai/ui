@@ -174,6 +174,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<Select label="runtime" options={runtimeOptions} size={18} density="small" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/select-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -473,6 +479,21 @@ ${close}
       </div>
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The TRIGGER surface (.jx-field) and the PORTALED listbox both carry the resolved lanes (the batch C portal law: the panel stamps its own carriers, self-carried across the top-layer promotion); elevation carries the family own level2 — the anchored panel's menu rung. Open a demo listbox to see the panel's carriers live."
+    >
+      <ComponentCanvas title="Select · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Select label="runtime" options={runtimeOptions} size={18} density="small" /></div>
+<div class={cx(rt.panel)}><Select label="named steps" options={runtimeOptions} size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"

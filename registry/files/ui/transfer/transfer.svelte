@@ -25,6 +25,22 @@
 <script lang="ts">
   import '$lib/form-field';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { TransferDefaults } from './transfer-defaults.svelte';
   import { transferStyles } from './transfer.stylex';
   import './transfer.css';
 
@@ -46,6 +62,30 @@
     /** search placeholder */
     searchPlaceholder?: string;
     onchange?: (value: string[]) => void;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (one number moves both
+     *  panes) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -57,8 +97,29 @@
     targetTitle = 'target',
     searchPlaceholder = 'filter…',
     onchange,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D3 — FIRST-TIME contract, all
+  // no-own): the dual-list composite is a no-own container surface —
+  // the two fieldsets, the search inputs and the mover chips are the
+  // family's own parts riding the root's ambient chain (吃也供)
+  const d = $derived(
+    TransferDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   // the payload's own join (separator's serialize law): objects in
   // dev, joined strings in payloads — never a raw interpolation
@@ -132,7 +193,13 @@
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
-<div class={cn('jx-transfer', cx(transferStyles.root), className)}>
+<div
+  bind:this={uniRoot}
+  class={cn('jx-transfer', cx(transferStyles.root), className)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
   <!-- svelte-ignore a11y_autocomplete_valid -- search inputs over a
        checkbox fieldset, not a combobox -->
   <fieldset data-jx-tr-panel class={cx(transferStyles.panel)} aria-label="{sourceTitle} · {sourceTotal} total">

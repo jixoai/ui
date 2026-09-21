@@ -180,6 +180,12 @@ ${close}
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<Statistic title="axes joined" value="42" size={18} density="small" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/statistic-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -355,6 +361,21 @@ ${close}
   <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Metric states" summary="The readout supports neutral metrics, directional trends and composed affixes."><ComponentCanvas title="statistic · states" stage="fill" files={statisticStatesFiles}><div class={cx(rt.gridSm3)}><Statistic title="neutral" value="69" /><Statistic title="up" value="42" trend="up" /><Statistic title="down" value="3" trend="down" /></div></ComponentCanvas></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'title', value: 'visible label', description: 'Names the metric for every reader.' }, { name: 'value', value: 'text content', description: 'Keeps formatted values readable and copyable.' }, { name: 'aria-live (recipe)', value: 'polite, one-shot', description: 'The countdown announces the CLOSE, never every tick — a ticking live region is noise.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Statistic title="deploys" value="42" trend="up" /></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The metric readout is flat content, all no-own; the size axis scales the root and the supply chain is the point."
+    >
+      <ComponentCanvas title="Statistic · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Statistic title="axes joined" value="42" size={18} density="small" /></div>
+<div class={cx(rt.panel)}><Statistic title="named steps" value="97.4%" size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value (format before it reaches the component).', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">

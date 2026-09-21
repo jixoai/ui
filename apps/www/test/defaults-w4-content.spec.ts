@@ -267,7 +267,9 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
     // diameter OPEN literal, own 96; density rides the bridged axis
     // slot — own 'auto', not the legacy slot's undefined);
     // ListItemDefaults gained the seven non-density members beside
-    // its literals. Statistic keeps its legacy slot (undefined)
+    // its literals. W3-D3 (task 3.4 r3): statistic joined the
+    // eight-axis surface too (density migrated onto the bridged axis
+    // slot — no-own 'auto', not the legacy slot's undefined)
     expect(resolveInWindow(() => ChartDefaults.resolve({}))).toEqual({
       variant: 'fill',
       density: 'auto',
@@ -279,7 +281,16 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
       elevation: 'auto',
       motion: 'auto',
     });
-    expect(resolveInWindow(() => StatisticDefaults.resolve({}))).toEqual({ density: undefined });
+    expect(resolveInWindow(() => StatisticDefaults.resolve({}))).toEqual({
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
     expect(resolveInWindow(() => ListItemDefaults.resolve({}))).toEqual({
       variant: 'auto',
       density: 'auto',
@@ -329,6 +340,20 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
       elevation: 'auto',
       motion: 'auto',
     });
-    expect(TourDefaults.resolve({})).toEqual({ variant: 'auto' });
+    // W3-D3 (explicit-props, task 3.4 r3): tour joined the eight-axis
+    // surface (elevation own level2 — the card's menu rung), so its
+    // contract now READS context like every axis-bearing family — the
+    // call joins the in-window form
+    expect(resolveInWindow(() => TourDefaults.resolve({}))).toEqual({
+      variant: 'auto',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level2',
+      motion: 'auto',
+    });
   });
 });

@@ -43,12 +43,30 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { setContext } from 'svelte';
-  import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
+  import { getDensityContext, provideDensity, resolveDensity } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TabsDefaults } from './tabs-defaults.svelte';
   import { tabsStyles } from './tabs.stylex';
 
   interface Props {
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
     /** the active tab value; bindable (bind:value) — '' = none selected.
      *  The bound value is the authority: pointing it at a disabled or
      *  absent tab keeps that value verbatim (caller's decision). */
@@ -58,6 +76,25 @@
     /** automatic: focus moves select (default, terminal immediacy).
      *  manual: arrows move focus only — Enter/Space commit. */
     activation?: 'automatic' | 'manual';
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     children: Snippet;
   }
 
@@ -69,6 +106,13 @@
     value = $bindable(''),
     onchange,
     activation = 'automatic',
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     children,
   }: Props = $props();
 
@@ -100,21 +144,37 @@
   // initializer body, or the getter itself) would resolve the key to
   // the tabs' OWN write and self-reference through the very getter it
   // feeds — derived_references_self, the pre-3.3 bare capture this
-  // replaces (the packet-D lesson in its r11 form). The returned
-  // getter reads ONLY the captured object (reactive through its
-  // getters, never re-entering the context machinery)
+  // replaces. The returned getter reads ONLY the captured object
+  // (reactive through its getters, never re-entering the context
+  // machinery). The W3 universal lane narrows at the legacy edge (the
+  // input-group law): 'auto'/number/query lanes carry no legacy rung —
+  // the rung stays ambient (§4), the coefficient rides the carriers
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
-  // TOP of the provider lane as the family's single audited read point:
-  // the density slot's ambient read resolves the key to the tabs' own
-  // write, whose getter is the captured-parent resolution above, so the
-  // chain TERMINATES (it never re-enters this derived) and lands the
-  // same value every lane stamps
-  const d = $derived(TabsDefaults.resolve({ density }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3 + W3-D3),
+  // riding ON TOP of the provider lane as the family's single audited
+  // read point: the density slot's ambient read resolves the key to
+  // the tabs' own write, whose getter is the captured-parent
+  // resolution above, so the chain TERMINATES (it never re-enters this
+  // derived) and lands the same value every lane stamps; the seven
+  // sibling axes ride the same record (the root div is the family's
+  // own DOM root; the indicator machinery stays untouched — the parts
+  // ride the supply chain). PROVIDER-SNAPSHOT KERNEL LAW: density does
+  // NOT ride the provideUniversalLanes literal — the reactive bridged
+  // write above carries the universal density supply; the literal
+  // carries the other seven axes
+  const d = $derived(TabsDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }));
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   setContext<TabsApi>(TABS_KEY, {
     uid: autoId,
@@ -138,4 +198,11 @@
   });
 </script>
 
-<div data-jx-tabs="" data-density={d.density} class={cx(tabsStyles.root)}>{@render children()}</div>
+<div
+  data-jx-tabs=""
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+  bind:this={uniRoot}
+  class={cx(tabsStyles.root)}
+>{@render children()}</div>

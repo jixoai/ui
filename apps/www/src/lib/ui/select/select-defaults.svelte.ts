@@ -17,18 +17,37 @@
  *     → props-table-meta-drift), whose ambient-column extension is the
  *     doc batch's 先破再立 (task 4.3) — both spellings are pinned
  *     identical by the family spec.
- *   - density: the no-opinion axis slot. The custom listbox carries NO
- *     density own: no provider and no explicit prop resolve undefined,
- *     stamp nothing, and the ambient css scope channel keeps flowing
- *     (fleet law).
+ *   - density: the universal §4 axis slot (W3-D3 — the legacy
+ *     densitySlot semantics ride the bridged lane). The custom
+ *     listbox carries NO density own: no provider and no explicit
+ *     prop resolve 'auto', stamp nothing, and the ambient css scope
+ *     channel keeps flowing (fleet law).
+ *   - the seven other universal axes (§0/§11, W3-D3): size · shape ·
+ *     radius · color · theme · motion all no-own — the trigger
+ *     surface (the .jx-field scaffold) and the PORTALED listbox
+ *     panel both carry the resolved lanes (the batch C portal law:
+ *     the panel stamps its own carriers, self-carried across the
+ *     top-layer promotion); elevation carries the family own
+ *     level2 — the anchored panel's historic z-feel (3dp, M3's menu
+ *     rung — the dropdown-menu/popover law, batch C).
  *
  * 惰性律: construction captures own only; context reads happen at
  * resolve time inside the consumer's $derived window. This file is a
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const selectSurfaceVariantSlot = defineLiteralSlot(['solid', 'acrylic', 'auto'], 'auto');
 
@@ -42,5 +61,12 @@ export type SelectSurfaceVariant = ReturnType<typeof selectSurfaceVariantSlot>;
 
 export const SelectDefaults = defineComponentDefaults({
   variant: selectSurfaceVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot('level2'),
+  motion: motionAxisSlot(),
 });

@@ -50,6 +50,21 @@
   import Separator from '../separator/separator.svelte';
   import './section-card.css';
   import { sectionCardStyles } from './section-card.stylex';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { SectionCardDefaults, type SectionCardTone } from './section-card-defaults.svelte';
   import {
     NUMBERING_DOMAIN_KEY,
@@ -111,6 +126,31 @@
      *  registry — absent id means numbered but unreferenceable (the
      *  same law as Figure). Mount-time structural param. */
     id?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — the content atom's density ADOPTION keeps
+     *  resolving through the ambient css scope channel; an explicit
+     *  lane stamps the rung on the section root itself */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -129,6 +169,14 @@
     numbering,
     floatScope,
     id,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
   }: Props = $props();
 
   // the payload's own join (the separator serialize law): plain strings
@@ -253,10 +301,31 @@
     if (declaresNumbering && domain) domain.dispose();
   });
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
-  // tone resolves through the family contract (the literal slot: own
-  // 'default' declared in SectionCardDefaults, auditable in one place)
-  const d = $derived(SectionCardDefaults.resolve({ tone }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3 + W3-D3):
+  // one record — tone resolves through the family contract (the
+  // literal slot: own 'default' declared in SectionCardDefaults,
+  // auditable in one place) and the eight universal axes ride the
+  // same record (all no-own — the bordered section is a no-own
+  // container surface; the size axis scales the section root and the
+  // supply chain is the point). The anchor rides the SAME sectionEl
+  // the numbering tree binds (declared above — the W3-C TDZ law)
+  const d = $derived(
+    SectionCardDefaults.resolve({
+      tone,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideQueryAnchor(() => sectionEl ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   // tailwindless one-shot (2026-09-16): the title/summary voices ride
   // the family's REGISTERED data-hook rules (section-card.css — the
@@ -270,6 +339,9 @@
   data-tone={d.tone}
   bind:this={sectionEl}
   class={cn(cx(sectionCardStyles.card), className)}
+  style={rootStyle}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   id={frozen.id}
   data-family={family}
   data-region={region}

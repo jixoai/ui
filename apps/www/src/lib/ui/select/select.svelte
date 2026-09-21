@@ -78,7 +78,22 @@
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { SelectDefaults } from './select-defaults.svelte';
   import { selectStyles } from './select.stylex';
   import './select.css';
@@ -87,11 +102,13 @@
   // native change event never fires on the trigger BUTTON, so a rest-
   // forwarded handler was a silently dead binding — the prop below is
   // the sugar that fires on the component's own commit path
-  interface Props extends Omit<HTMLButtonAttributes, 'onchange'> {
+  interface Props extends Omit<HTMLButtonAttributes, 'onchange' | 'color'> {
     /** the full option list (order = panel order) */
     options: SelectOption[];
-    /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
     /** committed value; bind:value — undefined shows the placeholder */
     value?: string;
     /** trigger text when nothing is selected */
@@ -113,11 +130,31 @@
         follows the variant through the jx-surface fill props) */
     variant?: 'solid' | 'acrylic' | 'auto';
     /** COMMIT HOOK (issue #6): fires with the newly committed value on
-        the selection commit path — click, Enter, Space — alongside the
-        bind:value write. Sugar over bind:value; the native change
+        the selection commit path — click, Enter, Space — alongside
+        the bind:value write. Sugar over bind:value; the native change
         event never fires on the trigger button, so this prop owns the
         channel outright */
     onchange?: (value: string) => void;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the trigger surface and the
+     *  portaled listbox both carry the resolved lane) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — own level2 (the anchored panel's menu rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   // $props.id() must live in its own top-level initializer (compiler law)
@@ -136,6 +173,13 @@
     disabled = false,
     multiple = false,
     variant = 'auto',
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     onchange,
     class: className = '',
     ...rest
@@ -160,12 +204,31 @@
   // form lifecycle: what jx-reset restores, and the form-disable mirror
   const initialValue = value;
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.1): explicit ?? ambient/own per slot, one line, no legacy
-  // helper channels. variant keeps its inline default + inline union:
-  // this Props interface feeds the GENERATED meta chain (drift-locked),
-  // whose ambient annotation is the doc batch's 先破再立 — the
-  // contract's own 'auto' is the same value (select-defaults.svelte.ts)
-  const d = $derived(SelectDefaults.resolve({ variant, density }));
+  // economy 3.1 + W3-D3): one record — variant keeps its inline
+  // default + inline union (this Props interface feeds the GENERATED
+  // meta chain, drift-locked); the eight universal axes ride the same
+  // record (elevation own level2 — the panel's menu rung). The TRIGGER
+  // surface (.jx-field) and the PORTALED listbox panel BOTH stamp the
+  // carriers: the top-layer promotion moves paint, not DOM, but the
+  // panel is self-carried by the batch C portal law (CSS inheritance
+  // does not cross the promotion; the Svelte context does — the
+  // supply below feeds both)
+  const d = $derived(
+    SelectDefaults.resolve({
+      variant,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  const fieldStyle = $derived(carriers || undefined);
   let formDisabled = $state(false);
   const isDisabled = $derived(disabled || formDisabled);
 
@@ -192,6 +255,33 @@
   // the wrap span carrying anchor-name — the motion kernel measures the
   // slide axis panel↔anchor against it, live
   let anchorEl = $state<HTMLElement | null>(null);
+
+  // the query() anchor rides the PANEL (the promoted root — declared
+  // above, the W3-C TDZ law); §3/§14 radius consumption (the popover
+  // dialect): an explicit lane composes radius-effective × the
+  // factor; auto computes the concentric max(0px, R − P) against the
+  // panel's own ancestors (the var() fallbacks load-bearing — IACVT
+  // never lands). §7's consumption pair + the solid-fill bridge ride
+  // the panel with them
+  provideQueryAnchor(() => panelEl ?? null);
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const panelStyle = $derived(
+    [
+      carriers,
+      radiusConsumed,
+      elevationConsumed,
+      `position-anchor: ${anchorName}`,
+      'inset-area: bottom span-all',
+      'position-area: bottom span-all',
+    ]
+      .filter(Boolean)
+      .join('; ') || undefined,
+  );
 
   // v1: `multiple` is a reserved extension direction — say so loudly
   // instead of silently ignoring a prop the caller believes in.
@@ -241,8 +331,8 @@
   function onPanelToggle(): void {
     open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
       // continue from context, like the native select: highlight the
       // selected row, else the first enabled one
       const selectedIndex = options.findIndex((option) => option.value === value);
@@ -252,8 +342,8 @@
       listEl?.focus();
     } else {
       panelEl?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       // focus restitution on EVERY close path — light dismiss and Escape
       // are free from popover="auto"; this line covers the focus part
       triggerEl?.focus();
@@ -264,8 +354,10 @@
   // lib/surface-motion.ts): WAAPI animates ONE @property number (--jx-p);
   // every visible property is a CSS formula of it (jixoai.css). Here it
   // wires only this panel's toggle seam and live wrap anchor
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
-  onDestroy(() => motion.destroy());
+  // renamed panelMotion (W3-D3): the §8 axis prop owns the `motion`
+  // name now — the kernel local takes the popover.svelte spelling
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  onDestroy(() => panelMotion.destroy());
 
   function onListKeydown(event: KeyboardEvent): void {
     if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
@@ -303,7 +395,7 @@
   });
 </script>
 
-<div class="jx-field" data-density={d.density}>
+<div class="jx-field" data-density={densityRungOf(d.density)} class:dark={d.theme === 'dark'} style={fieldStyle}>
   <!-- faceless form bridge (form-field.ts law): the committed value rides
        ElementInternals into FormData; jx-reset / jx-disabled bubble the
        form lifecycle back into this component. Owns no box, no content —
@@ -388,10 +480,11 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class={cn('jx-sel-panel jx-surface', motion.supported && 'jx-waapi')}
+    class={cn('jx-sel-panel jx-surface', panelMotion.supported && 'jx-waapi')}
     data-variant={d.variant}
-    data-density={d.density}
-    style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={panelStyle}
     ontoggle={onPanelToggle}
   >
     <!-- surface body (bezel paint + ::after shadow) + scroll ring

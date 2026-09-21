@@ -46,9 +46,30 @@ describe('the clean-consumer families\' contract surfaces', () => {
         PaginationDefaults,
         ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
       ],
-      [StepsDefaults, ['density']],
-      [SectionCardDefaults, ['tone']],
-      [TimelineDefaults, ['density', 'variant']],
+      // W3-D3: the eight-axis surface joined the three clean
+      // consumers (all no-own beside their literals/floors)
+      [
+        StepsDefaults,
+        ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
+      ],
+      [
+        SectionCardDefaults,
+        ['tone', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
+      ],
+      [
+        TimelineDefaults,
+        [
+          'density',
+          'size',
+          'shape',
+          'radius',
+          'color',
+          'theme',
+          'elevation',
+          'motion',
+          'variant',
+        ],
+      ],
     ] as const) {
       expect(Object.isFrozen(defaults.slots)).toBe(true);
       expect(Object.keys(defaults.slots).sort()).toEqual([...keys].sort());
@@ -67,6 +88,10 @@ describe('the clean-consumer families\' contract surfaces', () => {
           StepsDefaults.resolve({ density: 'xs' }),
           TimelineDefaults.resolve({}),
           TimelineDefaults.resolve({ variant: 'ring' }),
+          // W3-D3: the section's contract reads context now (the
+          // eight axes ride beside the tone literal) — the in-window
+          // form replaces the retired plain unit call
+          SectionCardDefaults.resolve({}),
         ],
         onvalue: (value, error) => {
           holder.value = value as unknown[] | undefined;
@@ -76,9 +101,11 @@ describe('the clean-consumer families\' contract surfaces', () => {
     });
     flushSync();
     expect(holder.error).toBeUndefined();
+    // W3-D2/D3: every axis silent-'auto' absent an opinion (§0.1 —
+    // no opinion, nothing stamps); an explicit rung normalizes
+    // verbatim; timeline's dot variant and section-card's tone keep
+    // their literal owns
     expect(holder.value).toEqual([
-      // pagination W3-D2: every axis silent-'auto' (§0.1 — no
-      // opinion, nothing stamps)
       {
         density: 'auto',
         size: 'auto',
@@ -89,13 +116,50 @@ describe('the clean-consumer families\' contract surfaces', () => {
         elevation: 'auto',
         motion: 'auto',
       },
-      { density: 'xs' },
-      { density: undefined, variant: 'square' },
-      { density: undefined, variant: 'ring' },
+      {
+        density: 'xs',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+        variant: 'square',
+      },
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+        variant: 'ring',
+      },
+      {
+        tone: 'default',
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
     ]);
-    // SectionCard's tone slot reads no context — the plain unit form
-    // holds on the legal side too
-    expect(SectionCardDefaults.resolve({})).toEqual({ tone: 'default' });
   });
 });
 

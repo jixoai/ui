@@ -134,6 +134,31 @@ ${close}`;
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  // the NO-ROOT (fragment) dialect: ScrollChrome renders a fragment —
+  // every root conditional, nothing guaranteed — so the lanes supply
+  // through CONTEXT only (the veil's ProgressiveBlur children stamp
+  // their own roots). The demo: a second hand-rolled strip whose
+  // chrome carries the axes. The stamp mounts through an ATTACHMENT
+  // (this page's local `effect` const shadows the $effect rune — the
+  // pre-existing 102:3 quirk stays single, not doubled)
+  let uniHostEl = $state<HTMLDivElement | null>(null);
+  let uniRunEl = $state<HTMLDivElement | null>(null);
+  const uniLanes = Array.from({ length: 14 }, (_, i) => `lane-${String(i + 1).padStart(2, '0')}`);
+  const mountUniStamp = (run: HTMLDivElement): (() => void) => {
+    const stamp = createScrollStamp({
+      run,
+      host: uniHostEl,
+      members: () => [...run.children].filter((c): c is HTMLElement => c instanceof HTMLElement),
+      ramps: false, // veil-effects chrome: no per-member edge factors
+    });
+    return () => stamp.destroy();
+  };
+  const universalUsage = `<ScrollChrome scrollEffect={ramp()} run={runEl} size={18} density="small" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/scroll-run-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -370,5 +395,44 @@ opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0))
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The whole adoption contract: host, run hooks, chrome, and one effect. This is every line a future scrollable region adds."><CodeBlock code={usage} lang="svelte" meta="the raw contract" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The chips are real buttons with REQUIRED labels; the veils are scenery; nothing paints before the first verdict."><A11yTable keys={[{ key: 'ArrowLeft / ArrowRight', action: 'The run is a native scroller — keyboard travel is free; the chips are shortcuts, not the only path' }]} aria={[{ name: 'backwardLabel / forwardLabel', value: 'required', description: 'Each chevron chip is a real focusable button; its accessible name is the consumer\'s call (tabs says "Scroll tabs backward")' }, { name: 'aria-hidden', value: 'veils', description: 'The veil layer and its bands are pure scenery — no name, no role, pointer-transparent' }, { name: 'prefers-reduced-motion', value: 'translate: none', description: 'The translate dies (member ramps and veil entrances); blur and opacity stay — a CLOSED edge hides its veil outright instead of parking it in place' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The glyph/veil knobs ride the HOST (the overlays are the run's siblings — a var on the run never reaches them); the ramp magnitudes are chrome-stamped on the RUN; the glyphs are FOUR swappable css vars, one per direction."><TokenTable tokens={[{ name: '--jx-scroll-veil', default: 'calc(var(--jx-inset) * 1.5)', source: 'component', description: 'Veil band width; tabs overrides to inset·6 (its snap lane parks readable text inboard)' }, { name: '--jx-scroll-chevron-chip', default: 'oklab(1 0 0 / 0.8)', source: 'component', description: 'The frosted chip ink — near-white at 80%, readable over any content through the 2px blur' }, { name: '--jx-scroll-chevron-chip-hover', default: 'oklab(1 0 0 / 0.95)', source: 'component', description: 'The RAISED ink hover paints (round 10) — the frost goes near-opaque (a hair of translucency stays so the blur reads) and the lift deepens; swap the VALUE, not the rule' }, { name: '--jx-scroll-chevron-size', default: '14px', source: 'component', description: 'The glyph size (the SVG canvas; the ink spans the middle half)' }, { name: '--jx-scroll-chevron-left / -right / -up / -down', default: 'lucide chevrons', source: 'component', description: 'The FOUR direction glyphs as url() css vars — one customization slot per PHYSICAL direction (axis + edge + page direction pick which slot paints; RTL swaps the inline pair). Swap any one arrow without touching the other three.' }, { name: '--jx-scroll-edge-slide / --jx-scroll-edge-blur', default: 'builder-set', source: 'component', description: 'The ramp magnitudes — ScrollChrome stamps them on the run from the builder\'s distance/radius; a toggle off never sets its var (a consumer never hand-writes them)' }]} /></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The NO-ROOT (fragment) dialect: ScrollChrome renders a fragment (the optional veil layer + the two chevron chips — nothing guaranteed), so the family supplies the resolved lanes through CONTEXT only; the veil's composed ProgressiveBlur children stamp their own roots through the ambient chain. The stamp machine, the RTL engine and the law sheet stay outside the supply set."
+    >
+      <ComponentCanvas title="Scroll run · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}>
+              <div
+                bind:this={uniHostEl}
+                class="jx-scroll-host {cx(rt.grid, rt.maxWFull, rt.srSingle)}"
+              >
+              <div
+                bind:this={uniRunEl}
+                data-jx-scroll-run=""
+                data-axis="horizontal"
+                class={cx(rt.row8, rt.wFull)}
+                {@attach mountUniStamp}
+              >
+                {#each uniLanes as lane (lane)}
+                  <span class={cx(rt.srChip)}>{lane}</span>
+                {/each}
+              </div>
+              <ScrollChrome
+                scrollEffect={ramp()}
+                run={uniRunEl}
+                backwardLabel="Scroll back"
+                forwardLabel="Scroll on"
+                size={18}
+                density="small"
+              />
+              </div>
+</div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Two functions, one component, three builders — the whole surface. Consumers: tabs (TabsList scrollEffect) and button-group (overflow='scroll' + scrollEffect, both axes)."><div class={cx(rt.col24)}><PropsTable title="createScrollStamp(options) → ScrollStamp" props={[{ name: 'run', type: 'HTMLElement', default: '—', description: 'The scroller itself — must carry data-jx-scroll-run; its data-axis (horizontal | vertical) picks the measuring axis. The verdict lands on it.', required: true }, { name: 'host', type: 'HTMLElement', default: '—', description: 'The one-cell grid host (.jx-scroll-host) — the progress var and the css-var knobs land on it.', required: true }, { name: 'members', type: '() => HTMLElement[]', default: '—', description: 'The ramp audience, re-read every pass; a childList MutationObserver re-verdicts when membership changes (content that stops overflowing retires the chrome).', required: true }, { name: 'ramps', type: 'boolean', default: '—', description: 'Stamp the per-member --jx-edge-* factors — true only under ramp(); the veil effects never pay the stamp loop.', required: true }, { name: 'mirrors', type: "() => { target, source }[]", default: '—', description: "Companion elements that ride a member's factors (tabs' indicator mirrors its active trigger)." }, { name: 'returns', type: 'ScrollStamp', default: '—', description: '{ update() — restamp by hand (e.g. after DOM surgery), destroy() — tear down listeners and observers }.' }]} /><PropsTable title="ScrollChrome props" props={[{ name: 'scrollEffect', type: 'ScrollEffect', default: '—', description: 'A builder product. THIS component owns the run\'s effect surface: the data-scroll-effect type key, the ramp\'s data-ramp-* toggle flags AND its magnitude vars (--jx-scroll-edge-slide/blur from the builder\'s distance/radius) — the consumer never hand-stamps any of them.', required: true }, { name: 'run', type: 'HTMLElement', default: '—', description: 'The scroller — the chips nudge it via nudgeRun (axis- and RTL-normalized), and its data-axis drives the chrome\'s axis awareness.', required: true }, { name: 'backwardLabel / forwardLabel', type: 'string', default: "'Scroll backward' / 'Scroll forward'", description: 'The chips\' accessible names — tabs passes "Scroll tabs backward", button-group "Scroll actions backward".' }, { name: 'backwardContent / forwardContent', type: 'Snippet', default: '—', description: 'THE custom scroll-button lane: snippet children render INSIDE the chip buttons, CENTERED by the chip\'s own box law — the frost, the shape, the verdict gating and the focusable-button law all stay (the tabs-indicator paint-override pattern); only the glyph layer retires. Swapping just the glyph? Override the --jx-scroll-chevron-left/-right/-up/-down url vars instead (four independent slots).' }, { name: 'backwardDisabled / forwardDisabled', type: 'boolean', default: 'false (rendered)', description: 'DECLARED absence (round 4, semantics finalized round 7): a disabled chip does not render AT ALL — no DOM node, no paint, no a11y entry. The verdict stays the AUTOMATIC gate for rendered chips (a closed edge or a cannot-scroll run never paints).' }] } /><PropsTable title="builders (the press-button effect convention; round 2 — the merged ramp)" props={[{ name: 'ramp', type: "(options?: { opacity?, blur?, translate?, distance?, radius? }) => ScrollEffect", default: "all toggles true · distance '8px' · radius '4px'", description: 'The ONE member-ramp builder. Each member ramps by its clipped fraction as it crosses an edge (consumed squared); every toggle defaults ON, and a toggle off never pays its css property. ramp({ blur: false }) is the cheapest posture (the old slide), ramp({ translate: false }) the old blur.' }, { name: 'progressBlur', type: "(options?: { blurLevels?, width? }) => ScrollEffect", default: "capped ladder", description: 'The progressive-blur veil pair on EITHER axis (inline edges start/end, block edges top/bottom — the grid dialect of the component); width overrides --jx-scroll-veil inline.' }, { name: 'shadow', type: "(options?: { width? }) => ScrollEffect", default: '—', description: 'The contrast-ink veil pair — backdrop contrast subtracts color, never adds black; axis-aware (block-edge bands on a vertical run).' }] } /></div></SectionCard></div>
 </div>

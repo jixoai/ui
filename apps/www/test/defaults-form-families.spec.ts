@@ -153,20 +153,49 @@ describe('the nineteen contract surfaces', () => {
     },
   );
 
+  // W3-D3: select joined the eight-axis surface (elevation own
+  // level2 — the portaled listbox's menu rung); variant keeps its
+  // literal own 'auto' and every union literal passes through
   it.each([
     ['select', SelectDefaults],
-  ] as const)('%s declares { variant, density }, surface own ' + "'auto'", (_name, defaults) => {
+  ] as const)('%s declares { variant } + the universal surface, own ' + "'auto'", (_name, defaults) => {
     expect(Object.isFrozen(defaults.slots)).toBe(true);
-    expect(Object.keys(defaults.slots).sort()).toEqual(['density', 'variant']);
-    expect(resolveInWindow(() => defaults.resolve({}))).toEqual({ variant: 'auto', density: undefined });
+    expect(Object.keys(defaults.slots).sort()).toEqual(
+      [...axisSurface([...UNIVERAL_AXES]), 'variant'].sort(),
+    );
+    expect(resolveInWindow(() => defaults.resolve({}))).toEqual({
+      variant: 'auto',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level2',
+      motion: 'auto',
+    });
     // the literal slot never reads context: every union literal passes through
     expect(resolveInWindow(() => defaults.resolve({ variant: 'solid' }))).toEqual({
       variant: 'solid',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level2',
+      motion: 'auto',
     });
     expect(resolveInWindow(() => defaults.resolve({ variant: 'acrylic' }))).toEqual({
       variant: 'acrylic',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level2',
+      motion: 'auto',
     });
   });
 

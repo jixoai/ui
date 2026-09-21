@@ -213,6 +213,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<Steps size={18} density="small">…</Steps>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/steps-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -324,6 +330,21 @@ ${close}
     <div id="usage" data-reveal=""><SectionCard summary="The composition contract in one sample: import the family from the registry barrel (@ui/steps/index — per-part targets exist per file), give every StepsItem its explicit step ordinal, author the parts you want. The Separator self-hides on the last item through the family css — chrome, not authoring." eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'aria-current', value: 'step', description: 'Marks the current step — the derived trio and an explicit state="current" both carry it.' }, { name: 'sr-only status', value: 'per-item state text', description: 'The marker glyphs are aria-hidden chrome, so every item speaks its effective state as text (completed · current step · in progress · unavailable · …) — the vocabulary reaches AT as words.' }, { name: 'button', value: 'completed indicator', description: 'Makes completed steps keyboard actionable only when onclick is supplied; after a go-back click, focus rests on the item (tabindex=-1), never on body.' }]} /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Steps current={0}><StepsItem step={0}><StepsIndicator /><StepsTitle>step</StepsTitle></StepsItem></Steps></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-    <div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Steps owns current (bindable); StepsItem owns the ordinal and the state vocabulary; the parts stay authored."><PropsTable props={[{ name: 'Steps.current', type: 'number', default: '0', description: '0-based current ordinal.', bindable: true }, { name: 'StepsItem.step', type: 'number', default: '—', description: 'REQUIRED explicit ordinal — compared against current.', required: true }, { name: 'StepsItem.state', type: "'auto' | 'done' | 'current' | 'todo' | 'pending' | 'success' | 'error' | 'hint' | 'emphasis' | 'disabled'", default: "'auto'", description: 'The state vocabulary: auto = the derived trio (pure comparison); the semantic overrides paint the middle state (pending ⋯), the terminals (success ✓ / error ✕), hint (i), emphasis (the quest-giver !) and disabled (dashed ring, spoken "unavailable").' }, { name: 'StepsItem.label', type: 'string', description: 'Accessible name for the done-marker button.' }, { name: 'StepsItem.onclick', type: '(e) => void', description: 'Fires only from the done state — makes the Indicator the button.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
+    <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The root carries the surface (the parts ride the ambient chain — 吃也供); density rides the root's bridged provider lane, and the size axis scales the ordered list."
+    >
+      <ComponentCanvas title="Steps · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Steps current={1} size={18} density="small"><StepsItem step={0}><StepsIndicator /><StepsTitle>connect</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={1}><StepsIndicator /><StepsTitle>build</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={2}><StepsIndicator /><StepsTitle>ship</StepsTitle></StepsItem></Steps></div>
+<div class={cx(rt.panel)}><Steps current={1} size="medium" radius="large"><StepsItem step={0}><StepsIndicator /><StepsTitle>connect</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={1}><StepsIndicator /><StepsTitle>build</StepsTitle><StepsSeparator /></StepsItem><StepsItem step={2}><StepsIndicator /><StepsTitle>ship</StepsTitle></StepsItem></Steps></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Steps owns current (bindable); StepsItem owns the ordinal and the state vocabulary; the parts stay authored."><PropsTable props={[{ name: 'Steps.current', type: 'number', default: '0', description: '0-based current ordinal.', bindable: true }, { name: 'StepsItem.step', type: 'number', default: '—', description: 'REQUIRED explicit ordinal — compared against current.', required: true }, { name: 'StepsItem.state', type: "'auto' | 'done' | 'current' | 'todo' | 'pending' | 'success' | 'error' | 'hint' | 'emphasis' | 'disabled'", default: "'auto'", description: 'The state vocabulary: auto = the derived trio (pure comparison); the semantic overrides paint the middle state (pending ⋯), the terminals (success ✓ / error ✕), hint (i), emphasis (the quest-giver !) and disabled (dashed ring, spoken "unavailable").' }, { name: 'StepsItem.label', type: 'string', description: 'Accessible name for the done-marker button.' }, { name: 'StepsItem.onclick', type: '(e) => void', description: 'Fires only from the done state — makes the Indicator the button.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
   </div>
 </div>

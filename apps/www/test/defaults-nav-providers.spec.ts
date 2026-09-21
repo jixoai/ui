@@ -58,8 +58,11 @@ const densityOf = (el: Element | null | undefined) => el?.getAttribute('data-den
 describe('the provider families\' contract surfaces', () => {
   it('each declares exactly its slot set, shallow-frozen', () => {
     for (const [defaults, keys] of [
-      [TabsDefaults, ['density']],
-      [TableDefaults, ['density']],
+      // W3-D3: the eight-axis surface joined tabs + table (density
+      // rides each root's bridged provideDensity lane)
+      [TabsDefaults, ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion']],
+      // table keeps the design-frozen density own 'sm'
+      [TableDefaults, ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion']],
       [BreadcrumbDefaults, ['density']],
       // W3-C: the trio joined the eight-axis surface (the panel's own
       // elevation level2 rides the same record — the menu rung)
@@ -99,9 +102,30 @@ describe('the provider families\' contract surfaces', () => {
     flushSync();
     expect(holder.error).toBeUndefined();
     expect(holder.value).toEqual([
+      // W3-D3: tabs joins the eight-axis surface (density rides the
+      // bridged lane — the ambient read here is silent, 'auto')
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
       { density: undefined },
-      { density: undefined },
-      { density: 'sm' },
+      // the design-frozen family own: a table with NO opinion resolves 'sm'
+      {
+        density: 'sm',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
       {
         density: 'auto',
         variant: 'auto',

@@ -1,6 +1,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import { rt } from '$lib/surface/routes.stylex';
+  import Card from '$lib/ui/card/card.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -122,6 +123,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<SectionCard title="axes joined" size={18} density="small">…</SectionCard>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/section-card-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -256,5 +263,21 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pages never hand-roll heading markup — the card renders h1/h2 itself so levels never skip."><CodeBlock code={usage} lang="svelte" meta="SectionCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The card owns the heading tree: one h1 per route, h2 sections beneath, no skipped levels."><A11yTable keys={[]} aria={[{ name: 'heading structure', value: 'h1 | h2', description: 'headingLevel picks the level; the card is the only heading author on a page' }, { name: 'data-family / data-region', value: 'toc extents', description: 'Machine-readable section extents — not user-facing, but keep the pairing consistent for the rail' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Site chrome, not a density-scaled control: the card sizes from the page type ramp and theme tokens only."><div class={cx(rt.col24)}><DensityDemo><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="One paragraph of context."><p class={cx(rt.text13)}>Body slot at this density.</p></SectionCard></DensityDemo><TokenTable tokens={[{ name: 'eyebrow', default: '--primary · 0.24em tracking', source: 'color' }, { name: 'border', default: 'border-border hairline', source: 'color' }, { name: 'tone hero', default: 'clamp-scaled title', source: 'component', description: 'text-balance title, foreground summary at 78%' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The bordered section is a no-own container surface (the tone literal keeps its own grammar beside the axes); the size axis scales the section root, and the content atom's density ADOPTION keeps resolving through the ambient scope channel — an explicit lane now stamps the rung on the root itself. The concentric demo: radius 20 on the section, an auto Card inside computes max(0px, 20px − inset)."
+    >
+      <ComponentCanvas title="SectionCard · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><SectionCard title="axes joined" size={18} density="small"><p>one number moves the section</p></SectionCard></div>
+<div class={cx(rt.panel)}><SectionCard title="named steps" size="medium" radius="large"><p>medium/large resolve through the alias-ladder vars</p></SectionCard></div>
+<div class={cx(rt.panel)}><SectionCard title="the concentric chain" radius={20}><div style="padding: .5rem"><Card radius="auto"><p style="padding: .5rem">radius 20 on the section; the auto card computes max(0px, 20px − 0.875rem)</p></Card></div></SectionCard></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the SectionCard Props interface — four content slots plus the ToC wiring attributes."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'The font-nav heading (h1 or h2 by headingLevel).', required: true }, { name: 'eyebrow', type: 'string', default: '—', description: 'Optional eyebrow row in brand hue, tracked 0.24em.' }, { name: 'summary', type: 'string', default: '—', description: 'Optional muted text-pretty lead.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The body slot below the hairline.', required: true }, { name: 'headingLevel', type: '1 | 2', default: '2', description: 'The heading level the card renders.' }, { name: 'tone', type: "'default' | 'hero'", default: "'default' · Own default, not ambient", description: 'Everyday bordered section or inner-page hero head.' }, { name: 'family', type: 'string', default: '—', description: 'data-family on the section root (toc-engine parent extent).' }, { name: 'region', type: 'string', default: '—', description: 'data-region on the section root (toc-engine leaf) when the body carries NO child regions.' }, { name: 'headerRegion', type: 'string', default: '—', description: 'data-region on the header block only — the section leaf when the body carries child regions.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 </div>

@@ -103,7 +103,21 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TimelineDefaults } from './timeline-defaults.svelte';
   import {
     JOINT_LAP,
@@ -115,7 +129,7 @@
   import { timelineStyles } from './timeline.stylex';
   import './timeline.css';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** the flow axis; the engine transposes, slot names stay logical */
     axis?: 'vertical' | 'horizontal';
     /** ltr (default) · revert (mirrored) · interlaced (alternating) */
@@ -128,9 +142,31 @@
     defaultValue?: number;
     /** the controlled current step (overrides the internal state) */
     value?: number;
-    /** fires on every setStep change */
+    /** fires on every setStep */
     onValueChange?: (v: number) => void;
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     children: Snippet;
   }
@@ -144,15 +180,30 @@
     value,
     onValueChange,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
     children,
     ...rest
   }: Props = $props();
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
-  // density resolves through the family contract (the no-opinion axis
-  // slot: explicit ?? inherited ?? undefined; no opinion stamps
-  // nothing, the ambient css scope channel keeps flowing)
-  const d = $derived(TimelineDefaults.resolve({ density }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3 + W3-D3):
+  // one record — density resolves through the bridged axis slot
+  // (explicit ?? ambient ?? 'auto'; no opinion stamps nothing, the
+  // ambient css scope channel keeps flowing) and the seven sibling
+  // axes ride the same record (the ONE-CELL GRID HOST is the family's
+  // own DOM root; the measured spine is engine geometry outside the
+  // supply set, the items ride the chain)
+  const d = $derived(
+    TimelineDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
 
   const dev = (import.meta as ImportMeta & { env?: { DEV?: boolean } }).env?.DEV === true;
 
@@ -212,6 +263,14 @@
   let hostEl = $state<HTMLDivElement | null>(null);
   let listEl = $state<HTMLOListElement | null>(null);
 
+  // the query() anchor rides the HOST root (declared above — the
+  // W3-C TDZ law); the carriers join the CONSUMER style attr (the
+  // merge law — carriers first, consumer declarations win last)
+  provideQueryAnchor(() => hostEl ?? null);
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
+
   // re-measure triggers ride the effect's dependency set (axis/
   // direction/density flips) + the runtime's own observers (resize,
   // membership, attribute re-scoping)
@@ -259,7 +318,9 @@
   data-axis={axis}
   data-direction={direction}
   data-anim={animation}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={cn(className)}
   {...rest}
 >

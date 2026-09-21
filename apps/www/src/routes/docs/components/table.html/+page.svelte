@@ -588,6 +588,14 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  // (no TreeFile annotation: this page's imports predate the type's
+  // use here — the array shape matches the canvas files contract)
+  const universalUsage = `<Table caption="axes" size={18}>…</Table>`;
+  const universalFiles = [
+    { name: 'src/lib/ui/table-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -1382,6 +1390,21 @@ ${close}
   </div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'caption', value: 'native table caption', description: 'Names the table for assistive technology.' }, { name: 'scope', value: 'col | row', description: 'Associates headers with their cells.' }, { name: 'data-label', value: 'string', description: 'Labels values in the narrow card layout.' }, { name: 'aria-sort', value: 'ascending | descending', description: 'Recipe wiring: lives on the sorted th only; the caret glyph stays aria-hidden.' }, { name: 'aria-live', value: 'polite', description: 'Selection count readout announces changes without stealing focus.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Table caption="density"><tbody><tr><td>row</td></tr></tbody></Table></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-table-surface', default: 'var(--background)', source: 'component' }, { name: '--jx-table-head', default: 'var(--muted)', source: 'component' }, { name: '--jx-table-hover', default: 'primary 7% mix', source: 'color' }, { name: '--jx-table-hairline', default: 'border 12% mix', source: 'color' }, { name: '--jx-table-rule', default: 'border 18% mix', source: 'color' }, { name: '--jx-table-edge', default: 'border 34% mix', source: 'color' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The frame (the figure) is the family's own DOM root; the consumer-authored thead/tbody keep their a11y semantics untouched, density keeps its design-frozen own sm (the bridged provider lane), and the cells ride the supply chain."
+    >
+      <ComponentCanvas title="Table · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Table caption="axes" size={18} density="small"><thead><tr><th scope="col">consumer</th><th scope="col">status</th></tr></thead><tbody><tr><td data-label="consumer">unipty</td><td data-label="status">live</td></tr><tr><td data-label="consumer">betlang</td><td data-label="status">beta</td></tr></tbody></Table></div>
+<div class={cx(rt.panel)}><Table caption="named steps" size="medium" radius="large"><thead><tr><th scope="col">consumer</th><th scope="col">status</th></tr></thead><tbody><tr><td data-label="consumer">mermaid</td><td data-label="status">live</td></tr></tbody></Table></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Uses compact row padding.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', default: "'sm' · ambient scope", description: 'Explicit override, then the inherited scope, then the family own sm — dense tabular rows are the table’s declared posture (the design-frozen local fallback, now the density slot’s own).' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">

@@ -13,11 +13,14 @@
   import type { Snippet } from 'svelte';
   import { getContext } from 'svelte';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
-  import type { Density } from '$lib/density.svelte';
+  import { densityRungOf, type DensityLane, type QueryResult } from '$lib/defaults.svelte';
   import { TabsDefaults } from './tabs-defaults.svelte';
 
   interface Props {
-    density?: Density;
+    /** density policy: the universal §4 lane — the panel inherits the
+     *  tabs root's provided tier, an explicit prop beats it, no
+     *  opinion stamps nothing (the W3-D3 bridged form) */
+    density?: DensityLane | QueryResult<DensityLane>;
     /** pairs with the same value on a TabsTrigger */
     value: string;
     children: Snippet;
@@ -43,7 +46,7 @@
   aria-labelledby="{tabs.uid}-tab-{value}"
   tabindex="0"
   data-jx-tab-panel=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={className}
   hidden={!active}
 >

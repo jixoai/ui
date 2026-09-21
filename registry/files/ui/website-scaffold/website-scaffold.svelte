@@ -63,6 +63,22 @@
   import { onMount, setContext } from 'svelte';
   import './website-scaffold.css';
   import type { Snippet } from 'svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { WebsiteScaffoldDefaults } from './website-scaffold-defaults.svelte';
   import { scaffoldStyles } from './website-scaffold.stylex';
 
   // the payload's own join (separator's serialize law): atoms are
@@ -112,9 +128,68 @@
     chrome?: Snippet;
     children: Snippet;
     footer?: Snippet;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the site-level type-scale
+     *  seam: one number scales the whole scaffold) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
-  let { header, splash, chrome, children, footer }: Props = $props();
+  let {
+    header,
+    splash,
+    chrome,
+    children,
+    footer,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+  }: Props = $props();
+
+  // ── the eight-axis surface (W3-D3 — FIRST-TIME contract, all
+  // no-own, a NO-OWN CONTAINER): the scaffold's zones/regions stay
+  // structural; the size axis scales the HOST root and every axis
+  // supplies downward (header, toc rail and page content are the
+  // consumers — 吃也供)
+  const d = $derived(
+    WebsiteScaffoldDefaults.resolve({
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  const rootStyle = $derived(carriers || undefined);
 
   // dynamic float plane state — the ORDERED set of adopted nodes
   // (scaffold-float portals; static chrome never passes through here)
@@ -132,6 +207,9 @@
   });
 
   let hostEl = $state<HTMLElement | null>(null);
+  // the query() anchor rides the HOST root (declared above — the
+  // W3-C TDZ law)
+  provideQueryAnchor(() => hostEl ?? null);
   let shellEl = $state<HTMLElement | null>(null);
   let headerEl = $state<HTMLElement | null>(null);
   let floatSlotEl = $state<HTMLElement | null>(null);
@@ -212,7 +290,14 @@
   });
 </script>
 
-<div class="jx-shell-host" bind:this={hostEl} data-hidden={hidden || undefined}>
+<div
+  class="jx-shell-host"
+  bind:this={hostEl}
+  data-hidden={hidden || undefined}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
   {#if splash}
     {@render splash()}
   {/if}

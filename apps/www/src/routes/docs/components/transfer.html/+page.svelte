@@ -215,6 +215,12 @@ let typesTitledValue = $state<string[]>(['done']);
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<Transfer {options} size={18} density="small" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/transfer-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -396,6 +402,21 @@ let typesTitledValue = $state<string[]>(['done']);
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Grouping, labeling and toggling are all native — each panel is a real fieldset of real checkbox rows."><A11yTable keys={[{ key: 'Tab', action: 'Walk the fieldsets, checkbox rows, search lanes and mover buttons' }, { key: 'Space', action: 'Toggle the focused checkbox row (native input)' }]} aria={[{ name: 'fieldset / legend', value: 'native', description: 'Each panel is a real fieldset; the legend shows visible/total counts.' }, { name: 'aria-label (movers)', value: 'move selected to {side}', description: 'Names each middle mover button.' }, { name: 'aria-label (search)', value: 'filter {panel}', description: 'Names each per-panel search lane.' }, { name: 'aria-live', value: 'polite (recipe)', description: 'The one-way rejection counter and granted readout announce without stealing focus.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Rows, movers and search lanes paint through theme colors; the panels stack under a 480px container query."><div class={cx(rt.col20)}><DensityDemo><Transfer options={typesPlain} bind:value={typesPlainValue} /></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'stable gutter', source: 'component', description: 'List padding reserves the scrollbar lane when gutters are stable.' }, { name: 'panel surface', default: 'var(--card) + shadow-2xs', source: 'color', description: 'Each fieldset panel.' }, { name: 'hover / focus', default: '--muted / --ring / --primary', source: 'color', description: 'Row hover, search focus outline, mover hover lean.' }, { name: 'stacking law', default: 'max-width 480px', source: 'structural', description: 'Container query: panels stack, movers center between them.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Row and mover targets inside the density scope.' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The dual-list composite is a FIRST-TIME no-own container surface — one number moves both panes; the fieldsets, search inputs and mover chips are family parts riding the ambient chain."
+    >
+      <ComponentCanvas title="Transfer · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Transfer {options} size={18} density="small" /></div>
+<div class={cx(rt.panel)}><Transfer {options} size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The target list binds both ways; a name wires the values into FormData through the jx-form-field bridge."><div class={cx(rt.col32)}><PropsTable props={[{ name: 'options', type: 'TransferOption[]', default: '—', description: 'The full option set; placement derives from value.', required: true }, { name: 'value', type: 'string[]', default: '[]', description: 'Values living on the TARGET side.', bindable: true }, { name: 'name', type: 'string', default: '—', description: 'Form field name — target values submit as multi-entry FormData.' }, { name: 'sourceTitle', type: 'string', default: "'source'", description: 'Source fieldset legend.' }, { name: 'targetTitle', type: 'string', default: "'target'", description: 'Target fieldset legend (the recipes derive it from committed state).' }, { name: 'searchPlaceholder', type: 'string', default: "'filter…'", description: 'Search lane placeholder.' }, { name: 'onchange', type: '(value: string[]) => void', default: '—', description: 'Fires after each batch move with the new target list — the oneWay recipe guards through it.' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the root.' }]} /><PropsTable title="TransferOption" props={[{ name: 'value', type: 'string', default: '—', description: 'The submit value.', required: true }, { name: 'label', type: 'string', default: '—', description: 'Row label.', required: true }, { name: 'disabled', type: 'boolean', default: '—', description: 'Row renders but never moves.' }]} /></div></SectionCard></div>
 
   <div id="see-also" data-reveal="">

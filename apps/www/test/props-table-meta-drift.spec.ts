@@ -78,7 +78,9 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the trigger and the form-bridge field.' },
     { name: 'multiple', type: 'boolean', default: 'false', description: 'Reserved extension direction — not implemented in v1 (warns).' },
     { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the panel.', ambient: 'own' },
-    { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    // W3-D3: density migrated onto the universal §4 axis lane — the
+    // row left LEGACY and rides the AXIS_ROWS set (the checkbox
+    // precedent; the type text is DensityLane | QueryResult now)
   ],
   popover: [
     { name: 'id', type: 'string', default: '—', description: 'Popover id: popovertarget association + the CSS anchor name.', required: true },
@@ -205,7 +207,11 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'select',
     meta: selectMeta,
     docs: SELECT_DOCS,
-    renderedOrder: ['options', 'density', 'value', 'placeholder', 'label', 'name', 'error', 'multiple', 'variant', 'onchange', 'disabled'],
+    // W3-D3: select joins the eight-axis surface (the portaled
+    // listbox batch) — density migrates onto the axis lane, the
+    // seven siblings follow onchange, elevation owning level2. id/
+    // class/rest stay undocumented (filtered from the rendered truth)
+    renderedOrder: ['options', 'density', 'value', 'placeholder', 'label', 'name', 'error', 'multiple', 'variant', 'onchange', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'disabled'],
   },
   {
     name: 'popover',
@@ -280,6 +286,9 @@ describe('props-table meta migration — zero content drift (pilot nine)', () =>
     // (the overlays batch — the same intended, additive drift)
     'popover',
     'toast',
+    // W3 batch D3: select joins (density migrates onto the axis lane;
+    // the seven siblings add beside onchange, elevation owning level2)
+    'select',
   ]);
   for (const pilot of PILOTS) {
     it(`${pilot.name}: every legacy row's content survives byte-for-byte`, () => {
