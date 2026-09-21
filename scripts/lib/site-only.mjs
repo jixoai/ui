@@ -39,6 +39,15 @@ export const SITE_ONLY = [
   { path: 'apps/www/src/lib/ui/token-table/token-table.svelte', note: 'docs-upgrade: token reference table (site-only docs infra)' },
   { path: 'apps/www/src/lib/ui/token-table/index.ts', note: 'docs-upgrade: token-table barrel (site-only)' },
   { path: 'apps/www/src/lib/ui/token-table/token-table.stylex.ts', note: 'tailwindless W1: the token-table atom table (site-only docs infra)' },
+  // explicit-props W3-D4: the siteOnly four + the docs-infra loose files
+  // join the eight-axis surface — their Defaults contracts are site-only
+  // members (no registry twin)
+  { path: 'apps/www/src/lib/ui/token-table/token-table-defaults.svelte.ts', note: 'explicit-props W3-D4: the token-table eight-axis Defaults contract (site-only)' },
+  { path: 'apps/www/src/lib/ui/props-table/props-table-defaults.svelte.ts', note: 'explicit-props W3-D4: the props-table eight-axis Defaults contract (site-only)' },
+  { path: 'apps/www/src/lib/ui/a11y-table/a11y-table-defaults.svelte.ts', note: 'explicit-props W3-D4: the a11y-table eight-axis Defaults contract (site-only)' },
+  { path: 'apps/www/src/lib/ui/density-demo/density-demo-defaults.svelte.ts', note: 'explicit-props W3-D4: the density-demo eight-axis Defaults contract (site-only, the axis dogfood)' },
+  { path: 'apps/www/src/lib/ui/docs-pager-defaults.svelte.ts', note: 'explicit-props W3-D4: the docs-pager eight-axis Defaults contract (site-only)' },
+  { path: 'apps/www/src/lib/ui/docs-sections-nav-defaults.svelte.ts', note: 'explicit-props W3-D4: the docs-sections-nav eight-axis Defaults contract (site-only)' },
   { path: 'apps/www/src/lib/icon-table/icon-table.svelte', note: 'icons-docs: icon vocabulary reference table with live glyph previews (site-only docs infra, token-table precedent)' },
 ];
 

@@ -12,8 +12,18 @@
    * results, the IME cancel guard, backdrop-click close, and focus
    * handed back to the opener. ⌘K/Ctrl-K toggles; results are
    * SECTION-granularity (page × heading, deep-linked via the corpus's
-   * converging ids); the palette speaks ONLY the SearchEngine
-   * interface (engine-minisearch today).
+       converging ids); the palette speaks ONLY the SearchEngine
+       interface (engine-minisearch today).
+
+   * The EIGHT-AXIS SURFACE (explicit-props W3-D4): size · shape ·
+   * radius · density · color · theme · elevation · motion ride
+   * SearchPaletteDefaults (first-time, all no-own) on the palette
+   * root. The PORTAL LAW rides the composition: the root stamps its
+   * own resolved carriers AND supplies the lanes downward (§11 吃也供)
+   * — the composed Dialog (a batch C surface) resolves them as
+   * AMBIENT and stamps its own carriers on the promoted <dialog>,
+   * self-carried across the top-layer boundary. As mounted today (no
+   * lanes) nothing stamps and the Dialog resolves exactly as before.
    */
   import { cn } from '$lib/utils';
   import { searchPaletteStyles as sp } from './search-palette.stylex';
@@ -25,11 +35,79 @@
   import { tokenize } from '$lib/search/tokenizer';
   import type { SearchHit } from '$lib/search/engine-types';
   import Icon from '$lib/ui/icon';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { SearchPaletteDefaults } from './search-palette-defaults.svelte';
+
+  interface Props {
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — supplied to the composed Dialog as the
+     *  ambient chain (the Dialog's own surface stamps the panel) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
+  }
+
+  let { density, size, shape, radius, color, theme, elevation, motion }: Props = $props();
 
   // the palette's own root; the Dialog's platform element is found
   // beneath it (bind:this on a component yields its bindings, not its
   // DOM — a wrapper query is the composition-safe route)
   let rootEl = $state<HTMLDivElement | undefined>(undefined);
+
+  // ── the eight-axis surface (W3-D4 — FIRST-TIME contract, all
+  // no-own): one resolution record AFTER the root state declaration
+  // (the W3-C TDZ law); the root stamps its OWN carriers (the portal
+  // law — the wrapper stays in place while the <dialog> promotes, so
+  // an ancestor's stamps never span the boundary either way) and
+  // SUPPLIES the lanes the composed Dialog resolves as ambient
+  const d = $derived(
+    SearchPaletteDefaults.resolve({
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideQueryAnchor(() => rootEl ?? null);
+  const rootStyle = $derived(carriers || undefined);
   const platform = (): HTMLDialogElement | null =>
     rootEl?.querySelector('dialog') ?? null;
   // the native field, found under the Dialog's platform (bind:this on
@@ -243,7 +321,13 @@
      overrides (the 14vh top anchor, the wider 44rem); the motion, the
      scrim, the entity depth, and the animated cancel exit all come
      from the component -->
-<div bind:this={rootEl} class={cx(sp.contents)}>
+<div
+  bind:this={rootEl}
+  class={cx(sp.contents)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
 <Dialog
   bind:open={open}
   title="Search the docs"

@@ -41,6 +41,10 @@ const UNREFERENCED_LIB = [
   // stream lands its final home
   { path: 'registry/files/ui/search-palette.css', note: 'tailwindless W1 — search-stream family, final classification pending' },
   { path: 'registry/files/ui/search-palette.stylex.ts', note: 'tailwindless W1 — search-stream family, final classification pending' },
+  // explicit-props W3-D4: the palette joins the eight-axis surface —
+  // its Defaults contract rides the family's pending classification
+  // (same-source pair, referenced by no registry item)
+  { path: 'registry/files/ui/search-palette-defaults.svelte.ts', note: 'explicit-props W3-D4 — the search-palette eight-axis Defaults contract; search-stream family, final classification pending' },
   // nav-fuzzy-filter (2026-09-02): the fuzzysort nav kernel joins the
   // search-stream family's pending classification — same-source pair,
   // referenced by no registry item (the change's N1 ruling: not a

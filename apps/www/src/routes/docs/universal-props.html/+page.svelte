@@ -13,6 +13,8 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import { universalRows } from '$lib/ui/props-table/from-meta';
   import type { PropEntry } from '$lib/ui/props-table/props-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { cn } from '$lib/utils';
 
   // the section rows straight from the ONE shared source (the frozen
@@ -69,6 +71,42 @@
           color-picker, file-input, number-input, cascader, tags-input, input-otp,
           combobox, input-group, date-picker, ghostty-term) carry the surface first.
         </p>
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- W3-D4 (batch D4 — the siteOnly families join): the docs-site's
+       own infrastructure demos the axes live — token-table at an
+       explicit NUMBER lane, density-demo DOGFOODING the density axis
+       (an explicit lane on the demo's own root; the scope boxes keep
+       their per-rung stamps — explicit scope > ambient root), and
+       this very table at a NAMED step through the alias-ladder var -->
+  <div id="site-adoption" data-reveal="">
+    <SectionCard
+      family="site-adoption"
+      headerRegion="site-adoption"
+      eyebrow="site"
+      title="The site itself — docs infra on the axes"
+      summary="The docs infrastructure families (token-table, props-table, a11y-table, density-demo, docs-pager, docs-sections-nav, search-palette) joined the same surface with batch D4 — their universality is site-side only (no registry item), demonstrated here."
+    >
+      <div class={cn(rt.col20)}>
+        <TokenTable
+          size={18}
+          tokens={[
+            { name: '--jx-size-effective', default: '18px (this table)', source: 'component' },
+            { name: '--jx-density-coefficient', default: '1 (named rung)', source: 'density' },
+          ]}
+        />
+        <div class={cn(rt.mt20)}><DensityDemo scopes={['xs', 'sm', 'default', 'lg']} density="large"><strong>density-demo</strong> dogfoods the axis — the demo's own chrome at the explicit lane</DensityDemo></div>
+        <div class={cn(rt.mt20)}>
+          <PropsTable
+            size="medium"
+            title=""
+            props={[
+              { name: 'size', type: 'SizeLane | QueryResult<SizeLane>', default: 'auto', description: 'This table renders at the named medium step — var(--jx-size-medium) through the alias ladder, zero inline px.' },
+            ]}
+          />
+        </div>
       </div>
     </SectionCard>
   </div>
