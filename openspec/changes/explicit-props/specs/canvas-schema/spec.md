@@ -4,9 +4,10 @@
 
 The component canvas meta pipeline (component-metadata-gen → two-zone meta →
 schema IR → schema2form) SHALL inject the shared universal-props block into
-every family's generated zone per the FROZEN interfaces (design §17:
-`UniversalAxisDoc`, `ControlHint` additions `axis-enum`/`axis-number`/
-`query-editor`, `ComponentMeta.universal`, the 115-family
+every NON-EXEMPT family's generated zone per the FROZEN interfaces (design
+§17: `UniversalAxisDoc`, `ControlHint` additions `axis-enum`/`axis-number`/
+`query-editor`, the OPTIONAL-typed `ComponentMeta.universal` (presence
+enforced by the drift gate for non-exempt families), the 115-family
 `universal-props.inventory.json` + exemption ledger, and the committed
 normal-family + exempt-family fixtures under the change's `research/`).
 The drift gate (`--check`) SHALL fail with the frozen one-line-per-divergence

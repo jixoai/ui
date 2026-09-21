@@ -4,11 +4,11 @@
 ## Fixture N — a normal family: `card`
 
 The pre-merge generated zone lives as RAW BYTES in the committed
-machine-readable file **`research/card-generated-zone.json`** (extracted
-by script from `apps/www/src/lib/meta/card.meta.ts`'s GENERATED markers —
-740 bytes, valid JSON, 7 props, 4 hooks; NOT a reformatted copy — Codex
-r6 B3). Task 4.6's `--check` loads THIS file and byte-compares against
-the live generator output.
+machine-readable file **`research/card-generated-zone.json`** — 740
+bytes, NO trailing newline (the extraction boundary is FROZEN: the
+object between `defineComponentMeta(\n` and `\n);`, marker-exclusive;
+Codex r7 B3 — file, byte count, and 4.6's compare logic all bind this
+boundary). Valid JSON, 7 props, 4 hooks; NOT a reformatted copy.
 
 The W4 merge's ONLY delta: `"universal": UNIVERSAL_AXES` (the eight rows
 verbatim from design §17). Assertions (4.6's frozen expectations):

@@ -138,18 +138,25 @@ LAWS:
   converts the five-rung scopes to define them), the effective channel
   composes
   `--jx-<channel>: calc(var(--jx-<channel>-base) * var(--jx-density-coefficient, 1))`
-  — one pattern for the PLAIN channels. **The four DERIVED channels carry
-  guardrails and freeze differently** (Codex r5 B5, r6 B1 — floors are
-  absolute protection, the coefficient NEVER scales them; the `-floor`
-  values migrate VERBATIM from today's nested max() literals, the `-base`
-  from today's channel definitions):
-  - `--jx-row-min: max(var(--jx-row-min-floor), calc(var(--jx-row-min-base) * var(--jx-density-coefficient, 1)))`
-  - `--jx-hit:     max(var(--jx-hit-floor),     calc(var(--jx-hit-base) * var(--jx-density-coefficient, 1)))`
-  - `--jx-textarea-min: max(var(--jx-textarea-min-floor), calc(var(--jx-textarea-min-base) * var(--jx-density-coefficient, 1)))`
-  - `--jx-color-lane:   max(var(--jx-color-lane-floor),   calc(var(--jx-color-lane-base) * var(--jx-density-coefficient, 1)))`
-  The three-way computed fixture (below) extends to `--jx-hit` so the
-  guardrail behavior is receipted, not asserted. The component root
-  stamps `--jx-density-coefficient` when the number lane is used.
+  — one pattern for the PLAIN channels. **The four DERIVED channels freeze
+  against the REAL CSS, verbatim provenance** (Codex r7 B1 — the rung
+  selection stays in the scope blocks, only the composition gains the
+  coefficient; floors and px constants are ABSOLUTE, the coefficient never
+  touches them; `--jx-hit` resolves BEFORE its consumers):
+
+  | channel | today (real CSS) | effective form (frozen) |
+  |---|---|---|
+  | `--jx-row-min` | `--jx-density-row-min-<rung> = max(line+stack+stack, unit × --jx-density-row-floor-<rung>)` | `max(calc(unit × --jx-density-row-floor-<rung>), calc((line + stack + stack) × coef))` |
+  | `--jx-hit` | `--jx-density-hit-min-<rung> = max(--jx-density-row-min-<rung>, --jx-hit-floor)` where `--jx-hit-floor = unit × 7` (a GLOBAL 28px guardrail, theme-level) | `max(var(--jx-hit-floor), calc(unit × --jx-density-row-floor-<rung>), calc((line + stack + stack) × coef))` — the triple max: global floor + rung floor + scaled content |
+  | `--jx-textarea-min` | `max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px))` | `max(var(--jx-hit), calc((var(--jx-line) * 3 + var(--jx-stack) * 2) × coef + 2px))` — references the EFFECTIVE hit (hit resolves first); the 2px constant is absolute |
+  | `--jx-color-lane` | `max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px))` | `max(var(--jx-hit), calc((var(--jx-icon) + var(--jx-inset) * 2) × coef + 2px))` — same shape |
+
+  (`coef` above abbreviates `var(--jx-density-coefficient, 1)` in TABLE
+  PROSE ONLY — the shipped CSS writes the full form; the four shipped
+  formulas in W1 are the right column with the abbreviation expanded.)
+  The three-way computed fixture extends to `--jx-hit` so the guardrail
+  behavior is receipted, not asserted. The component root stamps
+  `--jx-density-coefficient` when the number lane is used.
   **Precedence**: a NAMED lane sets the rung scope AND resets the
   coefficient to 1 (explicit rung = exact rung, never double-scaled); the
   NUMBER lane sets the coefficient and leaves the rung at ambient; `auto`
@@ -287,13 +294,19 @@ type MotionLane    = 'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | n
 // not the type; every other lane is fully closed at tsc.
 
 type QueryResult<T> = { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T | undefined };
-declare function sizeSlot(explicit: SizeLane | QueryResult<SizeLane>, own?: SizeLane): SizeSlotResult;
-declare function radiusSlot(explicit: RadiusLane | QueryResult<RadiusLane>, own?: RadiusLane): RadiusSlotResult;
-// …one signature per axis, same shape (density/shape/color/theme/
-// elevation/motion); the QueryResult<T> parameter type is what binds T —
-// a non-lane string inside query(...) fails the QueryCases<T> check at
-// the slot boundary. The W2 battery commits the positive/negative tsc
-// fixture pair against THESE signatures verbatim.
+interface AxisSlotResult<T> { readonly explicit: T; readonly ambient: boolean } // the resolved lane + its provenance (the densitySlot result shape, generalized)
+declare function sizeSlot(explicit: SizeLane | QueryResult<SizeLane>, own?: SizeLane): AxisSlotResult<SizeLane>;
+declare function shapeSlot(explicit: ShapeLane | QueryResult<ShapeLane>, own?: ShapeLane): AxisSlotResult<ShapeLane>;
+declare function radiusSlot(explicit: RadiusLane | QueryResult<RadiusLane>, own?: RadiusLane): AxisSlotResult<RadiusLane>;
+declare function densitySlot(explicit: DensityLane | QueryResult<DensityLane>, own?: DensityLane): AxisSlotResult<DensityLane>;
+declare function colorSlot(explicit: ColorLane | QueryResult<ColorLane>, own?: ColorLane): AxisSlotResult<ColorLane>;
+declare function themeSlot(explicit: ThemeLane | QueryResult<ThemeLane>, own?: ThemeLane): AxisSlotResult<ThemeLane>;
+declare function elevationSlot(explicit: ElevationLane | QueryResult<ElevationLane>, own?: ElevationLane): AxisSlotResult<ElevationLane>;
+declare function motionSlot(explicit: MotionLane | QueryResult<MotionLane>, own?: MotionLane): AxisSlotResult<MotionLane>;
+// the QueryResult<T> parameter type is what binds T — a non-lane string
+// inside query(...) fails the QueryCases<T> check at the slot boundary.
+// The W2 battery commits the positive/negative tsc fixture pair against
+// THESE signatures verbatim (no ellipses — the block compiles standalone).
 ```
 
 - **Parse**: the object-literal form is sugar; `query()` normalizes to an
@@ -492,8 +505,7 @@ or files their exemption in the gate's exception ledger with reasons.
    captures (the splash-fan capture discipline: pin, assert same-moment,
    then judge).
 
-## §17 The meta/IR pipeline contract (artifact status = PRESCRIBED for
-## W4; the embedded interface text = FROZEN — Codex r6 note, §18)
+## §17 The meta/IR pipeline contract (artifact = PRESCRIBED for W4; embedded interface text = FROZEN — Codex r6 note, §18)
 
 The W4 docs/canvas wave implements THIS, not an improvisation. The
 interfaces are complete and placeholder-free (§18: binding on the change
@@ -525,14 +537,14 @@ export const UNIVERSAL_AXES: readonly UniversalAxisDoc[] = [
 
 // ir.ts additions — the EXISTING unions/interfaces transcribed verbatim
 // (Codex r4 B5 — no placeholders), plus the contract additions:
-type ControlHint =
+export type ControlHint =
   | 'segmented' | 'select' | 'toggle' | 'stepper' | 'slider' | 'text' | 'none'
   | 'axis-enum' | 'axis-number' | 'query-editor';   // ← the additions
 export interface ComponentMeta {
   source: string;                        // registry source path
   props: Record<string, PropNode>;
   hooks: readonly string[];              // data-jx-* hook attributes
-  universal: readonly UniversalAxisDoc[]; // ← the addition (the injected block)
+  universal?: readonly UniversalAxisDoc[]; // ← the addition — OPTIONAL at the type level; the drift gate (4.6) enforces PRESENCE for every non-exempt family (Codex r7 B4 — exempt metas legally omit it)
 }
 // the generator's emitted JSON gains the same `universal` array verbatim;
 // the merge output for a normal family = existing fields untouched +
