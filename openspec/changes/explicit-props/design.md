@@ -139,23 +139,24 @@ LAWS:
   composes
   `--jx-<channel>: calc(var(--jx-<channel>-base) * var(--jx-density-coefficient, 1))`
   — one pattern for the PLAIN channels. **The four DERIVED channels freeze
-  against the REAL CSS, verbatim provenance** (Codex r7 B1 — the rung
-  selection stays in the scope blocks, only the composition gains the
-  coefficient; floors and px constants are ABSOLUTE, the coefficient never
-  touches them; `--jx-hit` resolves BEFORE its consumers):
+  against the REAL CSS with the DOUBLE-SCALING LAW stated first** (Codex
+  r8 B1 — the trap is real: if a derived formula composes operands that
+  are ALREADY effective (base × coef) channels, multiplying by coef AGAIN
+  yields coef²): **a derived channel applies the coefficient ZERO times
+  when its operands are effective channels, and ONCE when its operands are
+  the per-rung base scales.**
 
   | channel | today (real CSS) | effective form (frozen) |
   |---|---|---|
-  | `--jx-row-min` | `--jx-density-row-min-<rung> = max(line+stack+stack, unit × --jx-density-row-floor-<rung>)` | `max(calc(unit × --jx-density-row-floor-<rung>), calc((line + stack + stack) × coef))` |
-  | `--jx-hit` | `--jx-density-hit-min-<rung> = max(--jx-density-row-min-<rung>, --jx-hit-floor)` where `--jx-hit-floor = unit × 7` (a GLOBAL 28px guardrail, theme-level) | `max(var(--jx-hit-floor), calc(unit × --jx-density-row-floor-<rung>), calc((line + stack + stack) × coef))` — the triple max: global floor + rung floor + scaled content |
-  | `--jx-textarea-min` | `max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px))` | `max(var(--jx-hit), calc((var(--jx-line) * 3 + var(--jx-stack) * 2) × coef + 2px))` — references the EFFECTIVE hit (hit resolves first); the 2px constant is absolute |
-  | `--jx-color-lane` | `max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px))` | `max(var(--jx-hit), calc((var(--jx-icon) + var(--jx-inset) * 2) × coef + 2px))` — same shape |
+  | `--jx-row-min` | `--jx-density-row-min-<rung> = max(line + stack-gap + stack-gap, unit × --jx-density-row-floor-<rung>)` (jixoai.css:1081) | `max(calc(var(--jx-unit) * var(--jx-density-row-floor-<rung>)), calc((var(--jx-density-line-<rung>) + var(--jx-density-stack-gap-<rung>) + var(--jx-density-stack-gap-<rung>)) * var(--jx-density-coefficient, 1)))` — base scales × coef ONCE, rung floor absolute |
+  | `--jx-hit` | `--jx-density-hit-min-<rung> = max(--jx-density-row-min-<rung>, --jx-hit-floor)`; `--jx-hit-floor = unit × 7` (theme-level, jixoai.css:1012) **with the 2xs scope's OWN override `unit × 6` PRESERVED (jixoai.css:2457)** | `max(var(--jx-hit-floor), calc(var(--jx-unit) * var(--jx-density-row-floor-<rung>)), calc((…row-min content…) * var(--jx-density-coefficient, 1)))` — the triple max, floors absolute, content × coef once |
+  | `--jx-textarea-min` | `max(var(--jx-hit), calc(var(--jx-line) * 3 + var(--jx-stack) * 2 + 2px))` (jixoai.css:2391) | **UNCHANGED from today** — its operands are the EFFECTIVE `--jx-hit`/`--jx-line`/`--jx-stack` (each already scaled once by its own composition); zero additional coef; the 2px constant absolute |
+  | `--jx-color-lane` | `max(var(--jx-hit), calc(var(--jx-icon) + var(--jx-inset) * 2 + 2px))` | **UNCHANGED from today** — same effective-operand law |
 
-  (`coef` above abbreviates `var(--jx-density-coefficient, 1)` in TABLE
-  PROSE ONLY — the shipped CSS writes the full form; the four shipped
-  formulas in W1 are the right column with the abbreviation expanded.)
-  The three-way computed fixture extends to `--jx-hit` so the guardrail
-  behavior is receipted, not asserted. The component root stamps
+  The rung selection stays in the scope blocks (only row-min/hit gain the
+  composition layer; the -min-<rung> internals stay the kernel's own).
+  The computed fixture covers `sm` AND `2xs` (the scoped hit-floor case)
+  across row-min/hit/textarea-min/color-lane. The component root stamps
   `--jx-density-coefficient` when the number lane is used.
   **Precedence**: a NAMED lane sets the rung scope AND resets the
   coefficient to 1 (explicit rung = exact rung, never double-scaled); the
@@ -251,50 +252,27 @@ LAWS:
 ### §9.1 The query() interface freeze (Codex r1 B3 — W2 implements THIS)
 
 ```ts
-// the public API (ships from the kernel lib; the component props accept
-// the return value on every axis). The DEFAULT scales are literal unions;
-// plugin-registered scales widen them at BUILD time. Public keys are
-// UNBRANDED (Codex r5 B1 — branded intersections refuse object-literal
-// keys at tsc; branding lives on INTERNAL resolved types only):
-type ViewportScale = 'xs' | 'sm' | 'md' | 'lg';                       // the registered default table
-type ContainerScale = '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'; // the --container-* scale
+// the public API (ships from the kernel lib) — ONE standalone-compilable
+// FROZEN block (Codex r8 B2; the const-object inference is VERIFIED by
+// tsc: mixed named/number cases compile, invalid lanes are rejected):
+type ViewportScale = 'xs' | 'sm' | 'md' | 'lg';                        // the registered default table
+type ContainerScale = '3xs' | '2xs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';  // the --container-* scale
 export type QueryKey = ViewportScale | `@${ContainerScale}` | `@${ContainerScale}/${string}`;
-// unknown scale names / duplicate keys / malformed named-container forms
-// are BUILD errors listing the offending key AND the registered scale
-// tables (the plugin's registration is the compiler's dictionary). An
-// empty container name in `@md/` is malformed (the parser rejects it).
-//
-// axis binding + value typing: the CONSUMING SLOT constrains both —
-// sizeSlot(query({...})) types T as SizeLane, radiusSlot as RadiusLane…
-// a bare query() is never user-facing; the tsc positive/negative fixture
-// pair ships in W2's test battery.
+type RawCases = { readonly [K in QueryKey]?: string | number };
 type QueryCase<T> = readonly [key: QueryKey, value: T];
-type QueryCases<T> = Partial<Record<QueryKey, T>>;
-declare function query<T>(cases: QueryCases<T>): { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: undefined };
-declare function query<T>(cases: QueryCases<T>, base: T): { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T };
-interface StampedAxisQuery<T> { readonly $query: true; readonly axis: AxisName; readonly cases: readonly QueryCase<T>[]; readonly base: T } // internal, post-slot
-type AxisName = 'size' | 'shape' | 'radius' | 'density' | 'color' | 'theme' | 'elevation' | 'motion';
-```
+type QueryResult<T> = { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T | undefined };
+declare function query<const O extends RawCases, const B extends string | number = never>(cases: O, base?: B): QueryResult<O[keyof O] | B>;
 
-**The eight lane types + slot signatures (FROZEN — Codex r6 B2: the
-binding is TYPES, not prose). `sizeSlot(query({ sm: 'invalid' }))` MUST
-fail tsc:**
-
-```ts
+// the eight lane types (§0.1) + the slot signatures:
 type SizeLane      = 'small' | 'medium' | 'large' | 'auto' | number;
 type ShapeLane     = 'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto';
 type RadiusLane    = 'small' | 'medium' | 'large' | 'auto' | number;
 type DensityLane   = 'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number;
-type ColorLane     = 'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string; // string = raw lane / plugin-registered names
+type ColorLane     = 'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string; // string = raw/plugin names — closed at BUILD by the registration table
 type ThemeLane     = 'light' | 'dark' | 'system' | 'auto';
 type ElevationLane = 'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number;
 type MotionLane    = 'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number;
-// ColorLane's string tail is the ONE open lane (plugin names + raw
-// values) — its closed check is the plugin registration table at build,
-// not the type; every other lane is fully closed at tsc.
-
-type QueryResult<T> = { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T | undefined };
-interface AxisSlotResult<T> { readonly explicit: T; readonly ambient: boolean } // the resolved lane + its provenance (the densitySlot result shape, generalized)
+interface AxisSlotResult<T> { readonly explicit: T; readonly ambient: boolean }
 declare function sizeSlot(explicit: SizeLane | QueryResult<SizeLane>, own?: SizeLane): AxisSlotResult<SizeLane>;
 declare function shapeSlot(explicit: ShapeLane | QueryResult<ShapeLane>, own?: ShapeLane): AxisSlotResult<ShapeLane>;
 declare function radiusSlot(explicit: RadiusLane | QueryResult<RadiusLane>, own?: RadiusLane): AxisSlotResult<RadiusLane>;
@@ -303,11 +281,15 @@ declare function colorSlot(explicit: ColorLane | QueryResult<ColorLane>, own?: C
 declare function themeSlot(explicit: ThemeLane | QueryResult<ThemeLane>, own?: ThemeLane): AxisSlotResult<ThemeLane>;
 declare function elevationSlot(explicit: ElevationLane | QueryResult<ElevationLane>, own?: ElevationLane): AxisSlotResult<ElevationLane>;
 declare function motionSlot(explicit: MotionLane | QueryResult<MotionLane>, own?: MotionLane): AxisSlotResult<MotionLane>;
-// the QueryResult<T> parameter type is what binds T — a non-lane string
-// inside query(...) fails the QueryCases<T> check at the slot boundary.
-// The W2 battery commits the positive/negative tsc fixture pair against
-// THESE signatures verbatim (no ellipses — the block compiles standalone).
 ```
+
+Verified behavior (the W2 battery's fixture pair, proven locally at W0 by
+tsc probe): `sizeSlot(query({ sm: 'small', '@md/card': 42 }, 'large'))`
+compiles (the const-object inference unions the case values + base, the
+slot checks the union ⊆ the lane); `sizeSlot(query({ sm: 'invalid' }))`
+REJECTS. Unknown KEYS (`{ badkey: … }`) pass the type layer and are
+caught by the build-time key diagnostics (the desugarer's registered
+scale tables) — the layer split is type=lanes, build=keys.
 
 - **Parse**: the object-literal form is sugar; `query()` normalizes to an
   ordered `cases` array (insertion order = the ladder) + an optional

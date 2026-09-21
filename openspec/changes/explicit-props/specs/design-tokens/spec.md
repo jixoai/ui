@@ -40,11 +40,15 @@ size axis.
 - GIVEN `density={0.75}` (number lane) inside an ambient `sm` scope
 - THEN every PLAIN kernel channel computes its base rung value × the
   coefficient via the frozen pattern (`calc(var(--jx-<channel>-base) *
-  var(--jx-density-coefficient, 1))`), while the four GUARDRAIL channels
-  (row-min/hit/textarea-min/color-lane) ride their `max(<floor>, base ×
-  coefficient)` forms — the floors are absolute and never scale — a named
-  lane resolves to the exact rung with coefficient 1, and a
-  computed-style probe on `--jx-gap` AND `--jx-hit` shows both behaviors
+  var(--jx-density-coefficient, 1))`); the DERIVED channels follow the
+  double-scaling law (design §4): row-min/hit compose the per-rung base
+  scales × the coefficient ONCE with their floors absolute (and the 2xs
+  scope's own `--jx-hit-floor` 6U override preserved), while
+  textarea-min/color-lane stay UNCHANGED (their operands are already
+  effective channels — zero additional coefficient); a named lane
+  resolves to the exact rung with coefficient 1. Computed-style probes
+  on `--jx-gap`, `--jx-hit`, `--jx-row-min`, `--jx-textarea-min`, and
+  `--jx-color-lane` under `sm` and `2xs` receipt the whole table
 
 #### Scenario: the three lanes resolve distinctly (Codex r3 — never blur them)
 

@@ -15,10 +15,17 @@ format when any of artifact/injection/inventory diverges.
 
 #### Scenario: playground edits an axis live
 
-- GIVEN a component canvas for any family
+- GIVEN a component canvas for any NON-EXEMPT family
 - WHEN the operator flips `elevation` from `auto` to `level4` in the controls
 - THEN the canvas instance re-renders with the 8dp recipe and the meta block
   in the generated zone is untouched by the edit
+
+#### Scenario: an exempt family renders without the universal controls
+
+- GIVEN a canvas for a family the exemption ledger names
+- THEN its meta carries NO universal block and the playground shows NO
+  axis controls — and the drift gate accepts the absence because the
+  ledger entry exists
 
 #### Scenario: the drift gate guards the shared block
 
