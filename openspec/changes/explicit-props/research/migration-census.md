@@ -78,6 +78,40 @@ dialog, sheet, popover, tooltip, hover-card, popconfirm, system-dialog,
 dropdown-menu, menubar, navigation-menu, toast, scaffold-float,
 float-button, glass, progressive-blur, terminal-card/header/footer.
 
+LANDED (09d64fb0; probe-w3c-elevation 17/17 — the M3 two-layer recipe +
+the PAIRED surface rung through the §12 var indirection at light AND
+dark (dark STEPS the rung, `background-image: none`, zero color-mix),
+level-1's inset wall + `--surface-concave`, the number lane dp verbatim,
+and the PORTAL ROOT self-carried (a nested `radius="auto"` computes
+20−14=6px through the portal); orchestrator gates re-run green — mirror
+764 pairs, tailwindless 2·7·7 unmoved, meta/context/deps 16+3,
+`Type Errors: no errors`, suite 85F/2785P vs the 87/2782 standing set —
+failures DOWN 2, zero new deterministic). Outcomes, census-recorded:
+- Own-elevation mapping (historic z-feel → level table): dialog/sheet
+  **level4** (8dp, M3's dialog rung); system-dialog/float-button/toast
+  **level3** (6dp, the snackbar/FAB rung); popover/dropdown-menu/
+  hover-card/popconfirm/menubar-panel/navigation-menu **level2** (3dp,
+  M3's menu rung); tooltip **level1**; scaffold-float/progressive-blur/
+  terminal-card/header/footer carry NONE (placement chrome / flat
+  subtractive veil / their own documented 6px hard-offset law — the
+  explicit lane still steps the table).
+- The number lane between rungs SNAPS DOWN (never rounds up to a deeper
+  shadow than asked) — the batch's §14-consistent decision.
+- `sheet`'s §13 rename landed name-wide (`size`→`width`; the freed
+  `size` is now the scale axis) — task 3.5 half-done, `prose`
+  size→measure rides batch D.
+- Deviations: `terminal-card` + `terminal-header` carry SEVEN lanes —
+  their `theme` is the shell-theme LITERAL (own-before-ambient,
+  dark-locked regardless of the tree — not the axis' ambient-first law);
+  §13 rules no rename → axis left out, W6-dossier-flagged beside
+  ghostty-term. `terminal-footer` carries theme whole. `glass` is the
+  material LIB (builders + law sheet, NO component root — no prop
+  surface to adopt; the axes ride its consumers): an exemption-ledger
+  candidate for W4's 4.6 drift gate per §17's gate-visible-delta law.
+- KERNEL PATTERN NOTE (batches D+): `provideQueryAnchor` TDZes when a
+  watcher forces eager resolution — it must sit AFTER the anchor state
+  declarations (relocated in all 13 affected files).
+
 ## Batch D — long tail (the rest, ~15/round; families NOT already in A/B/C)
 
 carousel, chart, code-card, color-utils, command, descriptions, empty,

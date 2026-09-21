@@ -168,10 +168,19 @@ before the next batch opens; a batch is the rollback unit)
       chip/badge 7 lanes — the unruled family-local `shape` collision,
       census-recorded + W6-dossier-flagged; suite delta EXACTLY zero vs the
       87/2782 standing baseline; orchestrator gates re-run green)
-- [ ] 3.3 batch C — overlays/surfaces (dialog, sheet, popover, tooltip,
-      system-dialog…): elevation × surface ladder pairing receipts
-- [ ] 3.4 batch D — composite/long-tail (the rest of the 115), batched ~15/round
-- [ ] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …)
+- [x] 3.3 batch C — overlays/surfaces (dialog, sheet, popover, tooltip,
+      system-dialog…): elevation × surface ladder pairing receipts —
+      LANDED 09d64fb0 (18 families incl. the sheet §13 rename
+      size→width; probe-w3c 17/17 light+dark+portal; terminal-card/header
+      7 lanes — the shell-theme-literal collision, census-recorded +
+      W6-dossier-flagged; glass = no-component-root material lib,
+      exemption-ledger candidate for 4.6; own-elevation mapping table in
+      the census; orchestrator gates re-run green)
+- [ ] 3.4 batch D — composite/long-tail (the rest of the 115), batched ~15/round —
+      D1 IN FLIGHT (carousel…math-inline); prose's §13 rename rides D
+- [ ] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …) —
+      sheet LANDED with batch C (09d64fb0); prose size→measure rides
+      batch D; avatar/icon/spin were 3.6 (done)
 - [x] 3.6 avatar/icon/spin mapping verified (aliases + number lanes) —
       LANDED with batch B (4a96996f): avatar adopts size via the
       sm/md/lg→small/medium/large alias table; icon/spin take the number
