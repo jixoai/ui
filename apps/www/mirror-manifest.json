@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-21T20:41:52.952Z",
+  "generatedAt": "2026-09-21T21:27:38.461Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1803,15 +1803,15 @@
           "source": "registry/files/ui/component-canvas/canvas-playground.svelte",
           "mirror": "apps/www/src/lib/ui/component-canvas/canvas-playground.svelte",
           "target": "@ui/component-canvas/canvas-playground.svelte",
-          "sourceSha": "02d25c6160e9b64e9b67453391e6d8c676c3365131eb83cdf195f6c78b57b4b3",
-          "mirrorSha": "02d25c6160e9b64e9b67453391e6d8c676c3365131eb83cdf195f6c78b57b4b3"
+          "sourceSha": "483c6316d55f8d4848c2bb388fd50aea2eea287bc1025527bedc417d833992a2",
+          "mirrorSha": "483c6316d55f8d4848c2bb388fd50aea2eea287bc1025527bedc417d833992a2"
         },
         {
           "source": "registry/files/ui/component-canvas/canvas-schema.svelte.ts",
           "mirror": "apps/www/src/lib/ui/component-canvas/canvas-schema.svelte.ts",
           "target": "@ui/component-canvas/canvas-schema.svelte.ts",
-          "sourceSha": "85eb7bba7b539b2bf0a581e3c424c5a8123d47ca7e2b9da78cbab69eee4f81a2",
-          "mirrorSha": "85eb7bba7b539b2bf0a581e3c424c5a8123d47ca7e2b9da78cbab69eee4f81a2"
+          "sourceSha": "613439865f7e2a492249b23649f79bc94da74afa90b95aa6b9e472a483e6aa49",
+          "mirrorSha": "613439865f7e2a492249b23649f79bc94da74afa90b95aa6b9e472a483e6aa49"
         },
         {
           "source": "registry/files/ui/component-canvas/component-canvas-defaults.svelte.ts",

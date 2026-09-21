@@ -610,7 +610,7 @@ ${close}
       title="API"
       summary="Ten props plus the HTML rest; source is the only required one — everything else is composition."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'source', type: 'string', default: '—', description: 'Diagram source (runtime prop — the code-card rule: never markup-inlined text).', required: true },
           { name: 'name', type: 'string', default: '—', description: 'Head tab label + the render-id base (sanitized to [a-z0-9-]; illegal input falls to the jx-mermaid default).' },

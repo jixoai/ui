@@ -54,6 +54,9 @@ export const meta = defineComponentMeta(
       }
     },
     "hooks": [
+      "data-jx-canvas-axis-number",
+      "data-jx-canvas-axis-query",
+      "data-jx-canvas-axis-select",
       "data-jx-canvas-control",
       "data-jx-canvas-density-select",
       "data-jx-canvas-dock",

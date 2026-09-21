@@ -58,13 +58,25 @@ describe('docs-route-model — the section spine', () => {
     expect(navNames.size, 'one canonical page per ui item').toBe(
       CATALOG.filter((e) => e.type === 'registry:ui').length,
     );
-    // and every ui item's canonical href is unique (74 own pages) — the
-    // effect-attachments un-fold (2026-09-09): the effects GROUP owns
-    // two DISTINCT hrefs (glass → the effects home /docs/effects.html,
-    // press-button → its own component page), so the strict uniqueness
-    // lock stands unamended — a group is a taxonomy lane, not a page
+    // and every ui item's canonical href is unique — with the hub
+    // carve NAMED below (the effect-attachments un-fold, 2026-09-09:
+    // the effects GROUP owns two DISTINCT hrefs (glass → the effects
+    // home /docs/effects.html, press-button → its own component page),
+    // so the strict uniqueness lock stands for them unamended — a
+    // group is a taxonomy lane, not a page). ONE hub carve exists
+    // (explicit-props W4 4.4 re-pin): prototype-kit's docs href rides
+    // the component-canvas hub (3247775b, the glass precedent — the
+    // kit IS the canvas's declarative demo face; the shared host is
+    // the registry's own ruling, not taxonomy drift). The lock keeps
+    // its force: any OTHER collision fails here.
     const navHrefs = docsComponentGroups.flatMap(({ entries }) => entries.map((e) => e.href.split('#')[0]));
-    expect(new Set(navHrefs).size, 'canonical page per ui item is unique').toBe(navHrefs.length);
+    const hrefCounts = new Map<string, number>();
+    for (const href of navHrefs) hrefCounts.set(href, (hrefCounts.get(href) ?? 0) + 1);
+    const collisions = [...hrefCounts.entries()].filter(([, count]) => count > 1);
+    expect(
+      collisions,
+      'canonical page per ui item is unique (the named prototype-kit hub carve aside)',
+    ).toEqual([['/docs/components/component-canvas.html', 2]]);
     // the positive pin: the effects group's residents own their pages
     const navEntries = docsComponentGroups.flatMap(
       ({ group, entries }) => entries.map((e) => ({ group: group.id, href: e.href.split('#')[0] })),
@@ -128,9 +140,15 @@ describe('docs-route-model — the section spine', () => {
     // resident.
     // Re-frozen 2026-09-15 (visual-quality-iteration W4): the scroll-area
     // family's platform sibling joins layout (19->20, native-scroll-area).
+    // Re-frozen 2026-09-21 (explicit-props W4 4.4): layout grows 20->24 —
+    // list-item, stack, website-scaffold, boot-splash joined since the
+    // 2026-09-15 freeze (their catalog entries landed without a taxonomy
+    // re-freeze; the 110-page universal manifest receipt pins the page
+    // counts, so the taxonomy snapshot moves WITH the real counts) —
+    // 111 ui items.
     const shape = docsComponentGroups.map(({ group, entries }) => `${group.id}:${entries.length}`);
     expect(shape).toEqual([
-      'general:13', 'terminal:4', 'layout:20', 'navigation:10', 'layer:10',
+      'general:13', 'terminal:4', 'layout:24', 'navigation:10', 'layer:10',
       'data-entry:19', 'data-display:24', 'feedback:5', 'effects:2',
     ]);
     expect(shape.every((x) => !x.endsWith(':1')), 'no single-member groups').toBe(true);

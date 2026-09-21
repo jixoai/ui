@@ -142,7 +142,7 @@
 
   <div id="api" data-reveal="">
       <SectionCard eyebrow="api" title="Figure props">
-        <PropsTable
+        <PropsTable universal
           props={[
             { name: 'kind', type: "'figure' | 'table' | 'equation' | 'listing'", required: true, description: 'The counter membership and display word (single-source labels; the customization axis is the R5 preset round).' },
             { name: 'id', type: 'string', description: 'Optional explicit address — a Figure without an id still numbers but is not referenceable; numbers are display currency, never addresses.' },

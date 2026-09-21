@@ -134,3 +134,134 @@ describe('controlsFor lanes and exclusions', () => {
     expect(rows).toEqual([]);
   });
 });
+
+// ── the axis kinds (explicit-props W4 4.1: meta.universal → per-axis
+// controls through the SAME lowering — one lane, three controls) ────
+import { UNIVERSAL_AXES } from '$lib/universal-props.schema';
+import { parseQuerySource, query } from '$lib/universal-props-query.svelte';
+import { schemaDefaultsOf } from '$lib/schema/schema2form';
+
+const themeDoc = UNIVERSAL_AXES.find((d) => d.axis === 'theme')!;
+
+describe('toJSONSchema — the universal consumption path', () => {
+  it('an axis-lane prop lowers as the lane grammar node, never required', () => {
+    const meta = defineComponentMeta({
+      source: 'fixture',
+      props: {
+        size: { kind: 'opaque', typeText: 'SizeLane | QueryResult<SizeLane>' },
+        plain: { kind: 'string' },
+      },
+      universal: UNIVERSAL_AXES,
+      hooks: [],
+    });
+    const lowered = toJSONSchema(meta);
+    const node = lowered.properties.size;
+    expect(node.type).toBe('string');
+    expect(node.enum).toEqual(['auto', 'small', 'medium', 'large', 'number', 'query()']);
+    expect(node.default).toBe('auto');
+    expect(node['x-ui']).toMatchObject({ control: 'axis-enum', axis: 'size', unit: 'px' });
+    expect(lowered.required).toEqual(['plain']); // the axis row defaults 'auto'
+  });
+
+  it('enum-only axes drop the number mode step; theme has no unit', () => {
+    const meta = defineComponentMeta({
+      source: 'fixture',
+      props: { theme: { kind: 'opaque', typeText: 'ThemeLane | QueryResult<ThemeLane>' } },
+      universal: UNIVERSAL_AXES,
+      hooks: [],
+    });
+    const node = toJSONSchema(meta).properties.theme;
+    expect(node.enum).toEqual(['auto', 'light', 'dark', 'system', 'query()']);
+    expect(node['x-ui']?.unit).toBeUndefined();
+    expect(themeDoc.numberUnit).toBeNull();
+  });
+
+  it('an axis whose prop is ABSENT (the seven-lane deviations) is untouched', () => {
+    const meta = defineComponentMeta({
+      source: 'fixture',
+      props: { size: { kind: 'opaque', typeText: 'SizeLane | QueryResult<SizeLane>' } },
+      universal: UNIVERSAL_AXES,
+      hooks: [],
+    });
+    const lowered = toJSONSchema(meta);
+    // theme/density have no prop here — nothing synthesized for them
+    expect(Object.keys(lowered.properties)).toEqual(['size']);
+    // and a NON-lane opaque named like an axis stays excluded
+    const odd = defineComponentMeta({
+      source: 'fixture',
+      props: { size: { kind: 'opaque', typeText: 'number' } },
+      universal: UNIVERSAL_AXES,
+      hooks: [],
+    });
+    expect(toJSONSchema(odd).properties.size['x-ui']?.control).toBe('none');
+  });
+});
+
+describe('controlsFor — the axis trio', () => {
+  const axisSchema = toJSONSchema(
+    defineComponentMeta({
+      source: 'fixture',
+      props: {
+        size: { kind: 'opaque', typeText: 'SizeLane | QueryResult<SizeLane>' },
+        theme: { kind: 'opaque', typeText: 'ThemeLane | QueryResult<ThemeLane>' },
+      },
+      universal: UNIVERSAL_AXES,
+      hooks: [],
+    }),
+  );
+
+  it('the enum row carries the grammar; :number/:query siblings follow', () => {
+    const rows = controlsFor(axisSchema);
+    const byKey = Object.fromEntries(rows.map((r) => [r.key, r]));
+    expect(byKey.size.control).toBe('axis-enum');
+    expect(byKey.size.axis).toBe('size');
+    expect(byKey.size.values).toEqual(['auto', 'small', 'medium', 'large', 'number', 'query()']);
+    expect(byKey['size:number'].control).toBe('axis-number');
+    expect(byKey['size:number'].axis).toBe('size');
+    expect(byKey['size:number'].default).toBe(16); // the px seed
+    expect(byKey['size:number'].minimum).toBe(0);
+    expect(byKey['size:query'].control).toBe('query-editor');
+    expect(byKey['size:query'].lane).toBe('block');
+    expect(byKey['size:query'].axis).toBe('size');
+  });
+
+  it('enum-only axes get the query editor but no number stepper', () => {
+    const rows = controlsFor(axisSchema);
+    const keys = rows.map((r) => r.key);
+    expect(keys).toContain('theme:query');
+    expect(keys).not.toContain('theme:number');
+    expect(byKeyOf(rows).theme.control).toBe('axis-enum');
+  });
+
+  it('schemaDefaultsOf seeds the enum rows auto (siblings start unset)', () => {
+    const defaults = schemaDefaultsOf(axisSchema);
+    expect(defaults).toEqual({ size: 'auto', theme: 'auto' });
+  });
+
+  function byKeyOf(rows: ReturnType<typeof controlsFor>) {
+    return Object.fromEntries(rows.map((r) => [r.key, r]));
+  }
+});
+
+describe('parseQuerySource — the query-editor grammar', () => {
+  it('parses bare keys, @container keys with names, quoted values and numbers', () => {
+    const { cases } = parseQuerySource("{ sm: 'large', '@sm/card': 20 }");
+    expect(cases).toEqual({ sm: 'large', '@sm/card': 20 });
+  });
+
+  it('the cases feed query() which ladders them registered-scale order', () => {
+    const { cases } = parseQuerySource("{ lg: 'large', sm: 'small', '@md': 18 }");
+    const q = query(cases);
+    expect(q.$query).toBe(true);
+    // narrow → wide by THRESHOLD: container @md 28rem < viewport sm 40rem < lg 64rem
+    expect(q.cases.map(([key]) => key)).toEqual(['@md', 'sm', 'lg']);
+  });
+
+  it('empty object is legal; drift throws a named offense', () => {
+    expect(parseQuerySource('{}').cases).toEqual({});
+    expect(() => parseQuerySource("sm: 'large'")).toThrow(/object literal/);
+    expect(() => parseQuerySource('{ sm: large }')).toThrow(/number or quoted value/);
+    expect(() => parseQuerySource("{ sm 'large' }")).toThrow(/`:`/);
+    expect(() => parseQuerySource("{ sm: 'larg }")).toThrow(/unterminated/);
+  });
+});

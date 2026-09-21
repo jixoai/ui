@@ -218,7 +218,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScaffoldFloat Props interface — a children snippet plus one semantic role."><PropsTable props={[{ name: 'children', type: 'Snippet', default: '—', description: 'The floated content; the live DOM node is adopted into the top layer on mount.', required: true }, { name: 'area', type: "TopLayerArea: 'toc' | 'tree' | 'float'", default: "'float'", description: 'Semantic placement role; the shell grid resolves the cell.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScaffoldFloat Props interface — a children snippet plus one semantic role."><PropsTable universal props={[{ name: 'children', type: 'Snippet', default: '—', description: 'The floated content; the live DOM node is adopted into the top layer on mount.', required: true }, { name: 'area', type: "TopLayerArea: 'toc' | 'tree' | 'float'", default: "'float'", description: 'Semantic placement role; the shell grid resolves the cell.' }]} /></SectionCard></div>
 </div>
 
 <style>

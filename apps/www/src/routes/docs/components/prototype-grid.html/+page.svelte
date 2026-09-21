@@ -153,7 +153,7 @@
       title="API"
       summary="The one vocabulary coercion: number → repeat(N, minmax(0, 1fr)) — strings stay verbatim. Everything else rides through as native div attributes."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'cols', type: 'number | string', default: '—', description: 'grid-template-columns: number → repeat(N, minmax(0, 1fr)) (the no-max-content-blowout form); string verbatim (named/hybrid tracks).' },
           { name: 'rows', type: 'number | string', default: '—', description: 'grid-template-rows, same two forms as cols. Omitted → implicit content-sized rows.' },

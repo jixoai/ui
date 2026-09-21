@@ -438,7 +438,7 @@ ${close}
       title="API"
       summary="Six props plus the HTML rest; tex is the only required one. Everything else is composition over the facade."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'tex', type: 'string', default: '—', description: 'TeX source (runtime string — rendered synchronously in display mode).', required: true },
           { name: 'copyable', type: 'boolean', default: 'true', description: 'Copy control on the footer bar (press physics, clipboard fallback, 1.6s copied feedback; the payload is the raw TeX).' },

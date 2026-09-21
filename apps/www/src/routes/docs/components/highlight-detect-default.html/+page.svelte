@@ -145,7 +145,7 @@ ${close}
 
   <div id="api" data-reveal="">
       <SectionCard eyebrow="api" title="HighlightDetectDefault props">
-        <PropsTable
+        <PropsTable universal
           props={[
             { name: 'children', type: 'Snippet', required: true, description: 'The subtree to wire — rendered verbatim in place ({@render children()}); the wrapper adds no element to the DOM.' },
           ]}

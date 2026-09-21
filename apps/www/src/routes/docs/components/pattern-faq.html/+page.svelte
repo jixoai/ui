@@ -195,7 +195,7 @@ ${close}
       title="API"
       summary="PatternFaq props."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'children', type: 'Snippet', default: '—', description: 'The questions: AccordionItem children (or bare <details>).', required: true },
           { name: 'command', type: 'string', default: "'jixoai-ui-faq'", description: "The man page's command name (head line)." },

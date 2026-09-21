@@ -1405,7 +1405,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Uses compact row padding.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', default: "'sm' · ambient scope", description: 'Explicit override, then the inherited scope, then the family own sm — dense tabular rows are the table’s declared posture (the design-frozen local fallback, now the density slot’s own).' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable universal props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Uses compact row padding.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', default: "'sm' · ambient scope", description: 'Explicit override, then the inherited scope, then the family own sm — dense tabular rows are the table’s declared posture (the design-frozen local fallback, now the density slot’s own).' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">
     <SectionCard

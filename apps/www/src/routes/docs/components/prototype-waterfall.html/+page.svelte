@@ -165,7 +165,7 @@
       title="API"
       summary="columns rides the CSS columns shorthand verbatim — number is the count form, a length string is the auto-width form. Everything else rides through as native div attributes."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'columns', type: 'number | string', default: '—', description: 'The CSS columns shorthand, verbatim: number = the count form (columns: 3); a length string = the auto-width form (columns: 14rem).' },
           { name: 'gap', type: 'number | string', default: '—', description: 'column-gap: number → px, string verbatim.' },

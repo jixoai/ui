@@ -532,7 +532,7 @@ ${close}
       summary="One family: a context root that shares a density tier, and four standalone parts. The glyph math (barRun, sparkBraille, linePoints, donutGeometry…) exports from the folder for your own tests."
     >
       <div class={cx(rt.col24)}>
-        <PropsTable
+        <PropsTable universal
           props={[
             { name: 'data', type: 'readonly number[]', default: '—', description: 'The series — one row / point / segment per datum. A value-domain payload: the family renders it, never re-authors it.', required: true },
             { name: 'label', type: 'string', default: '—', description: 'The REQUIRED accessible name (role=img + aria-label). No default by contract.', required: true },

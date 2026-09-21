@@ -33,6 +33,7 @@
       "type": "registry:lib",
       "title": "jixoai universal props (the eight-axis kernel)",
       "description": "The shared explicit-props kernel: the schema (grammar types + alias defaults) and the generated CSS ladder (alias vars, @supports verdicts, density composition).",
+      "docs": "Every component accepts the eight style axes — size · shape · radius · density · color · theme · elevation · motion. Each axis takes a named step (resolve through var(--jx-<axis>-<alias>) — override the var to remap, pure CSS, no resolver runtime), 'auto' (inherit the ambient context; the default, stamps nothing), an exact number (the unit is per axis: px for size/radius, a coefficient for density/motion, dp for elevation, hue degrees for color), or query({ sm: 'large', '@sm/card': 20 }) for responsive and container-conditional values (media keys bare, container keys carry @; named containers are size/name). Values resolve to CSS expressions stamped as custom properties on the component root — never classes. Install ships the schema + the generated CSS ladder; import the slots from @jixoai/defaults.",
       "files": [
         {
           "type": "registry:file",

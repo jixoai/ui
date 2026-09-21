@@ -209,7 +209,7 @@ ${close}
       title="API"
       summary="PatternLogin props — plus PatternLoginOtp (the named export) below."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'host', type: 'string', default: "'jixoai.dev'", description: 'The host the card addresses (echo line + host lane value).' },
           { name: 'user', type: 'string', default: "''", description: 'The user lane; bindable — the echo line mirrors it live.' },

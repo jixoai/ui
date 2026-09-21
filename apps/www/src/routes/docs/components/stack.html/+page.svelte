@@ -353,7 +353,7 @@ ${close}
 <div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A stack is a plain div carrying layout only — no role, no announcements, nothing to maintain. Reading order is DOM order; the component never reorders visually (no order/reverse props by design).">
-      <PropsTable props={[{ name: '(none)', type: '—', default: '—', description: 'No ARIA surface: the stack is transparent layout. Children keep their own semantics wholesale.' }]} />
+      <PropsTable universal props={[{ name: '(none)', type: '—', default: '—', description: 'No ARIA surface: the stack is transparent layout. Children keep their own semantics wholesale.' }]} />
     </SectionCard>
   </div>
   <div id="theming" data-reveal="">

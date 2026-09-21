@@ -275,7 +275,7 @@ exit="none"         → no phase: the floor elapsed, the layer unmounts`}
 <div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The layer is role=status (labelled by the title) — a polite loading announcement. It is pointer-events: none by law: a fast click during the boot window passes through to the (unstyled but functional) page beneath. noscript hides the layer entirely; reduced-motion skips the exit; the timeout cap guarantees the page is never held hostage.">
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'role', type: '"status"', default: 'component-owned', description: 'A polite live region — screen readers announce the loading state once, without interrupting.' },
         { name: 'aria-label', type: 'string', default: 'the title prop (fallback "loading")', description: 'Names the status region.' },
         { name: 'pointer-events', type: 'none', default: 'always', description: 'The mask is visual-only — it can never eat input, so the unstyled page beneath stays operable through the boot window.' },

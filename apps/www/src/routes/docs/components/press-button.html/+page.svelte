@@ -16,6 +16,16 @@
   import { annotations, meta } from '$lib/meta/press-button.meta';
   import { withAnnotations, type ComponentMeta } from '$lib/schema/ir';
   import { toJSONSchema } from '$lib/schema/lower';
+  import { axisLaneOf, axisStepsOf } from '$lib/schema/axis-controls.svelte';
+  import type {
+    ColorLane,
+    DensityLane,
+    ElevationLane,
+    MotionLane,
+    RadiusLane,
+    ShapeLane,
+    SizeLane,
+  } from '$lib/defaults.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // ToC outline: the anchors demo + the closing law, in page order. The
@@ -92,13 +102,35 @@ ${close}
       attach: { kind: 'enum', values: [...effectNames], default: 'none' },
     },
   };
-  const schema = toJSONSchema(withAnnotations(metaWithEffect, annotations));
+  // W4 4.1: the axis props lower as axis-enum/axis-number/query-editor
+  // rows now (meta.universal's consumption path) — the flagship dock
+  // drives them. THEME is scoped OUT of this page's panel: the
+  // stage-preview bindable owns re-theming on canvas demos (the same
+  // §13-flavored scoping the component-canvas page applies to its
+  // chrome props); the axis itself stays on the component.
+  const { theme: _themeAxis, ...panelProps } = metaWithEffect.props;
+  const panelMeta: ComponentMeta = { ...metaWithEffect, props: panelProps };
+  const schema = toJSONSchema(withAnnotations(panelMeta, annotations));
 
   // the page owns the initial values (bind:values); reset falls back to
   // the schema defaults (variant 'outline', attach 'none', loading off)
   type CanvasValues = { variant: Variant; attach: EffectName; loading: boolean };
   let canvasValues = $state<Record<string, unknown>>({ variant: 'fill', attach: 'none', loading: false });
   const v = $derived(canvasValues as CanvasValues);
+
+  // the axis lanes (W4): the dock's axis records resolve into lane
+  // props on the DRIVEN instance — 'auto'/unset stamps nothing
+  const aSize = $derived(axisLaneOf<SizeLane>('size', axisStepsOf(meta, 'size'), canvasValues));
+  const aShape = $derived(axisLaneOf<ShapeLane>('shape', axisStepsOf(meta, 'shape'), canvasValues));
+  const aRadius = $derived(axisLaneOf<RadiusLane>('radius', axisStepsOf(meta, 'radius'), canvasValues));
+  const aDensity = $derived(
+    axisLaneOf<DensityLane>('density', axisStepsOf(meta, 'density'), canvasValues),
+  );
+  const aColor = $derived(axisLaneOf<ColorLane>('color', axisStepsOf(meta, 'color'), canvasValues));
+  const aElevation = $derived(
+    axisLaneOf<ElevationLane>('elevation', axisStepsOf(meta, 'elevation'), canvasValues),
+  );
+  const aMotion = $derived(axisLaneOf<MotionLane>('motion', axisStepsOf(meta, 'motion'), canvasValues));
 
   // the onvalue seam: schema drives the CONTROL, the page owns the
   // VALUE semantics — effect names map to the attachment factory here
@@ -425,6 +457,13 @@ ${close}
               variant={v.variant}
               {@attach effectValue ? pressEffect(effectValue) : undefined}
               loading={v.loading}
+              size={aSize}
+              shape={aShape}
+              radius={aRadius}
+              density={aDensity}
+              color={aColor}
+              elevation={aElevation}
+              motion={aMotion}
             >
               {v.variant}
             </PressButton>
@@ -733,7 +772,7 @@ ${close}
 
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and the rest lane every arbitrary attribute — the component-tag attachment included — rides to the root.">
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
         { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost' | 'link'", default: "'outline' · ambient zone", description: 'Selects the ladder rung; link is the interaction exception. Omitted → the ambient paint zone (ButtonGroup / variant scope), else the frozen own. Semantic hue injects through --jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline classes at the call site.' },
         { name: '{@attach …} (component tag)', type: 'Attachment<HTMLElement>', default: '—', description: 'The effect mount (r4): <PressButton {@attach pressEffect(builder())}> — shimmer, pulse, rainbow, or ripple builders ride the attachment factory; the tag lands at the stamped root through the rest spread. Leaf elements take {@attach pressEffect(fx)} directly.' },

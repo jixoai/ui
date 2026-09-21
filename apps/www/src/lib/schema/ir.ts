@@ -14,7 +14,18 @@
 
 import type { UniversalAxisDoc } from '../universal-props.schema';
 
-/** Control hints the panel understands; `'none'` excludes the row. */
+/**
+ * Control hints the panel understands; `'none'` excludes the row.
+ *
+ * The explicit-props additions (W4 4.1, design §17 — FROZEN text):
+ * `'axis-enum'` (the named/auto lane of a universal axis — the enum
+ * select carrying the axis' namedSteps plus the `number`/`query()`
+ * mode steps), `'axis-number'` (the axis' exact-number lane — the
+ * spinner; unit per axis), `'query-editor'` (the query() source
+ * editor). Feasibility + row synthesis live in the canvas kernel's
+ * controlsFor; the lowering marks axis props with them from
+ * meta.universal (lower.ts's axis-aware path).
+ */
 export type ControlHint =
   | 'segmented'
   | 'select'
@@ -22,7 +33,10 @@ export type ControlHint =
   | 'stepper'
   | 'slider'
   | 'text'
-  | 'none';
+  | 'none'
+  | 'axis-enum'
+  | 'axis-number'
+  | 'query-editor';
 
 /**
  * Panel-facing annotation vocabulary. Carried verbatim into exports
@@ -38,6 +52,13 @@ export interface XUI {
   unit?: string;
   /** source type text for snippet/opaque nodes (lowering output only) */
   sourceType?: string;
+  /**
+   * The axis an axis-control row serves (explicit-props W4): written
+   * by the lowering when meta.universal marks the prop as a universal
+   * axis lane — the kernel synthesizes the `:number`/`:query` sibling
+   * rows and the dock gates their visibility on the axis' mode.
+   */
+  axis?: string;
 }
 
 /** A representable enum: string literal unions. */

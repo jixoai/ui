@@ -261,7 +261,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the WebsiteScaffold Props interface — four snippet seams, no data."><PropsTable props={[{ name: 'header', type: 'Snippet', default: '—', description: 'The nav band chrome (usually terminal-header with composed nav).', required: true }, { name: 'chrome', type: 'Snippet', default: '—', description: 'Static chrome, SSR-stable: the toc rail and catalog tree render here, never moved by hydration.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The default snippet → main#main in the content column.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'Optional footer in the content flow.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the WebsiteScaffold Props interface — four snippet seams, no data."><PropsTable universal props={[{ name: 'header', type: 'Snippet', default: '—', description: 'The nav band chrome (usually terminal-header with composed nav).', required: true }, { name: 'chrome', type: 'Snippet', default: '—', description: 'Static chrome, SSR-stable: the toc rail and catalog tree render here, never moved by hydration.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The default snippet → main#main in the content column.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'Optional footer in the content flow.' }]} /></SectionCard></div>
 </div>
 
 <style>

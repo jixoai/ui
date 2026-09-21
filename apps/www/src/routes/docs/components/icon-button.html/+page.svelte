@@ -437,7 +437,7 @@ ${close}
 
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="IconButton composes the press-button contract with an explicit label and decorative icon.">
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'icon', type: 'Snippet', required: true, description: 'Decorative glyph content.' },
         { name: 'text', type: 'string', required: true, description: 'Visible label, tooltip content, and accessible name.' },
         { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; resolved through IconButtonDefaults (the restated contract) and forwarded to press-button.' },

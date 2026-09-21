@@ -276,7 +276,7 @@ ${close}
       title="API"
       summary="PatternHeroSet (the canonical main), PatternHeroAscii and PatternHeroMarquee (named exports)."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'HeroSet: eyebrow / summary', type: 'string', default: '—', description: 'Hero-section lead props, passed through.', required: true },
           { name: 'HeroSet: copyCommand', type: 'string', default: '—', description: 'ONE string, three jobs: CTA label + clipboard payload + the typed terminal command.', required: true },

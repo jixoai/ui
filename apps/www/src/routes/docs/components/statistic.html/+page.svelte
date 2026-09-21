@@ -376,7 +376,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value (format before it reaches the component).', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable universal props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value (format before it reaches the component).', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">
     <SectionCard

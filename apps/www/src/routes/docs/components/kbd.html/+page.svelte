@@ -243,6 +243,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Kbd props"><PropsTable props={[{ name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal' · Own default, not ambient", description: 'Paint-ladder rung; tonal (primary) is the default. Own default, not ambient (the glyph is outside the paint zone\'s frozen availability table). Semantic hue injects via jx-hue-* classes, never as a variant name.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Kbd props"><PropsTable universal props={[{ name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal' · Own default, not ambient", description: 'Paint-ladder rung; tonal (primary) is the default. Own default, not ambient (the glyph is outside the paint zone\'s frozen availability table). Semantic hue injects via jx-hue-* classes, never as a variant name.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
   </div>
 </div>

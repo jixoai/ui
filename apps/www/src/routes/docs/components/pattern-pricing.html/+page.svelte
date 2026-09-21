@@ -229,7 +229,7 @@ ${close}
       title="API"
       summary="PatternPricing props and the PricingTier payload type."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'tiers', type: 'readonly PricingTier[]', default: '—', description: 'Per-tier install cards: plan, command, recommended?, note?.', required: true },
           { name: 'children', type: 'Snippet', default: '—', description: 'The comparison matrix — author thead/tbody (the Table contract).', required: true },

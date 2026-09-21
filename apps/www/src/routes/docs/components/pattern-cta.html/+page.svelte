@@ -153,7 +153,7 @@ ${close}
       title="API"
       summary="PatternCta props."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'command', type: 'string', default: "'npx jixoai-ui init'", description: 'The shell command the band sells (copy payload + card code).' },
           { name: 'heading', type: 'string', default: "'ship it from your terminal'", description: 'The band heading (an h2 stamped as component chrome).' },

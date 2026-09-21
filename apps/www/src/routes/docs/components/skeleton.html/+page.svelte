@@ -316,5 +316,5 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The Props interface adds nothing — a bare block with class passthrough and full attribute spread."><PropsTable props={[{ name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/aspect live here (no length API).' }, { name: '...rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'data-*, id, and the rest pass through untouched; aria-hidden lands after the spread.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The Props interface adds nothing — a bare block with class passthrough and full attribute spread."><PropsTable universal props={[{ name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/aspect live here (no length API).' }, { name: '...rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'data-*, id, and the rest pass through untouched; aria-hidden lands after the spread.' }]} /></SectionCard></div>
 </div>

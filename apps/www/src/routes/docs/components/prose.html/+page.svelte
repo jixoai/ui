@@ -389,7 +389,7 @@
       title="API"
       summary="Eleven knobs, every one an absentSlot — no own, no fallback; absence IS the state. Consumer class merges LAST; consumer style lands after the emitted declarations (consumer wins on conflict); rest props pass through untouched."
     >
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'measure', type: 'CssLength', default: 'absent', description: "The region's type scale — inheritance ONLY, never an element stamp: markdown sovereignty is a cascade fact, not a JS mask, and ambient measure scales the heading em ladder for free. RENAMED from size (explicit-props §13, W3-D2): a css measure is not the base-scale axis — the freed name belongs to the universal size lane." },
         { name: 'leading', type: 'number', default: 'absent', description: 'P-only line-height lane (headings keep their 1.25, pre keeps 1.55); applied through the presence-gated residue rule on [data-jx-text=\'p\'].' },
         { name: 'family', type: "'sans' | 'mono' | 'serif' | raw", default: 'absent', description: "Words resolve to the theme --font-* tokens — 'serif' NEEDS the theme to define --font-serif (this theme does not yet; it degrades to inheritance until it does) — or a raw font-family value. Code/kbd keep their own mono element rules." },

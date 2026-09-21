@@ -386,7 +386,7 @@ ${close}
             <span class={cx(rt.text125, rt.inkMuted)}>link is NOT a zone value — <code>variant="link"</code> is a compile error; the interaction exception keeps its only route through PressButton's own explicit prop.</span>
           </div>
         </div>
-        <PropsTable
+        <PropsTable universal
           props={[
             { name: 'ButtonVariantScope · variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: '—', description: 'The variant buttons in this subtree adopt when they set none (ZonePaintVariant — link excluded by the union itself).' },
             { name: 'ButtonVariantScope · children', type: 'Snippet', default: 'required', description: 'The scoped subtree — rendered as-is; the scope adds NO element, no paint, no seams.', required: true },

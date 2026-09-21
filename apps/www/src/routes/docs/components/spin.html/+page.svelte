@@ -569,7 +569,7 @@ export default {
       title="API"
       summary="Three props, a snippet, and a class — the name lane is the whole vocabulary switch."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'spinner', type: 'SpinName | TextSpinnerName', default: "'dots'", description: "The spinner's name — the generated svg artifact resolves FIRST, the text catalog second; an svg spinner named like a text one overrides it (explicit config beats built-ins, the icons law). The union closes at build time — a typo is a compile error." },
           { name: 'label', type: 'string', default: "'loading'", description: 'Announced to assistive tech ("loading checks").' },

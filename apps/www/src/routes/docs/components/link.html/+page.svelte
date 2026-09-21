@@ -266,7 +266,7 @@ const external = /^https?:\\/\\//i.test(href);
       title="API"
         summary="Four props and a verbatim spread; href alone decides the external contract, icon decides only the decorative suffix lane."
     >
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'href', type: 'string', default: '—', description: 'The link target. An absolute http(s) href makes the link external: target=_blank + rel=noreferrer. App routes, anchors and non-http schemes keep default navigation.', required: true },
         { name: 'title', type: 'string', default: '—', description: 'Advisory title, passthrough to the native attribute.' },
         { name: 'icon', type: 'Snippet | null', default: 'undefined — glyph on externals', description: 'The suffix-icon lane, tri-state (undefined ≠ off): omitted paints the default externalLink glyph IFF external (inline-core, SSR-painted, no flash); null turns the lane off; a snippet renders custom content in the data-jx-link-icon span (aria-hidden, 0.8em). Internal links never carry the lane at any setting.' },

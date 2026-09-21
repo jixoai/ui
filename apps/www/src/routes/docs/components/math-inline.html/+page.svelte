@@ -276,7 +276,7 @@ ${close}
       title="API"
       summary="Five props plus the HTML rest; tex is the only required one."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'tex', type: 'string', default: '—', description: 'TeX source (runtime string, rendered synchronously in inline mode).', required: true },
           { name: 'macros', type: "KatexOptions['macros']", default: '—', description: 'KaTeX macros — merged per key OVER the site-level registerMacros table ($lib/katex).' },

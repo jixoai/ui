@@ -112,7 +112,56 @@ ${close}
             ).join(' '),
       )
       .join(' ');
-  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  // ---- the universal props demo (explicit-props W3-D5; W4 4.2 wires
+  // the per-axis CONTROLS) -------------------------------------------------
+  // The canvas's own generated meta (six axis lanes) lowers through
+  // toJSONSchema — the axis props surface as axis-enum/axis-number/
+  // query-editor rows in the dock. The page owns the lane state: the
+  // bound `values` record carries values[<axis>] (the mode/named
+  // lane), values['<axis>:number'] (the exact number) and
+  // values['<axis>:query'] (the query() source); the deriveds below
+  // resolve each record into ONE lane prop — named step verbatim,
+  // number verbatim, query() through parseQuerySource + query() — and
+  // 'auto' resolves to undefined (stamps nothing, the ambient flows).
+  // Flipping a control re-stamps the stage live: the carriers are the
+  // W3-D5 surface, these controls only drive them.
+  import { annotations as canvasAnnotations, meta as canvasMeta } from '$lib/meta/component-canvas.meta';
+  import { withAnnotations } from '$lib/schema/ir';
+  import { toJSONSchema } from '$lib/schema/lower';
+  import { axisLaneOf, axisStepsOf } from '$lib/schema/axis-controls.svelte';
+  import type {
+    ColorLane,
+    ElevationLane,
+    MotionLane,
+    RadiusLane,
+    ShapeLane,
+    SizeLane,
+  } from '$lib/defaults.svelte';
+
+  const axisSchemaFull = toJSONSchema(withAnnotations(canvasMeta, canvasAnnotations));
+  // the panel scope: the demo's dock carries the SIX axis controls
+  // only — the canvas's own chrome props (title/stage/scroll/…) are
+  // page-owned here, not dock-driven (the press-button page shows the
+  // full-props form of the same pipeline)
+  const CANVAS_AXES = ['size', 'shape', 'radius', 'color', 'elevation', 'motion'] as const;
+  const axisSchema = {
+    ...axisSchemaFull,
+    properties: Object.fromEntries(
+      CANVAS_AXES.map((axis) => [axis, axisSchemaFull.properties[axis]]),
+    ),
+    required: [],
+  };
+  let axisValues: Record<string, unknown> | undefined = $state();
+
+  const dSize = $derived(axisLaneOf<SizeLane>('size', axisStepsOf(canvasMeta, 'size'), axisValues));
+  const dShape = $derived(axisLaneOf<ShapeLane>('shape', axisStepsOf(canvasMeta, 'shape'), axisValues));
+  const dRadius = $derived(axisLaneOf<RadiusLane>('radius', axisStepsOf(canvasMeta, 'radius'), axisValues));
+  const dColor = $derived(axisLaneOf<ColorLane>('color', axisStepsOf(canvasMeta, 'color'), axisValues));
+  const dElevation = $derived(
+    axisLaneOf<ElevationLane>('elevation', axisStepsOf(canvasMeta, 'elevation'), axisValues),
+  );
+  const dMotion = $derived(axisLaneOf<MotionLane>('motion', axisStepsOf(canvasMeta, 'motion'), axisValues));
+
   const universalUsage = `<ComponentCanvas title="demo" files={files} size={18} radius={20}>
   …the demo…
 </ComponentCanvas>`;
@@ -294,18 +343,30 @@ ${close}
       headerRegion="universal-props"
       eyebrow="axes"
       title="Universal props"
-      summary="SIX of the eight axes join the workbench root (explicit-props W3-D5): size · shape · radius · color · elevation · motion — named steps, auto (inherit; stamps nothing), an exact number, or query(). TWO axes are deliberately left out: the stage-preview bindables own their prop names — theme (the stage light/dark projection) and density (the dock select union) — the no-rename law keeps them untouched, the universal lanes forward ambient-only; W4 wires the per-axis controls onto what survives here."
+      summary="SIX of the eight axes join the workbench root (explicit-props W3-D5, W4-wired): size · shape · radius · color · elevation · motion — named steps, auto (inherit; stamps nothing), an exact number, or query(). TWO axes are deliberately left out: the stage-preview bindables own their prop names — theme (the stage light/dark projection) and density (the dock select union) — the no-rename law keeps them untouched, the universal lanes forward ambient-only. The dock's controls are the family's OWN generated meta lowered through toJSONSchema: each axis is one lane with an enum switch (auto + named steps + number/query() modes), an exact-number spinner and a query() source editor — flip one and the stage re-stamps live through the W3-D5 carriers."
     >
-      <ComponentCanvas title="component-canvas · universal props" stage="fill" files={universalFiles}>
-<ComponentCanvas title="canvas · axes" stage="fill" files={universalFiles} size={18} radius={20}>
-        <div class={cx(rt.panel)}><PressButton variant="outline">the workbench root carries the carriers</PressButton></div>
-      </ComponentCanvas>
-      <ComponentCanvas title="canvas · named steps" stage="fill" files={universalFiles} size="medium" shape="round">
-        <div class={cx(rt.panel)}><PressButton variant="outline">named steps resolve through the alias ladder</PressButton></div>
-      </ComponentCanvas>
+      <ComponentCanvas
+        title="component-canvas · universal props"
+        stage="fill"
+        files={universalFiles}
+        schema={axisSchema}
+        bind:values={axisValues}
+        size={dSize}
+        shape={dShape}
+        radius={dRadius}
+        color={dColor}
+        elevation={dElevation}
+        motion={dMotion}
+      >
+        <div class={cx(rt.panel)}>
+          <PressButton variant="outline" radius="auto">radius auto — concentric off the workbench root</PressButton>
+        </div>
+        <div class={cx(rt.panel)}>
+          <PressButton variant="fill">size flips the root font-size — parts ride em</PressButton>
+        </div>
       </ComponentCanvas>
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the canvas Props interface; snippets are render seams, callbacks keep state page-owned."><PropsTable props={[{ name: 'title', type: 'string', default: '—', description: 'Component name shown in the header.', required: true }, { name: 'description', type: 'string', default: '—', description: 'One-line description under the title.' }, { name: 'sourceUrl', type: 'string', default: '—', description: 'GitHub source link (header right, icon-only external anchor). The value is page-side DERIVED from the registry path projection ($lib/registry-source) — never hand-written.' }, { name: 'install', type: 'string', default: '—', description: 'Registry item name — renders the header copy-command badge (npx jixoai-ui add <name>) with a clipboard flash.' }, { name: 'files', type: 'TreeFile[]', default: '—', description: 'Demo code files; flat list, names may carry paths. The drawer\'s tree pane splits their "/" paths into levels — one shape at every file count. Content comes from the page\'s ?raw imports.', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'LIVE demo area — the consumer renders the component instance.', required: true }, { name: 'stage', type: "'fill' | 'center' | 'start'", default: "'fill'", description: 'Stage posture: fill, center (intrinsic, centered), or start (intrinsic, left).' }, { name: 'scroll', type: "'capped' | 'grow'", default: "'capped'", description: 'Stage scroll posture: capped bounds the scroll layer at min(32rem, 60vh) with native auto-scroll; grow lifts the cap for full-composition demos whose own stacking is the presentation.' }, { name: 'theme', type: "'light' | 'dark'", default: "'light'", description: 'Stage preview theme — page-owned bindable, flipped by the dock head\'s icon button. Projects data-theme + the theme sheet dark/jx-light scope onto the stage element only.' }, { name: 'density', type: 'Density', default: "'default'", description: 'Stage preview density — page-owned bindable, the REPO-STANDARD union (xs | sm | default | lg) driven by the dock head\'s select. Stamped as data-density on the stage element directly; the old comfortable/compact mapping is retired.' }, { name: 'playground', type: 'Snippet', default: '—', description: 'Consumer-authored controls, rendered inside the floating dock\'s body — an unauthored playground leaves the dock as its chrome chip (no chevron, no body); the stage is full-width either way. Takes precedence over schema rows (escape-hatch law).' }, { name: 'schema', type: 'CanvasSchema', default: '—', description: 'jsonSchema control mode: a LOWERED schema (toJSONSchema) whose control rows the DOCK renders inside its integrated ItemGroup.' }, { name: 'values', type: 'Record<string, unknown>', default: 'schema defaults', description: 'Schema-mode dock values — two-way; initialized from schema defaults when the page binds none.', bindable: true }, { name: 'onvalue', type: '(key: string, value: unknown) => void', default: '—', description: 'Schema-mode change seam: the page intercepts and owns value semantics for non-representable props (effect builders, …), writing back through bind:values.' }, { name: 'onreset', type: '() => void', default: '—', description: 'Page-owned reset: shows the dock body foot\'s reset button and calls back; absent, schema mode falls back to schema defaults.' }, { name: 'output', type: 'readonly PlayOutput[]', default: '—', description: 'Read-only state projection rows at the dock\'s foot — body-bearing on its own: an output-only canvas still gets a dock body.' }, { name: 'resolveFileContent', type: '(file: TreeFile) => string', default: '—', description: 'Code-drawer content override — lets usage files track live state.' }, { name: 'id', type: 'string', default: 'slug(title)', description: "Explicit aria-id override when two canvases would slug-collide — AND the canvas same-source extraction key: an id-carrying canvas's children are extracted by canvasPlugin into the page's virtual:jixoai-canvas module (resolveRawCode(id) composes the usage file + the Usage CodeBlock; no id = no extraction). See the same-source law above." }, { name: 'class', type: 'string', default: '—', description: 'Class passthrough to the root element.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the canvas Props interface; snippets are render seams, callbacks keep state page-owned."><PropsTable universal props={[{ name: 'title', type: 'string', default: '—', description: 'Component name shown in the header.', required: true }, { name: 'description', type: 'string', default: '—', description: 'One-line description under the title.' }, { name: 'sourceUrl', type: 'string', default: '—', description: 'GitHub source link (header right, icon-only external anchor). The value is page-side DERIVED from the registry path projection ($lib/registry-source) — never hand-written.' }, { name: 'install', type: 'string', default: '—', description: 'Registry item name — renders the header copy-command badge (npx jixoai-ui add <name>) with a clipboard flash.' }, { name: 'files', type: 'TreeFile[]', default: '—', description: 'Demo code files; flat list, names may carry paths. The drawer\'s tree pane splits their "/" paths into levels — one shape at every file count. Content comes from the page\'s ?raw imports.', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'LIVE demo area — the consumer renders the component instance.', required: true }, { name: 'stage', type: "'fill' | 'center' | 'start'", default: "'fill'", description: 'Stage posture: fill, center (intrinsic, centered), or start (intrinsic, left).' }, { name: 'scroll', type: "'capped' | 'grow'", default: "'capped'", description: 'Stage scroll posture: capped bounds the scroll layer at min(32rem, 60vh) with native auto-scroll; grow lifts the cap for full-composition demos whose own stacking is the presentation.' }, { name: 'theme', type: "'light' | 'dark'", default: "'light'", description: 'Stage preview theme — page-owned bindable, flipped by the dock head\'s icon button. Projects data-theme + the theme sheet dark/jx-light scope onto the stage element only.' }, { name: 'density', type: 'Density', default: "'default'", description: 'Stage preview density — page-owned bindable, the REPO-STANDARD union (xs | sm | default | lg) driven by the dock head\'s select. Stamped as data-density on the stage element directly; the old comfortable/compact mapping is retired.' }, { name: 'playground', type: 'Snippet', default: '—', description: 'Consumer-authored controls, rendered inside the floating dock\'s body — an unauthored playground leaves the dock as its chrome chip (no chevron, no body); the stage is full-width either way. Takes precedence over schema rows (escape-hatch law).' }, { name: 'schema', type: 'CanvasSchema', default: '—', description: 'jsonSchema control mode: a LOWERED schema (toJSONSchema) whose control rows the DOCK renders inside its integrated ItemGroup.' }, { name: 'values', type: 'Record<string, unknown>', default: 'schema defaults', description: 'Schema-mode dock values — two-way; initialized from schema defaults when the page binds none.', bindable: true }, { name: 'onvalue', type: '(key: string, value: unknown) => void', default: '—', description: 'Schema-mode change seam: the page intercepts and owns value semantics for non-representable props (effect builders, …), writing back through bind:values.' }, { name: 'onreset', type: '() => void', default: '—', description: 'Page-owned reset: shows the dock body foot\'s reset button and calls back; absent, schema mode falls back to schema defaults.' }, { name: 'output', type: 'readonly PlayOutput[]', default: '—', description: 'Read-only state projection rows at the dock\'s foot — body-bearing on its own: an output-only canvas still gets a dock body.' }, { name: 'resolveFileContent', type: '(file: TreeFile) => string', default: '—', description: 'Code-drawer content override — lets usage files track live state.' }, { name: 'id', type: 'string', default: 'slug(title)', description: "Explicit aria-id override when two canvases would slug-collide — AND the canvas same-source extraction key: an id-carrying canvas's children are extracted by canvasPlugin into the page's virtual:jixoai-canvas module (resolveRawCode(id) composes the usage file + the Usage CodeBlock; no id = no extraction). See the same-source law above." }, { name: 'class', type: 'string', default: '—', description: 'Class passthrough to the root element.' }]} /></SectionCard></div>
 </div>

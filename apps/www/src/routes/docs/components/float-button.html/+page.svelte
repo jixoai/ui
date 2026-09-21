@@ -334,7 +334,7 @@ ${close}
 
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="FloatButton owns position and popover wiring while leaving command content to the caller.">
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'label', type: 'string', required: true, description: 'Accessible name for the icon-only control.' },
         { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
         { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control.' },

@@ -301,7 +301,7 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
 
   <div id="api" data-reveal="">
     <SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Three props and a verbatim spread — the component owns every other root attribute.">
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'name', type: 'IconName', required: true, description: "The glyph's name in the generated set ($lib/icon-set.gen). The union closes at build time — a typo is a compile error." },
         { name: 'size', type: 'number | string', default: '16', description: 'The square edge: svg width/height. Numeric sizes px-coerce on the lazy pending box (16 → 16px — a bare number is invalid CSS); string sizes pass through verbatim (e.g. "1.25em").' },
         { name: 'strokeWidth', type: 'number | string', default: '2', description: 'Stroke weight — stroke artwork only; inert on fill-nature glyphs.' },

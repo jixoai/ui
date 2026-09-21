@@ -236,7 +236,7 @@ ${close}
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The root carries landmark and pick-line configuration; each item is an ordinary composable anchor.">
       <div class={cx(rt.col24)}>
-        <PropsTable title="Anchor" props={[
+        <PropsTable universal title="Anchor" props={[
           { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
           { name: 'label', type: 'string', default: "'on this page'", description: 'Accessible navigation landmark name.' },
           { name: 'offset', type: 'number', default: '96', description: 'Viewport-top pick line in pixels.' },

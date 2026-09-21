@@ -18,15 +18,29 @@ import { describe, expect, it } from 'vitest';
 import { meta as pressButtonMeta } from '$lib/meta/press-button.meta';
 import { defineComponentMeta, withAnnotations, type ComponentMeta } from '$lib/schema/ir';
 import { toJSONSchema } from '$lib/schema/lower';
+import { UNIVERSAL_AXES } from '$lib/universal-props.schema';
 
 const pressButtonFixture: ComponentMeta = defineComponentMeta({
   source: 'registry/files/ui/press-button/press-button.svelte',
   props: {
+    // re-pinned 2026-09-21 (explicit-props W4): the committed meta had
+    // drifted ahead of this fixture through W3's batches — the family
+    // gained the EIGHT axis lane props (batch B) and the `style`
+    // passthrough; the universal block rides the shared artifact (the
+    // §17 merge stamps UNIVERSAL_AXES — never re-typed by hand here)
+    style: { kind: 'opaque', typeText: 'string | null' },
+    density: { kind: 'opaque', typeText: 'DensityLane | QueryResult<DensityLane>', ambient: 'scope' },
+    size: { kind: 'opaque', typeText: 'SizeLane | QueryResult<SizeLane>', ambient: 'scope' },
+    shape: { kind: 'opaque', typeText: 'ShapeLane | QueryResult<ShapeLane>', ambient: 'scope' },
+    radius: { kind: 'opaque', typeText: 'RadiusLane | QueryResult<RadiusLane>', ambient: 'scope' },
+    color: { kind: 'opaque', typeText: 'ColorLane | QueryResult<ColorLane>', ambient: 'scope' },
+    theme: { kind: 'opaque', typeText: 'ThemeLane | QueryResult<ThemeLane>', ambient: 'scope' },
+    elevation: { kind: 'opaque', typeText: 'ElevationLane | QueryResult<ElevationLane>', ambient: 'scope' },
+    motion: { kind: 'opaque', typeText: 'MotionLane | QueryResult<MotionLane>', ambient: 'scope' },
     // 4.3 (context-defaults-economy): the ambient field rides the
     // GENERATED zone from the family Defaults slot facts; variant's
     // Props type became the imported PressButtonVariant alias (task
     // 1.2), honestly opaque under the same-file ceiling
-    density: { kind: 'opaque', typeText: 'Density', ambient: 'scope' },
     variant: {
       kind: 'opaque',
       typeText: 'PressButtonVariant',
@@ -65,6 +79,7 @@ const pressButtonFixture: ComponentMeta = defineComponentMeta({
     'data-jx-press-spin',
     'data-jx-press-state',
   ],
+  universal: UNIVERSAL_AXES,
 });
 
 describe('toJSONSchema (press-button fixture)', () => {
@@ -78,7 +93,19 @@ describe('toJSONSchema (press-button fixture)', () => {
     expect(toJSONSchema(pressButtonFixture)).toEqual({
       type: 'object',
       properties: {
-        density: { 'x-ui': { control: 'none', sourceType: 'Density' } },
+        style: { 'x-ui': { control: 'none', sourceType: 'string | null' } },
+        // the W4 4.1 universal consumption path: the axis-lane props
+        // lower as the lane grammar (auto + named steps + the
+        // number/query() mode steps), never as excluded opaques — and
+        // never required (default 'auto')
+        density: { type: 'string', enum: ['auto', 'small', 'medium', 'large', 'number', 'query()'], default: 'auto', 'x-ui': { control: 'axis-enum', axis: 'density', label: 'Density', description: 'spacing/leading scale over the kernel channels (§4)', unit: 'coefficient' } },
+        size: { type: 'string', enum: ['auto', 'small', 'medium', 'large', 'number', 'query()'], default: 'auto', 'x-ui': { control: 'axis-enum', axis: 'size', label: 'Size', description: 'the base scale — root font-size; parts size in em', unit: 'px' } },
+        shape: { type: 'string', enum: ['auto', 'round', 'scoop', 'bevel', 'notch', 'square', 'squircle', 'query()'], default: 'auto', 'x-ui': { control: 'axis-enum', axis: 'shape', label: 'Shape', description: 'corner geometry (CSS corner-shape; §14 degrade table)' } },
+        radius: { type: 'string', enum: ['auto', 'small', 'medium', 'large', 'number', 'query()'], default: 'auto', 'x-ui': { control: 'axis-enum', axis: 'radius', label: 'Radius', description: 'corner size; auto = the concentric broadcast (§3)', unit: 'px' } },
+        color: { type: 'string', enum: ['auto', 'primary', 'secondary', 'error', 'warn', 'success', 'info', 'number', 'query()'], default: 'auto', 'x-ui': { control: 'axis-enum', axis: 'color', label: 'Color', description: 'the hue axis of the fixed oklch primary system (§5)', unit: 'hue' } },
+        theme: { type: 'string', enum: ['auto', 'light', 'dark', 'system', 'query()'], default: 'auto', 'x-ui': { control: 'axis-enum', axis: 'theme', label: 'Theme', description: 'light/dark profile; system = the JS-mutable global (§6)' } },
+        elevation: { type: 'string', enum: ['auto', 'level-1', 'level0', 'level1', 'level2', 'level3', 'level4', 'level5', 'number', 'query()'], default: 'auto', 'x-ui': { control: 'axis-enum', axis: 'elevation', label: 'Elevation', description: 'official M3 levels over the surface ladder (§7)', unit: 'dp' } },
+        motion: { type: 'string', enum: ['auto', 'reduced', 'subtle', 'normal', 'expressive', 'number', 'query()'], default: 'auto', 'x-ui': { control: 'axis-enum', axis: 'motion', label: 'Motion', description: 'intensity across the motion kernels (§8)', unit: 'coefficient' } },
         variant: { 'x-ui': { control: 'none', sourceType: 'PressButtonVariant' } },
         href: { type: 'string' },
         external: { type: 'boolean' },
@@ -97,7 +124,7 @@ describe('toJSONSchema (press-button fixture)', () => {
         "'aria-disabled'": { 'x-ui': { control: 'none', sourceType: 'unknown' } },
         rest: { 'x-ui': { control: 'none', sourceType: 'unknown (spread passthrough)' } },
       },
-      required: ['density', 'variant', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'raised', 'children', "'aria-label'", "'aria-disabled'", 'rest'],
+      required: ['style', 'variant', 'href', 'external', 'onclick', 'popovertarget', 'ariaLabel', 'raised', 'children', "'aria-label'", "'aria-disabled'", 'rest'],
     });
   });
 
@@ -106,8 +133,10 @@ describe('toJSONSchema (press-button fixture)', () => {
     // r13 truth: variant's default left the statically-extractable
     // zone (regenerated 2026-09-02) — it rides required now. raised
     // joined it 2026-09-04: the default is zone-scoped (context,
-    // ButtonVariantScope raised) — no static default remains
-    const withDefaults = ['disabled', 'loading', 'type', 'square', 'class'];
+    // ButtonVariantScope raised) — no static default remains. The
+    // eight AXIS lanes (W4 4.1) lower with default 'auto' — they
+    // never ride required
+    const withDefaults = ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'disabled', 'loading', 'type', 'square', 'class'];
     expect(out.required).not.toContain(...withDefaults);
     for (const key of Object.keys(out.properties)) {
       if (!withDefaults.includes(key)) expect(out.required).toContain(key);

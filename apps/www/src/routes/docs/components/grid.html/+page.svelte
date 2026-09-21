@@ -222,7 +222,7 @@ ${close}
 <div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Like stack, a plain div carrying layout only — no role, no announcements. The disclosure lane is a LAYOUT affordance: pair it with your own button + aria-expanded/aria-controls wiring (the consumer owns the semantics; the grid owns the geometry).">
-      <PropsTable props={[{ name: '(none)', type: '—', default: '—', description: 'No ARIA surface: the grid is transparent layout. Disclosure semantics belong to the toggling control, not the lane.' }]} />
+      <PropsTable universal props={[{ name: '(none)', type: '—', default: '—', description: 'No ARIA surface: the grid is transparent layout. Disclosure semantics belong to the toggling control, not the lane.' }]} />
     </SectionCard>
   </div>
   <div id="theming" data-reveal="">

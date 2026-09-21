@@ -280,7 +280,7 @@ ${close}
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The root and links carry the core public contract; composition supplies list structure and page-window policy.">
       <div class={cx(rt.col24)}>
-        <PropsTable title="Pagination" props={[
+        <PropsTable universal title="Pagination" props={[
           { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
           { name: 'label', type: 'string', default: "'Pagination'", description: 'Accessible nav landmark name.' },
           { name: 'children', type: 'Snippet', required: true, description: 'Composed pagination parts.' },

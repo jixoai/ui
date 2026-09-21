@@ -118,7 +118,12 @@
     "tree-view",
     "website-scaffold"
   ],
-  "exemptions": [],
+  "exemptions": [
+    {
+      "family": "glass",
+      "reason": "no-component-root material lib (builders + law sheet) — no prop surface to adopt; the axes ride its consumers (migration-census batch C, W3-C LANDED paragraph)"
+    }
+  ],
   "siteOnly": [
     "a11y-table",
     "density-demo",

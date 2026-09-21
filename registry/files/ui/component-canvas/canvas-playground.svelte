@@ -77,6 +77,7 @@
   import { ItemGroup, ItemToggle, ItemSelect, ItemInput, ItemSegmented, ItemStepper } from '$lib/ui/list-item';
   import type { Density } from '$lib/density.svelte';
   import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
+  import { parseQuerySource } from '$lib/universal-props-query.svelte';
   import Icon from '$lib/ui/icon';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import CardFooter from '$lib/ui/card/card-footer.svelte';
@@ -220,6 +221,56 @@
   }
 
   const rowValue = (row: ControlRow): unknown => values?.[row.key] ?? row.default;
+
+  // ── the axis control trio (explicit-props W4 4.2) ──────────────────
+  // One axis = ONE lane with up to three controls: the enum row (auto
+  // + named steps + the `number`/`query()` MODE steps) is the switch;
+  // the `:number` stepper and the `:query` source editor render only
+  // in their mode. Values ride the SAME key namespace the page reads
+  // through the onvalue seam: values[<axis>] is the mode/named lane,
+  // values['<axis>:number'] the exact number, values['<axis>:query']
+  // the raw query() source (parsed page-side via parseQuerySource).
+  const axisMode = (row: ControlRow): string => {
+    const mode = values?.[row.axis ?? ''];
+    return typeof mode === 'string' ? mode : 'auto';
+  };
+  const axisNumberRow = (row: ControlRow): ControlRow | undefined =>
+    rows?.find((r) => r.axis === row.axis && r.control === 'axis-number');
+
+  /** the axis-number row's controlled value (typeof-narrowed, zero casts) */
+  const axisNumberOf = (row: ControlRow): number | undefined => {
+    const current = values?.[row.key];
+    if (typeof current === 'number') return current;
+    return typeof row.default === 'number' ? row.default : undefined;
+  };
+
+  /** entering number mode seeds the stepper once (never a 0px root) */
+  function onAxisModeChange(row: ControlRow, mode: string): void {
+    setValue(row.key, mode);
+    if (mode === 'number' && typeof values?.[`${row.key}:number`] !== 'number') {
+      const sibling = axisNumberRow(row);
+      setValue(`${row.key}:number`, typeof sibling?.default === 'number' ? sibling.default : 1);
+    }
+  }
+
+  /** query-editor validation state: keys whose source last failed to parse */
+  let invalidQueryKeys = $state<ReadonlySet<string>>(new Set());
+
+  function onQuerySourceInput(row: ControlRow, text: string): void {
+    setValue(row.key, text);
+    const next = new Set(invalidQueryKeys);
+    if (text.trim() === '') next.delete(row.key);
+    else {
+      try {
+        parseQuerySource(text);
+        next.delete(row.key);
+      } catch (error) {
+        void error;
+        next.add(row.key);
+      }
+    }
+    invalidQueryKeys = next;
+  }
 
   // the unit folds into the label (the adapter convention — ItemStepper
   // carries no unit lane; the studio panel's labelOf does the same)
@@ -557,6 +608,60 @@
                     }}
                     data-jx-canvas-stepper
                   />
+                {:else if row.control === 'axis-enum'}
+                  <!-- the axis lane switch (W4): auto + named steps +
+                       the number/query() modes; the select drives the
+                       lane key itself — data-jx-canvas-axis-select is
+                       the probe's DOM anchor -->
+                  <ItemSelect
+                    id={ctlId(row.key)}
+                    label={rowLabel(row)}
+                    description={row.description}
+                    value={String(rowValue(row) ?? 'auto')}
+                    onchange={(event) => onAxisModeChange(row, event.currentTarget.value)}
+                    data-jx-canvas-axis-select
+                  >
+                    {#each row.values ?? [] as option (option)}
+                      <option value={option}>{option}</option>
+                    {/each}
+                  </ItemSelect>
+                {:else if row.control === 'axis-number'}
+                  <!-- the exact-number lane — VISIBLE ONLY in number
+                       mode (the enum row owns the switch); the
+                       controlled form (the slider row's idiom): value
+                       in, onchange commits through setValue — the
+                       stepper writes values['<axis>:number'] -->
+                  {#if axisMode(row) === 'number'}
+                    <ItemStepper
+                      id={ctlId(row.key)}
+                      label={rowLabel(row)}
+                      description={row.description}
+                      value={axisNumberOf(row)}
+                      min={row.minimum}
+                      max={row.maximum}
+                      step={row.step}
+                      onchange={(event) => {
+                        const num = event.currentTarget.valueAsNumber;
+                        if (Number.isFinite(num)) setValue(row.key, num);
+                      }}
+                      data-jx-canvas-axis-number
+                    />
+                  {/if}
+                {:else if row.control === 'query-editor'}
+                  <!-- the query() source editor — VISIBLE ONLY in
+                       query() mode; mono text in the block lane, the
+                       parse verdict rides the family's error channel -->
+                  {#if axisMode(row) === 'query()'}
+                    <ItemInput
+                      id={ctlId(row.key)}
+                      label={rowLabel(row)}
+                      description={'e.g. { sm: \'large\', \'@sm/card\': 20 } — media keys bare, container keys carry @'}
+                      value={String(values?.[row.key] ?? '')}
+                      oninput={(event) => onQuerySourceInput(row, event.currentTarget.value)}
+                      error={invalidQueryKeys.has(row.key) ? 'not a valid query() object literal' : undefined}
+                      data-jx-canvas-axis-query
+                    />
+                  {/if}
                 {:else}
                   <!-- grindstone #17-3: the aria-pressed button row
                        retired INTO ItemSegmented (ItemField + ToggleGroup

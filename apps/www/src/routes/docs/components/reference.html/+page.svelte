@@ -139,7 +139,7 @@
 
   <div id="api" data-reveal="">
       <SectionCard eyebrow="api" title="Reference props">
-        <PropsTable
+        <PropsTable universal
           props={[
             { name: 'to', type: 'string', required: true, description: 'The target\'s explicit id — resolved through the route-page target registry; referenceable targets are numbered Figures and Sections (numbered or not).' },
             { name: 'children', type: 'Snippet', description: 'Escape hatch: replaces the anchor\'s label text (author copy such as connectives); the href and data-ref-to semantics remain.' },

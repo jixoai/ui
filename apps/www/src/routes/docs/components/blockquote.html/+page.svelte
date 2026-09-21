@@ -299,7 +299,7 @@
       title="API"
       summary="Six props; variant sets the frozen two-rung surface, label/icon/cite compose over it."
     >
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'variant', type: "'outline' | 'tonal'", default: "'outline' · ambient zone", description: 'Ladder prominence: outline paints a transparent ground with the soft 4px left rule (a lightened mix) and the 0.875em muted body; tonal paints the 12% tinted ground with the 45% border and tonal inks. Hue comes from token injection, not variant names. Omitted → the ambient paint zone (ButtonGroup / zone scope), else the frozen own.' },
         { name: 'rule', type: "'shadow' | 'border'", default: "'shadow' · Own default, not ambient", description: "The left rule's ink channel: shadow paints over geometry (the inset standard — command-item's inset primary, the WELL tier, kbd's engrave lineage); border consumes it. Outline in shadow mode emits NO border at all; tonal keeps its box border plus the shadow rule (tonal + shadow-1 is a deliberate near-no-op — axis uniformity). A literal slot the paint zone never moves." },
         { name: 'ruleSize', type: '1 | 4 | 8', default: '1 · Own default, not ambient', description: "The rule's literal px ladder — the Owner's explicit enumeration, recorded as the ruling over a derived scale. Paddings stay FIXED across sizes (paint never moves geometry)." },

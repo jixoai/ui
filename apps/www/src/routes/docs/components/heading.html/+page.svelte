@@ -239,7 +239,7 @@ ${close}
       title="API"
       summary="Three props and a verbatim spread; the tag, the size and the hook all derive from one clamped level."
     >
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'level', type: '1 | 2 | 3 | 4 | 5 | 6', default: '2', description: 'The heading level: sets the native element (h1–h6) and the em-scaled size rung. Out-of-range values clamp (rounded, then bounded). Default 2 — h1 is the page\'s one-per-page title; the markdown map always passes level explicitly.' },
         { name: 'id', type: 'string', default: '—', description: 'Optional explicit address — anchor links and aria-labelledby point here.' },
         { name: 'children', type: 'Snippet', default: '—', description: 'The heading text.' },

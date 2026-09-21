@@ -152,7 +152,7 @@
       title="API"
       summary="Props map to CSS 1:1 — the one type coercion: gap number → px. Everything else rides through as native div attributes."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'direction', type: "'row' | 'row-reverse' | 'column' | 'column-reverse'", default: '—', description: 'flex-direction, verbatim. Omitted → no declaration (the CSS initial: row).' },
           { name: 'wrap', type: "'nowrap' | 'wrap' | 'wrap-reverse'", default: '—', description: 'flex-wrap, verbatim.' },

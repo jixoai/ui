@@ -451,7 +451,7 @@ ${close}
       title="API"
       summary="One style prop and a verbatim spread; the Raw sugars take the same surface minus mark (fixed per sugar)."
     >
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'mark', type: "'p' | 'strong' | 'em' | 'del' | 'mark' | 'ins' | 'sub' | 'sup'", default: "'p' · Own default, not ambient", description: 'The element vocabulary — ONE word is the prop value, the sugar name, and the HTML element. A literal slot, own \'p\', never zone-ambient (an element choice is not prominence; the kbd precedent). Omitted resolves explicit ?? own, no context read.' },
         { name: 'children', type: 'Snippet', default: '—', description: 'The inline content.' },
         { name: 'class', type: 'string', default: "''", description: 'Forwarded to the rendered element; consumer classes land last.' },

@@ -18,6 +18,7 @@
     "verify:mirror": "node scripts/gen-mirror-manifest.mjs --check",
     "verify:tailwindless": "node scripts/verify-tailwindless.mjs --check",
     "verify:docs": "node scripts/verify-docs-structure.mjs",
+    "verify:docs-universal": "node scripts/verify-docs-universal-manifest.mjs",
     "verify:meta": "node scripts/component-metadata-gen.mjs --check",
     "verify:print": "node scripts/verify-print.mjs",
     "verify:press": "node scripts/verify-press.mjs",

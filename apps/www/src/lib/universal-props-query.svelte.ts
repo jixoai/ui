@@ -307,3 +307,81 @@ export function stampQueryInstance(element: Element, q: QueryResult<unknown>): v
   }
   element.setAttribute('data-jx-query', containerKeys.join(','));
 }
+
+// ── the query() SOURCE parser (the W4 query-editor's string → cases) ──
+
+export interface ParsedQuerySource {
+  readonly cases: Readonly<Record<string, string | number>>;
+}
+
+/**
+ * Parse the query-editor's source text (explicit-props W4 4.1): one
+ * object literal of `key: value` pairs — keys are BARE tokens (sm,
+ * @md, @sm/card) or quoted strings; values are quoted strings or
+ * numbers. Whitespace-tolerant, trailing comma allowed, nothing else
+ * (the grammar is deliberately tiny — the editor edits the §9.1 sugar
+ * `query({ … })` writes by hand). Returns the raw cases record for
+ * `query()`; throws a plain Error naming the offense on any drift
+ * (the editor surfaces the message and keeps the last valid parse).
+ */
+export function parseQuerySource(source: string): ParsedQuerySource {
+  const text = source.trim();
+  if (!text.startsWith('{')) throw new Error('query source must be an object literal `{ key: value }`');
+  if (!text.endsWith('}')) throw new Error('query source must end with `}`');
+  const body = text.slice(1, -1).trim();
+  const cases: Record<string, string | number> = {};
+  if (body === '') return { cases };
+  let i = 0;
+  const n = body.length;
+  const skipWs = (): void => {
+    while (i < n && /\s/.test(body[i])) i += 1;
+  };
+  const readToken = (): string => {
+    const start = i;
+    while (i < n && /[^\s:,'"}{]/.test(body[i])) i += 1;
+    if (i === start) throw new Error(`expected a key at offset ${i} of \`${body}\``);
+    return body.slice(start, i);
+  };
+  const readQuoted = (quote: string): string => {
+    i += 1; // opening quote
+    let out = '';
+    while (i < n && body[i] !== quote) {
+      if (body[i] === '\\') throw new Error('escapes are not part of the query-editor grammar');
+      out += body[i];
+      i += 1;
+    }
+    if (i >= n) throw new Error('unterminated quoted string');
+    i += 1; // closing quote
+    return out;
+  };
+  const readValue = (): string | number => {
+    skipWs();
+    if (i >= n) throw new Error('expected a value after `:`');
+    const ch = body[i];
+    if (ch === "'" || ch === '"') return readQuoted(ch);
+    const start = i;
+    if (ch === '-') i += 1;
+    while (i < n && /[0-9.]/.test(body[i])) i += 1;
+    const raw = body.slice(start, i);
+    if (raw === '' || raw === '-') throw new Error(`expected a number or quoted value at offset ${i} of \`${body}\``);
+    const num = Number(raw);
+    if (!Number.isFinite(num)) throw new Error(`\`${raw}\` is not a finite number`);
+    return num;
+  };
+  while (true) {
+    skipWs();
+    if (i >= n) break;
+    const key = body[i] === "'" || body[i] === '"' ? readQuoted(body[i]) : readToken();
+    skipWs();
+    if (body[i] !== ':') throw new Error(`expected \`:\` after key \`${key}\``);
+    i += 1;
+    const value = readValue();
+    cases[key] = value;
+    skipWs();
+    if (i < n) {
+      if (body[i] !== ',') throw new Error(`expected \`,\` or end after the \`${key}\` case`);
+      i += 1;
+    }
+  }
+  return { cases };
+}

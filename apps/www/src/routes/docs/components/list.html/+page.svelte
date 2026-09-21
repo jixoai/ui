@@ -336,7 +336,7 @@
       title="API"
         summary="Five props and a verbatim spread; one boolean flips the root, one word moves the marker, one string switches the landmark."
     >
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'ordered', type: 'boolean', default: 'false', description: 'false → <ul> (disc markers); true → <ol> (decimal markers). The Props shape is typed on the ul form; the ol branch spreads the same rest through the ol element type.' },
         { name: 'marker', type: "'disc' | 'circle' | 'square' | 'decimal' | 'alpha' | 'roman' | 'none'", default: 'per-element platform default', description: "The 7-word frozen vocabulary, element-agnostic and lowercase only (upper is the escape hatch). Omitted keeps today's per-element restoration byte-parity (decimal on ol, disc on ul; none in nav mode); an explicit marker overrides — the list-style default only, never the structural pad. circle/square ride the arbitrary [list-style:] form (no core utility under TW 4.2.1)." },
         { name: 'nav', type: 'string', default: '—', description: 'The aria-label; PRESENCE switches the container: a <nav aria-label data-jx-list-nav> wrapper around the list, defaulting marker none + ps-0 (an explicit marker overrides the list-style default only — ps-0 stays: a nav list is chrome). class/rest stay on the LIST element; the wrapper carries only the landmark semantics.' },

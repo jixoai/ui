@@ -133,6 +133,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Empty props"><PropsTable props={[{ name: 'title', type: 'string', description: 'No-data heading.', required: true }, { name: 'description', type: 'string', description: 'Optional supporting copy.' }, { name: 'illustration', type: 'Snippet', description: 'Replaces the default illustration.' }, { name: 'actions', type: 'Snippet', description: 'Renders recovery actions.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Empty props"><PropsTable universal props={[{ name: 'title', type: 'string', description: 'No-data heading.', required: true }, { name: 'description', type: 'string', description: 'Optional supporting copy.' }, { name: 'illustration', type: 'Snippet', description: 'Replaces the default illustration.' }, { name: 'actions', type: 'Snippet', description: 'Renders recovery actions.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
   </div>
 </div>
