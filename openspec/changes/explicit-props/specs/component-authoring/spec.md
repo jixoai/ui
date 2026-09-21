@@ -2,7 +2,10 @@
 
 ### Requirement: the eight universal axes — every family, one grammar
 
-Every registry component family SHALL expose the eight universal props —
+Every NON-EXEMPT registry component family (the exemption ledger of design
+§17.2 names the exceptions with reasons — a family in neither the
+inventory's families list nor its exemptions is a gate failure) SHALL
+expose the eight universal props —
 `size · shape · radius · density · color · theme · elevation · motion` —
 through the shared slot helpers (the `densitySlot` precedent generalized:
 `explicit ?? ambient ?? own`, 无意见不盖章). The grammar is uniform: `named`

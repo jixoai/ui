@@ -21,9 +21,10 @@
       concrete interfaces + inventory/ledger/fixtures, the registry
       artifact chain, the ratchet receipt bound to exact constants, the
       degrade consumption chain, census receipts reproducible)
-- [ ] 0.7 the canonical `universal-props.inventory.json` + the two frozen
-      fixtures (normal + exempt family) generated from the 115-dir census
-      — W0, before any W3 batch consumes the map (design §17.2)
+- [x] 0.7 the canonical `universal-props.inventory.json` + the two frozen
+      fixtures committed at research/ (115 families generated + verified
+      against the dir census; exemptions open EMPTY; W1 promotes the
+      inventory beside the schema file) — design §17.2
 
 ## W1 — token core (theme + slot helpers)
 

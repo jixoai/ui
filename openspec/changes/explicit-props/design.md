@@ -123,20 +123,33 @@ LAWS:
   UNCHANGED).
 - `auto`: inherit — EXACTLY today's `densitySlot` (`explicit ?? ambient ??
   own`, 「无意见不盖章」); the fleet law survives verbatim.
-- **The coefficient carrier, frozen** (Codex r2 B2 — the number lane is
-  IMPLEMENTABLE, not aspirational): the kernel channels split into base
-  and effective —
-  `--jx-gap-base` etc. carry the rung values (the existing five-rung scope
-  blocks define them, unchanged); the effective channels become
-  `--jx-gap: calc(var(--jx-gap-base) * var(--jx-density-coefficient, 1))`
-  (every channel in the §11 census list, one pattern). The component root
-  stamps `--jx-density-coefficient` when the number lane is used.
+- **The coefficient carrier, frozen** (Codex r2 B2; the channel list
+  verbatim per r4 B2 — this IS the census list, kernel internals
+  (`--jx-density-*-<rung>` composing scales) stay the kernel's own): the
+  CONSUMER-facing channels are exactly —
+  `--jx-text`, `--jx-text-secondary`, `--jx-leading`, `--jx-leading-secondary`,
+  `--jx-line`, `--jx-line-secondary`, `--jx-gap`, `--jx-gap-end`,
+  `--jx-gap-content`, `--jx-stack`, `--jx-inset`, `--jx-hit`, `--jx-row-min`,
+  `--jx-icon`, `--jx-image`, `--jx-media-gutter`, `--jx-chip-radius`,
+  `--jx-toggle-track`, `--jx-toggle-width`, `--jx-toggle-knob`,
+  `--jx-slider-track`, `--jx-textarea-min`, `--jx-color-lane` —
+  each splits base/effective: the `-base` vars carry the rung values (W1
+  converts the five-rung scopes to define them), the effective channel
+  composes
+  `--jx-<channel>: calc(var(--jx-<channel>-base) * var(--jx-density-coefficient, 1))`
+  — one pattern, all channels, floors preserved where the base already
+  rides one (`--jx-hit-floor`/`--jx-row-min` compose AFTER the max() the
+  kernel applies, never inside it). The component root stamps
+  `--jx-density-coefficient` when the number lane is used.
   **Precedence**: a NAMED lane sets the rung scope AND resets the
   coefficient to 1 (explicit rung = exact rung, never double-scaled); the
   NUMBER lane sets the coefficient and leaves the rung at ambient; `auto`
   stamps neither (inherit both). SSR: static strings, no computation.
   **Legacy mapping**: `2xs|xs|sm|default|lg` are aliases onto the existing
   rung scopes VERBATIM (zero migration for the 60 slot consumers).
+  **The computed-style fixture** (W1 receipt): a probe reads `--jx-gap`
+  under ambient-`sm`×0.75, named-`sm`, and auto, asserting all three
+  compositions distinctly.
 - **Orthogonality ruling**: `size` owns font-size; `density` owns
   line-height coefficient + gaps. They never fight over the same property.
 
@@ -237,11 +250,17 @@ export type QueryKey = MediaQueryKey | ContainerQueryKey;
 // scale tables (the plugin's registration is the compiler's dictionary).
 type AxisName = 'size' | 'shape' | 'radius' | 'density' | 'color' | 'theme' | 'elevation' | 'motion';
 type QueryCase<T> = readonly [key: QueryKey, value: T];
-interface AxisQuery<T> { readonly $query: true; readonly axis: AxisName; readonly cases: readonly QueryCase<T>[]; readonly base: T }
-declare function query<T>(cases: Record<QueryKey, T>): AxisQuery<T | undefined> & { readonly base: undefined };
-declare function query<T>(cases: Record<QueryKey, T>, base: T): AxisQuery<T>;
-// overloads: omitting base yields base: undefined → the consumer renders
-// the AXIS DEFAULT (auto) unconditionally first
+interface AxisQuery<T> { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T }
+// Partial is LOAD-BEARING (Codex r4 B1): Record<QueryKey, T> demands EVERY
+// key of the union — the canonical {sm, '@md/card'} example would not
+// compile. `axis` is NOT a user input: the CONSUMING slot stamps it
+// (sizeSlot(query(...)) knows its axis); user-facing overloads hide it.
+interface StampedAxisQuery<T> extends AxisQuery<T> { readonly axis: AxisName }
+type QueryCases<T> = Partial<Record<QueryKey, T>>;
+declare function query<T>(cases: QueryCases<T>): { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: undefined };
+declare function query<T>(cases: QueryCases<T>, base: T): { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T };
+// the slot helper lifts either form into the axis-stamped internal type;
+// a tsc compile fixture ships in W2's test battery
 ```
 
 - **Parse**: the object-literal form is sugar; `query()` normalizes to an
@@ -255,15 +274,18 @@ declare function query<T>(cases: Record<QueryKey, T>, base: T): AxisQuery<T>;
   collapse, per research/tailwind-container-syntax.md).
 - **SSR first paint**: the server renders `base` (or the first unconditional
   lane) as the inline var value — a correct-if-unresponsive first paint.
-- **The JS shim shell** (the Owner's 垫片 lane), module API frozen:
-  `import { auditTree, mountQueryShim } from '@jixoai/ui-vite-plugin/universal-props/query-shim'`
-  — `auditTree(root)` walks the DOM for `[data-jx-query]` instances whose
-  `@` keys lack a qualifying ancestor container (dev-mode console warning,
-  the build-time check's runtime twin); `mountQueryShim(instance)` installs
-  one ResizeObserver per unresolved `@` key, writing the winning lane's
-  vars post-paint (idempotent, no hydration mismatch — it only rewrites
-  vars AFTER hydration). Load condition: dynamic `import()` ONLY where the
-  build flagged un-desugarable cases (emitted as a per-route manifest).
+- **The JS shim shell** (the Owner's 垫片 lane), module API frozen — the
+  export entry W2 LANDS in `packages/vite-plugin/package.json` (it does
+  not exist today; this change prescribes it, Codex r4 B4):
+  `"./universal-props/query-shim": { "types": "./dist/query-shim.d.ts", "import": "./dist/query-shim.js" }`
+  exporting `auditTree(root)` — walks the DOM for `[data-jx-query]`
+  instances whose `@` keys lack a qualifying ancestor container
+  (dev-mode warning, the build check's runtime twin) — and
+  `mountQueryShim(instance)` — one ResizeObserver per unresolved `@` key,
+  re-stamping the winning lane's vars POST-paint only (idempotent, no
+  hydration surface); a per-route manifest of un-desugarable cases drives
+  the dynamic `import()`; the manifest schema — `{ route: string,
+  instances: string[] }` — is W2's first test fixture).
 - **Missing named container** (`@sm/card` with no `container-name: card`
   ancestor): the case never matches (CSS semantics); the build warns, the
   shim logs once in dev.
@@ -321,7 +343,8 @@ supply row above is the POST-W1 contract. Generalized slot helpers land in `defa
 `elevationSlot`, `motionSlot` — same `explicit ?? ambient ?? own` fleet
 law, same 「无意见不盖章」). Explicit prop > ambient context > own default,
 and the CSS carrier always mirrors the resolved lane as STATIC STRINGS
-PER RENDER (Codex r2: "computed once" was wrong wording — the value is
+PER RENDER (Codex r2 caught the earlier "single computation" phrasing —
+the value is
 static within a render and SSR-safe, but a runtime context change (e.g.
 the JS-mutable theme system) re-renders and re-stamps, exactly like
 today's reactive density getter). This protocol enters the
@@ -463,11 +486,20 @@ export const UNIVERSAL_AXES: readonly UniversalAxisDoc[] = [
   { axis: 'motion',    label: 'Motion',    description: 'intensity across the motion kernels (§8)',                     namedSteps: ['reduced', 'subtle', 'normal', 'expressive'], numberUnit: 'coefficient', rawLane: false },
 ];
 
-// ir.ts additions — ControlHint's existing members transcribe verbatim at
-// W4; the CONTRACT is the three additions:
-type ControlHint = /* …the existing union, verbatim at W4… */ | 'axis-enum' | 'axis-number' | 'query-editor';
-// ComponentMeta gains:
-interface ComponentMeta { /* …existing fields untouched… */ universal: readonly UniversalAxisDoc[]; }
+// ir.ts additions — the EXISTING unions/interfaces transcribed verbatim
+// (Codex r4 B5 — no placeholders), plus the contract additions:
+type ControlHint =
+  | 'segmented' | 'select' | 'toggle' | 'stepper' | 'slider' | 'text' | 'none'
+  | 'axis-enum' | 'axis-number' | 'query-editor';   // ← the additions
+export interface ComponentMeta {
+  source: string;                        // registry source path
+  props: Record<string, PropNode>;
+  hooks: readonly string[];              // data-jx-* hook attributes
+  universal: readonly UniversalAxisDoc[]; // ← the addition (the injected block)
+}
+// the generator's emitted JSON gains the same `universal` array verbatim;
+// the merge output for a normal family = existing fields untouched +
+// universal === UNIVERSAL_AXES
 ```
 
 1. **Generator merge rule**: `component-metadata-gen.mjs` (today: same-file
@@ -477,15 +509,14 @@ interface ComponentMeta { /* …existing fields untouched… */ universal: reado
    appears in the inventory. Merge precedence: generated zone owns the
    injection; hand-authored annotations may only CURATE (labels/descriptions
    overrides), never delete the block.
-2. **The inventory + exemption ledger**
-   (`universal-props.inventory.json`, beside the schema — **created in W0,
-   not W4**, so W3 batches consume a canonical list; Codex r3 B7):
-   `{ families: string[115], exemptions: { family: string, reason: string }[] }`
-   — unique, sorted, exhaustive against the 115-dir census; a family in
+2. **The inventory + exemption ledger** — **committed in W0 at
+   `research/universal-props.inventory.json`** (115 families, unique,
+   sorted, exhaustive against the dir census; exemptions open EMPTY —
+   additions are gate-visible deltas), **promoted by W1** to sit beside
+   the schema file; the two frozen fixtures (normal `card` + the exempt
+   shape) live at `research/universal-props-fixtures.md`. A family in
    NEITHER list is a gate failure (this closes the
-   empty-on-missing-defaults hole Codex flagged). The two fixtures (one
-   normal family's expected merged meta + one exempt family's) commit
-   beside it in W0 as the frozen expectations.
+   empty-on-missing-defaults hole Codex flagged).
 3. **`--check` failure format** (the drift gate): one line per divergence —
    `<family>: <field> expected <value> got <value>` — plus a summary count;
    exit 1.

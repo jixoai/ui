@@ -6,7 +6,8 @@ The registry SHALL ship the alias ladder as a CONCRETE artifact chain
 (Codex r2 B6, r3 sharpened — not deferred to W5). The frozen entries:
 
 ```jsonc
-// registry.json — the kernel lib item (new):
+// registry.json — the kernel lib item (new; deps use the @jixoai/ namespace
+// form the registry already speaks — Codex r4 B3):
 {
   "name": "universal-props", "type": "registry:lib",
   "files": [
@@ -15,17 +16,20 @@ The registry SHALL ship the alias ladder as a CONCRETE artifact chain
   ]
 }
 // every migrated ui item gains:
-"registryDependencies": ["universal-props", "tokens", "jixoai-theme"]
+"registryDependencies": ["@jixoai/universal-props", "@jixoai/tokens", "@jixoai/jixoai-theme"]
 ```
 
 `universal-props.css` is GENERATED from the schema (the
 `--jx-<axis>-<alias>` definitions + the §14 @supports ladder + the §4
 density composition layer). The clean-consumer receipt (task 5.4) asserts
-three things verbatim: (1) `shadcn add` lands both files at `src/lib/…`
-(the @lib targets); (2) a rendered named step REFERENCES the var
-(computed style shows `var(--jx-size-large)`, never an inlined remap
-value); (3) overriding the var in the consumer's css flips the rendered
-size — pure CSS, no resolver runtime.
+three things verbatim — split by WHAT each layer can prove (Codex r4 B8:
+computed style resolves vars, it never preserves authored `var()` text):
+(1) `shadcn add` lands both files at the `@lib` targets (filesystem
+check); (2) the INSTALLED component css REFERENCES `var(--jx-size-large)`
+(textual check over the landed css) and the rendered element's computed
+font-size equals the alias's defined px (computed check); (3) overriding
+`--jx-size-large` in the consumer's css FLIPS the computed px (the
+override receipt) — pure CSS, no resolver runtime.
 
 #### Scenario: a consumer resolves an alias from the registry
 
