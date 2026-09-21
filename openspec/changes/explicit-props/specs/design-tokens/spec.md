@@ -46,9 +46,13 @@ size axis.
   scope's own `--jx-hit-floor` 6U override preserved), while
   textarea-min/color-lane stay UNCHANGED (their operands are already
   effective channels — zero additional coefficient); a named lane
-  resolves to the exact rung with coefficient 1. Computed-style probes
-  on `--jx-gap`, `--jx-hit`, `--jx-row-min`, `--jx-textarea-min`, and
-  `--jx-color-lane` under `sm` and `2xs` receipt the whole table
+  resolves to the exact rung with coefficient 1
+- AND the probe asserts EXACT VALUES, not existence: each fixture's
+  expected computed value is the frozen formula itself evaluated in the
+  probe (`getComputedStyle` must equal the same `max()/calc()` evaluated
+  numerically in JS), plus the two absolute guardrails hard-coded —
+  `--jx-hit ≥ 24px` under 2xs (the 6U override) and `≥ 28px` (7U)
+  everywhere else, whatever the coefficient
 
 #### Scenario: the three lanes resolve distinctly (Codex r3 — never blur them)
 
