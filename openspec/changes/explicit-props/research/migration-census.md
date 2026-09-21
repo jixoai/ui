@@ -24,6 +24,22 @@ family does not own. `native-select` documents native `size={n}` for
 multiple-rows mode — that stays a NATIVE attribute passthrough (family
 documents the collision explicitly).
 
+LANDED (6bb88ae0, + the pulled-forward 4.3 PropsTable shared section;
+probe-w3a-universal-props 14/14; orchestrator gates re-run green —
+mirror 756 pairs, tailwindless 2·7·7 unmoved, meta/context/deps,
+`Type Errors: no errors`). Axis-surface outcomes, census-recorded:
+`native-select` carries SEVEN prop lanes — the native `size` rows
+passthrough owns the prop name (the ruling above); the size lane
+forwards ambient (no own opinion, supply chain intact via inheritance).
+`ghostty-term` carries SEVEN prop lanes — its `theme` prop is the
+terminal shell-theme OBJECT (shadows the axis name; NOT a §13 rename
+family, no rename without an Owner ruling) and `fontSize` keeps per §13;
+the theme lane forwards ambient. `input-group` keeps its r11
+eager-capture legacy provider, narrowed at the legacy edge for the
+auto/number/query lanes. meta.universal stays UNIVERSAL_AXES verbatim
+per the frozen §17.1 merge rule — per-family honesty rides the props
+rows + live demos, never the shared section.
+
 ## Batch B — primitives (full eight axes + concentric receipts)
 
 press-button, icon-button, chip, badge, badge-indicator, card, card-grid,

@@ -153,8 +153,15 @@ its own gate — slot-surface lint green for its families + doc pages
 rendering the shared section from the 1.9 artifact + svelte-check clean —
 before the next batch opens; a batch is the rollback unit)
 
-- [ ] 3.1 batch A — the 16 native families: collision rule (destructured prop
-      wins, rest forwards), axis surface, supply set
+- [x] 3.1 batch A — the 16 native families: collision rule (destructured prop
+      wins, rest forwards), axis surface, supply set — LANDED 6bb88ae0 (+
+      the pulled-forward 4.3 PropsTable shared section + the catalog-repair
+      first slice of the 4.5 route; probe-w3a 14/14; deviations
+      census-recorded: native-select 7 lanes — the native `size` passthrough
+      owns the name; ghostty-term 7 lanes — `theme` is the shell-theme
+      object, no unruled rename; orchestrator re-run: mirror/tailwindless
+      2·7·7/meta/context/deps + `Type Errors: no errors`; suite failures
+      100-baseline → 87, all pre-existing categories)
 - [ ] 3.2 batch B — primitives (press-button, icon-button, chip, badge,
       card…): full eight axes + concentric radius receipts
 - [ ] 3.3 batch C — overlays/surfaces (dialog, sheet, popover, tooltip,
