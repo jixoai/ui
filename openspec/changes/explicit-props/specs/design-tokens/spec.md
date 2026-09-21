@@ -38,10 +38,13 @@ size axis.
 #### Scenario: the density coefficient composes over a rung
 
 - GIVEN `density={0.75}` (number lane) inside an ambient `sm` scope
-- THEN every kernel channel computes its base rung value × 0.75 via the
-  frozen pattern (`calc(var(--jx-<channel>-base) * 0.75)`), a named lane
-  resolves to the exact rung with coefficient 1, and a computed-style probe
-  on `--jx-gap` shows the composed value
+- THEN every PLAIN kernel channel computes its base rung value × the
+  coefficient via the frozen pattern (`calc(var(--jx-<channel>-base) *
+  var(--jx-density-coefficient, 1))`), while the four GUARDRAIL channels
+  (row-min/hit/textarea-min/color-lane) ride their `max(<floor>, base ×
+  coefficient)` forms — the floors are absolute and never scale — a named
+  lane resolves to the exact rung with coefficient 1, and a
+  computed-style probe on `--jx-gap` AND `--jx-hit` shows both behaviors
 
 #### Scenario: the three lanes resolve distinctly (Codex r3 — never blur them)
 

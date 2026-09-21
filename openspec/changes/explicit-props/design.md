@@ -139,14 +139,15 @@ LAWS:
   composes
   `--jx-<channel>: calc(var(--jx-<channel>-base) * var(--jx-density-coefficient, 1))`
   — one pattern for the PLAIN channels. **The four DERIVED channels carry
-  guardrails and freeze differently** (Codex r5 B5 — floors are absolute
-  protection, the coefficient NEVER scales them):
-  - `--jx-row-min: max(var(--jx-row-min-floor), calc(var(--jx-row-min-base) * coef))`
-  - `--jx-hit:     max(var(--jx-hit-floor),     calc(var(--jx-hit-base) * coef))`
-  - `--jx-textarea-min: max(var(--jx-textarea-min-floor), calc(var(--jx-textarea-min-base) * coef))`
-  - `--jx-color-lane:   max(var(--jx-color-lane-floor),   calc(var(--jx-color-lane-base) * coef))`
-  The `-floor` values migrate from today's nested max() literals; the
-  three-way computed fixture (below) extends to `--jx-hit` so the
+  guardrails and freeze differently** (Codex r5 B5, r6 B1 — floors are
+  absolute protection, the coefficient NEVER scales them; the `-floor`
+  values migrate VERBATIM from today's nested max() literals, the `-base`
+  from today's channel definitions):
+  - `--jx-row-min: max(var(--jx-row-min-floor), calc(var(--jx-row-min-base) * var(--jx-density-coefficient, 1)))`
+  - `--jx-hit:     max(var(--jx-hit-floor),     calc(var(--jx-hit-base) * var(--jx-density-coefficient, 1)))`
+  - `--jx-textarea-min: max(var(--jx-textarea-min-floor), calc(var(--jx-textarea-min-base) * var(--jx-density-coefficient, 1)))`
+  - `--jx-color-lane:   max(var(--jx-color-lane-floor),   calc(var(--jx-color-lane-base) * var(--jx-density-coefficient, 1)))`
+  The three-way computed fixture (below) extends to `--jx-hit` so the
   guardrail behavior is receipted, not asserted. The component root
   stamps `--jx-density-coefficient` when the number lane is used.
   **Precedence**: a NAMED lane sets the rung scope AND resets the
@@ -266,6 +267,33 @@ declare function query<T>(cases: QueryCases<T>): { readonly $query: true; readon
 declare function query<T>(cases: QueryCases<T>, base: T): { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T };
 interface StampedAxisQuery<T> { readonly $query: true; readonly axis: AxisName; readonly cases: readonly QueryCase<T>[]; readonly base: T } // internal, post-slot
 type AxisName = 'size' | 'shape' | 'radius' | 'density' | 'color' | 'theme' | 'elevation' | 'motion';
+```
+
+**The eight lane types + slot signatures (FROZEN — Codex r6 B2: the
+binding is TYPES, not prose). `sizeSlot(query({ sm: 'invalid' }))` MUST
+fail tsc:**
+
+```ts
+type SizeLane      = 'small' | 'medium' | 'large' | 'auto' | number;
+type ShapeLane     = 'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto';
+type RadiusLane    = 'small' | 'medium' | 'large' | 'auto' | number;
+type DensityLane   = 'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number;
+type ColorLane     = 'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string; // string = raw lane / plugin-registered names
+type ThemeLane     = 'light' | 'dark' | 'system' | 'auto';
+type ElevationLane = 'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number;
+type MotionLane    = 'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number;
+// ColorLane's string tail is the ONE open lane (plugin names + raw
+// values) — its closed check is the plugin registration table at build,
+// not the type; every other lane is fully closed at tsc.
+
+type QueryResult<T> = { readonly $query: true; readonly cases: readonly QueryCase<T>[]; readonly base: T | undefined };
+declare function sizeSlot(explicit: SizeLane | QueryResult<SizeLane>, own?: SizeLane): SizeSlotResult;
+declare function radiusSlot(explicit: RadiusLane | QueryResult<RadiusLane>, own?: RadiusLane): RadiusSlotResult;
+// …one signature per axis, same shape (density/shape/color/theme/
+// elevation/motion); the QueryResult<T> parameter type is what binds T —
+// a non-lane string inside query(...) fails the QueryCases<T> check at
+// the slot boundary. The W2 battery commits the positive/negative tsc
+// fixture pair against THESE signatures verbatim.
 ```
 
 - **Parse**: the object-literal form is sugar; `query()` normalizes to an
@@ -464,12 +492,13 @@ or files their exemption in the gate's exception ledger with reasons.
    captures (the splash-fan capture discipline: pin, assert same-moment,
    then judge).
 
-## §17 The meta/IR pipeline contract (PRESCRIBED — W4 transcribes; Codex r5 B3)
+## §17 The meta/IR pipeline contract (artifact status = PRESCRIBED for
+## W4; the embedded interface text = FROZEN — Codex r6 note, §18)
 
 The W4 docs/canvas wave implements THIS, not an improvisation. The
-interfaces are PRESCRIBED HERE in full (complete, no placeholders —
-"FROZEN" in §18's vocabulary: binding on the change text; the code delta
-is W4's to land; code-absence before the wave is not a defect):
+interfaces are complete and placeholder-free (§18: binding on the change
+text; the code delta is W4's to land; code-absence before the wave is not
+a defect):
 
 ```ts
 // universal-props.schema.ts — the ONE shared artifact (www + registry mirror)

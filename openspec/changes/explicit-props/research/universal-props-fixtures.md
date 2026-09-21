@@ -1,26 +1,14 @@
 # The two fixtures (design §17.4 — status per §18: the card extract is
-# DONE, the --check loading is W4's task 4.6)
+# DONE as a machine-readable file; the --check loading is W4's task 4.6)
 
-## Fixture N — a normal family: `card` (the generator's REAL output,
-## extracted verbatim from apps/www/src/lib/meta/card.meta.ts @ W0)
+## Fixture N — a normal family: `card`
 
-The pre-merge generated zone, byte-for-byte:
-
-```jsonc
-{
-  "source": "registry/files/ui/card/card.svelte",
-  "props": {
-    "title":   { "kind": "string" },
-    "head":    { "kind": "snippet", "typeText": "Snippet" },
-    "actions": { "kind": "snippet", "typeText": "Snippet" },
-    "foot":    { "kind": "snippet", "typeText": "Snippet" },
-    "scroll":  { "kind": "boolean", "default": true },
-    "class":   { "kind": "string", "default": "" },
-    "children":{ "kind": "snippet", "typeText": "Snippet" }
-  },
-  "hooks": [ "data-jx-card", "data-jx-card-foot", "data-jx-card-head", "data-jx-card-sep" ]
-}
-```
+The pre-merge generated zone lives as RAW BYTES in the committed
+machine-readable file **`research/card-generated-zone.json`** (extracted
+by script from `apps/www/src/lib/meta/card.meta.ts`'s GENERATED markers —
+740 bytes, valid JSON, 7 props, 4 hooks; NOT a reformatted copy — Codex
+r6 B3). Task 4.6's `--check` loads THIS file and byte-compares against
+the live generator output.
 
 The W4 merge's ONLY delta: `"universal": UNIVERSAL_AXES` (the eight rows
 verbatim from design §17). Assertions (4.6's frozen expectations):
