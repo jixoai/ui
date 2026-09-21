@@ -241,9 +241,23 @@ before the next batch opens; a batch is the rollback unit)
       direction red) + the --receipt mode; the two Codex regression tests
       landed beside it ({lg,sm}≡{sm,lg} byte-equivalence incl. through the
       vite transform; the @md/ FATAL text pinned verbatim) — battery 610/610
-- [ ] 5.3 full verify-all green in the MAIN dir (Owner ruling: no worktree)
-      — r2's mission: the 82-failure standing set reconciled + ghostty's
-      density closure + budgets B-source
+- [x] 5.3 full verify-all green in the MAIN dir (Owner ruling: no worktree)
+      — LANDED with W5-r2 (e5e694e9): the 82-failure standing set
+      reconciled to ZERO by evidence-first triage (ENV-WASM 39: the
+      three-tier wasm resolver extracted to a helper; ENV-TW 11: the
+      ffc9c4e1-dropped tailwind vite resolved from the design-tool tree;
+      STYLEX ~26: dev-name pins re-keyed through shared source per the
+      compile-lane contract; print-gate/tree-view/list-item/docs-ambient/
+     	blueprints each root-caused with citations; two real docs bugs fixed
+      en route — avatar's stale size row, heading's unwrapped demo h3s);
+      both ledgers closed (shadcn-add 24/24 — the closure list re-pinned to
+      the one-seam density import; budgets 4/4 — B-source 41682→46304 dated
+      receipt for the W1 CSS core); full suite 190/3170 **0 failed**
+      (orchestrator re-run confirms); verify:all GREEN 35/35 with the env
+      vars set. Dossier notes: the stale 2026-09-04 archive tasks.md (the
+      sweep kept the pre-rename copy — the test carries the cited overlay;
+      archives stay frozen), 84 pre-existing stale blueprint SVGs (not
+      this change's scope)
 - [x] 5.4 shadcn-add clean-consumer receipt: named steps resolve + an alias
       override remaps, pure CSS, no resolver runtime (design §12) — LANDED
       with W5-r1: a REAL `npx shadcn add @jixoai/heading` three-way receipt
