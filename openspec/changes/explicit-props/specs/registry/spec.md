@@ -17,8 +17,14 @@ The registry SHALL ship the alias ladder as a CONCRETE artifact chain
   "description": "The shared explicit-props kernel: the schema (grammar types + alias defaults) and the generated CSS ladder (alias vars, @supports verdicts, density composition).",
   "files": [
     { "type": "registry:file", "path": "registry/files/lib/universal-props.schema.ts", "target": "@lib/universal-props.schema.ts" },
-    { "type": "registry:file", "path": "registry/files/lib/universal-props.css",      "target": "@lib/universal-props.css" }
+    { "type": "registry:file", "path": "registry/files/lib/universal-props.css",      "target": "@lib/universal-props.css" },
+    { "type": "registry:file", "path": "registry/files/lib/universal-props-query.svelte.ts", "target": "@lib/universal-props-query.svelte.ts" }
   ]
+  // ^ the third member is the 628ca6e7 contract-reality fold: the 5.4
+  // clean-consumer receipt caught a REAL registry defect — no payload
+  // delivered the query engine though defaults.svelte.ts imports it, so
+  // every clean consumer died at resolve. The kernel lib item now
+  // carries it (import-honesty law); this spec block follows reality.
 }
 // dependency edges ride the CONSUMPTION chain (W2's wave-boundary
 // finding — verify:deps is import-honest): @jixoai/defaults and
@@ -35,8 +41,10 @@ The registry SHALL ship the alias ladder as a CONCRETE artifact chain
 density composition layer). The clean-consumer receipt (task 5.4) asserts
 three things verbatim — split by WHAT each layer can prove (Codex r4 B8:
 computed style resolves vars, it never preserves authored `var()` text):
-(1) `shadcn add` lands both files at the `@lib` targets (filesystem
-check); (2) the INSTALLED component css REFERENCES `var(--jx-size-large)`
+(1) `shadcn add` lands all three kernel files at the `@lib` targets
+(filesystem check; `defaults.svelte.ts` arrives transitively via the
+`@jixoai/defaults` item — the 628ca6e7 fold made the query engine a
+first-class kernel file); (2) the INSTALLED component css REFERENCES `var(--jx-size-large)`
 (textual check over the landed css) and the rendered element's computed
 font-size equals the alias's defined px (computed check); (3) overriding
 `--jx-size-large` in the consumer's css FLIPS the computed px (the

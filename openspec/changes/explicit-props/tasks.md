@@ -226,14 +226,31 @@ before the next batch opens; a batch is the rollback unit)
 
 ## W5 — gates
 
-- [ ] 5.1 `verify:explicit-props` (design §16.1: axis surface + carrier law +
-      broadcast duty + native forwarding ban)
-- [ ] 5.2 existing gates adapted; tailwindless ratchet receipt asserts the
+- [x] 5.1 `verify:explicit-props` (design §16.1: axis surface + carrier law +
+      broadcast duty + native forwarding ban) — LANDED with W5-r1
+      (628ca6e7): six machine clauses — the single-class census vocabulary,
+      the TS-AST axis surface with the 14 pinned departures (deviation
+      allowlist; unlisted-or-stale = red), the provider-snapshot kernel law
+      (E4, 28 bridge files), the §1 native forwarding ban (E5, svelte-AST),
+      the carrier composition (E6, delegated zero-class census to
+      tailwindless per §16.1(b)) — GREEN on 115, negative-tested
+- [x] 5.2 existing gates adapted; tailwindless ratchet receipt asserts the
       exact constants (files=2 · identities=7 · occurrences=7 ·
-      zones{routes:1, site-libs:0, ui:6} · forms=42)
+      zones{routes:1, site-libs:0, ui:6} · forms=42) — LANDED with W5-r1:
+      the RECEIPT constant deep-equal-bound in --check (drift EITHER
+      direction red) + the --receipt mode; the two Codex regression tests
+      landed beside it ({lg,sm}≡{sm,lg} byte-equivalence incl. through the
+      vite transform; the @md/ FATAL text pinned verbatim) — battery 610/610
 - [ ] 5.3 full verify-all green in the MAIN dir (Owner ruling: no worktree)
-- [ ] 5.4 shadcn-add clean-consumer receipt: named steps resolve + an alias
-      override remaps, pure CSS, no resolver runtime (design §12)
+      — r2's mission: the 82-failure standing set reconciled + ghostty's
+      density closure + budgets B-source
+- [x] 5.4 shadcn-add clean-consumer receipt: named steps resolve + an alias
+      override remaps, pure CSS, no resolver runtime (design §12) — LANDED
+      with W5-r1: a REAL `npx shadcn add @jixoai/heading` three-way receipt
+      (13/13 GREEN; the consumer's `:root{--jx-size-large:24px}` flip with
+      byte-identical js digests) — and it caught the REAL registry defect
+      (the query engine missing from every payload; fixed per the
+      import-honesty law + the registry spec folded)
 
 ## W6 — acceptance (multi-round, release-ready NOT released)
 
