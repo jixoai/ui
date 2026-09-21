@@ -208,6 +208,34 @@ vars).
 
 ## The one-off prop mappings (design §13)
 
+## W3 CLOSE — the fleet completeness receipt (D4's sweep, orchestrator-verified)
+
+LANDED D4 (a946d336; probe-w3d4-spot 11/11 — palette ⌘K portal
+self-carried at `--jx-elevation-effective: 8`, density-demo dogfoods the
+explicit lane, props-table's own surface minimal-additive with its 3
+specs + live pages green; gates re-run green — mirror 789, 2·7·7,
+16+3, `Type Errors: no errors`, suite EXACTLY 86/2784). The seven
+D4 items all first-time no-own; search-palette composes batch C's Dialog
+(portal law via composition); siteOnly families carry NO metas (the
+generator's registry-item intersection never sees them — recorded, not
+forced).
+
+**The sweep's finding — 13 holes the batch map never listed** (the
+census sketch's own gap; the inventory wins by its own rule;
+orchestrator re-verified: dirs exist, machinery files = 0, all 13 in
+the 115): accordion, alert, anchor, boot-splash, breadcrumb,
+button-group (deferred from B, never landed), component-canvas,
+highlight-detect-default, image, inline-code, native-scroll-area,
+skeleton, theme-toggle. → **D5 (the hole round) is prescribed: all 13.**
+component-canvas migrates HERE (W3 keeps the clean every-family
+boundary; W4's 4.2 then wires its controls on the migrated surface).
+highlight-detect-default gets the rootless check (the color-utils
+precedent). The classification vocabulary for 5.1's lint:
+surface · siteOnly · context-only (icon-button, scroll-run,
+pattern-hero-set) · engine-wrapper (scroll-virtual) · rootless-lib
+(glass; color-utils sits OUTSIDE the dir inventory) — single-class,
+no double-count (the sweep's 116 was icon-button counted twice).
+
 | family | today | action |
 |---|---|---|
 | avatar | `size: 'sm'\|'md'\|'lg'` | adopt universal size; alias md→medium |
