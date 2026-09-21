@@ -162,6 +162,31 @@ census-recorded:
   a rung for the PRESET — only an explicit lane does) rides the bridge
   alone now.
 
+LANDED D2 (45aeb6ff; probe-w3d2-spot 13/13 — progress size=18 carrier +
+computed, ScrollArea radius 20 → auto Card computes 6px, prose's rename
+live; orchestrator gates re-run green — mirror 782 pairs, tailwindless
+2·7·7 unmoved, meta/context/deps 16+3, `Type Errors: no errors`, suite
+EXACTLY 86/2784 the standing set). Outcomes, census-recorded:
+- **prose's §13 rename landed name-wide** (`size`→`measure`; the css
+  channel keeps `--jx-ty-size`, the `--jx-sheet-size` precedent; the
+  carriers JOIN `hostStyle` first so `measure` stays cascade-sovereign
+  over the axis font-size) — task 3.5 CLOSES with it.
+- **mermaid** carries SEVEN lanes — the `theme` engine-token literal
+  owns the name ('system' has no engine meaning); axis left out,
+  W6-dossier-flagged (the shiki/shell-theme family).
+- **scroll-area** carries SEVEN lanes + the radius NUMBER lane riding
+  BOTH (px feeds the thumb chrome literal AND the exact-px axis carrier
+  — the region becomes the concentric anchor): the chart split-lane
+  §13-analogy, dossier-noted beside it.
+- **pattern-hero-set** is the NO-ROOT form: the canonical main supplies
+  seven lanes through CONTEXT only (the bezel theme pin owns the name —
+  a pre-existing passthrough exemption); the ascii/marquee siblings own
+  roots and stamp all eight.
+- **prototype-kit**: the canvas root only; the frame half (iframe
+  documents) documented outside the supply set.
+- The consumer-merge law, spec-pinned via prototype-layout: carriers
+  JOIN the consumer's `style` attr — never replace it.
+
 ## The one-off prop mappings (design §13)
 
 | family | today | action |
