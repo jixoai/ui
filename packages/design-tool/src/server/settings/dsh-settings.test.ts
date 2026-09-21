@@ -78,10 +78,10 @@ const credentialsYaml = (): string => readFileSync(join(designDshHome(), '.crede
 
 /* ── the private face ─────────────────────────────────────────────────── */
 
-test('an untouched home loads the empty doc and bridges nothing', () => {
+test('an untouched home loads the empty doc and bridges nothing', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
+    await inHome(home, async () => {
       assert.deepEqual(loadDshSettings(), { configVersion: 1, revision: 0, model: null, modelRoutes: [] });
       assert.equal(activeBridgeRoute(), null);
     });
@@ -90,13 +90,13 @@ test('an untouched home loads the empty doc and bridges nothing', () => {
   }
 });
 
-test('save bumps the revision and carries the doc verbatim', () => {
+test('save bumps the revision and carries the doc verbatim', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
-      const first = saveDshSettings({ configVersion: 1, revision: 0, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] });
+    await inHome(home, async () => {
+      const first = await saveDshSettings({ configVersion: 1, revision: 0, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] });
       assert.equal(first.revision, 1);
-      const second = saveDshSettings(first);
+      const second = await saveDshSettings(first);
       assert.equal(second.revision, 2);
       assert.deepEqual(loadDshSettings().modelRoutes, [ROUTE]);
     });
@@ -105,10 +105,10 @@ test('save bumps the revision and carries the doc verbatim', () => {
   }
 });
 
-test('persisted input is untrusted — a corrupt file degrades to empty, never crashes', () => {
+test('persisted input is untrusted — a corrupt file degrades to empty, never crashes', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
+    await inHome(home, async () => {
       mkdirSync(designStewardDir(), { recursive: true });
       writeFileSync(join(designStewardDir(), 'dsh-settings.json'), '{not json', { flag: 'w' });
       assert.deepEqual(loadDshSettings(), { configVersion: 1, revision: 0, model: null, modelRoutes: [] });
@@ -120,11 +120,11 @@ test('persisted input is untrusted — a corrupt file degrades to empty, never c
 
 /* ── the DSH face (settings.yaml) ─────────────────────────────────────── */
 
-test('the bridge writes the kernel-native llm-pi-ai whitelist — models PARSE as an array (Codex r4 P1-1)', () => {
+test('the bridge writes the kernel-native llm-pi-ai whitelist — models PARSE as an array (Codex r4 P1-1)', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
-      saveDshSettings({ configVersion: 1, revision: 0, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] });
+    await inHome(home, async () => {
+      await saveDshSettings({ configVersion: 1, revision: 0, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] });
       const yaml = settingsYaml();
       // the load-bearing shape: a REAL parse (the `yaml` package, the same
       // parser family the kernel uses) must see models as an ARRAY of
@@ -157,11 +157,11 @@ test('the bridge writes the kernel-native llm-pi-ai whitelist — models PARSE a
   }
 });
 
-test('the bridge writes the agent-default-model saved-selection section (effort included)', () => {
+test('the bridge writes the agent-default-model saved-selection section (effort included)', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
-      saveDshSettings({
+    await inHome(home, async () => {
+      await saveDshSettings({
         configVersion: 1,
         revision: 0,
         model: { provider: ROUTE.provider, model: 'glm-5.3', reasoningEffort: 'high' },
@@ -170,7 +170,7 @@ test('the bridge writes the agent-default-model saved-selection section (effort 
       const parsed = YAML.parse(settingsYaml()) as { 'agent-default-model'?: Record<string, unknown> };
       assert.deepEqual(parsed['agent-default-model'], { provider: 'my-gateway', model: 'glm-5.3', reasoningEffort: 'high' });
       // a null model drops the section (the kernel row default stands)
-      saveDshSettings({ configVersion: 1, revision: 1, model: null, modelRoutes: [ROUTE] });
+      await saveDshSettings({ configVersion: 1, revision: 1, model: null, modelRoutes: [ROUTE] });
       assert.equal('agent-default-model' in (YAML.parse(settingsYaml()) as Record<string, unknown>), false);
     });
   } finally {
@@ -178,14 +178,14 @@ test('the bridge writes the agent-default-model saved-selection section (effort 
   }
 });
 
-test('unknown top-level settings.yaml sections survive a bridge sync (semantically)', () => {
+test('unknown top-level settings.yaml sections survive a bridge sync (semantically)', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
-      saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
+    await inHome(home, async () => {
+      await saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
       const withForeign = `${settingsYaml()}some-kernel-section:\n  nested: value\n`;
       writeFileSync(join(designDshHome(), 'settings.yaml'), withForeign, { flag: 'w' });
-      saveDshSettings({ configVersion: 1, revision: 1, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] });
+      await saveDshSettings({ configVersion: 1, revision: 1, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] });
       const parsed = YAML.parse(settingsYaml()) as Record<string, unknown>;
       assert.deepEqual(parsed['some-kernel-section'], { nested: 'value' });
       assert.ok('agent-default-model' in parsed);
@@ -198,12 +198,12 @@ test('unknown top-level settings.yaml sections survive a bridge sync (semantical
 
 /* ── the credentials face ─────────────────────────────────────────────── */
 
-test('a stored key rides the version-1 refs layout at 0600 and never crosses the view', () => {
+test('a stored key rides the version-1 refs layout at 0600 and never crosses the view', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
-      saveDshSettings({ configVersion: 1, revision: 0, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] });
-      setRouteCredential(ROUTE.provider, 'sk-secret-123');
+    await inHome(home, async () => {
+      await saveDshSettings({ configVersion: 1, revision: 0, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] });
+      await setRouteCredential(ROUTE.provider, 'sk-secret-123');
       // the private face: 0600
       assert.equal(statSync(join(designStewardDir(), 'dsh-credentials.json')).mode & 0o777, 0o600);
       // the kernel face: version + refs structurally, NEVER a flat key
@@ -216,7 +216,7 @@ test('a stored key rides the version-1 refs layout at 0600 and never crosses the
       assert.equal(view.keyPresence['my-gateway'], true);
       assert.equal(JSON.stringify(view).includes('sk-secret-123'), false);
       // clear removes the ref
-      setRouteCredential(ROUTE.provider, null);
+      await setRouteCredential(ROUTE.provider, null);
       const cleared = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
       assert.equal(cleared.refs?.[dshRouteApiKeyEnv('my-gateway')], undefined);
       assert.equal((settingsView() as { keyPresence: Record<string, boolean> }).keyPresence['my-gateway'], false);
@@ -226,22 +226,22 @@ test('a stored key rides the version-1 refs layout at 0600 and never crosses the
   }
 });
 
-test('the bridge query needs model + route + key — any gap is a null', () => {
+test('the bridge query needs model + route + key — any gap is a null', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
+    await inHome(home, async () => {
       const base: DshSettings = { configVersion: 1, revision: 0, model: { provider: ROUTE.provider, model: 'glm-5.3' }, modelRoutes: [ROUTE] };
-      saveDshSettings(base);
+      await saveDshSettings(base);
       // no key yet
       assert.equal(activeBridgeRoute(), null);
-      setRouteCredential(ROUTE.provider, 'sk-live');
+      await setRouteCredential(ROUTE.provider, 'sk-live');
       const withKey = activeBridgeRoute();
       assert.notEqual(withKey, null);
       assert.equal(withKey!.model, 'glm-5.3');
       assert.equal(withKey!.route.provider, 'my-gateway');
       assert.equal(withKey!.dshHome, designDshHome());
       // a model missing from the route breaks referential integrity → null
-      saveDshSettings({ ...base, revision: 1, model: { provider: ROUTE.provider, model: 'gone-model' } });
+      await saveDshSettings({ ...base, revision: 1, model: { provider: ROUTE.provider, model: 'gone-model' } });
       assert.equal(activeBridgeRoute(), null);
     });
   } finally {
@@ -438,13 +438,13 @@ test('P1-5: private faces alone never ride the bridge — a dead/corrupt dsh-hom
   }
 });
 
-test('P2-2: a cold-start clear still writes the canonical empty version-1 document', () => {
+test('P2-2: a cold-start clear still writes the canonical empty version-1 document', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
-      saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
+    await inHome(home, async () => {
+      await saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
       // clear on a home whose credentials file does not exist yet
-      setRouteCredential(ROUTE.provider, null);
+      await setRouteCredential(ROUTE.provider, null);
       const raw = credentialsYaml();
       const parsed = YAML.parse(raw) as { version?: number; refs?: Record<string, string> };
       assert.equal(parsed.version, 1);
@@ -580,16 +580,16 @@ test('r4-2 P1-2: the bridge query verifies credential structure/value and the sa
   }
 });
 
-test('r4-2 P2-1: legacy flat top-level keys migrate into refs on the next credential write', () => {
+test('r4-2 P2-1: legacy flat top-level keys migrate into refs on the next credential write', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
-      saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
+    await inHome(home, async () => {
+      await saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
       // the pre-bridge shape: a flat top-level key (which the kernel's
       // credentials-local refuses as an unknown top-level key)
       const ref = dshRouteApiKeyEnv('my-gateway');
       writeFileSync(join(designDshHome(), '.credentials.yaml'), `${ref}: old-key\n`, { flag: 'w' });
-      setRouteCredential('my-gateway', 'new-key');
+      await setRouteCredential('my-gateway', 'new-key');
       const parsed = YAML.parse(credentialsYaml()) as { version?: number; refs?: Record<string, string> };
       assert.equal(parsed.version, 1);
       assert.deepEqual(parsed.refs, { [ref]: 'new-key' });
@@ -601,11 +601,11 @@ test('r4-2 P2-1: legacy flat top-level keys migrate into refs on the next creden
 
 /* ── Codex r4 round-3 counter-examples ────────────────────────────────── */
 
-test('r4-3 P2-1: a kernel-owned records section survives set/clear untouched', () => {
+test('r4-3 P2-1: a kernel-owned records section survives set/clear untouched', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
-      saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
+    await inHome(home, async () => {
+      await saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [ROUTE] });
       // the tagged-record shape other dsh components write (scope/id →
       // kind api-key + key + env) — version-1 vocabulary, not ours to touch
       const doc = [
@@ -619,11 +619,11 @@ test('r4-3 P2-1: a kernel-owned records section survives set/clear untouched', (
         '      RECORD_ENV: preserved-env',
         ''].join('\n');
       writeFileSync(join(designDshHome(), '.credentials.yaml'), doc, { flag: 'w' });
-      setRouteCredential(ROUTE.provider, 'sk-mine');
+      await setRouteCredential(ROUTE.provider, 'sk-mine');
       let parsed = YAML.parse(credentialsYaml()) as { refs?: Record<string, string>; records?: Record<string, unknown> };
       assert.deepEqual(parsed.refs, { [dshRouteApiKeyEnv('my-gateway')]: 'sk-mine' });
       assert.deepEqual(parsed.records, { 'skill/foo': { kind: 'api-key', key: 'preserved-record', env: { RECORD_ENV: 'preserved-env' } } });
-      setRouteCredential(ROUTE.provider, null);
+      await setRouteCredential(ROUTE.provider, null);
       parsed = YAML.parse(credentialsYaml()) as { refs?: Record<string, string>; records?: Record<string, unknown> };
       assert.deepEqual(parsed.refs, {});
       assert.deepEqual(parsed.records, { 'skill/foo': { kind: 'api-key', key: 'preserved-record', env: { RECORD_ENV: 'preserved-env' } } });
@@ -637,7 +637,7 @@ test('r4-3 P2-2: concurrent multi-process credential writes lose no keys (lock +
   const home = freshHome();
   try {
     await inHome(home, async () => {
-      saveDshSettings({
+      await saveDshSettings({
         configVersion: 1,
         revision: 0,
         model: null,
@@ -674,21 +674,20 @@ test('r4-3 P2-2: concurrent multi-process credential writes lose no keys (lock +
 
 /* ── Codex r4 round-4 — the stale-lock ABA family ─────────────────────── */
 
-test('r4-4 P1: a mid-cycle lock theft aborts the fenced write and never unlinks the foreign lock', () => {
+test('r4-4 P1: a mid-cycle lock theft aborts the fenced write and never unlinks the foreign lock', async () => {
   const home = freshHome();
   try {
-    inHome(home, () => {
+    await inHome(home, async () => {
       const target = join(home, 'fence-target.json');
       const lock = `${target}.lock`;
-      assert.throws(
-        () =>
-          withBridgeLock(target, () => {
-            // the stall window: another writer takes the lock over —
-            // replace our token with a foreign one outright
-            writeFileSync(lock, 'someone-else', { flag: 'w' });
-            // the fenced write: tmp stages fine, the RENAME must refuse
-            atomicWrite(target, '{"stale":true}\n');
-          }),
+      await assert.rejects(
+        withBridgeLock(target, () => {
+          // out-of-band interference: the lock file is replaced with a
+          // foreign token mid-cycle — the fenced write must refuse
+          writeFileSync(lock, 'someone-else', { flag: 'w' });
+          // the fenced write: tmp stages fine, the RENAME must refuse
+          atomicWrite(target, '{"stale":true}\n');
+        }),
         (error: unknown) => error instanceof BridgeLockError,
         'the stalled owner must abort with BridgeLockError',
       );
@@ -703,11 +702,11 @@ test('r4-4 P1: a mid-cycle lock theft aborts the fenced write and never unlinks 
   }
 });
 
-test('r4-4 P1: the real stalled-writer takeover — the resumed old writer loses to the new owner', async () => {
+test('r4-5 P1: a stalled holder is never bypassed — contenders fail within the budget, the holder completes', async () => {
   const home = freshHome();
   try {
     await inHome(home, async () => {
-      saveDshSettings({
+      await saveDshSettings({
         configVersion: 1,
         revision: 0,
         model: null,
@@ -716,9 +715,11 @@ test('r4-4 P1: the real stalled-writer takeover — the resumed old writer loses
           { provider: 'b', baseURL: 'https://b.example/', models: [{ id: 'm' }] },
         ],
       });
-      // writer A acquires the credential lock and parks inside the cycle
-      // (the SIGSTOP stand-in); past the stale TTL, B takes over and
-      // lands; A resumes and its fenced rename must ABORT
+      // writer A acquires the credential lock and parks INSIDE the cycle
+      // (the SIGSTOP stand-in). Under the kernel's no-takeover protocol B
+      // must NOT sneak in: it exhausts its budget and fails; when A
+      // resumes it completes as the sole owner — no interleaving exists,
+      // so no clobber is even possible
       const script = [
         "import { writeFileSync, existsSync } from 'node:fs';",
         "import { createRequire } from 'node:module';",
@@ -726,29 +727,40 @@ test('r4-4 P1: the real stalled-writer takeover — the resumed old writer loses
         "const m = req('/Users/kzf/Dev/GitHub/jixoai-labs/ui-design-tool/packages/design-tool/src/server/settings/dsh-settings.ts');",
         "const home = process.argv[1];",
         "const cred = home + '/dsh-home/.credentials.yaml';",
-        "m.withBridgeLock(cred, () => {",
+        "await m.withBridgeLock(cred, () => {",
         "  writeFileSync(home + '/stopped', 'stalled');",
-        "  while (!existsSync(home + '/resume')) {}", // parked past the stale TTL
-        "  m.atomicWrite(cred, 'version: 1\\nrefs:\\n  OLD: stale-clobber\\n');", // must hit the fence
+        "  while (!existsSync(home + '/resume')) {}", // parked holding the lock
+        "  m.atomicWrite(cred, 'version: 1\\nrefs:\\n  OLD: sole-owner\\n');",
         "});",
         "process.exit(0);",
       ].join('\n');
       const stalled = spawn(process.execPath, ['--input-type=module', '-e', script, '--', home], {
         env: { ...process.env, JIXOAI_DESIGN_HOME: home },
+        stdio: 'ignore', // a parked child's inherited pipes would hold the runner open
+        detached: false,
       });
+      stalled.on('error', () => { /* surfaced by the exit-code assertion */ });
       for (let i = 0; i < 100 && !existsSync(join(home, 'stopped')); i += 1) await new Promise((r) => setTimeout(r, 50));
       assert.equal(existsSync(join(home, 'stopped')), true, 'A parked inside the lock');
-      await new Promise((r) => setTimeout(r, 5400)); // past LOCK_STALE_MS
-      setRouteCredential('b', 'sk-new-b');
-      const credB = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
-      assert.equal(credB.refs?.JIXOAI_DESIGN_ROUTE_KEY_B, 'sk-new-b', 'B landed while A stalled');
-      // resume A — its stale write must ABORT at the fence
-      writeFileSync(join(home, 'resume'), 'go');
+      try {
+        // B contends while A holds: bounded failure, NOT a takeover write
+        const started = Date.now();
+        const response = await resolveDshSettingsApiRequest('dsh-credential', 'POST', { provider: 'b', key: 'sk-new-b' });
+        const waited = Date.now() - started;
+        assert.equal(response.status, 503, `B must fail with 503 while A holds (got ${response.status})`);
+        assert.ok(waited < 5500, `bounded budget, took ${waited}ms`);
+        const credPath = join(designDshHome(), '.credentials.yaml');
+        const duringHold = existsSync(credPath) ? (YAML.parse(credentialsYaml()) as { refs?: Record<string, string> }) : {};
+        assert.equal(duringHold.refs?.JIXOAI_DESIGN_ROUTE_KEY_B, undefined, "B's write never landed during A's hold");
+      } finally {
+        // release A no matter what — a parked child must never outlive the test
+        writeFileSync(join(home, 'resume'), 'go');
+      }
+      // A resumes as the SOLE owner and lands its own payload
       const codeA = await new Promise<number | null>((resolve) => stalled.on('exit', resolve));
-      assert.notEqual(codeA, 0, 'the resumed stale writer must fail, not exit clean');
-      const credAfter = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
-      assert.equal(credAfter.refs?.JIXOAI_DESIGN_ROUTE_KEY_B, 'sk-new-b', "B's key survives A's resumed write");
-      assert.equal(credAfter.refs?.OLD, undefined, "A's stale payload never landed");
+      assert.equal(codeA, 0, 'the holder completes cleanly once resumed');
+      const after = YAML.parse(credentialsYaml()) as { refs?: Record<string, string> };
+      assert.equal(after.refs?.OLD, 'sole-owner', "A's payload landed — it never lost ownership");
     });
   } finally {
     rmSync(home, { recursive: true, force: true });
@@ -759,7 +771,7 @@ test('r4-4 P2-2: lock contention beyond the budget surfaces as 503, not a silent
   const home = freshHome();
   try {
     await inHome(home, async () => {
-      saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [API_ROUTE_BODY] });
+      await saveDshSettings({ configVersion: 1, revision: 0, model: null, modelRoutes: [API_ROUTE_BODY] });
       // a FRESH foreign lock (mtime now — no stale takeover possible)
       const lock = `${join(designDshHome(), 'settings.yaml')}.lock`;
       mkdirSync(designDshHome(), { recursive: true });

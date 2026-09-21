@@ -1,18 +1,18 @@
 {
-  "when": "2026-09-20T23:47:38.993Z",
+  "when": "2026-09-21T00:52:42.544Z",
   "loadavg": [
-    4.6,
-    4.1,
-    5
+    17.8,
+    12.8,
+    10.2
   ],
   "node": "v24.21.0",
   "platform": "darwin",
   "provenance": {
-    "gitSha": "81d8e060e83c36d4c06c15d6ec45631ef861b2e3",
+    "gitSha": "5863a37b7f17720d48e9e87b9b43e177d8804d1a",
     "matrixSha256": "962b7236aa8b9c00d133bf3955761b3200ca5bacca212847f1f3497744bafbc6",
     "studioManifest": {
       "inputsHash": "a26177ab0e8ad9a46eaf51f9a2c7e3e5445daf656d527d1ebca1c7890ad8b1c2",
-      "builtAt": "2026-09-20T23:41:29.188Z",
+      "builtAt": "2026-09-21T00:45:58.798Z",
       "vite": "8.2.2",
       "svelte": "5.56.9"
     },
@@ -167,7 +167,7 @@
       "step": "C9",
       "name": "② 观察端（第三连接）收到两份 attention 且归属正确（ai-1→a4、ai-2→a5）",
       "pass": true,
-      "detail": "ai-1(p5)→{\"kind\":\"canvas\",\"component\":\"a4\",\"instance\":null,\"frameId\":null}; ai-2(p6)→{\"kind\":\"canvas\",\"component\":\"a5\",\"instance\":null,\"frameId\":null}"
+      "detail": "ai-1(p5)→{\"kind\":\"canvas\",\"component\":\"a4\",\"instance\":null,\"frameId\":null}; ai-2(p7)→{\"kind\":\"canvas\",\"component\":\"a5\",\"instance\":null,\"frameId\":null}"
     },
     {
       "step": "D10",
@@ -215,7 +215,7 @@
       "step": "D14",
       "name": "② journal 未损坏（全行可解析 + 行数只增 + /sync 仍 200）",
       "pass": true,
-      "detail": "journal 257→259 行, 坏行=0; sync=ok(9348b)"
+      "detail": "journal 277→279 行, 坏行=0; sync=ok(9336b)"
     },
     {
       "step": "A1",
@@ -227,7 +227,7 @@
       "step": "E1",
       "name": "① B 切 echo-demo 移动 → A 端 welcome canvas 无 B 光标（协议帧 canvas=echo-demo + 渲染隐藏）",
       "pass": true,
-      "detail": "切换前 A 可见=true; observer cursor.canvas=echo-demo (x=87,y=861); A 端 B 光标=0"
+      "detail": "切换前 A 可见=true; observer cursor.canvas=echo-demo (x=432,y=120); A 端 B 光标=0"
     },
     {
       "step": "E1",
@@ -305,13 +305,13 @@
       "step": "P7",
       "name": "① mock cursor 帧 → B 端 overlay transform 落位 ≤100ms（提案端到端预算；16ms 网关窗 + 广播 + rAF；页内打点，空载 probe 实测 ≈40ms）",
       "pass": true,
-      "detail": "发出→落位 = 44ms（3 次采样 [51,44,73] 取最小）"
+      "detail": "发出→落位 = 43ms（3 次采样 [43,86,48] 取最小）"
     },
     {
       "step": "P7",
       "name": "② A 真实鼠标（canvas 地面）→ B 端光标落位 ≤100ms（全链：rAF 上报 + 16ms 节流 + ws + 网关窗 + 广播 + 渲染；页内打点 + 观察者 surface 核实；多点位采样取最小）",
       "pass": true,
-      "detail": "跳点→落位 = 70ms（采样 [92,70,78,78]）"
+      "detail": "跳点→落位 = 72ms（采样 [264,73,72,76]）"
     },
     {
       "step": "P1",
@@ -323,7 +323,7 @@
       "step": "P1",
       "name": "② click→ring ≤200ms（Owner 选中同步预算；页内打点 + 3 轮取最小）",
       "pass": true,
-      "detail": "90ms（采样 [122,91,90]）"
+      "detail": "151ms（采样 [151,174,218]）"
     },
     {
       "step": "P2",
@@ -341,7 +341,7 @@
       "step": "P2",
       "name": "③ 帧内光标落位精度：B 端页空间位置与 A 指针偏差 ≤3px（iframe offset 折算后）",
       "pass": true,
-      "detail": "偏差=(0, -2)px"
+      "detail": "偏差=(0, 0)px"
     },
     {
       "step": "P1",
@@ -383,7 +383,7 @@
       "step": "P3",
       "name": "B 键入单字符（不按 Enter）→ A 端 input value 实时镜像 ≤600ms（Owner 实时预算；2 轮独立基线取最小）",
       "pass": true,
-      "detail": "340ms（采样 [356,340]；各轮 [{\"ch\":\"Z\",\"start\":\"\\\"ree-ribbon\\\"\",\"end\":\"\\\"ee-ribbonZ\\\"\",\"ms\":356},{\"ch\":\"Y\",\"start\":\"\\\"ee-ribbonZ\\\"\",\"end\":\"\\\"e-ribbonZY\\\"\",\"ms\":340}]）"
+      "detail": "332ms（采样 [412,332]；各轮 [{\"ch\":\"Z\",\"start\":\"\\\"ree-ribbon\\\"\",\"end\":\"\\\"ee-ribbonZ\\\"\",\"ms\":412},{\"ch\":\"Y\",\"start\":\"\\\"ee-ribbonZ\\\"\",\"end\":\"\\\"e-ribbonZY\\\"\",\"ms\":332}]）"
     },
     {
       "step": "P4",
@@ -395,7 +395,7 @@
       "step": "P4",
       "name": "② B 移动 caret（End↔Home 两程取最小）→ A 端 caret 条位置跟随 ≤100ms（Owner caret 预算）",
       "pass": true,
-      "detail": "19ms（采样 [19]）"
+      "detail": "37ms（采样 [37]）"
     },
     {
       "step": "P4",
@@ -413,7 +413,7 @@
       "step": "P8",
       "name": "② B 在 popovertarget input 打字（无 Enter）→ A 端 600ms 内镜像（走查发现 A 的回归锁；2 轮取最小）",
       "pass": true,
-      "detail": "345ms（采样 [347,345]）"
+      "detail": "361ms（采样 [380,361]）"
     },
     {
       "step": "A2",
@@ -449,13 +449,13 @@
       "step": "A7",
       "name": "A 点击 nav 跳 echo-demo 后完全不动 → B 端 nav 彩带 ≤500ms 跟随（A 的色进 echo 行、离 welcome 行；页面切换即 presence）",
       "pass": true,
-      "detail": "117ms（A 色 rgb(212, 147, 17): welcome→echo 迁移完成）"
+      "detail": "8ms（A 色 rgb(212, 147, 17): welcome→echo 迁移完成）"
     },
     {
       "step": "A8",
       "name": "C 零鼠标移动 boot → B 端 welcome 彩带含 C 色（park effect ≤600ms）且行转 multi + 树标题 = layers",
       "pass": true,
-      "detail": "2ms；mode=multi；tree-head=\"layers\""
+      "detail": "33ms；mode=multi；tree-head=\"layers\""
     },
     {
       "step": "FIX",

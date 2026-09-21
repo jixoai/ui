@@ -181,7 +181,7 @@ export async function resolveDshSettingsApiRequest(route: string, method: string
       return { status: 200, body: settingsView() };
     }
     if (route === 'dsh.json' && method === 'POST') {
-      saveDshSettings(settingsFromBody(body));
+      await saveDshSettings(settingsFromBody(body));
       // the VIEW (with keyPresence) — the panel treats every response
       // as its whole document; a bare doc would crash the rail
       return { status: 200, body: settingsView() };
@@ -192,7 +192,7 @@ export async function resolveDshSettingsApiRequest(route: string, method: string
       // sends {provider} — `undefined !== null` was rejecting it, Codex r4 P1-2)
       const key = body.key === undefined || body.key === null ? null : body.key;
       if (key !== null && !(isStr(key))) throw new RequestError('key must be a non-empty string or null');
-      setRouteCredential(body.provider, key);
+      await setRouteCredential(body.provider, key);
       return { status: 200, body: settingsView() };
     }
     if (route === 'dsh-test' && method === 'POST') {
