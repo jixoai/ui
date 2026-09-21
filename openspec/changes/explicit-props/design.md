@@ -91,6 +91,12 @@ LAWS:
   `corner-shape` is unsupported (Safari/Firefox TODAY — the degrade path is
   the MAIN path): `scoop|bevel|notch → square`; `squircle → round`;
   `round|square → themselves` (native border-radius semantics).
+  **The six-shape factor ladder** (W2's geometry completion of §3's
+  "radius inert under square" law): `--jx-radius-factor-<shape>` exists
+  for ALL six shapes — round 1/1, squircle 2/1 (supported/degraded),
+  scoop/bevel/notch factor to their DEGRADE target's geometry (square ⇒
+  factor 0: the radius must ZERO for the corner to actually square —
+  non-zero radius under a square corner-shape still rounds).
 - **The squircle ×2 law**: when the RESOLVED shape is squircle, the effective
   border-radius doubles (superellipse reads equal-corner at half the radius).
   The ×2 follows the RESOLVED shape (inherited shape × explicit radius is a
@@ -254,7 +260,11 @@ LAWS:
   (container wins where both match — the ancestor-nesting intuition).
   Container keys resolve against the NEAREST qualifying
   ancestor container — **a component cannot query itself** (CSS law; never
-  document otherwise).
+  document otherwise). **No same-width ties exist in the DEFAULT tables**
+  (viewport md = 48rem ≠ container @md = 28rem — grep-verified against
+  Tailwind 4.3.3's shipped values); a deterministic comparator
+  (`compareQueryKeyOrder`) still governs custom plugin tables where a tie
+  is possible (media before container at equal width).
 - **Carrier dual-track** (Owner: 编译期脱糖不绝对): the build desugars what
   it can prove into CSS (custom-property re-assignment inside
   media/container blocks — the carrier law §10 makes this possible), and a

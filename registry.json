@@ -68,7 +68,6 @@
       },
       "dependencies": [],
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -145,7 +144,6 @@
         "href": "/docs/components/press-button.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
         "@jixoai/icon",
@@ -297,7 +295,6 @@
         "@jixoai/number-input",
         "@jixoai/icon",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/control-chrome",
@@ -351,7 +348,6 @@
         "href": "/docs/components/section-card.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
         "@jixoai/defaults",
@@ -370,7 +366,6 @@
         "href": "/docs/components/figure.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -408,7 +403,6 @@
       },
       "registryDependencies": [
         "@jixoai/figure",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -473,7 +467,6 @@
         }
       ],
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/navigation-menu",
@@ -524,7 +517,6 @@
       ],
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "meta": {
@@ -570,7 +562,6 @@
         "href": "/docs/components/theme-toggle.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults"
@@ -586,7 +577,6 @@
       "registryDependencies": [
         "@jixoai/toc-engine",
         "@jixoai/toc-outline",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/glass"
@@ -663,7 +653,6 @@
         "href": "/docs/components/website-scaffold.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -717,7 +706,6 @@
       },
       "registryDependencies": [
         "@jixoai/ghostty-vt",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/color-utils",
         "@jixoai/density",
@@ -775,7 +763,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults"
       ]
@@ -787,7 +774,6 @@
       "title": "Hero section",
       "description": "The landing hero with opened content: title/badges/terminal/secondary/copy are snippets (the caller composes Badge children; the default copy CTA rides the copyCommand payload; the em accent paint lives in family css).",
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/utils",
@@ -871,7 +857,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults"
@@ -917,7 +902,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -980,7 +964,6 @@
         "href": "/docs/components/card.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
         "@jixoai/button-group"
@@ -1005,7 +988,6 @@
         "href": "/docs/jx-pure.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -1069,7 +1051,6 @@
       ],
       "docs": "Props: type, label?, error?, clearable?, innerInlineStart/innerInlineEnd/outerBlockStart/outerBlockEnd snippets, id? (auto), class, value ($bindable), ...restProps passed to the native input.",
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/date-picker",
@@ -1126,7 +1107,6 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -1174,7 +1154,6 @@
         "href": "/docs/components/textarea.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
@@ -1189,7 +1168,6 @@
       "description": "The consumer-side half of the WebsiteScaffold float provider: renders children into the scaffold's top layer (.jx-top-layer) through a real portal — nodes are created here (full Svelte ownership) and adopted into the provider's insertion point on mount. The float rides the top layer's immersive hide/reveal with the header by construction.",
       "registryDependencies": [
         "@jixoai/website-scaffold",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -1258,7 +1236,6 @@
         "@jixoai/button-group",
         "@jixoai/icon-button",
         "@jixoai/icon",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/separator",
         "@jixoai/defaults",
@@ -1316,7 +1293,6 @@
         "href": "/docs/components/popover.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
@@ -1333,7 +1309,6 @@
         "shiki"
       ],
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/highlight",
         "@jixoai/highlight-shiki",
@@ -1510,7 +1485,6 @@
         "href": "/docs/components/table.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -1533,7 +1507,6 @@
         "@jixoai/density",
         "@jixoai/heading",
         "@jixoai/inline-code",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/jx-pure",
         "@jixoai/kbd",
@@ -1622,7 +1595,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
@@ -1664,7 +1636,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -1708,7 +1679,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -1747,7 +1717,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/typography"
@@ -1790,7 +1759,6 @@
       "registryDependencies": [
         "@jixoai/icon",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "meta": {
@@ -1813,7 +1781,6 @@
         "@jixoai/tree-view",
         "@jixoai/shiki",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/list-item",
@@ -1885,7 +1852,6 @@
       "description": "The prototype standard's three declarative frame components (design-studio): PrototypeCanvas — a CSS grid container (gridCols/gridRows/gap; number → repeat(N, minmax(0,1fr)), string verbatim, omitted → adaptive auto-fill wrap) that nests freely and provides the prototype-folder context to its frames (explicit prop ?? inherited canvas ?? derived from the /prototypes/<name>/ canvas-page URL); PrototypePage — a declarative viewport iframe whose src is the design server's frame surface, /__design__/frame?p=<prototype>&f=<ref minus leading ./>&theme=<light|dark|auto>&w=<px>&h=<px> (real media/container queries follow the frame viewport; width overflow scales visually, the real viewport is never faked); PrototypeComponent — the same frame with adaptive content height (height is the initial value until same-origin measurement takes over; fill locks it — the URL carries &fill=0|1). Frame ids are DOM anchors (unique per canvas, dev warning on conflict, first wins). Outside a design-server host the frames render a visible \"requires the design server\" notice instead of a dead iframe.",
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -1984,7 +1950,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -2024,7 +1989,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/checkbox",
         "@jixoai/defaults",
@@ -2065,7 +2029,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -2110,7 +2073,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
@@ -2156,7 +2118,6 @@
         }
       ],
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
@@ -2213,7 +2174,6 @@
       ],
       "docs": "Props: label?, error?, showValue?, min/max/step, name?, value ($bindable), plus FULL native attribute passthrough (aria-label/title/data-* land on the input[type=range] itself — the Codex-round honesty pass). The control IS the native input: label[for] binding (never role=slider fiction), arrows/Home/End/PageUp/Down from the platform, stepped commits re-clamped into [min,max]; min/max are terminal snap points (a step-mismatched max stays native truth). The tick ruler rides the thumb's travel box (half-thumb inline inset): pointerdown snaps to the nearest mark, the wheel steps one notch at a time (ctrlKey pinch never hijacked).",
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
@@ -2291,7 +2251,6 @@
       "registryDependencies": [
         "@jixoai/popover",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
@@ -2347,7 +2306,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
@@ -2408,7 +2366,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/jx-pure",
         "@jixoai/color-utils",
@@ -2461,7 +2418,6 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -2513,7 +2469,6 @@
         "@jixoai/form-field",
         "@jixoai/icon",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
@@ -2568,7 +2523,6 @@
         "href": "/docs/components/badge.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/paint",
@@ -2620,7 +2574,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -2639,7 +2592,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -2678,7 +2630,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -2773,7 +2724,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -2820,7 +2770,6 @@
       "registryDependencies": [
         "@jixoai/tooltip",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults"
       ],
@@ -2875,7 +2824,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
@@ -2932,7 +2880,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -2996,7 +2943,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/scroll-run",
         "@jixoai/defaults",
@@ -3048,7 +2994,6 @@
         "href": "/docs/components/progress.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -3099,7 +3044,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -3185,7 +3129,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -3241,7 +3184,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/defaults",
@@ -3333,7 +3275,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/dropdown-menu",
         "@jixoai/defaults",
@@ -3379,7 +3320,6 @@
         "href": "/docs/components/kbd.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -3392,7 +3332,6 @@
       "title": "Inline code",
       "description": "The inline source-code chip: a native <code> in the variant grammar's fused/tonal/outline ladder (fused default — the backdrop-fusion band: transparent ground + a backdrop contrast filter over whatever sits behind, auto-adaptive across themes and patterned grounds with zero color tokens; the fusion IS the frame, forced-colors repaints it CanvasText; tonal keeps the neutral [--jx-tonal:…] / jx-hue-* injection seam, consumers win from either layer). Geometry: radius rides the density ladder token --jx-chip-radius (2xs/xs/sm 2px, default 4px, lg 8px — not the global --radius), padding-inline = radius + fontSize × (lineHeight − 1) / 2 (token calc by default; explicit fontSize/lineHeight fold the excess). Highlighting rides the engine seam (backend prop → HIGHLIGHT_KEY context → the stock microlighter RANGE engine — zero markup, plain text stays copyable; a CSS.highlights pre-gate degrades to plain text silently where the API is missing, and print loses ranges by the documented freeze limitation). lang='auto' runs the zero-download fingerprint heuristic (INLINE_LANGS/detectInlineLang exported); the six text modifiers (lineHeight/weight/italic/tracking/family/fontSize) resolve through the shared @jixoai/text kernel.",
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
@@ -3485,7 +3424,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/press-button",
         "@jixoai/defaults",
@@ -3528,7 +3466,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon"
       ]
@@ -3618,7 +3555,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -3689,7 +3625,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/scaffold-float",
         "@jixoai/icon",
@@ -3789,7 +3724,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/press-button",
         "@jixoai/button-group",
@@ -3844,7 +3778,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/card",
         "@jixoai/button-group",
@@ -3900,7 +3833,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -3948,7 +3880,6 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -3998,7 +3929,6 @@
       ],
       "docs": "Props: name (REQUIRED for type=single — radio grouping and arrow-walking are name-scoped; optional for multiple), type ('single'|'multiple'), value ($bindable string|string[]), label (required a11y name — omitted from the DOM when the caller wires aria-labelledby; one naming source), required (single mode only — forwards to every input), disabled, density, chrome ('frame' default | 'bare'; explicit ?? the CONTROL_CHROME ambient — an integrated field row resolves bare, the borderless-chrome rung in the shared sheet), onValueChange ((value) => void; native event forwarding rides the spread alongside, never instead). NATIVE contract: single rides label>input[type=radio] (arrow-walk, ONE tab stop, no re-press clear — an explicit none item is the optional-empty pattern); multiple rides checkboxes — FormData carries one entry per active value in DOM order (server reads getAll); the jx-form-field bridge is GONE. DOM checked is the uncontrolled truth; form.reset() re-syncs the projection via the reset event. The paint law is the shared .jx-html-tgroup subtree utility (jixoai.css standard layer — framed by default, [data-chrome=bare] the integrated rung); segments compose as ToggleGroupItem parts (label > input + span, slotStart/slotEnd snippets, no interactive descendants inside the label).",
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
@@ -4050,7 +3980,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -4124,7 +4053,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/command-match",
         "@jixoai/defaults",
@@ -4202,7 +4130,6 @@
       "registryDependencies": [
         "@jixoai/popover",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4273,7 +4200,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4324,7 +4250,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4370,7 +4295,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4425,7 +4349,6 @@
         "href": "/docs/components/descriptions.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4501,7 +4424,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4556,7 +4478,6 @@
         "href": "/docs/components/spin.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density",
@@ -4602,7 +4523,6 @@
         "href": "/docs/components/statistic.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4688,7 +4608,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4734,7 +4653,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4777,7 +4695,6 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "meta": {
@@ -4827,7 +4744,6 @@
       "registryDependencies": [
         "@jixoai/form-field",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4872,7 +4788,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon"
       ]
@@ -4922,7 +4837,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -4962,7 +4876,6 @@
         "href": "/docs/components/badge-indicator.html"
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -5007,7 +4920,6 @@
       "docs": "Props: items ({href:'#id', label}[]), label?, offset? (96 — the pick line, for sticky headers).",
       "registryDependencies": [
         "@jixoai/scroll-spy",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/density"
@@ -5062,7 +4974,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults"
       ]
@@ -5369,7 +5280,6 @@
       "registryDependencies": [
         "@jixoai/highlight-lang-detector",
         "@jixoai/highlight",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -5512,7 +5422,6 @@
       "registryDependencies": [
         "@jixoai/scroll-area-kit",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults"
       ]
@@ -5554,7 +5463,6 @@
       "registryDependencies": [
         "@jixoai/scroll-area-kit",
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -5600,7 +5508,6 @@
       ],
       "registryDependencies": [
         "@jixoai/scroll-area",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -5634,7 +5541,6 @@
       "description": "The ONE scrollable-region system (Owner 2026-09-04, the unification — tabs and button-group are the first two consumers; every future scrollable strip reuses this, never a local copy). Three parts: scroll-run.svelte.ts (createScrollStamp, the JS half — the scrollability VERDICT stamped as data-jx-scroll-state none|start-closed|end-closed|open, the single truth the css gates every overlay on; per-member --jx-edge-start/end clipped-fraction factors + host --jx-scroll-progress, RTL-normalized; ResizeObserver + visibilitychange/focus wake for background tabs; the RTL three-engine canonical [−max,0] funnel detectRtlScrollModel/rtlScrollToCanonical/rtlScrollFromCanonical (inline axis only); nudgeRun, the padding-lane-aware page step on EITHER axis; the ScrollEffect builders ramp/progressBlur/shadow, the press-button effect convention); scroll-run.css (the law sheet — the run IS the scroller: data-jx-scroll-run + data-axis degrade any strip to a hidden-scrollbar scroll run inside its host's ONE-CELL GRID; the edge factors consumed SQUARED, the eased curve — ONE member-ramp builder ramp({ opacity, blur, translate }) with every toggle default ON and a turned-off toggle never paying its css property; the frosted edge chips and the merged veil layer with its scroll-driven translate entrance; the shadow veil on the separator INK law — backdrop contrast subtracts color, never adds black; pre-hydration hides every overlay, reduced-motion kills the translate only); scroll-chrome.svelte (ScrollChrome, the DOM half of the chrome — the veil layer (progressBlur ladder or shadow bands) + the two chevron chips as real focusable buttons, wired to nudgeRun). AXIS-AWARE (round 2): the run's data-axis picks the measuring axis — a VERTICAL run measures along the block axis (scrollTop, block lane, no RTL funnel), places its chips against the block edges — horizontally CENTERED, painting the up/down glyph slots and slides its veil entrance along the block axis; the progressBlur ladder rides EITHER axis (inline edges on a horizontal run, block-edge top/bottom bands on a vertical one — the component's grid dialect). Content that cannot scroll paints NOTHING: the none verdict gates every chip, and a childList MutationObserver re-verdicts when members come or go (a shrunk strip retires its chrome). The chips are CUSTOMIZABLE two ways: css-var glyph swaps (FOUR physical direction slots --jx-scroll-chevron-left/-right/-up/-down, each independently swappable; the run axis + the chip edge + page direction pick the slot, RTL swapping the inline pair) or backwardContent/forwardContent snippet children rendered INSIDE the frosted buttons (the frost, gating and focusable-button law stay; the glyph layer retires and the content centers in the chip). The chips sit IN-BOARD by default — flush against the edge they serve, centered on the cross axis, every placement rule zero-specificity so a consumer override re-places them; hover RAISES a chip (Owner round 10): the frost paints --jx-scroll-chevron-chip-hover (near-opaque) and the lift deepens (the transition carries only the hover pair — the scroll-driven fade never animates). The ramp magnitudes are CHROME-OWNED: ScrollChrome stamps --jx-scroll-edge-slide/blur on the run from the builder's distance/radius (a toggle off never sets its var — consumers never hand-write them). Either chip can be DECLARED disabled (backwardDisabled/forwardDisabled, default rendered): a disabled chip does not render AT ALL — no DOM node, no paint, no a11y entry (consumer-declared absence; the verdict stays the automatic gate for rendered chips). Consumers keep ONLY their tuning: their own band widths, snap, mirrors onto companion elements (tabs mirrors the factors onto its indicator so the bar rides its active trigger).",
       "registryDependencies": [
         "@jixoai/progressive-blur",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -5678,7 +5584,6 @@
       "description": "The named-glyph renderer over the generated icon-set: <Icon name=\"chevronRight\" /> paints 16px currentColor artwork with a typo-proof IconName union (a wrong name is a compile error). The component owns the <svg> root (viewBox from the data, square size edge, caps/joins by artwork nature, aria-hidden, data-jx-icon); class + rest props land on the root verbatim; size and strokeWidth are props, never wrapper CSS. Inline-core names render synchronously (SSR paints them, hydration matches, zero wiring); names past the chunk budget ride loadIcon() into a FIXED reserved box — pending and rejected render the identical span so hydration never rewrites it, and a failed chunk warns once per session.",
       "registryDependencies": [
         "@jixoai/icon-set",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults"
       ],
@@ -5714,7 +5619,6 @@
       "registryDependencies": [
         "@jixoai/press-button",
         "@jixoai/tooltip",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
         "@jixoai/paint",
@@ -5756,7 +5660,6 @@
       "description": "The scroll-edge blur atom (Magic UI port, 2026-08-25): stacked masked backdrop-filter bands ramp blur from clear at the inner edge to the full stack at the scrollport edge — content scrolling under its OWN container's edge diffuses instead of slicing. The overlay root is a sticky h-0 pin (zero layout impact, glued to the scrollport edge; abspos-in-scroller scrolls away), so the whole component is markup + css, zero JS. jixoai extension: reveal='scroll' fades the ladder in with the CSS scroll timeline (nothing blurs at rest) — @supports-gated, degrading to no effect. pin='grid' (2026-09-01): a position-free dialect for one-cell grid hosts (start/end/inline positions, gradients aim physically, documented LTR) with a hold option (the outer share of the band, %, that keeps the ladder's peak instead of ramping — for strips whose readable content parks inboard of a control lane). Grid-dialect paint law (empirical, Chromium 152): the band painted after the scroller and a no-op translateZ(0) compositor isolation per band — without these a veil at the scroll-origin edge samples a dead backdrop and only the first band after the scroller paints; the ladder layers themselves stay pure grid items of the band.",
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -5794,7 +5697,6 @@
       "title": "Glass",
       "description": "The ONE glass-effect system (Owner 2026-09-08 「把 glass 和 blur 合并成一个 blur…引入 Liquid Glass」; r10 2026-09-09 the kube.io SOURCE-LEVEL lock): the five retired hand-tuned glass paints unify into ONE typed effect family behind the data-jx-effect='blur'|'liquid-glass' stamp channel. TWO API LAYERS: blur({radius, saturate, fill, brightness}) the zero-JS frost member — css-only, the law sheet's UNCONDITIONAL base paint every engine gets; liquid({...}) the PHYSICAL liquid member — kube.io's generator ported line-level from their shipped bundle (four dome surfaces convex-circle/convex-squircle/concave/lip, the ray-traced profile WITH the glass-slab path term d = T.x/T.y·(H·thickness+bezel), ÷maximumDisplacement-normalized border-swept maps at 2× dpr under the 512² raster cap, the 9-primitive SVG chain in their verbatim order — in-chain frost → feDisplacementMap → rim saturate → the saturated-copy/ring-alpha specular pair); liquid.apple({variant, tint, interactive, shape, isEnabled}) the SEMANTIC layer — SwiftUI glassEffect's standard compiled DOWN into the physical layer (variant regular/clear/identity; tint → a 30% color-mix fill; interactive stamps --jx-glass-interactive:1 for the law's press motion; shape 'capsule'|px overrides the mount radius; isEnabled false or identity → the FROST member, zero lens cost). glass.css is the law sheet (scroll-run posture): the frost base paints unconditionally — liquid's no-JS / no-url()-engines fallback, the retired .jx-glass values verbatim; the @supports (backdrop-filter: url()) branch is POINTER-ONLY for liquid (the mount appends the filter node THEN writes --jx-glass-filter — frost lives INSIDE the chain, a css frost chain under url() would double-blur; blur() never enters the branch); print drops the filters (fill stays); prefers-reduced-transparency paints solid; NO forced-colors block (consumers carry their Canvas grounds). liquid-glass.svelte.ts: liquidGlass(fx) the attachment FACTORY (the {@attach} face, effect-attachments 2026-09-09) over attachLiquidGlass(el, fx) — mount stamps vars → measures (shape override ?? border-radius) → canvas-encodes both maps → appends the zero-size host svg + the chain at element size → writes the pointer LAST; ResizeObserver rAF-coalesced regeneration; the no-canvas (jsdom/ancient) and zero-box guards leave frost standing, no crash. glass-map.ts is the pure core (zero DOM, node-testable). Consumers keep ONLY their element chrome (tint fill, shadow, border-radius) — the kube recipe, documented on the page.",
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ],
       "files": [
@@ -5910,6 +5812,7 @@
       ],
       "dependencies": [],
       "registryDependencies": [
+        "@jixoai/universal-props",
         "@jixoai/context-plugin",
         "@jixoai/defaults"
       ],
@@ -5974,7 +5877,9 @@
         }
       ],
       "dependencies": [],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@jixoai/universal-props"
+      ],
       "meta": {
         "group": "engines",
         "href": "/docs/components.html"
@@ -6093,7 +5998,6 @@
       "docs": "Props: label (REQUIRED aria name), orientation ('horizontal'|'vertical'), justify ('start'|'end'|'center'|'between'), density, class. ROLE LAW: root is role=group — actions keep their own tab stops and activation; the group adds NO selection semantics (joined selection is toggle-group's contract). Composition: children are plain PressButton/icon-button instances; ButtonGroupDivider inserts a 1px seam member. Paint: the shared seam lives in button-group.css keyed on the data-jx-bgroup hook (Tier-2 vocabulary consumed-only).",
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
         "@jixoai/press-button",
@@ -6160,7 +6064,6 @@
       ],
       "docs": "Props (root): label (REQUIRED a11y name), name/value/bind:value forwarded to the InputGroupInput member, disabled (native propagation: input renders disabled, addons render inert), invalid, density, class. Members: InputGroupAddon (align 'inline-start'|'inline-end', decorative lane), InputGroupInput (the native input — its own name= submits through the input family contract, MULTIVALUE-ready via the form-field seam when composed so). The shell is a composition frame: children compose freely inside the lane; seams are the addons' hairlines, the shell carries exactly one border.",
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
         "@jixoai/defaults"
@@ -6235,7 +6138,6 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/density",
         "@jixoai/defaults"
@@ -6289,7 +6191,6 @@
         "@jixoai/input",
         "@jixoai/input-otp",
         "@jixoai/press-button",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon"
       ]
@@ -6337,7 +6238,6 @@
         "@jixoai/code-card",
         "@jixoai/press-button",
         "@jixoai/badge",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon"
       ]
@@ -6394,7 +6294,6 @@
         "@jixoai/hero-section",
         "@jixoai/terminal-card",
         "@jixoai/press-button",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon"
       ]
@@ -6439,7 +6338,6 @@
       },
       "registryDependencies": [
         "@jixoai/accordion",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon"
       ]
@@ -6485,7 +6383,6 @@
       "registryDependencies": [
         "@jixoai/press-button",
         "@jixoai/code-card",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon"
       ]
@@ -6574,7 +6471,6 @@
       ],
       "registryDependencies": [
         "@jixoai/katex",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/utils"
       ],
@@ -6607,7 +6503,6 @@
       ],
       "registryDependencies": [
         "@jixoai/katex",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/scroll-run",
         "@jixoai/icon"
@@ -6656,7 +6551,6 @@
       ],
       "registryDependencies": [
         "@jixoai/mermaid-engine",
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme",
         "@jixoai/icon",
         "@jixoai/utils",
@@ -6725,7 +6619,6 @@
         "alpha": true
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -6754,7 +6647,6 @@
         "alpha": true
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     },
@@ -6783,7 +6675,6 @@
         "alpha": true
       },
       "registryDependencies": [
-        "@jixoai/universal-props",
         "@jixoai/jixoai-theme"
       ]
     }

@@ -20,8 +20,14 @@ The registry SHALL ship the alias ladder as a CONCRETE artifact chain
     { "type": "registry:file", "path": "registry/files/lib/universal-props.css",      "target": "@lib/universal-props.css" }
   ]
 }
-// every migrated ui item gains:
-"registryDependencies": ["@jixoai/universal-props", "@jixoai/tokens", "@jixoai/jixoai-theme"]
+// dependency edges ride the CONSUMPTION chain (W2's wave-boundary
+// finding — verify:deps is import-honest): @jixoai/defaults and
+// @jixoai/density declare the direct edge (they import the schema);
+// COMPONENTS gain the ladder transitively via their @jixoai/defaults
+// edge — a direct @jixoai/universal-props edge lands ONLY on items
+// that import the schema/slots directly (none before W3, then per-batch
+// as the migration actually imports). Premature blanket edges are DEAD
+// dependencies and the gate correctly reds them.
 ```
 
 `universal-props.css` is GENERATED from the schema (the
