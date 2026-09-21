@@ -24,6 +24,8 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import CardGridHost from './fixtures/card-grid-host.svelte';
 import { cardGridStyles } from '../src/lib/ui/card-grid/card-grid.stylex';
+import { sectionCardStyles } from '../src/lib/ui/section-card/section-card.stylex';
+import { cx } from './helpers/stylex-atom';
 
 // component css rides the svelte pipeline in vitest (the ?raw import
 // resolves empty here, unlike the kernel's plain-css ?raw) — read the
@@ -132,11 +134,12 @@ describe('card-grid — the DOM contract (rendered composition)', () => {
       const body = card.querySelector('[data-jx-section-body]')!;
       // tailwindless one-shot (2026-09-16): the token-derived formulas
       // moved from utility strings into the family's stylex atoms
-      // (section-card.stylex.ts header/body members — the dev-class
-      // names carry the member identity; the channel formulas
-      // themselves are source-audited by density-adoption-data)
-      expect(header.className).toContain('sectionCardStyles.header');
-      expect(body.className).toContain('sectionCardStyles.body');
+      // (section-card.stylex.ts header/body members — compile-lane
+      // re-pin W5-r2: the atom STRINGS carry the member identity after
+      // 012335c4 killed the dev names; the channel formulas themselves
+      // are source-audited by density-adoption-data)
+      expect(header.className).toContain(cx(sectionCardStyles.header));
+      expect(body.className).toContain(cx(sectionCardStyles.body));
       // the retired vocabulary: viewport variants on the card's own zones
       expect(header.className).not.toMatch(/\bsm:px-|\bsm:py-/);
       expect(body.className).not.toMatch(/\bsm:px-|\bsm:py-/);
@@ -158,18 +161,8 @@ describe('card-grid — the DOM contract (rendered composition)', () => {
     // tailwindless one-shot W1b batch C (2026-09-17): the column law
     // moved from the utility string into the family's stylex atom —
     // the grammar itself is source-audited below; membership rides
-    // the atom hash the component joins
-    const cx = (
-      ...styles: ({ readonly [key: string]: string | object } | undefined)[]
-    ): string =>
-      styles
-        .filter(Boolean)
-        .map((style) =>
-          Object.entries(style).flatMap(([key, value]) =>
-            key !== '$$css' && typeof value === 'string' ? [value] : [],
-          ).join(' '),
-        )
-        .join(' ');
+    // the shared cx join (W5-r2: the helper replaces this test's
+    // inline copy)
     expect(grid.className).toContain(cx(cardGridStyles.grid));
     const atomSource = readFileSync(
       resolve(process.cwd(), 'src/lib/ui/card-grid/card-grid.stylex.ts'),

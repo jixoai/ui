@@ -35,6 +35,9 @@ import DescriptionsHost from './fixtures/descriptions-host.svelte';
 import StepsIndicator from '../src/lib/ui/steps/steps-indicator.svelte';
 import StepsTitle from '../src/lib/ui/steps/steps-title.svelte';
 import type { StepState } from '../src/lib/ui/steps';
+import { descriptionsStyles } from '../src/lib/ui/descriptions/descriptions.stylex';
+import { stepsStyles } from '../src/lib/ui/steps/steps.stylex';
+import { cx } from './helpers/stylex-atom';
 
 const specDir = resolve(fileURLToPath(import.meta.url), '..');
 const stepsCss = readFileSync(resolve(specDir, '../src/lib/ui/steps/steps.css'), 'utf8');
@@ -158,8 +161,9 @@ describe('Steps family — marker button only when onclick + done', () => {
     expect(replaced.getAttribute('type')).toBe('button');
     // the indicator's glyph box now derives from the ctl icon alias
     // tailwindless W1: the geometry rides the marker atom (css-source
-    // for the channel declarations themselves)
-    expect(replaced.className.replace(/\s+/g, '')).toContain('stepsStyles.marker');
+    // for the channel declarations themselves); compile-lane re-pin
+    // W5-r2 — the atom STRING after 012335c4 killed the dev names
+    expect(replaced.className.replace(/\s+/g, '')).toContain(cx(stepsStyles.marker).replace(/\s+/g, ''));
     expect(
       readFileSync(resolve(specDir, '../src/lib/ui/steps/steps.stylex.ts'), 'utf8'),
     ).toContain("width: 'var(--jx-icon)'");
@@ -702,11 +706,13 @@ describe('Descriptions family — term prop + children value', () => {
     const dl2 = framed.container.querySelector('dl')!;
     expect(dl2.getAttribute('style')).toContain('--jx-desc-cols: 2');
     expect(dl2.hasAttribute('data-jx-desc-bordered')).toBe(true);
-    expect(dl2.className).toContain('border');
+    // compile-lane re-pin W5-r2 (the 'border' utility substring died with
+    // the dev names at 012335c4): the bordered FRAME atom, joined cx
+    expect(dl2.className).toContain(cx(descriptionsStyles.bordered));
     // tailwindless W1b-A: the bordered frame rides the cellBordered/
     // termBordered atoms (utility seams retired with the utilities)
-    expect(framed.container.querySelector('[data-jx-desc-cell]')!.className).toContain('descriptions__descriptionsStyles.cellBordered');
-    expect(framed.container.querySelector('[data-jx-desc-term]')!.className).toContain('descriptions__descriptionsStyles.termBordered');
+    expect(framed.container.querySelector('[data-jx-desc-cell]')!.className).toContain(cx(descriptionsStyles.cellBordered));
+    expect(framed.container.querySelector('[data-jx-desc-term]')!.className).toContain(cx(descriptionsStyles.termBordered));
   });
 });
 

@@ -27,6 +27,7 @@ import { describe, expect, it } from 'vitest';
 import { resolveTypoStyle, getTypographyScope } from '../src/lib/typography.svelte';
 import { ProseDefaults } from '../src/lib/ui/prose/prose-defaults.svelte';
 import { chipStyles } from '../src/lib/ui/chip/chip.stylex';
+import { headingStyles } from '../src/lib/ui/heading/heading.stylex';
 import Host from './fixtures/prose-scope-host.svelte';
 import PluginHost from './fixtures/prose-plugin-host.svelte';
 import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
@@ -373,13 +374,14 @@ describe('heading ink', () => {
     const { container } = render(Host);
     const scoped = byTestid(container, 'heading-wrap').querySelector('h2[data-jx-heading]')!;
     // scoped: the region ships the token the atom resolves
-    expect(scoped.className).toContain('heading__headingStyles.base');
+    // (compile-lane re-pin W5-r2 — the atom STRING after 012335c4)
+    expect(scoped.className).toContain(cx(headingStyles.base));
     const host = byTestid(container, 'heading-wrap').querySelector('[data-jx-prose]')!;
     expect(styleOf(host)).toContain('--jx-ty-ink: var(--muted-foreground)');
     expect(styleOf(host)).toContain('color: var(--muted-foreground)');
     // unscoped: the same atom, the fallback arm (no --jx-ty-ink anywhere)
     const unscoped = byTestid(container, 'heading-wrap').querySelectorAll('h2[data-jx-heading]')[1]!;
-    expect(unscoped.className).toContain('heading__headingStyles.base');
+    expect(unscoped.className).toContain(cx(headingStyles.base));
   });
 
   it('the consumer text utility overrides last-wins (dedup-verified F5)', () => {

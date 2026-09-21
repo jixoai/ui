@@ -139,7 +139,8 @@ describe('the bands — borders retired, the kernel parts compose', () => {
     // tailwindless one-shot W1b (2026-09-17): the formula moved from
     // utility strings into card.stylex's bodyCell atom (the parallel
     // card-batch migration) — membership + the formula itself
-    expect(bodyRow.className).toContain('card__cardStyles.bodyCell');
+    // (compile-lane re-pin W5-r2 — the atom STRING after 012335c4)
+    expect(bodyRow.className).toContain(cx(cardStyles.bodyCell));
     const cardStylex = readFileSync(
       resolve(process.cwd(), 'src/lib/ui/card/card.stylex.ts'),
       'utf8',

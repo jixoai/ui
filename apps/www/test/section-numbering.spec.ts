@@ -26,6 +26,9 @@ import { render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Host from './fixtures/section-tree-host.svelte';
+import { sectionCardStyles } from '../src/lib/ui/section-card/section-card.stylex';
+import { separatorStyles } from '../src/lib/ui/separator/separator.stylex';
+import { cx } from './helpers/stylex-atom';
 
 /** the settle protocol: Svelte flush + observer microtask + rAF (the
  *  provider-lifecycle precedent — mutation observers deliver per
@@ -63,13 +66,45 @@ const BASELINE =
 
 /** strip the stylex dev hashes (x…) that trail an atomic member prefix —
  *  they are compiler-generated, every other byte stays pinned */
-const normalizeAtoms = (html: string): string =>
-  html.replace(/([a-z][a-z0-9-]*__[A-Za-z]+Styles\.[\w.]+)(?:\s+x[a-z0-9]+)+/gu, '$1');
+/** strip atom class tokens from BOTH sides of the compare: the dev-name
+ *  prefixes (…__…Styles.member) of the pre-compile lane AND the bare
+ *  x-hashes of the compile lane (012335c4: dev:false — hashed classes
+ *  everywhere, dev names gone from the DOM). The atom MEMBER identity
+ *  the baseline used to carry inline is re-asserted below through the
+ *  compiled atom strings (cx(sectionCardStyles.…)) — identity through
+ *  the shared source module, strength unchanged. Every other byte
+ *  (structure, data-* stamps) stays pinned. */
+const stripAtomClasses = (html: string): string =>
+  html
+    .replace(/[a-z][a-z0-9-]*__[A-Za-z]+Styles\.[\w.]+/gu, '')
+    .replace(/\bx[0-9a-z]+\b/gu, '')
+    .replace(/\s+/g, ' ')
+    .replace(/class=" "/g, 'class=""');
+
+const normalizeAtoms = (html: string): string => stripAtomClasses(html);
+const normalizeBaseline = (html: string): string =>
+  stripAtomClasses(
+    html.replace(/([a-z][a-z0-9-]*__[A-Za-z]+Styles\.[\w.]+)(?:\s+x[a-z0-9]+)+/gu, '$1'),
+  );
 
 describe('1.3 — the status-quo gate (sections outside every domain)', () => {
   it('byte-identical to the pre-change baseline; no data-number, no number node', () => {
     const { container } = render(Host, { props: { variant: 'plain' } });
-    expect(normalizeAtoms(container.innerHTML)).toBe(BASELINE);
+    expect(normalizeAtoms(container.innerHTML)).toBe(normalizeBaseline(BASELINE));
+    // the atom member identity the baseline's dev names used to carry
+    // (compile-lane re-pin W5-r2 — the atom STRINGS after 012335c4):
+    // the section-card + separator members, membership through cx
+    const first = container.querySelector('section[data-jx-section]')!;
+    expect(first.className).toContain(cx(sectionCardStyles.card));
+    expect(first.querySelector('[data-jx-section-header]')!.className).toContain(
+      cx(sectionCardStyles.header),
+    );
+    expect(first.querySelector('[data-jx-section-body]')!.className).toContain(
+      cx(sectionCardStyles.body),
+    );
+    expect(first.querySelector('hr[data-jx-separator]')!.className).toContain(
+      cx(separatorStyles.horizontal),
+    );
     expect(container.querySelectorAll('[data-number]')).toHaveLength(0);
     expect(container.querySelectorAll('[data-jx-number]')).toHaveLength(0);
   });

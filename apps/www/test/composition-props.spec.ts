@@ -20,6 +20,7 @@ import { describe, expect, it } from 'vitest';
 
 import { stepsStyles } from '../src/lib/ui/steps/steps.stylex';
 import { breadcrumbStyles } from '../src/lib/ui/breadcrumb/breadcrumb.stylex';
+import { sysdlgStyles } from '../src/lib/ui/system-dialog/system-dialog.stylex';
 import CompositionPropsHost from './fixtures/composition-props-host.svelte';
 
 // tailwindless Wave 1 (2026-09-17): the families' paint rides stylex
@@ -81,7 +82,9 @@ describe('props discipline — consumer attributes flow to the part root', () =>
     expect(h2.dataset.probeKind).toBe('system-dialog');
     expect(h2.className).toContain('probe-extra');
     // tailwindless W1b-B: the title's nav voice rides the atom
-    expect(h2.className).toContain('system-dialog__sysdlgStyles.title');
+    // (compile-lane re-pin W5-r2 — the atom STRING after 012335c4
+    // killed the dev names)
+    expect(h2.className).toContain(cx(sysdlgStyles.title));
     // the derived id (what Content's aria-labelledby points at) keeps
     // its family shape — consumer attributes never break the wire
     expect(h2.id).toMatch(/-title$/);

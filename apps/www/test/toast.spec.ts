@@ -28,6 +28,8 @@ import ToastViewport from '../src/lib/ui/toast/toast-viewport.svelte';
 import { createToastStore } from '../src/lib/toast-store';
 import ToastAdoptHost from './fixtures/toast-adopt-host.svelte';
 import ToastFeaturesHost from './fixtures/toast-features-host.svelte';
+import { toastStyles } from '../src/lib/ui/toast/toast.stylex';
+import { cx } from './helpers/stylex-atom';
 
 describe('toast — the viewport does not float itself', () => {
   it('inside a REAL website-scaffold it ADOPTS: wrapper in the float slot, flow mode, no fixed', async () => {
@@ -51,10 +53,11 @@ describe('toast — the viewport does not float itself', () => {
     // anchor (content-end); a top slot descends (content-start)
     expect(stack.className).not.toContain('align-content-end');
     // tailwindless W1: the alignment/rows ride the stack + contentEnd
-    // atoms (dev names in jsdom; the declarations themselves are
+    // atoms (compile-lane re-pin W5-r2 — the atom STRINGS after
+    // 012335c4 killed the dev names; the declarations themselves are
     // css-source in toast.stylex.ts — the separator spec's law)
-    expect(stack.className).toContain('toastStyles.contentEnd');
-    expect(stack.className).toContain('toastStyles.stack');
+    expect(stack.className).toContain(cx(toastStyles.contentEnd));
+    expect(stack.className).toContain(cx(toastStyles.stack));
     expect(readFileSync('src/lib/ui/toast/toast.stylex.ts', 'utf8')).toContain(
       "gridAutoRows: 'min-content'",
     );
@@ -108,12 +111,12 @@ describe('toast — the viewport does not float itself', () => {
     // toast-v2 stacking dialect: the opt-in rides the card's grid-item
     // WRAPPER (the visual card inside it inherits)
     const stack = wrapper.querySelector('[data-jx-toasts]') as HTMLElement;
-    expect(stack.className).toContain('toastStyles.stack');
+    expect(stack.className).toContain(cx(toastStyles.stack));
     expect(readFileSync('src/lib/ui/toast/toast.stylex.ts', 'utf8')).toContain(
       "pointerEvents: 'none'",
     );
     const cardHost = stack.querySelector('[data-jx-toast]')?.parentElement as HTMLElement;
-    expect(cardHost.className).toContain('toastStyles.wrapper');
+    expect(cardHost.className).toContain(cx(toastStyles.wrapper));
     expect(readFileSync('src/lib/ui/toast/toast.stylex.ts', 'utf8')).toContain(
       "pointerEvents: 'auto'",
     );
@@ -123,7 +126,7 @@ describe('toast — the viewport does not float itself', () => {
     const store = createToastStore();
     const { container } = render(ToastViewport, { props: { store } });
     const stack = container.querySelector('[data-jx-toasts]') as HTMLElement;
-    expect(stack.className).toContain('toastStyles.posRightBottom');
+    expect(stack.className).toContain(cx(toastStyles.posRightBottom));
     expect(readFileSync('src/lib/ui/toast/toast.stylex.ts', 'utf8')).toContain(
       "position: 'fixed'",
     );
@@ -239,10 +242,9 @@ describe('toast — material × effect × countdown', () => {
     expect(toastCss).toMatch(/:where\(\[data-jx-toast\]\)\s*{\s*[\sS]*?background: Canvas;/);
     // the default ground stays solid popover — and never stamps
     const plain = container.querySelector('[data-jx-toast][data-material="popover"]') as HTMLElement;
-    // dev-mode atom names may spell out letter-by-letter — compare
-    // the whitespace-stripped class string (the ATOM identity, not
-    // its spelling)
-    expect(plain.className.replace(/\s+/g, '')).toContain('toastStyles.groundPopover');
+    // compile-lane re-pin W5-r2: the whitespace-stripped ATOM string
+    // (012335c4 killed the dev names; identity through the module)
+    expect(plain.className.replace(/\s+/g, '')).toContain(cx(toastStyles.groundPopover).replace(/\s+/g, ''));
     expect(plain.hasAttribute('data-jx-effect')).toBe(false);
   });
 

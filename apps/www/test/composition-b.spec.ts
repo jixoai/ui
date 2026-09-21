@@ -36,6 +36,9 @@ import AnchorHost from './fixtures/anchor-host.svelte';
 import BreadcrumbHost from './fixtures/breadcrumb-host.svelte';
 import PaginationHost from './fixtures/pagination-host.svelte';
 import TerminalFooterHost from './fixtures/terminal-footer-host.svelte';
+import { anchorStyles } from '../src/lib/ui/anchor/anchor.stylex';
+import { breadcrumbStyles } from '../src/lib/ui/breadcrumb/breadcrumb.stylex';
+import { cx } from './helpers/stylex-atom';
 
 // ---------------------------------------------------------------------------
 // pageRange — parity with the closed component's window math
@@ -181,8 +184,9 @@ describe('Breadcrumb family', () => {
     // the part's non-conflicting paint survives the merge — the hover
     // ink rides the link ATOM's pseudo condition since tailwindless W1
     // (the state classes ride the joined string; the css is the
-    // engine's :hover rule)
-    expect(link.className).toContain('breadcrumbStyles.link');
+    // engine's :hover rule); compile-lane re-pin W5-r2 — the atom
+    // STRING after 012335c4 killed the dev names
+    expect(link.className).toContain(cx(breadcrumbStyles.link));
     expect(link.className).toContain('jx-bc-link');
   });
 
@@ -413,7 +417,7 @@ describe('Anchor family', () => {
     expect(link.getAttribute('aria-current')).toBe('location'); // state rides props
     expect(link.className).toContain('text-primary'); // consumer's utility wins
     expect(link.className).not.toContain('text-muted-foreground');
-    expect(link.className).toContain('anchor__anchorStyles.linkActive'); // active paint from the part (tailwindless W1b-A: the pose rides the atom)
+    expect(link.className).toContain(cx(anchorStyles.linkActive)); // active paint from the part (tailwindless W1b-A: the pose rides the atom; compile-lane re-pin W5-r2)
 
     targets.forEach((t) => t.remove());
   });

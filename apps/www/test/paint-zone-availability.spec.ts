@@ -11,6 +11,8 @@
 import { render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import PaintZoneHost from './fixtures/paint-zone-host.svelte';
+import { badgeStyles } from '../src/lib/ui/badge/badge.stylex';
+import { cx } from './helpers/stylex-atom';
 
 const mount = (variant: 'fill' | 'tonal' | 'outline' | 'ghost') =>
   render(PaintZoneHost, { variant });
@@ -48,7 +50,7 @@ describe('paint zone availability gate (B4)', () => {
   it('the fallback keeps the family PAINTED — variant utilities resolve, not undefined', () => {
     const { container } = mount('ghost');
     const badge = container.querySelector('[data-testid="probe-badge"] [data-jx-badge]')!;
-    expect(badge.className).toContain('badge__badgeStyles.tonal'); // tailwindless W1b-A: the fallback paint rides the atom
+    expect(badge.className).toContain(cx(badgeStyles.tonal)); // tailwindless W1b-A: the fallback paint rides the atom (compile-lane re-pin W5-r2 — the atom STRING after 012335c4)
     expect(badge.getAttribute('data-jx-badge')).not.toBe('ghost');
   });
 });

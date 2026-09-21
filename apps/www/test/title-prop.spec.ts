@@ -4,7 +4,6 @@
  * the PUBLIC surface (wasmUrl data: URL + handle.write of an OSC-ONLY
  * frame) to see whether onTitleChange fires without a trailing write.
  */
-import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { mount } from 'svelte';
 // the vt-deps seam owns the unresolvable ids (virtual:jixoai-ghostty) —
@@ -18,13 +17,12 @@ vi.mock('../../../registry/files/ui/ghostty-term/vt-deps.ts', async () => {
   };
 });
 import GhosttyTerm from '../../../registry/files/ui/ghostty-term/ghostty-term.svelte';
+import { acquireWasmBytes } from './helpers/ghostty-wasm';
 
-// the cached wasm (env-first, the osc-probe pattern — the /tmp
-// research default only exists on machines that ran the original
-// ghostty research session)
-const wasmBytes = readFileSync(
-  process.env.JIXOAI_GHOSTTY_WASM_PATH ?? '/tmp/ghostty-research/ghostty-vt.wasm',
-);
+// the cached wasm — the shared three-tier acquisition (env override →
+// /tmp research copy → Batch A's pin resolver; the helper), awaited at
+// module top level so the mock factory above can close over it
+const wasmBytes = await acquireWasmBytes();
 
 describe('component title propagation (real wasm)', () => {
   it('fires onTitleChange for an OSC-only write frame', async () => {

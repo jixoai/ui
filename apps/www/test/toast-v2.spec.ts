@@ -25,6 +25,8 @@ import { createToastStore, SWIPE_BY_FLOAT_POS } from '../src/lib/toast-store';
 import ToastViewport from '../src/lib/ui/toast/toast-viewport.svelte';
 import ToastAdoptHost from './fixtures/toast-adopt-host.svelte';
 import { frictionShift, judgeSwipe, SWIPE_FRICTION } from '../src/lib/ui/toast/toast-swipe';
+import { toastStyles } from '../src/lib/ui/toast/toast.stylex';
+import { cx } from './helpers/stylex-atom';
 
 afterEach(() => {
   cleanup();
@@ -188,9 +190,10 @@ describe('toast v2 — the stacking dialect (viewport)', () => {
     const stack = container.querySelector('[data-jx-toasts]') as HTMLElement;
     expect(stack.getAttribute('data-expanded')).toBeNull(); // collapsed at rest
     const wrappers = [...stack.children].filter((c) =>
-      // tailwindless W1: the wrapper atom's dev name (the grid-area
-      // declaration itself is css-source in toast.stylex.ts)
-      (c as HTMLElement).className.includes('toastStyles.wrapper'),
+      // tailwindless W1: the wrapper atom (compile-lane re-pin W5-r2 —
+      // the atom STRING; the grid-area declaration itself is
+      // css-source in toast.stylex.ts)
+      (c as HTMLElement).className.includes(cx(toastStyles.wrapper)),
     ) as HTMLElement[];
     expect(wrappers).toHaveLength(2);
     // the FRONT (newest, i=0) shows its description; the rear slab (i=1)
@@ -203,12 +206,12 @@ describe('toast v2 — the stacking dialect (viewport)', () => {
     expect(rear!.style.getPropertyValue('--jx-toast-y')).toBe('-8px'); // -gap·1
     expect(rear!.style.getPropertyValue('--jx-toast-scale')).toBe('0.95');
     // tailwindless W1: the withheld ink rides the inkTransparent atom
-    // (dev names may spell letter-by-letter — compare stripped)
+    // (compile-lane re-pin W5-r2 — compare the stripped atom string)
     expect(rear!.querySelector('[data-jx-toast-desc]')!.className.replace(/\s+/g, '')).toContain(
-      'toastStyles.inkTransparent',
+      cx(toastStyles.inkTransparent).replace(/\s+/g, ''),
     );
     expect(front!.querySelector('[data-jx-toast-desc]')!.className.replace(/\s+/g, '')).not.toContain(
-      'toastStyles.inkTransparent',
+      cx(toastStyles.inkTransparent).replace(/\s+/g, ''),
     );
   });
 
@@ -490,7 +493,7 @@ describe('toast v2 — R3 adversarial regressions', () => {
     });
     await new Promise((r) => setTimeout(r, 0));
     const trail = container.querySelector('[data-jx-toast-trailing]') as HTMLElement;
-    expect(trail.style.getPropertyValue('grid-area') + trail.className).toContain('toastStyles.trailing');
+    expect(trail.style.getPropertyValue('grid-area') + trail.className).toContain(cx(toastStyles.trailing));
     // css-source: the template carries four lanes
     const css = readFileSync('src/lib/ui/toast/toast.css', 'utf8');
     expect(css).toContain("grid-template-areas: 'leading body trail close'");

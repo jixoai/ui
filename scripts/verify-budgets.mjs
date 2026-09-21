@@ -154,7 +154,19 @@ const BASELINES = {
   // is the whole styling prerequisite" made literal. Receipted
   // growth: base-layer law only, zero utility-layer leakage
   // (B-consumer rows unchanged).
-  'B-source': 41682,
+  //
+  // re-recorded 2026-09-22 (explicit-props W5-r2): B-source
+  // 41682->46304 (+11.1%) — the explicit-props W1 CSS core
+  // (5d9810e5: the §4 density coefficient carrier — 89
+  // --jx-density-coefficient composition sites across the rung
+  // scopes' channels; the §7 elevation level table + surface ladder
+  // — 38 --jx-elevation members; the §11 carrier invariants) plus
+  // W3 batch C's sheet §13 amendments (09d64fb0) and jx-pure's +53
+  // rule lines. Decomposition: jixoai.css 28123 + jx-pure.css 18181.
+  // Receipted growth: generated axis law only (theme mirror pair +
+  // jx-auto-dark regenerated in the same commits), zero
+  // utility-layer leakage (B-consumer rows unchanged).
+  'B-source': 46304,
   'B-face': 13368,
   'B-consumer-vite': 3865,
   'B-consumer-icons': 857,

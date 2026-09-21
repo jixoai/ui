@@ -674,8 +674,14 @@ export default defineConfig({
       check('ghostty-term: zero wasm payloads in src/', wasmHits.length === 0, wasmHits.map((p) => p.slice(ctx.dir.length)).join(', ') || 'none');
       // the frozen closure — MINUS utils.ts: the cn seam retired with the
       // engine (tailwindless W4; ghostty-term no longer imports $lib/utils,
-      // the deps gate holds the edge dead) — utils.ts stopped arriving
-      const frozen = ['src/lib/ghostty-vt.ts', 'src/lib/jixoai.css', 'src/lib/color-utils.ts', 'src/lib/density.svelte.ts'];
+      // the deps gate holds the edge dead) — utils.ts stopped arriving.
+      // W5-r2 re-pin: density.svelte.ts → defaults.svelte.ts — the W3
+      // one-seam migration moved densityRungOf + the axis slots into
+      // $lib/defaults.svelte (ghostty-term.svelte's import block is the
+      // evidence); the payload correctly delivers the seam file (with
+      // its universal-props schema/query/css closure), density.svelte.ts
+      // is the legacy channel and no longer in this item's graph
+      const frozen = ['src/lib/ghostty-vt.ts', 'src/lib/jixoai.css', 'src/lib/color-utils.ts', 'src/lib/defaults.svelte.ts'];
       const missing = frozen.filter((f) => !ctx.exists(f));
       check('ghostty-term: frozen dependency closure arrived', missing.length === 0, missing.join(', ') || 'complete');
       check('ghostty-term: the retired cn seam stays retired (utils.ts never arrives)', !ctx.exists('src/lib/utils.ts'));

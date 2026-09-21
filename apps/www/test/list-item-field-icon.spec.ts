@@ -24,31 +24,48 @@ import { fireEvent, render } from '@testing-library/svelte';
 import { flushSync } from 'svelte';
 import { describe, expect, it } from 'vitest';
 import Host from './fixtures/item-field-icon-host.svelte';
+import { checkboxStyles } from '../src/lib/ui/checkbox/checkbox.stylex';
+import { radioStyles } from '../src/lib/ui/radio/radio.stylex';
+import { nativeSelectStyles } from '../src/lib/ui/native-select/native-select.stylex';
+import { inputStyles } from '../src/lib/ui/input/input.stylex';
+import { cx } from './helpers/stylex-atom';
 
 const itemCss = readFileSync(resolve(__dirname, '../src/lib/ui/list-item/item.css'), 'utf8');
 
-/** the pre-slot byte baseline (git-clean capture, 2026-09-13) */
+/** the pre-slot byte baseline (git-clean capture, 2026-09-13;
+ *  re-pinned W5-r2 2026-09-21):
+ *    - 3e8c38ec (explicit-props W3 batch D1, the eight-axis surface)
+ *      added the row's §3/§14 radius consumption — every row now
+ *      carries the inline --jx-radius-consumed formula (the auto
+ *      arm: max(0px, R − P) × the factor); it is THIS change's own
+ *      contract, pinned byte-exact below.
+ *    - 012335c4 (dev:false, hashed classes everywhere) retired the
+ *      dev-name atom spellings; the baselines carry ATOM placeholders
+ *      where atom tokens ride, both sides normalize identically, and
+ *      the member identity lives in the cx() membership assertions
+ *      inside the test (identity through the shared source modules,
+ *      strength unchanged).
+ *    - the select row's data-self-inset attribute order follows the
+ *      live serialization (attr order is Svelte state, not contract). */
 const BASELINE: Record<string, string> = {
-  toggle: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-t1-label" for="p-t1">Fast builds</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><!----><!----> <input id="p-t1" type="checkbox" role="switch" class="jx-html-switch"><!----></span><!----></div><!---->`,
-  checkbox: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-c1-label" for="p-c1">Beta channel</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><!----><div class="checkbox__checkboxStyles.host"><span data-jx-check="" class="jx-check-lane"><input id="p-c1" type="checkbox" class="jx-html-checkbox"> <!----></span> <!----></div><!----></span><!----></div><!---->`,
-  radio: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-r1-label" for="p-r1">Stable</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><div class="radio__radioStyles.host"><span data-jx-check="" class="jx-check-lane"><input type="radio" id="p-r1" class="jx-html-radio" name="chan" value="stable"> <!----></span> <!----></div><!----></span><!----></div><!---->`,
-  select: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-s1-label" for="p-s1">Density</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><div class="jx-field" data-self-inset=""><!----> <span class="jx-select-wrap native-select__nativeSelectStyles.wrap"><select id="p-s1" class="jx-html-select native-select__nativeSelectStyles.control" data-chrome="bare"><!----><!----><option value="sm">sm</option> <option value="md">md</option><!----><!----></select></span> <!----></div><!----></span><!----></div><!---->`,
-  input: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-i1-label" for="p-i1">Project name</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><!----><div class="jx-field" data-self-inset=""><!----> <div class="jx-html-control-shell  jx-slotted" data-chrome="bare" data-icon-position="auto"><!----> <!----> <!----> <input type="text" id="p-i1" class="jx-html-control-lane"> <span data-jx-semantic-icon="" aria-hidden="true" class="input__inputStyles.iconLane"><!----><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-jx-icon="" fill="none" stroke="currentColor"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" x2="15" y1="20" y2="20"></line><line x1="12" x2="12" y1="4" y2="20"></line></svg><!----></span><!----> <!----> <!----> <!----> <!----></div><!----> <!----> <!----> <!----> <!----></div><!----></span><!----></div><!---->`,
-  raw: `<!----><!----><div data-item-field="text" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><span class="jx-item-field-label" id="p-f1-label">Custom control</span><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><button type="button" aria-labelledby="p-f1-label">act</button><!----></span><!----></div><!---->`
+  toggle: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" style="--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1));" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-t1-label" for="p-t1">Fast builds</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><!----><!----> <input id="p-t1" type="checkbox" role="switch" class="jx-html-switch"><!----></span><!----></div><!---->`,
+  checkbox: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" style="--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1));" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-c1-label" for="p-c1">Beta channel</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><!----><div class="ATOM"><span data-jx-check="" class="jx-check-lane"><input id="p-c1" type="checkbox" class="jx-html-checkbox"> <!----></span> <!----></div><!----></span><!----></div><!---->`,
+  radio: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" style="--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1));" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-r1-label" for="p-r1">Stable</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><div class="ATOM"><span data-jx-check="" class="jx-check-lane"><input type="radio" id="p-r1" class="jx-html-radio" name="chan" value="stable"> <!----></span> <!----></div><!----></span><!----></div><!---->`,
+  select: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" style="--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1));" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-s1-label" for="p-s1">Density</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><div data-self-inset="" class="jx-field"><!----> <span class="jx-select-wrap ATOM"><select id="p-s1" class="jx-html-select ATOM" data-chrome="bare"><!----><!----><option value="sm">sm</option> <option value="md">md</option><!----><!----></select></span> <!----></div><!----></span><!----></div><!---->`,
+  input: `<!----><!----><div data-item-field="for" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" style="--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1));" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><label class="jx-item-field-label" id="p-i1-label" for="p-i1">Project name</label><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><!----><div class="jx-field" data-self-inset=""><!----> <div class="jx-html-control-shell  jx-slotted" data-chrome="bare" data-icon-position="auto"><!----> <!----> <!----> <input type="text" id="p-i1" class="jx-html-control-lane"> <span data-jx-semantic-icon="" aria-hidden="true" class="ATOM"><!----><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-jx-icon="" fill="none" stroke="currentColor"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" x2="15" y1="20" y2="20"></line><line x1="12" x2="12" y1="4" y2="20"></line></svg><!----></span><!----> <!----> <!----> <!----> <!----></div><!----> <!----> <!----> <!----> <!----></div><!----></span><!----></div><!---->`,
+  raw: `<!----><!----><div data-item-field="text" data-control-chrome="integrated" data-slot="item" data-variant="auto" data-item-chrome="surface" data-layout="standard" style="--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1));" class="jx-item jx-item-field"><!----><!----><!----><div data-slot="item-content"><!----><span class="jx-item-field-label" id="p-f1-label">Custom control</span><!----> <!----> <!----><!----></div><!----> <span data-slot="item-end" data-align="center" data-wrap="never" data-inset="auto"><!----><button type="button" aria-labelledby="p-f1-label">act</button><!----></span><!----></div><!---->`
 };
 
-/** tailwindless Wave 1 (2026-09-17): the semantic-icon lane's utility
- *  payload became input stylex atoms — the member prefix names the
- *  lane, the trailing dev hashes are compiler-generated, so they are
- *  normalized away before the byte compare (every other byte stays
- *  pinned). W1b (2026-09-17): the checkbox/radio hosts' inline-flex
- *  w-fit and the native-select wrap became their families' atoms the
- *  same way — ANY <module>__<table>.<member> prefix with dev hashes
- *  collapses to the member name (the hashes are compiler state) */
+/** compile-lane normalization (W5-r2, 2026-09-21): a stylex atom
+ *  token is a bare x-hash (x + ≥6 [0-9a-z] — no semantic class in
+ *  these trees starts with x) or a legacy dev-name prefix; contiguous
+ *  atom runs collapse to the ATOM placeholder the baselines carry,
+ *  then class-attr bodies re-trim. Every other byte stays pinned. */
+const ATOM_TOKEN = '[a-z][a-zA-Z0-9-]*__[a-zA-Z0-9]+\\.[a-zA-Z0-9]+|\\bx[0-9a-z]{5,}\\b';
 const normalizeAtoms = (html: string): string =>
-  // a <module>__<table>.<member> atom keeps its member name; the
-  // compiler's dev hash tokens (x…) that trail it collapse away
-  html.replace(/([a-z][a-zA-Z0-9-]*__[a-zA-Z0-9]+\.[a-zA-Z0-9]+)((?: x[a-z0-9]+)+)/gu, '$1');
+  html
+    .replace(new RegExp(`(?:${ATOM_TOKEN})(?:\\s+(?:${ATOM_TOKEN}))*`, 'gu'), 'ATOM')
+    .replace(/(class=")([^"]*)"/gu, (_m, head: string, body: string) => `${head}${body.trim()}"`);
 
 const row = (container: HTMLElement, scope: string, kind: string) =>
   container.querySelector(`[data-${scope}] [data-icon-row="${kind}"]`)!;
@@ -59,6 +76,19 @@ describe('icon omitted — the byte-identical regression lock', () => {
     for (const [kind, baseline] of Object.entries(BASELINE)) {
       expect(normalizeAtoms(row(container, 'plain', kind).innerHTML.trim()), kind).toBe(baseline);
     }
+    // the atom MEMBER identity the baselines' dev names used to carry
+    // (compile-lane re-pin W5-r2 — the atom STRINGS after 012335c4):
+    // membership through the shared cx join, per atom-bearing node
+    const checkboxHost = row(container, 'plain', 'checkbox').querySelector('div:not([data-slot]) > .jx-check-lane')!.parentElement!;
+    expect(checkboxHost.className).toContain(cx(checkboxStyles.host));
+    const radioHost = row(container, 'plain', 'radio').querySelector('div:not([data-slot]) > .jx-check-lane')!.parentElement!;
+    expect(radioHost.className).toContain(cx(radioStyles.host));
+    const selectWrap = row(container, 'plain', 'select').querySelector('.jx-select-wrap')!;
+    expect(selectWrap.className).toContain(cx(nativeSelectStyles.wrap));
+    const selectControl = row(container, 'plain', 'select').querySelector('select.jx-html-select')!;
+    expect(selectControl.className).toContain(cx(nativeSelectStyles.control));
+    const iconLane = row(container, 'plain', 'input').querySelector('[data-jx-semantic-icon]')!;
+    expect(iconLane.className).toContain(cx(inputStyles.iconLane));
   });
 });
 

@@ -185,7 +185,11 @@ describe('tree-view-multiselect extension', () => {
 // ---------------------------------------------------------------------------
 describe('caret override', () => {
   it('renders the consumer glyph in the caret cell (built-in chevron gone)', async () => {
-    const { container } = render(Host);
+    // W5-r2 repair: the caret block shipped (77aebb0a) referencing a
+    // bare `Host` that was never imported — ReferenceError since day
+    // one (validated then only in the design-studio kit suite); the
+    // caret variant lives in the SAME TreeHost fixture
+    const { container } = render(TreeHost);
     const tree = container.querySelector('[role="tree"][aria-label="host caret"]')!;
     expect(tree).toBeTruthy();
     // the consumer's chevron svg lives inside the caret cell
@@ -197,7 +201,7 @@ describe('caret override', () => {
   });
 
   it('the glyph is per-node ctx — the loading folder shows the spinner glyph', async () => {
-    const { container } = render(Host);
+    const { container } = render(TreeHost);
     const tree = container.querySelector('[role="tree"][aria-label="host caret"]')!;
     const legacyRow = tree.querySelector('li[data-path="legacy"] .jx-tree-row')!;
     expect(legacyRow.querySelector('.host-caret-loading')).toBeTruthy();

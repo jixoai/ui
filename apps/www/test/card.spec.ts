@@ -21,6 +21,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import CardHost from './fixtures/card-host.svelte';
 import { cardStyles } from '../src/lib/ui/card/card.stylex';
+import { pressButtonStyles } from '../src/lib/ui/press-button/press-button.stylex';
 
 // tailwindless W1b (2026-09-17): the planar face, the head band, the
 // title voice and the body cell ride the family's stylex atoms —
@@ -256,7 +257,9 @@ describe('card — the DOM contract (rendered)', () => {
     // utility custom-prop seams retired with the utilities)
     for (const label of ['Cancel', 'Save']) {
       expect(byText[label].hasAttribute('data-jx-press-flat')).toBe(true);
-      expect(byText[label].className).toContain('press-button__pressButtonStyles');
+      // compile-lane re-pin (W5-r2; the dev-name prefix died at 012335c4):
+      // the base atom every press-button carries, joined through cx
+      expect(byText[label].className).toContain(cx(pressButtonStyles.base));
     }
     // explicit ALWAYS wins — the convex rung never stamps flat (that
     // is r13 law, not flat)

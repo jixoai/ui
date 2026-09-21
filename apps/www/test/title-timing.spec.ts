@@ -1,10 +1,9 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { loadGhosttyVT } from '../../../registry/files/lib/ghostty-vt';
-const wasmPath = process.env.JIXOAI_GHOSTTY_WASM_PATH ?? '/tmp/ghostty-research/ghostty-vt.wasm';
+import { acquireWasmBytes } from './helpers/ghostty-wasm';
 describe('title timing (off-by-one hunt)', () => {
   it('readTitle reflects the write synchronously', async () => {
-    const vt = await loadGhosttyVT({ bytes: readFileSync(wasmPath) });
+    const vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
     vt.new(80, 24);
     expect(vt.readTitle()).toBe('');
     vt.vtWrite(new TextEncoder().encode('\x1b]0;FIRST\x07'));
@@ -12,7 +11,7 @@ describe('title timing (off-by-one hunt)', () => {
     vt.free();
   });
   it('onTitleChange fires on the SAME write', async () => {
-    const vt = await loadGhosttyVT({ bytes: readFileSync(wasmPath) });
+    const vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
     vt.new(80, 24);
     const seen: string[] = [];
     vt.onTitleChange((t) => seen.push(t));

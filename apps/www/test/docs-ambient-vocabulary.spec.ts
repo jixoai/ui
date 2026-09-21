@@ -339,7 +339,15 @@ describe('meta side — generated meta ambient fields on exact-key axis props', 
   // effect-attachments (2026-09-10): chip gains a GENERATED meta (the
   // rest-spread rework ran component-metadata-gen for it) and its real
   // ambient axes surface — density scope / variant zone / shape own
-  const expectedCarriers = new Set(['checkbox', 'chip', 'combobox', 'date-picker', 'popover', 'press-button', 'select', 'inline-code', 'separator', 'component-canvas', 'dialog', 'icon-button', 'sheet', 'tabs']);
+  // the carriers freeze, re-pinned W5-r2 (2026-09-21): the 13-name list
+  // was the PRE-migration world; explicit-props W3/W4 put the eight-axis
+  // surface on the whole fleet (the census: 105 surface families) and
+  // the GENERATED metas followed (verify:meta). The list below is the
+  // live carrier set frozen as the pin — exactly the way the founding
+  // 13 was frozen; the no-UNEXPECTED-carrier duty now rides the census
+  // gate (verify:explicit-props E2, the TS-AST axis surface) plus this
+  // freeze. History of the founding list kept above.
+  const expectedCarriers = new Set(['avatar','badge','badge-indicator','blockquote','boot-splash','canvas-playground','card','card-grid','carousel','cascader','chart','checkbox','chip','code-card','color-picker','combobox','command','component-canvas','date-picker','descriptions','dialog','dropdown-menu','empty','figure','file-input','float-button','ghostty-term','grid','heading','hero-section','hover-card','icon','icon-button','inline-code','input','input-group','input-otp','item','kbd','language-switcher','link','list','markdown','math-block','math-inline','menubar','mermaid','native-select','navigation-menu','number-input','pagination','pattern-cta','pattern-faq','pattern-hero-set','pattern-login','pattern-pricing','popconfirm','popover','press-button','progress','progressive-blur','prose','prototype-canvas','prototype-flex','prototype-grid','radio','range','scaffold-float','scroll-area','scroll-chrome','scroll-virtual','section-card','select','separator','sheet','spin','stack','statistic','steps','table','tabs','tags-input','terminal-card','terminal-footer','terminal-header','text','textarea','timeline','toast-viewport','toc','toggle','toggle-group','tooltip','tour','transfer','tree-view','website-scaffold']);
   it('exactly the known carriers have axis props', () => {
     const carriers = new Set<string>();
     for (const f of readdirSync(META_DIR).filter((f) => f.endsWith('.meta.ts'))) {
@@ -410,14 +418,23 @@ describe('exemptions', () => {
 // duplicated occurrence or an extra same-key entry cannot cancel against
 // a missing one.)
 describe('matrix↔tasks bijection', () => {
-  const tasksMd = readFileSync(
-    // the ACTIVE change's living tasks copy (not the frozen archive): the
-  // bijection runs against the LIVE route universe, and a page rename
-  // (alert-dialog → system-dialog, 2026-09-09) must carry into the
-  // batch lists — frozen history cannot chase a live filesystem
-    join(REPO, 'openspec/changes/2026-09-04-env-debt-cleanup/tasks.md'),
-    'utf8',
-  );
+  // the change's tasks copy — live while active, its frozen archive
+  // after landing (W5-r2 wiring: the env-debt-cleanup change archived
+  // at 37ad6c9d, so the live path vanished; the same live→archive
+  // resolution verify-tailwindless took at 012335c4 — the frozen
+  // archive is the canonical home once the change closes)
+  const tasksPath = ['openspec/changes/2026-09-04-env-debt-cleanup', 'openspec/changes/archive/2026-09-04-env-debt-cleanup']
+    .map((dir) => join(REPO, dir, 'tasks.md'))
+    .find((p) => existsSync(p));
+  let tasksMd = readFileSync(tasksPath!, 'utf8');
+  // ARCHIVE-STALENESS OVERLAY (W5-r2, evidence: the pre-sweep live copy
+  // at 37ad6c9d^ spelled system-dialog; the sweep kept the OLDER
+  // archive whose batch lists still say alert-dialog — the 2026-09-09
+  // rename amendment never reached the frozen copy). openspec/ is
+  // outside this round's write scope (fold reported), so the rename is
+  // carried HERE, one documented token: the bijection itself still
+  // runs at full strength against the live page universe.
+  tasksMd = tasksMd.replaceAll('alert-dialog', 'system-dialog');
 
   // the independent route universe: every docs page directory that really
   // exists on disk (the matrix is never consulted)

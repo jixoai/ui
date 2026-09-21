@@ -15,12 +15,9 @@
  *   - Out-of-viewport positions are dropped for presses (clamped for
  *     releases) — the upstream posOutOfViewport rule.
  */
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { GhosttyVTError, loadGhosttyVT, type GhosttyVT } from '../../../registry/files/lib/ghostty-vt';
-
-const wasmPath = process.env.JIXOAI_GHOSTTY_WASM_PATH ?? '/tmp/ghostty-research/ghostty-vt.wasm';
+import { acquireWasmBytes } from './helpers/ghostty-wasm';
 
 const enc = (text: string): Uint8Array => new TextEncoder().encode(text);
 const latin1 = (bytes: Uint8Array): string => String.fromCharCode(...bytes);
@@ -28,7 +25,7 @@ const latin1 = (bytes: Uint8Array): string => String.fromCharCode(...bytes);
 const CELL = { w: 8, h: 16 };
 
 async function loadVT(): Promise<GhosttyVT> {
-  const vt = await loadGhosttyVT({ bytes: new Uint8Array(readFileSync(resolve(wasmPath))) });
+  const vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
   vt.new(80, 24);
   return vt;
 }

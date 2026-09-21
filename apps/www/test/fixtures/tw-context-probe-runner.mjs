@@ -2,18 +2,49 @@
  * tw-context-probe runner — runs OUTSIDE vitest (child process).
  * vitest's virtual module runner breaks rolldown's tsconfig
  * discovery; a plain node child keeps the build identical to the
- * real consumer pipeline (vite 8 + @tailwindcss/vite from
- * apps/www's own node_modules).
+ * real consumer pipeline (vite 8 + @tailwindcss/vite).
+ *
+ * ENGINE RESOLUTION (W5-r2, 2026-09-21): the site manifest dropped
+ * @tailwindcss/vite in the tailwindless Wave 4 (ffc9c4e1 — "out of
+ * every manifest"), which stranded this runner's bare-specifier
+ * import on a fresh install (ERR_MODULE_NOT_FOUND; the standing-set
+ * failure this wiring closes). The engine now resolves from the
+ * workspace tree that legitimately OWNS the consumer toolchain:
+ * packages/design-tool declares @tailwindcss/vite + tailwindcss +
+ * vite as one peer-coherent pnpm set. The fixture additionally gets
+ * a node_modules/tailwindcss symlink into that tree — the plugin's
+ * enhanced-resolve walks node_modules from the ENTRY CSS, and the
+ * fixture dir itself has none.
  *
  * usage: node tw-context-probe-runner.mjs <fixtureDir> <outDir>
  * stdout: JSON { ok: true, css } | { ok: false, error }
  */
-import { build } from 'vite';
-import tailwindcss from '@tailwindcss/vite';
-import { readdirSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { createRequire } from 'node:module';
+import { mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync } from 'node:fs';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// the workspace tree owning the consumer engine (see header)
+const DESIGN_TOOL = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../../../packages/design-tool',
+);
+const engineRequire = createRequire(join(DESIGN_TOOL, 'package.json'));
+const { build } = engineRequire('vite');
+const tailwindcssModule = engineRequire('@tailwindcss/vite');
+const tailwindcss = tailwindcssModule.default ?? tailwindcssModule;
 
 const [, , fixtureDir, outDir] = process.argv;
+
+// the engine's own tailwindcss (peer-coherent with the plugin) —
+// symlinked where the fixture's entry css can resolve it
+const tailwindcssPkg = dirname(engineRequire.resolve('tailwindcss/package.json'));
+const tailwindcssReal = realpathSync(tailwindcssPkg);
+const fixtureModules = resolve(fixtureDir, 'node_modules');
+mkdirSync(fixtureModules, { recursive: true });
+const fixtureLink = resolve(fixtureModules, 'tailwindcss');
+rmSync(fixtureLink, { recursive: true, force: true });
+symlinkSync(tailwindcssReal, fixtureLink, 'junction');
 
 /** vite nests the bundle under <outDir>/assets/ — search one level. */
 function findCss(dir) {

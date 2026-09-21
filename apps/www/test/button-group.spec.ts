@@ -44,6 +44,7 @@ import { render } from '@testing-library/svelte';
 import ButtonGroupDivider from '$lib/ui/button-group/button-group-divider.svelte';
 import Host from './fixtures/button-group-host.svelte';
 import { buttonGroupStyles } from '$lib/ui/button-group/button-group.stylex';
+import { pressButtonStyles } from '$lib/ui/press-button/press-button.stylex';
 
 // tailwindless W1b (2026-09-17): the grid container's flow law rides
 // the family's stylex atoms — asserted through the same cx join the
@@ -465,7 +466,9 @@ describe('ButtonGroup · the cluster shadow (Owner 2026-09-04)', () => {
     // on the data-jx-press-flat stamp — the card.spec dialect)
     const flat = container.querySelector('[data-testid="plain-group"] [data-jx-press-button]')!;
     expect(flat.hasAttribute('data-jx-press-flat')).toBe(true);
-    expect(flat.className).toContain('press-button__pressButtonStyles');
+    // compile-lane re-pin (W5-r2; the dev-name prefix died at 012335c4):
+    // the base atom every press-button carries, joined through cx
+    expect(flat.className).toContain(cx(pressButtonStyles.base));
     // explicit beats the zone — the escape hatch stays open
     const convex = container.querySelector('[data-testid="raised-child-group"] [data-jx-press-button]')!;
     expect(convex.hasAttribute('data-jx-press-flat')).toBe(false);

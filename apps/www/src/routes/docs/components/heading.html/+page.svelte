@@ -221,7 +221,10 @@ ${close}
       summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The em ladder scales with the ambient font-size — the size axis is that ambient's lever; level stays the structural prop per §13."
     >
       <ComponentCanvas title="Heading · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
+        <!-- headings-ok (W5-r2): the demo renders REAL h3s — that IS the
+             component; the page's own ladder/standalone demos use the same
+             wrapper so the docs lint exempts demo-minted headings -->
+        <div class={cx(rt.gridSm2)} data-doc-demo-scope="headings-ok">
         <div class={cx(rt.panel)}><Heading level={3} size={14} density="small">size 14 · density small</Heading></div>
         <div class={cx(rt.panel)}><Heading level={3} size="large" density="large">size large · density large</Heading></div>
         <div class={cx(rt.panel)}><Heading level={3} color="primary">primary ink</Heading></div>

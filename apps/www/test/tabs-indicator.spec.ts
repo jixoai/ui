@@ -70,6 +70,8 @@ import {
 } from '../src/lib/ui/tabs/tabs-list.svelte';
 import IndicatorHost from './fixtures/tabs-indicator-host.svelte';
 import { pblurStyles } from '../src/lib/ui/progressive-blur/progressive-blur.stylex';
+import { tabsStyles } from '../src/lib/ui/tabs/tabs.stylex';
+import { scrollChromeStyles } from '../src/lib/ui/scroll-run/scroll-run.stylex';
 
 // tailwindless W1 batch 3 (2026-09-17): the veil bands' placement
 // paint rides progressive-blur stylex atoms — asserted through the
@@ -324,8 +326,9 @@ describe('Tabs · trigger anatomy', () => {
     const { tabsIn } = setup();
     const [, , , stacked] = tabsIn('anatomy');
     // tailwindless one-shot (2026-09-16): the axis flip is the
-    // triggerStacked atom group (column + center + the tighter gap)
-    expect(stacked.className).toContain('tabsStyles.triggerStacked');
+    // triggerStacked atom group (column + center + the tighter gap);
+    // compile-lane re-pin W5-r2 — the atom STRING after 012335c4
+    expect(stacked.className).toContain(cx(tabsStyles.triggerStacked));
   });
 
   it('applies the slot-vs-padding law beside a label — never on an icon-only trigger (the glyph centers)', () => {
@@ -358,7 +361,8 @@ describe('Tabs · layout contract', () => {
     const run = wrap.querySelector('[data-jx-tabs-run]');
     expect(run).toBeTruthy();
     // tailwindless one-shot (2026-09-16): the row flow is the wrap atom
-    expect(run!.className).toContain('tabsStyles.wrap');
+    // (compile-lane re-pin W5-r2)
+    expect(run!.className).toContain(cx(tabsStyles.wrap));
     expect(run!.getAttribute('data-layout')).toBe('wrap');
   });
 
@@ -456,11 +460,12 @@ describe('Tabs · layout contract', () => {
     expect(bands[1].getAttribute('data-position')).toBe('end');
     // the bands carry the veil contract: width var + entrance + clip apply unchanged
     // (tailwindless one-shot W1b batch C: the cell placement + the
-    // stacking promotion ride scroll-run's shadowVeil atom — dev names
-    // carry the member identity, the chip.spec dialect)
+    // stacking promotion ride scroll-run's shadowVeil atom — compile-lane
+    // re-pin W5-r2: the atom STRING carries the member identity, the
+    // chip.spec dialect)
     for (const b of bands) {
       expect(b.className).toContain('jx-scroll-veil');
-      expect(b.className).toContain('scroll-run__scrollChromeStyles.shadowVeil');
+      expect(b.className).toContain(cx(scrollChromeStyles.shadowVeil));
       expect(b.getAttribute('aria-hidden')).toBe('true');
     }
     // no pblur ladder in the shadow mode
@@ -613,8 +618,9 @@ describe('Tabs · layout contract', () => {
     const { list } = setup();
     const horiz = list('line');
     // tailwindless one-shot (2026-09-16): the one-cell grid host and
-    // the flex run are atom groups (display rides the hashed members)
-    expect(horiz.className).toContain('tabsStyles.hostHorizontal');
+    // the flex run are atom groups (display rides the hashed members;
+    // compile-lane re-pin W5-r2)
+    expect(horiz.className).toContain(cx(tabsStyles.hostHorizontal));
     const run = horiz.querySelector(':scope > [data-jx-tabs-run]');
     expect(run).toBeTruthy();
     // the run element IS the tablist — role=tablist (no presentation
@@ -622,7 +628,7 @@ describe('Tabs · layout contract', () => {
     expect(run!.getAttribute('role')).toBe('tablist');
     expect(run!.getAttribute('data-jx-tabs-list')).toBe('');
     // the run carries the triggers' flex row
-    expect(run!.className).toContain('tabsStyles.listRun');
+    expect(run!.className).toContain(cx(tabsStyles.listRun));
     // the flat vertical law: no run classes, triggers are direct tablist children
     const vertical = list('vertical-pill');
     expect(vertical.querySelector('[data-jx-tabs-run]')).toBeNull();
