@@ -43,6 +43,16 @@
 // / density axis / literal family) appended to that prop's node — the
 // docs table's three-state Default-column marker. Slot facts come from
 // the family Defaults contract; slot owns never synthesize IR defaults.
+//
+// Universal merge (explicit-props W1 1.9, design §17): a FINAL merge
+// step stamps `meta.universal = UNIVERSAL_AXES` for every family whose
+// directory appears in the promoted inventory
+// (apps/www/src/lib/universal-props.inventory.json); exempt families
+// (the ledger, EMPTY today) legally omit the block; a family in
+// NEITHER list is a hard failure — this closes the
+// empty-on-missing-defaults hole. UNIVERSAL_AXES is loaded from the
+// ONE shared artifact (universal-props.schema.ts) by transpiling it —
+// the schema is the single source, never duplicated here.
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
@@ -69,6 +79,31 @@ const ts = wwwRequire('typescript');
 const { parse: parseSvelte } = await import(
   new URL('./src/compiler/index.js', pathToFileURL(wwwRequire.resolve('svelte/package.json'))).href
 );
+
+// ── the universal merge inputs (explicit-props §17, W1 1.9) ─────────
+// UNIVERSAL_AXES from the ONE shared artifact: transpile the schema
+// module (types-only + the frozen const tables, zero imports) and
+// import it as a data: module — the generator never re-declares the
+// rows, so the schema cannot drift from the emitted meta zone.
+const SCHEMA_PATH = join(root, 'apps/www/src/lib/universal-props.schema.ts');
+const INVENTORY_PATH = join(root, 'apps/www/src/lib/universal-props.inventory.json');
+const schemaJs = ts.transpileModule(readFileSync(SCHEMA_PATH, 'utf8'), {
+  compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
+}).outputText;
+const schemaModule = await import(
+  'data:text/javascript;base64,' + Buffer.from(schemaJs).toString('base64')
+);
+const UNIVERSAL_AXES = schemaModule.UNIVERSAL_AXES;
+if (
+  !Array.isArray(UNIVERSAL_AXES) ||
+  UNIVERSAL_AXES.length !== 8 ||
+  !UNIVERSAL_AXES.every((d) => d && typeof d.axis === 'string' && typeof d.label === 'string')
+) {
+  die(`universal-props.schema.ts did not yield the eight-axis table (got ${typeof UNIVERSAL_AXES})`);
+}
+const inventoryDoc = JSON.parse(readFileSync(INVENTORY_PATH, 'utf8'));
+const INVENTORY_FAMILIES = new Set(inventoryDoc.families ?? []);
+const INVENTORY_EXEMPT = new Set(inventoryDoc.exemptions ?? []);
 
 // ── source splitting ────────────────────────────────────────────────
 function splitScripts(source) {
@@ -426,7 +461,14 @@ export const annotations = defineAnnotations({});
 
 function emitGenerated(meta) {
   const json = JSON.stringify(
-    { source: meta.source, props: meta.props, hooks: meta.hooks },
+    {
+      source: meta.source,
+      props: meta.props,
+      hooks: meta.hooks,
+      // §17 merge output for a normal family: existing fields untouched
+      // + universal === UNIVERSAL_AXES (exempt families omit the key)
+      ...(meta.universal ? { universal: meta.universal } : {}),
+    },
     null,
     2,
   );
@@ -470,7 +512,23 @@ const metaTargetOf = (sourcePath) =>
 function generate(sourcePath) {
   const abs = resolve(root, sourcePath);
   if (!existsSync(abs)) die(`component source not found: ${sourcePath}`);
-  return extractMeta(readFileSync(abs, 'utf8'), sourcePath, ambientSlotsOf(sourcePath));
+  const meta = extractMeta(readFileSync(abs, 'utf8'), sourcePath, ambientSlotsOf(sourcePath));
+  // the FINAL merge step (§17.1): the generated zone owns the
+  // injection; hand-authored annotations may only CURATE, never
+  // delete the block (annotations live in their own zone). A family
+  // in NEITHER the inventory nor the exemption ledger is a hard
+  // failure — the census (W0's inventory) must stay exhaustive.
+  const family = basename(dirname(sourcePath));
+  if (INVENTORY_EXEMPT.has(family)) return meta;
+  if (!INVENTORY_FAMILIES.has(family)) {
+    die(
+      `family '${family}' is in NEITHER the universal-props inventory nor the exemption ledger ` +
+        `(design §17.2) — add it to apps/www/src/lib/universal-props.inventory.json ` +
+        `or file an exemptions[] entry with a reason`,
+    );
+  }
+  meta.universal = UNIVERSAL_AXES;
+  return meta;
 }
 
 function writeOne(sourcePath) {

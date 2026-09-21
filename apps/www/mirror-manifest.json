@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-21T09:29:35.229Z",
+  "generatedAt": "2026-09-21T09:38:41.736Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -5418,8 +5418,8 @@
           "source": "registry/files/lib/density.svelte.ts",
           "mirror": "apps/www/src/lib/density.svelte.ts",
           "target": "@lib/density.svelte.ts",
-          "sourceSha": "0918b62d4661521a9efbab35d27783d8de363a6f7aee086b41af1ec3a837e629",
-          "mirrorSha": "0918b62d4661521a9efbab35d27783d8de363a6f7aee086b41af1ec3a837e629"
+          "sourceSha": "3f5f8a78fb15c342eb44e5b978d63468df6be976e497dc1ac6fbf583724c0128",
+          "mirrorSha": "3f5f8a78fb15c342eb44e5b978d63468df6be976e497dc1ac6fbf583724c0128"
         }
       ]
     },
@@ -5457,8 +5457,8 @@
           "source": "registry/files/lib/defaults.svelte.ts",
           "mirror": "apps/www/src/lib/defaults.svelte.ts",
           "target": "@lib/defaults.svelte.ts",
-          "sourceSha": "dda01adc9ffe859963335e7002d0fad16a3a3696bad93bfbeb8ed65112c34743",
-          "mirrorSha": "dda01adc9ffe859963335e7002d0fad16a3a3696bad93bfbeb8ed65112c34743"
+          "sourceSha": "f7ab360e9b901c5507f1e9f8ab6f88b1ec4f513d4a8d1955f4059556e1b1c247",
+          "mirrorSha": "f7ab360e9b901c5507f1e9f8ab6f88b1ec4f513d4a8d1955f4059556e1b1c247"
         }
       ]
     },
@@ -6294,6 +6294,14 @@
     {
       "path": "registry/files/lib/highlight/context.svelte.ts",
       "note": "highlight context wiring — mirrored by the syncer, shipped by no item (r9 seam ruling)"
+    },
+    {
+      "path": "registry/files/lib/universal-props.schema.ts",
+      "note": "explicit-props W1 1.9 — the ONE shared artifact pair (§17: interfaces + UNIVERSAL_AXES + the §9.1 type block); the W2/W4 registry item ships it"
+    },
+    {
+      "path": "registry/files/lib/universal-props.inventory.json",
+      "note": "explicit-props W1 1.9 — the §17.2 census pair promoted beside the schema; the W2/W4 registry item ships it"
     }
   ]
 }

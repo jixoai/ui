@@ -77,6 +77,12 @@ const UNREFERENCED_LIB = [
   // artifact pair — B2 removed its registry item (the icon-set.gen
   // artifact + the @jixoai/icon-set item replace it); C5 deleted the
   // pair, retiring this stopgap with it.
+  // explicit-props W1 (2026-09-21, task 1.9): the shared-artifact pair
+  // + the promoted inventory pair — same-source lib files no registry
+  // item references YET; the W2 plugin layer's registry item
+  // (§12/registry spec) ships them and these entries retire with it
+  { path: 'registry/files/lib/universal-props.schema.ts', note: 'explicit-props W1 1.9 — the ONE shared artifact pair (§17: interfaces + UNIVERSAL_AXES + the §9.1 type block); the W2/W4 registry item ships it' },
+  { path: 'registry/files/lib/universal-props.inventory.json', note: 'explicit-props W1 1.9 — the §17.2 census pair promoted beside the schema; the W2/W4 registry item ships it' },
 ];
 // canonical main overrides for registry:ui items whose main file is not
 // name-identical (B11/B9 ruling: manifest is the single machine source)

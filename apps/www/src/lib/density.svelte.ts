@@ -18,10 +18,37 @@
 import { getContext, setContext } from 'svelte';
 import { getContextPlugins, defineContextDef, type ContextDef } from './context-plugin.svelte';
 import { defineAxisSlot, type DefaultsSlot } from './defaults.svelte';
+import { DENSITY_NAMED_ALIASES } from './universal-props.schema';
 
 export type Density = 'lg' | 'default' | 'sm' | 'xs' | '2xs';
 
 export const DEFAULT_DENSITY: Density = 'default';
+
+/**
+ * The documented density vocabulary's INPUT union (explicit-props W1
+ * 1.5, design §4 Codex r5 B6): `small | medium | large` are ALIASES
+ * mapped VERBATIM onto three of the EXISTING rungs —
+ * small → sm · medium → default · large → lg (normalizeDensity). The
+ * five legacy spellings keep working verbatim (zero migration for the
+ * ~60 slot consumers, §13); the rungs themselves — and the kernel
+ * channels they scope — are UNCHANGED. The alias TABLE lives in the
+ * shared artifact (universal-props.schema.ts): one source, this
+ * module and the universal densitySlot both derive from it.
+ */
+export type DensityInput = Density | keyof typeof DENSITY_NAMED_ALIASES;
+
+/**
+ * Map a DensityInput onto its canonical rung. The documented names
+ * resolve through the frozen alias table; legacy spellings are their
+ * own rungs (identity). Pure — no context, no plugins.
+ */
+export function normalizeDensity(input: DensityInput): Density {
+  const aliased = (DENSITY_NAMED_ALIASES as Readonly<Partial<Record<DensityInput, Density>>>)[input];
+  // narrowing assertion (no `any`): a lookup miss means `input` is one
+  // of the five legacy spellings BY CONSTRUCTION of DensityInput —
+  // the alias table owns exactly the three documented names
+  return aliased ?? (input as Density);
+}
 
 export interface DensityContext {
   /** the inherited OPINION — undefined means this provider passes NO
@@ -52,17 +79,23 @@ export const DENSITY_DEF: ContextDef<'density', Density | undefined> = defineCon
   ssrSafe: DEFAULT_DENSITY,
 });
 
+/**
+ * explicit -> inherited -> optional LOCAL fallback, with the documented
+ * vocabulary normalized onto its rung FIRST (W1 1.5: a provider may
+ * pass 'small'; the chain, the plugin hooks and every stamp see the
+ * canonical 'sm'). No opinion resolves to undefined: the consumer
+ * stamps nothing and the ambient css scope channel flows through (a
+ * local fallback, when given, is a real opinion — e.g. Table defaults
+ * sm only when NO parent provider exists)
+ */
 export function resolveDensity(
-  explicit: Density | undefined,
+  explicit: DensityInput | undefined,
   inherited: DensityContext | undefined,
   fallback?: Density,
 ): Density | undefined {
-  // explicit -> inherited -> optional LOCAL fallback. No opinion
-  // resolves to undefined: the consumer stamps nothing and the
-  // ambient css scope channel flows through (a local fallback, when
-  // given, is a real opinion — e.g. Table defaults sm only when NO
-  // parent provider exists)
-  const resolved = explicit ?? inherited?.density ?? fallback;
+  const resolved = (explicit === undefined ? undefined : normalizeDensity(explicit))
+    ?? inherited?.density
+    ?? fallback;
   // the plugin entry: the chained projection of the terminal value.
   // Reading the scope here (inside the consumer's $derived) keeps the
   // chain reactive — filter/before hooks that read env (e.g. the
