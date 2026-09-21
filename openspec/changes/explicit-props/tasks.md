@@ -194,19 +194,35 @@ before the next batch opens; a batch is the rollback unit)
 ## W4 — canvas + docs (the §17 contract; the shared artifact itself landed
 ## EARLY as 1.9 — W4 wires the consumers)
 
-- [ ] 4.1 ir.ts gains the prescribed additions (ControlHint's three new
+- [x] 4.1 ir.ts gains the prescribed additions (ControlHint's three new
       members + ComponentMeta.universal) + schema2form/playground render
-      the per-axis controls (axis-enum / axis-number / query-editor)
-- [ ] 4.2 schema2form/playground: per-axis control hints (enum select, number
-      spinner, query editor); componentCanvas controls adapted
-- [ ] 4.3 PropsTable: the universal section rendered from the ONE shared
-      source (no per-page duplication)
-- [ ] 4.4 110 doc pages: universal props section + per-page example updates
-      (batched with W3 batches where possible)
-- [ ] 4.5 registry.json `docs` strings + the universal-props concept page
+      the per-axis controls (axis-enum / axis-number / query-editor) —
+      LANDED with W4 (64a4f3e9; §17 verbatim; lower.ts's one-grammar-node
+      axis lowering; parseQuerySource in the query engine)
+- [x] 4.2 schema2form/playground: per-axis control hints (enum select,
+      number spinner, query editor); componentCanvas controls adapted —
+      LANDED with W4 (the six-lane canvas surface + the press-button
+      flagship dogfooding seven axes; probe 22/22 incl. the live 40rem
+      query boundary + aria-invalid on bad source)
+- [x] 4.3 PropsTable: the universal section rendered from the ONE shared
+      source (no per-page duplication) — LANDED with batch A (6bb88ae0),
+      receipted by W4's manifest gate: 110/110 pages · 110 markers GREEN
+- [x] 4.4 110 doc pages: universal props section + per-page example updates
+      (batched with W3 batches where possible) — LANDED batch-wise +
+      W4's `verify:docs-universal` receipt; docs-structure pins moved in
+      lockstep (layout 20→24, the prototype-kit carve) — 2 standing
+      failures cleared
+- [x] 4.5 registry.json `docs` strings + the universal-props concept page
       (route frozen: docs/universal-props.html) + llms mirror regenerated
-- [ ] 4.6 the `--check` gate LOADS and asserts both research fixtures
-      (card's real extract + the exempt shape) per design §17.4
+      — LANDED with W4 (the full concept page: grammar 总纲, three lanes,
+      query() sm-vs-@sm, carrier law, §14 degrade table, three LIVE
+      dogfoods; llms 129→131 files; payload rebuild cleared the parity
+      debt — standing set 86F→82F)
+- [x] 4.6 the `--check` gate LOADS and asserts both research fixtures
+      (card's real extract + the exempt shape) per design §17.4 — LANDED
+      with W4 (inside component-metadata-gen --check: the 740-byte
+      boundary, the member-for-member merge assertion, the exempt ledger
+      + glass's no-component-root entry)
 
 ## W5 — gates
 
