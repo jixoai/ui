@@ -143,16 +143,25 @@ function uniqueTmp(file: string): string {
 let activeFence: (() => void) | null = null;
 
 /** write-then-rename with a unique staging name, fenced against a lost
- *  lock ownership race (rename refuses when our token no longer holds) */
+ *  lock ownership race (rename refuses when our token no longer holds);
+ *  a refused/failed commit cleans its staging file (Codex r4-6 hardening) */
 export function atomicWrite(file: string, text: string, mode?: number): void {
   const target = uniqueTmp(file);
-  writeFileSync(target, text, mode === undefined ? {} : { mode });
-  activeFence?.();
-  renameSync(target, file);
+  try {
+    writeFileSync(target, text, mode === undefined ? {} : { mode });
+    activeFence?.();
+    renameSync(target, file);
+  } catch (error) {
+    rmSync(target, { force: true });
+    throw error;
+  }
 }
 
 /** serialize a read-modify-write cycle across processes (async backoff —
- *  the HTTP event loop is never frozen while waiting) */
+ *  the HTTP event loop is never frozen while waiting). The callback MUST
+ *  be synchronous: an async one would release the lock at its first
+ *  await while its body keeps running — the guard below turns that
+ *  contract breach into a loud failure (Codex r4-6 hardening) */
 export async function withBridgeLock<T>(file: string, run: () => T): Promise<T> {
   const lock = `${file}.lock`;
   const token = `${process.pid}-${Math.random().toString(36).slice(2, 10)}`;
@@ -183,6 +192,9 @@ export async function withBridgeLock<T>(file: string, run: () => T): Promise<T> 
   };
   try {
     const result = run();
+    if (result !== null && typeof result === 'object' && typeof (result as { then?: unknown }).then === 'function') {
+      throw new BridgeLockError(`withBridgeLock callback on ${file} returned a thenable — callbacks must be synchronous (an async body would outlive the lock)`);
+    }
     activeFence();
     return result;
   } finally {

@@ -12,4 +12,4 @@
 - [ ] T10 Codex r4 第二轮复核通过（standing loop）
 - [x] T10a r4-r2 修复轮：三个新 P1 闭合——effort 统一门（无声明即拒 + 面板草稿权威选项源 + 能力删除同步清空）、activeBridgeRoute 深校验（凭据 version-1 结构 + ref 值与私有 key 一致 + agent-default-model 逐字段匹配 + effort 能力在桥上）、唯一性门（重复 provider/model id/effort、credential ref 碰撞、控制字符）；P2：桥接两文件全面结构化读写（YAML parse/stringify + 写后重解析事务门 + 未知段语义保留 + legacy flat 迁移）、面板 decoder 深化到字段级。反例测试 19/19、探针 19/19（含 effort 能力删除回归）、电池 588/588、矩阵 74/74（git=bc0a1717 树回执）、smoke PASS
 - [x] T10b r4-r3 修复轮（8.4/10，P1 清零后的三个 P2）：内核拥有的 records 段在 set/clear 中原样保留（回归锁）；跨进程并发写纪律——O_EXCL 锁文件（陈旧 5s 破坏）+ 唯一临时名，20 子进程并发写 40/40 面零丢失；面板 decoder 深化到可选字段全量（efforts 数组词表、正整数、http(s) URL、active 形状——`efforts:{}` 复现的 pageerror 关闭），save() 提交边显式空检查；shell 意图注释矛盾消除。settings 21/21、电池 590/590、矩阵 74/74、探针 19/19、smoke PASS
-- [ ] T10c Codex r4 第四轮复核通过（standing loop）
+- [x] T10c Codex r4 复核闭环（六轮：4.8 → 7.1 → 8.4 → 7.8 → 8.1 → 9.2 PASS settings lane，报告 codex-review-r4*.md×6）：r4-r4 加 owner-token 围栏锁、r4-r5 删陈旧接管对齐内核 withFileLock 协议（wx + async 指数退避 + 4s 预算 → 503）、r4-r6 两项加固（fence 失败清理 staging tmp、withBridgeLock 同步回调契约守卫）；矩阵证据限制解除——HEAD 树 74/74 回执（matrixSha 962b7236、studio a26177ab；此前失败根因为复核探针污染共享 collab journal，非代码）
