@@ -11,14 +11,22 @@
  *                          sync happen inside saveDshSettings)
  *   POST dsh-credential  — {provider, key|null}: set/clear ONE key (0600
  *                          private face + kernel credentials bridge)
- *   POST dsh-test        — {provider}: live /v1/models probe, latency
- *                          and detail ride the envelope
+ *   POST dsh-test        — {provider, baseURL?, modelId?, apiKey?}: live
+ *                          /v1/models probe with latency + optional
+ *                          modelId verdict; apiKey is test-only (never
+ *                          stored or echoed)
+ *   GET  catalog.json    — the provider gallery (pi-ai catalog data;
+ *                          503 catalog-unavailable when no anchor
+ *                          resolves — the panel degrades to the custom
+ *                          form, never a broken gallery)
  *
  * Original need: Owner 2026-09-21 — "将 skill-creator-v2 的 Model 配置
  * 移植过来" (the panel's transport talks to this lane only).
  */
 
 import type { IncomingMessage, ServerResponse } from 'node:http';
+
+import { CatalogUnavailableError, listModelProviders } from './model-catalog.ts';
 
 import {
   BridgeLockError,
@@ -170,13 +178,17 @@ export interface ApiResponse { readonly status: number; readonly body: unknown }
 /**
  * Resolve one settings-lane request. `route` is the bare segment after
  * `/__design__/api/settings/` (`dsh.json` | `dsh-credential` |
- * `dsh-test`); `body` is the PARSED JSON (undefined for GET). Returns
- * the view envelope (GET/POST dsh.json, credential), the probe result
- * (dsh-test), or a `{ok:false, reason, message}` 400/404/500 — never
- * throws for request-shape faults.
+ * `dsh-test` | `catalog.json`); `body` is the PARSED JSON (undefined
+ * for GET). Returns the view envelope (GET/POST dsh.json, credential),
+ * the probe result (dsh-test), the gallery (catalog.json), or a
+ * `{ok:false, reason, message}` 400/404/500/503 — never throws for
+ * request-shape faults.
  */
 export async function resolveDshSettingsApiRequest(route: string, method: string, body: unknown): Promise<ApiResponse> {
   try {
+    if (route === 'catalog.json' && method === 'GET') {
+      return { status: 200, body: { providers: listModelProviders() } };
+    }
     if (route === 'dsh.json' && method === 'GET') {
       return { status: 200, body: settingsView() };
     }
@@ -198,21 +210,38 @@ export async function resolveDshSettingsApiRequest(route: string, method: string
     if (route === 'dsh-test' && method === 'POST') {
       if (!isObj(body) || !isStr(body.provider)) throw new RequestError('provider (non-empty string) is required');
       const stored = loadDshSettings().modelRoutes.find((candidate) => candidate.provider === body.provider);
-      if (stored === undefined) throw new RequestError(`no route named "${body.provider}"`);
       // the panel probes its DRAFT endpoint when dirty (what save would
       // persist) — an http(s) override is honored, anything else rejected
       const override = body.baseURL;
-      const route_ = typeof override === 'string'
-        ? (() => {
-            if (!/^https?:\/\//.test(override)) throw new RequestError('baseURL override must be an http(s) URL');
-            return { ...stored, baseURL: override };
-          })()
-        : stored;
-      return { status: 200, body: await testRouteConnection(route_) };
+      if (typeof override === 'string' && !/^https?:\/\//.test(override)) throw new RequestError('baseURL override must be an http(s) URL');
+      // AD-HOC probe (settings-model-parity r2, Codex P1-1): the custom
+      // route FORM probes a route that does not exist yet — both baseURL
+      // and a valid api must ride the request (no stored facts to borrow)
+      let route_: DshModelRoute;
+      if (stored === undefined) {
+        if (typeof override !== 'string' || !isStr(body.api) || !(DSH_ROUTE_API_PROTOCOLS as readonly string[]).includes(body.api)) {
+          throw new RequestError(`no route named "${body.provider}" — an unstored probe needs both an http(s) baseURL and a valid api`);
+        }
+        route_ = { provider: body.provider, baseURL: override, api: body.api, models: [{ id: isStr(body.modelId) ? body.modelId : 'probe' }] };
+      } else {
+        route_ = typeof override === 'string' ? { ...stored, baseURL: override } : stored;
+      }
+      // optional modelId cross-check + test-only direct key (never
+      // persisted, never echoed — testRouteConnection's scrub covers it)
+      if (body.modelId !== undefined && !isStr(body.modelId)) throw new RequestError('modelId must be a non-empty string');
+      if (body.apiKey !== undefined && !isStr(body.apiKey)) throw new RequestError('apiKey must be a non-empty string');
+      return {
+        status: 200,
+        body: await testRouteConnection(route_, {
+          ...(body.modelId !== undefined ? { modelId: body.modelId } : {}),
+          ...(body.apiKey !== undefined ? { apiKey: body.apiKey } : {}),
+        }),
+      };
     }
     return { status: 404, body: { ok: false, reason: 'not-found', message: route } };
   } catch (error) {
     if (error instanceof RequestError) return { status: 400, body: { ok: false, reason: 'bad-request', message: error.message } };
+    if (error instanceof CatalogUnavailableError) return { status: 503, body: { ok: false, reason: 'catalog-unavailable', message: error.message } };
     // lock contention is TRANSIENT and bounded (~5s worst wait) — the
     // honest answer is 503 + retry guidance, not a 500 (Codex r4-4 P2-2)
     if (error instanceof BridgeLockError) return { status: 503, body: { ok: false, reason: 'lock-timeout', message: `${error.message} — another writer holds the settings lock; retry shortly`, retryAfterMs: 1000 } };
@@ -233,7 +262,7 @@ export function dshSettingsApiMiddleware(): (req: IncomingMessage, res: ServerRe
     const pathname = (req.url ?? '').split('?')[0]!;
     if (!pathname.startsWith(`${DSH_SETTINGS_API_BASE}/`)) return next();
     const route = pathname.slice(DSH_SETTINGS_API_BASE.length + 1);
-    if (route !== 'dsh.json' && route !== 'dsh-credential' && route !== 'dsh-test') return next();
+    if (route !== 'dsh.json' && route !== 'dsh-credential' && route !== 'dsh-test' && route !== 'catalog.json') return next();
     if (req.method !== 'GET' && req.method !== 'POST') return next();
 
     if (req.method === 'GET') {

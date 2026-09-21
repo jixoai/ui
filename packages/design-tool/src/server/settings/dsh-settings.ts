@@ -422,6 +422,20 @@ export interface RouteTestResult {
   readonly ok: boolean;
   readonly latencyMs?: number;
   readonly detail: string;
+  /** only set when the caller asked for a modelId check: true/false =
+   *  the id was found/absent in the /v1/models listing; undefined =
+   *  the listing body was unreadable (not every gateway shapes it) */
+  readonly modelListed?: boolean;
+}
+
+/** optional probe parameters: `modelId` cross-checks the /v1/models
+ *  listing (no generation cost); `apiKey` is a TEST-ONLY direct key
+ *  (skill-creator's test-only lane, settings-model-parity T2) — used
+ *  in-process for this one request, never persisted, never echoed (the
+ *  scrub below covers it alongside the stored key) */
+export interface RouteTestOptions {
+  readonly modelId?: string;
+  readonly apiKey?: string;
 }
 
 /** probe a route's endpoint with its key — /v1/models is the broad
@@ -430,11 +444,30 @@ export interface RouteTestResult {
  *  NON-DISCLOSURE LAW (Codex r4 P1-3): the upstream body NEVER crosses
  *  into `detail` — gateways echo request headers (the key) in error
  *  bodies, and detail rides the API + panel verbatim. Status code +
- *  latency only; the stored key is scrubbed from every detail string
+ *  latency only (plus the modelId verdict when asked); every key the
+ *  probe saw — stored or direct — is scrubbed from every detail string
  *  as the belt-and-braces pass. */
-export async function testRouteConnection(route: DshModelRoute): Promise<RouteTestResult> {
-  const key = loadRouteCredential(route.provider);
-  const scrub = (text: string): string => (key !== null ? text.replaceAll(key, 'sk-***') : text);
+export async function testRouteConnection(route: DshModelRoute, options: RouteTestOptions = {}): Promise<RouteTestResult> {
+  const storedKey = loadRouteCredential(route.provider);
+  const key = options.apiKey ?? storedKey;
+  const scrub = (text: string): string => {
+    let out = text;
+    if (storedKey !== null) out = out.replaceAll(storedKey, 'sk-***');
+    if (options.apiKey !== undefined) out = out.replaceAll(options.apiKey, 'sk-***');
+    return out;
+  };
+  /** the OpenAI listing shape {data:[{id}]} — anything else reads as
+   *  "unknown" (modelListed stays undefined), never as a failure */
+  function listedIds(payload: unknown): string[] | null {
+    if (typeof payload !== 'object' || payload === null || !Array.isArray((payload as { data?: unknown }).data)) return null;
+    const ids: string[] = [];
+    for (const entry of (payload as { data: unknown[] }).data) {
+      if (typeof entry === 'object' && entry !== null && typeof (entry as { id?: unknown }).id === 'string') {
+        ids.push((entry as { id: string }).id);
+      }
+    }
+    return ids;
+  }
   const started = Date.now();
   try {
     const url = new URL('v1/models', route.baseURL.endsWith('/') ? route.baseURL : `${route.baseURL}/`);
@@ -443,7 +476,22 @@ export async function testRouteConnection(route: DshModelRoute): Promise<RouteTe
       signal: AbortSignal.timeout(10_000),
     });
     const latencyMs = Date.now() - started;
-    if (response.ok) return { ok: true, latencyMs, detail: scrub(`${response.status} in ${latencyMs}ms`) };
+    if (response.ok) {
+      if (options.modelId !== undefined) {
+        let ids: string[] | null = null;
+        try {
+          ids = listedIds(await response.json());
+        } catch {
+          ids = null; // unparseable listing — the verdict is "unknown"
+        }
+        if (ids !== null) {
+          const modelListed = ids.includes(options.modelId);
+          return { ok: true, latencyMs, modelListed, detail: scrub(`${response.status} in ${latencyMs}ms — model ${modelListed ? 'listed' : 'not in listing'}`) };
+        }
+        return { ok: true, latencyMs, detail: scrub(`${response.status} in ${latencyMs}ms — listing unreadable, model unchecked`) };
+      }
+      return { ok: true, latencyMs, detail: scrub(`${response.status} in ${latencyMs}ms`) };
+    }
     return { ok: false, latencyMs, detail: scrub(`HTTP ${response.status} in ${latencyMs}ms`) };
   } catch (cause) {
     return { ok: false, detail: scrub(cause instanceof Error ? cause.message : String(cause)) };
