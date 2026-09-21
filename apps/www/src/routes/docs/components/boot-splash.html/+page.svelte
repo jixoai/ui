@@ -89,6 +89,13 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  let universalSplashOpen = $state(false);
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<BootSplash title="your-app" revealOn="manual" open={splashOpen} size={18} />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -280,6 +287,23 @@ exit="none"         → no phase: the floor elapsed, the layer unmounts`}
       <PropsTable props={[{ name: '(none)', type: '—', default: 'hardcoded oklch pairs', description: 'light: oklch(1 0 0) / oklch(0.2 0 0); dark (prefers-color-scheme): oklch(0.145 0 0) / oklch(0.9551 0 0). Token-dependence is the race this layer exists to mask.' }]} />
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query(). The zero-css-file law is untouched: the §10 carriers are INLINE style declarations (this component own element idiom) joining the exit-duration channel; the layer is transient by design — the surface rides whatever window it has and never touches the exit/reveal machinery."
+    >
+      <ComponentCanvas title="boot-splash · universal props" stage="fill" files={universalFiles}>
+{#if universalSplashOpen}
+        <BootSplash title="axes joined" description="size 18 — replay below" revealOn="manual" bind:open={universalSplashOpen} size={18} />
+      {/if}
+      <div class={cx(rt.panel)}><button class="pill" onclick={() => (universalSplashOpen = true)}>replay the splash at size 18</button></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Eleven props; zero required. The dismissal economy: revealOn picks the signal, timeoutMs caps it, minMs floors it, durationMs times the exit.">
       <PropsTable props={[

@@ -16,6 +16,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { breadcrumbStyles } from './breadcrumb.stylex';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
@@ -68,5 +69,5 @@
 {#if child}
   {@render child({ props })}
 {:else}
-  <a data-jx-breadcrumb-link="" data-density={d.density} {...props}>{@render children?.()}</a>
+  <a data-jx-breadcrumb-link="" data-density={densityRungOf(d.density)} {...props}>{@render children?.()}</a>
 {/if}

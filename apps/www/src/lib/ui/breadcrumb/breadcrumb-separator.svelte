@@ -17,6 +17,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
   import './breadcrumb.css';
 
@@ -36,7 +37,7 @@
 <span
   data-jx-breadcrumb-separator=""
   data-glyph={children ? 'custom' : 'chevron'}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={cn(className)}
   {...rest}
   aria-hidden="true"

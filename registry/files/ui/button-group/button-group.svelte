@@ -232,8 +232,22 @@
     getDensityContext,
     provideDensity,
     resolveDensity,
-    type Density,
   } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { getPaintZone, providePaintZone, type ZonePaintVariant } from '$lib/paint.svelte';
   import Icon from '$lib/ui/icon';
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
@@ -247,7 +261,7 @@
   import { buttonGroupStyles } from './button-group.stylex';
   import './button-group.css';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** the join axis: horizontal (default) | vertical */
     orientation?: 'horizontal' | 'vertical';
     /** cluster placement on the main axis */
@@ -311,9 +325,33 @@
     scrollEffect?: ButtonGroupScrollEffect;
     /** accessible name of the collapse trigger (aria-label + tooltip) */
     moreLabel?: string;
-    /** density policy: explicit, inherited, then default — provided
-        to the subtree so the joined buttons adopt the tier */
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — explicit, inherited, then provided to the
+     *  subtree so the joined buttons adopt the tier */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the joined buttons scale
+     *  through inheritance — the group root stamps the carrier) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (the group root SUPPLIES the anchor; the joined
+     *  buttons compute R−seam when they resolve auto) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() (the cluster shadow law is the root's own physics —
+     *  `raised` — and stays untouched by this lane) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     'data-density'?: string;
     /** the group role — the law. An explicit consumer override
         (labeled toolbar) is honored, never defaulted */
@@ -337,10 +375,18 @@
     scrollEffect = ramp(),
     moreLabel = 'more actions',
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     role = 'group',
     class: className = '',
     'aria-label': ariaLabel,
+    style: consumerStyle,
     children,
     ...rest
   }: Props = $props();
@@ -355,9 +401,15 @@
   // very getter it feeds — derived_references_self, pinned in
   // defaults-buttons.spec. The returned getter reads ONLY the
   // captured object (reactive through its getters, never re-entering
-  // the context machinery)
+  // the context machinery). W3-D5: the legacy lane stays confined to
+  // the rung spellings (the auto/number/query lanes carry no legacy
+  // rung — §4's bridge note), so the bridge keeps forwarding exactly
+  // the rung channel the ~60 legacy consumers read
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
 
@@ -384,8 +436,23 @@
   // VARIANT slot is declaration-first (button-group-defaults.svelte.
   // ts): the group's own inherit-then-provide keeps the legacy lane
   // by the frozen provider duties, so only density flows through the
-  // contract today
-  const d = $derived(ButtonGroupDefaults.resolve({ density }));
+  // contract today. W3-D5 widens the record to the EIGHT-axis surface
+  // — the group root stamps the §10 carriers (JOINing the consumer
+  // style attr, the merge law) and anchors query() after the anchor
+  // state declaration. PROVIDER-SNAPSHOT KERNEL LAW: density does NOT
+  // ride the provideUniversalLanes literal — the reactive bridged
+  // write above carries the universal density supply; the literal
+  // carries the other seven axes
+  const d = $derived(
+    ButtonGroupDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement | null>(null);
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
 
   // ── THE PHYSICS TAKEOVER (Owner 2026-09-04, the cluster-shadow
   // law) — the joined subtree rides FLAT by default: per-button
@@ -894,9 +961,12 @@
     data-jx-btngroup-flat={!clusterRaised ? '' : undefined}
     data-jx-separator={separatorOn ? '' : undefined}
     data-jx-leading-seam={leadingSeam ? '' : undefined}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={rootStyle}
     aria-label={ariaLabel ?? label}
     bind:this={groupEl}
+    bind:this={uniRoot}
     class={cn(
       // the flow law (see header): no-template flow COLUMN grows the
       // one implicit ROW with columns (the horizontal line); flow row

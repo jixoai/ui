@@ -99,6 +99,12 @@ import '$lib/scroll-area-kit/native-capability.css';
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<NativeScrollArea label="axes" size={18}>…content…</NativeScrollArea>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -266,6 +272,25 @@ import '$lib/scroll-area-kit/native-capability.css';
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The platform scrollbar IS the accessibility contract — no custom scrollbar ARIA mounts anywhere inside (probe-asserted absent)."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus onto the scrollable region' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'platform bar', action: 'The OS scrollbar remains directly operable — dragging, clicking, its own keyboard path' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern; the ONLY a11y surface here' }, { name: 'role="scrollbar"', value: 'ABSENT', description: 'No drawn thumb exists — a scrollbar role on a nonexistent thumb would be a violation, not a feature (the Gate-1 r1 ruling; probe-asserted)' }]} /></SectionCard></div>
 
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The theme's global scrollbar-token law paints the bar (currentColor family); the scoped scheme follows the stage."><div class={cx(rt.col24)}><DensityDemo><NativeScrollArea class={cx(rt.nsaH36)} label="density sample"><ol class={cx(rt.col8)}>{#each Array(10) as _, i (i)}<li class={cx(rt.nsaRow)}>item {i + 1}</li>{/each}</ol></NativeScrollArea></DensityDemo><TokenTable tokens={[{ name: '--scrollbar-thumb / -hover / -active', default: 'currentColor steps', source: 'theme', description: 'The global token law — this component never overrides scrollbar-color' }, { name: 'color-scheme', default: 'stage-scoped', source: 'component', description: 'data-scheme resolved from the nearest theme scope; absent = the OS answers' }] } /></div></SectionCard></div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props), the native-wrapper batch A rule: the family owns only the axis names it destructures on the OUTER root — the consumer style stays the viewport own channel, the scrollbar tiers ride their own data-width hook, and no native size-like attribute collides. The size axis scales the region content; the scheme observer is family state, never an axis lane."
+    >
+      <ComponentCanvas title="native-scroll-area · universal props" stage="fill" files={universalFiles}>
+<NativeScrollArea label="axes joined" size={18}>
+        <div class={cx(rt.panel)}>scrollable content — the region root carries the carriers, the content scales through inheritance.</div>
+      </NativeScrollArea>
+      <NativeScrollArea label="named steps" size="medium" radius="large" orientation="horizontal">
+        <div class={cx(rt.panel)}>horizontal run — named steps resolve through the alias ladder, zero inline px.</div>
+      </NativeScrollArea>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
 
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the NativeScrollArea Props interface; getViewport()/scrollTo() are the imperative exports."><PropsTable props={[{ name: 'orientation', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes scroll: overflow-y/x mapping.' }, { name: 'scrollbarWidth', type: "'auto' | 'thin' | 'none'", default: "'thin'", description: 'The scrollbar-width tier — thin rides the theme\u2019s global law (no channel at all).' }, { name: 'label', type: 'string', default: "'scrollable content'", description: 'a11y name for the region.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'style', type: 'string', default: '—', description: 'Style passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'Scroll callback from the viewport.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The scrolling content.', required: true }, { name: 'getViewport()', type: '() => HTMLDivElement | null', default: 'export', description: 'The scrollport element — the family\u2019s ToC pairing works here too.' }]} /></SectionCard></div>
   </div>

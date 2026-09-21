@@ -24,15 +24,32 @@
  *     own: no provider and no explicit prop resolve undefined, stamp
  *     nothing, and the ambient css scope channel keeps flowing (fleet
  *     law).
+ *   - size · shape · radius · color · theme · elevation · motion: the
+ *     seven sibling axis members (explicit-props W3-D5, FIRST-TIME on
+ *     this contract) — the chip is a no-own native <code> surface
+ *     (the batch A native rule: the family owns only the axis names
+ *     it destructures, the rest spread keeps forwarding); every axis
+ *     forwards through the ambient chain, an explicit lane stamps the
+ *     §10 carriers on the code root, JOINing the modifier mirrors'
+ *     style channel (吃也供).
  *
  * 惰性律: construction captures own/values only; context reads happen
  * at resolve time inside the consumer's $derived window. This file is
  * a member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import { definePaintSlot } from '$lib/paint.svelte';
-import { densitySlot } from '$lib/density.svelte';
 
 /** the ladder paint ids InlineCode ships (the frozen table's
  *  inline-code row as amended 2026-09-08: fused own; the same
@@ -43,5 +60,12 @@ export type InlineCodeVariant = ReturnType<typeof inlineCodeVariantSlot>;
 
 export const InlineCodeDefaults = defineComponentDefaults({
   variant: inlineCodeVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

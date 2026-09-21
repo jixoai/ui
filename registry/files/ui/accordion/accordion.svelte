@@ -36,6 +36,22 @@
   import type { Snippet } from 'svelte';
   import { fromAction } from 'svelte/attachments';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { AccordionDefaults } from './accordion-defaults.svelte';
   import { accordionStyles } from './accordion.stylex';
   import './accordion.css';
 
@@ -46,11 +62,72 @@
     /** antd's ghost paint: frameless — no outer border/card, items keep
      *  only the hairline separators (antd Collapse ghost mapping) */
     ghost?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (ONE number moves summary +
+     *  body: the whole disclosure set scales) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (the frame SUPPLIES the anchor; a nested auto
+     *  consumer computes R−inset) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     children: Snippet;
     class?: string;
+    style?: string;
   }
 
-  let { exclusive = false, ghost = false, children, class: className = '' }: Props = $props();
+  let {
+    exclusive = false,
+    ghost = false,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    children,
+    class: className = '',
+    style: consumerStyle,
+  }: Props = $props();
+
+  // ── the eight-axis surface (W3-D5 — FIRST-TIME contract, all
+  // no-own): ONE resolve record at the GROUP root — the frame div
+  // stamps the §10 carriers (JOINing the consumer style attr, the
+  // merge law), supplies downward via provideUniversalLanes and
+  // anchors query() after the anchor state declaration (the W3-C TDZ
+  // law). accordion-item rides the supply chain: its details/summary
+  // content is IN-FLOW inside the frame (the native-disclosure
+  // architecture has no portal boundary — the content inherits the
+  // frame's stamped carriers through the plain cascade; the portal
+  // law has nothing to self-carry here)
+  const d = $derived(
+    AccordionDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
 
   // the payload's own join (separator's serialize law, tailwindless
   // task 2.1): stylex members are objects in dev and joined strings
@@ -98,8 +175,12 @@
 </script>
 
 <div
+  bind:this={uniRoot}
   data-jx-accordion-ghost={ghost ? '' : undefined}
   class="jx-accordion {cn(cx(accordionStyles.group, ghost && accordionStyles.ghost), className)}"
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   {@attach fromAction(exclusiveGuard, () => exclusive)}
 >
   {@render children()}

@@ -214,7 +214,21 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import type { HighlightBackend } from '$lib/highlight/backend';
   // registry-safe seam (the density law): the key + structural type
   // only — the chip never imports the kernel side
@@ -227,9 +241,36 @@
   import { inlineCodeStyles } from './inline-code.stylex';
   import './inline-code.css';
 
-  interface Props extends HTMLAttributes<HTMLElement>, TextStyleProps {
-    density?: Density;
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'>, TextStyleProps {
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
     variant?: InlineCodeVariant;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the batch A native rule on
+     *  the <code> root; the modifier props' fontSize mirror is a
+     *  SEPARATE channel feeding the padding formula — different name,
+     *  no collision) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (the chip's own geometry rides --jx-chip-radius from
+     *  the density ladder — an explicit radius lane supplies the
+     *  anchor for nested auto consumers) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /**
      * 'auto' (default) = the zero-download fingerprint heuristic picks
      * the grammar; an explicit id/alias (ts, svelte, sh, …) skips
@@ -249,6 +290,13 @@
   let {
     density,
     variant,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     lang = 'auto',
     backend,
     lineHeight,
@@ -258,13 +306,22 @@
     family,
     fontSize,
     class: className = '',
+    style: consumerStyle,
     children,
     ...rest
   }: Props = $props();
   // the family Defaults is the single read point (context-defaults-
   // economy 3.4): variant rides the paint axis slot (zone ambient,
-  // frozen own 'fused'), density the no-opinion axis slot
-  const d = $derived(InlineCodeDefaults.resolve({ variant, density }));
+  // frozen own 'fused'); W3-D5 widens the record to the EIGHT-axis
+  // surface — the §10 carriers JOIN the style channel FIRST, the
+  // modifier mirrors follow, the consumer's own style last (the
+  // merge law), and the supply + the query() anchor ride the standard
+  // wiring (the anchor after the state decl)
+  const d = $derived(
+    InlineCodeDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
 
   // backend resolution: prop → context default → stock microlighter.
   // The context is captured ONCE at init (Svelte's getContext phase);
@@ -347,6 +404,9 @@
   const PLAIN_LANGS = new Set(['text', 'plain', 'plaintext', 'ansi']);
 
   let codeEl = $state<HTMLElement>();
+  // the query() anchor rides the chip's own element (the W3-C TDZ
+  // law: the provide sits AFTER the anchor state declaration)
+  provideQueryAnchor(() => codeEl ?? null);
   /** guards the async tail: a stale rejection must not warn over a
    * newer run's outcome when lang changes quickly */
   let generation = 0;
@@ -370,8 +430,11 @@
    *
    * Absent props emit nothing — the css rule's fallbacks read the
    * density pair and the formula stays exact for ambient density
-   * (radius is a var everywhere). The style attribute sits BEFORE
-   * the rest spread: a consumer's own style wins wholesale.
+   * (radius is a var everywhere). W3-D5: the style channel is a
+   * JOIN now (the consumer-merge law) — the §10 carriers lead, the
+   * modifier mirrors follow, the consumer's own style closes; a
+   * consumer declaration still wins the cascade by specificity of
+   * order within the same attr
    */
   const codeVars = $derived.by(() => {
     const decls: string[] = [];
@@ -444,8 +507,9 @@
 <code
   bind:this={codeEl}
   data-jx-inline-code={d.variant}
-  data-density={d.density}
-  style={codeVars}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={[carriers || undefined, codeVars, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined}
   class={cn(
     baseClasses,
     VARIANT_ATOM[d.variant],

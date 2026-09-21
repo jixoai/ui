@@ -142,6 +142,12 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<Skeleton class="h-4 w-2/3" size={18} />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -295,5 +301,20 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose blocks into the loading mirror of your real layout; put aria-busy on the container."><CodeBlock code={usage} lang="svelte" meta="Skeleton usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Placeholder blocks are decoration; the loading STATE is semantics that belongs to the container."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'Set on every block — placeholder scenery is never announced' }, { name: 'aria-busy', value: '"true"', description: 'The consumer puts it on the loading container — the contract home' }, { name: 'live region', value: 'optional', description: 'A visually-hidden "loading…" region announces politely once, if aria-busy is not enough' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Muted surface plus a 1px inset border token; the pulse is a brightness oscillation, frozen under reduced motion."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.rowC12)}><Skeleton class={cx(rt.skSize10)} /><div class={cx(rt.col8)}><Skeleton class={cx(rt.skBar, rt.skW32)} /><Skeleton class={cx(rt.skBar, rt.skW20)} /></div></div></DensityDemo><TokenTable tokens={[{ name: 'bg-muted', default: 'muted surface', source: 'color' }, { name: '--border', default: 'inset 1px ring', source: 'color' }, { name: 'jx-skeleton-pulse', default: '1.4s ease-in-out infinite', source: 'component', description: 'Brightness pulse; prefers-reduced-motion freezes it to a static block' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query(). The placeholder stays aria-hidden scenery; geometry stays the consumer own — the axis surface never manufactures width/height, the carriers only join the style channel."
+    >
+      <ComponentCanvas title="skeleton · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Skeleton class="h-4 w-2/3" size={18} /><Skeleton class="size-10" size={18} /></div>
+      <div class={cx(rt.panel)}><Skeleton class="h-3 w-32" size="medium" radius="large" /><Skeleton class="h-3 w-20" size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The Props interface adds nothing — a bare block with class passthrough and full attribute spread."><PropsTable props={[{ name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/aspect live here (no length API).' }, { name: '...rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'data-*, id, and the rest pass through untouched; aria-hidden lands after the spread.' }]} /></SectionCard></div>
 </div>

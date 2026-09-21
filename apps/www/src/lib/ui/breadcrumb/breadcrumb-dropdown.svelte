@@ -47,6 +47,7 @@
   import Icon from '$lib/ui/icon';
   import { breadcrumbStyles } from './breadcrumb.stylex';
   import type { Density } from '$lib/density.svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
   import DropdownMenu from '../dropdown-menu/dropdown-menu.svelte';
 
@@ -107,7 +108,7 @@
         popovertarget={autoId}
         aria-haspopup="menu"
         data-jx-breadcrumb-dropdown=""
-        data-density={d.density}
+        data-density={densityRungOf(d.density)}
         class={cn(cx(breadcrumbStyles.trigger), 'jx-bc-link', className)}
       >
         {label}

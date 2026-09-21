@@ -118,6 +118,18 @@
   import { controlsFor, schemaDefaultsOf } from './canvas-schema.svelte';
   import type { CanvasSchema, PlayOutput } from './canvas-schema.svelte';
   import type { Density } from '$lib/density.svelte';
+  import {
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
   import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
@@ -259,7 +271,26 @@
      * title-derived default cannot compose.
      */
     stageLabel?: string;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the canvas is chrome, not a
+     *  density-scaled control — an explicit lane is the consumer's
+     *  say, no-own otherwise) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
+    style?: string;
   }
 
   let {
@@ -282,7 +313,14 @@
     resolveFileContent,
     id,
     stageLabel,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
   }: Props = $props();
 
   // the payload's own join (the separator serialize law): plain strings
@@ -396,8 +434,31 @@
     current ? (resolveFileContent?.(current) ?? current.content) : '',
   );
   // the single read point (A3): explicit lane permanently hot via the
-// destructure default — the ambient zone never rides the stage
-const dDensity = $derived(ComponentCanvasDefaults.resolve({ density }).density);
+  // destructure default — the ambient zone never rides the stage
+  const dDensity = $derived(ComponentCanvasDefaults.resolve({ density }).density);
+
+  // ── the W3-D5 six-axis surface (the hole round): the workbench
+  // <section> root resolves ONE no-own record for size · shape ·
+  // radius · color · elevation · motion, stamps the §10 carriers
+  // (JOINing the consumer style attr — the merge law), supplies
+  // downward and anchors query() after the anchor state declaration.
+  // `theme` + `density` are DELIBERATELY ABSENT: the stage-preview
+  // bindables own those prop names (the §13 no-rename law — no rename
+  // without an Owner ruling; the collision recorded, W6
+  // dossier-flagged beside code-card/mermaid); the universal lanes
+  // forward ambient-only through inheritance. The stage's own
+  // data-theme/data-density stamps (the scoped re-theming surface)
+  // stay exactly as they were — this surface never touches them
+  const d = $derived(
+    ComponentCanvasDefaults.resolve({ size, shape, radius, color, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ size, shape, radius, color, elevation, motion });
+  let uniRoot = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
 
 let codeOpen = $state(false);
   let drawerEl = $state<HTMLElement | null>(null);
@@ -454,9 +515,11 @@ let codeOpen = $state(false);
 </script>
 
 <section
+  bind:this={uniRoot}
   data-jx-canvas
   data-toc-skip=""
   class={cn(cx(canvasStyles.root), className)}
+  style={rootStyle}
 >
   <header data-jx-canvas-head class={cx(canvasStyles.head)}>
     <div class={cn('jx-canvas-head-text', cx(canvasStyles.headText))}>

@@ -6,6 +6,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import HighlightDetectDefault from '$lib/ui/highlight-detect-default';
+  import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
   import { AUTO_LANG } from '$lib/highlight/lang-detector';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -56,6 +57,14 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<HighlightDetectDefault size={18}>
+  <CodeCard lang="auto" code={source} />
+</HighlightDetectDefault>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -119,7 +128,22 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="api" data-reveal="">
+    <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props), the NO-ROOT dialect: the wrapper renders children with NO element of its own, so the lanes are SUPPLIED through context only — every component inside the wrapped subtree resolves them as ambient and stamps its own roots. The demo wraps a code surface at size 18; the HIGHLIGHT_DETECT_KEY detection default is family state, untouched by the axes."
+    >
+      <ComponentCanvas title="highlight-detect-default · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><HighlightDetectDefault size={18}><InlineCode lang="ts">const axes = 8</InlineCode></HighlightDetectDefault></div>
+      <div class={cx(rt.panel)}><HighlightDetectDefault size="medium" radius="large"><InlineCode lang="ts">const named = 'steps'</InlineCode></HighlightDetectDefault></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
       <SectionCard eyebrow="api" title="HighlightDetectDefault props">
         <PropsTable
           props={[

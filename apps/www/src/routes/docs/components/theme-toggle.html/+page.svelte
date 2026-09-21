@@ -101,6 +101,12 @@ ${close}
       )
       .join(' ');
 
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<ThemeToggle size={18} />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -246,5 +252,20 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pair with the no-flash inline bootstrap in app.html — both write the same storage key."><CodeBlock code={usage} lang="svelte" meta="ThemeToggle usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="full is a labeled group with pressed state per option; the cycling buttons name their current mode."><A11yTable keys={[{ key: 'Tab', action: 'Reaches the toggle (one stop: the group or the cycling button)' }, { key: 'Enter / Space', action: 'Sets the focused mode (full) or advances light → dark → system (cycling)' }]} aria={[{ name: 'role', value: 'group', description: 'The full variant group, aria-label "Color theme"' }, { name: 'aria-pressed', value: 'boolean', description: 'On each full-variant option — the current mode reads pressed' }, { name: 'aria-label', value: '"theme: {mode}"', description: 'On the cycling variants; icon-only relies on it entirely' }, { name: 'aria-hidden', value: 'true', description: 'On the decorative inline SVG icons' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The toggle re-themes the page rather than being themed: chrome speaks currentColor, zero tokens of its own."><div class={cx(rt.col24)}><DensityDemo><ThemeToggle variant="compact" /></DensityDemo><TokenTable tokens={[{ name: 'currentColor', default: 'inherited', source: 'color', description: 'Icons and chrome track the surrounding text color' }, { name: 'storage key', default: '"theme": light | dark | system', source: 'structural', description: '.dark class + colorScheme on the root, applied by one shared function' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit; stamps nothing), an exact number, or query(). The theme axis is tree-scoped paint (class:dark on the control own root); it is deliberately NOT the global flip — the §6 system lane keeps driving html.dark + localStorage through set/cycle, untouched by the axis surface. Flip the toggles below: the GLOBAL theme still moves."
+    >
+      <ComponentCanvas title="theme-toggle · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><ThemeToggle size={18} /></div>
+      <div class={cx(rt.panel)}><ThemeToggle variant="full" size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ThemeToggle Props interface — a variant, one full-only modifier, and the localization payload."><PropsTable props={[{ name: 'variant', type: "'full' | 'compact' | 'icon' | 'text'", default: "'compact' · Own default, not ambient", description: 'full sets a mode directly; the others cycle light → dark → system. Defaults: literal slot — own \'compact\' (a structural selector, never a paint rung).' }, { name: 'hideLabels', type: 'boolean', default: 'false', description: 'full variant only: hide the text labels, show icons alone.' }, { name: 'labels', type: '{ light: string; dark: string; system: string; groupAriaLabel?: string }', default: 'English literals', description: 'Localize the mode labels and the full variant\'s group aria name. Absent = the shipped English (byte-identical); the value domain and the localStorage "theme" contract are never localized.' }]} /></SectionCard></div>
 </div>

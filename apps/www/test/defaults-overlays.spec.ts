@@ -116,9 +116,11 @@ describe('zone + density providers', () => {
   it("the density provider's opinion stamps every consumer family", () => {
     const { container } = render(Host);
     const zone = byTestid(container, 'zone');
-    // (alert's density slot is DECLARATION-only — the banner carries
-    // no density prop and stamps nothing, the dialog precedent)
-    expect(zone.querySelector('[data-jx-alert]')!.getAttribute('data-density')).toBeNull();
+    // (W3-D5: alert joined the eight-axis surface — the ambient density
+    // now FLOWS through the widened contract and stamps the banner
+    // root, the fleet law live; the pre-W3 declaration-only posture
+    // retired with the hole round)
+    expect(zone.querySelector('[data-jx-alert]')!.getAttribute('data-density')).toBe('sm');
     expect(zone.querySelector('[data-jx-empty]')!.getAttribute('data-density')).toBe('sm');
     expect(zone.querySelector('[data-jx-result]')!.getAttribute('data-density')).toBe('sm');
     expect(zone.querySelector('[data-jx-fab]')!.getAttribute('data-density')).toBe('sm');
@@ -224,9 +226,18 @@ describe('in-window unit resolution — the own-defaults projection', () => {
   });
 
   it('Alert: frozen own outline; system-dialog: the two-vocabulary split + the level3 own', () => {
+    // W3-D5: the alert contract carries the eight-axis surface (the
+    // silent window resolves 'auto' — the §0.1 no-opinion spelling)
     expect(resolveInWindow(() => AlertDefaults.resolve({}))).toEqual({
       variant: 'outline',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
     // tone rides the contract since c46d357b (the confirm rung's paint
     // family, own 'destructive') — re-recorded here when
@@ -332,7 +343,20 @@ describe('in-window unit resolution — the own-defaults projection', () => {
         elevation: 'auto',
         motion: 'auto',
       },
-      { density: undefined },
+      // skeleton W3-D5 (the hole round): the placeholder's contract
+      // gains the seven sibling axes — every axis silent-'auto' (the
+      // component wiring landed with them; geometry stays the
+      // consumer's, the axis surface never manufactures it)
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
       // separator W3-B: the eight-axis surface joined the ink-geometry
       // literal — every axis silent-'auto'
       {

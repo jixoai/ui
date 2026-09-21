@@ -12,6 +12,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes, HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { breadcrumbStyles } from './breadcrumb.stylex';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
@@ -48,7 +49,7 @@
 {#if href}
   <a
     data-jx-breadcrumb-current=""
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
     class={cn(cx(breadcrumbStyles.page), className)}
     {href}
     {...rest}
@@ -61,7 +62,7 @@
        (anchor-only attrs cannot appear — href is destructured out) -->
   <span
     data-jx-breadcrumb-current=""
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
     class={cn(cx(breadcrumbStyles.page), className)}
     {...(rest as HTMLAttributes<HTMLSpanElement>)}
     aria-current="page"

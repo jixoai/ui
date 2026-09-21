@@ -39,7 +39,21 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
-  import { type Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { createScrollSpy } from '$lib/scroll-spy';
   import { AnchorDefaults } from './anchor-defaults.svelte';
   import { anchorStyles } from './anchor.stylex';
@@ -62,27 +76,73 @@
       )
       .join(' ');
 
-  interface Props extends HTMLAttributes<HTMLElement> {
-    /** density policy: explicit ?? ambient scope, else unstamped */
-    density?: Density;
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
     'data-density'?: string;
     /** nav landmark label */
     label?: string;
     /** offset of the pick line from the viewport top (sticky headers) */
     offset?: number;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the rail's links scale with
+     *  the root) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     children: Snippet;
   }
 
-  let { density, 'data-density': _callerDensity, label = 'on this page', offset = 96, class: className = '', children, ...rest }: Props = $props();
+  let {
+    density,
+    'data-density': _callerDensity,
+    label = 'on this page',
+    offset = 96,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+    style: consumerStyle,
+    children,
+    ...rest
+  }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.2): the density slot resolves explicit ?? ambient
-  // scope; no opinion stamps nothing, the ambient css scope channel
-  // keeps flowing
-  const d = $derived(AnchorDefaults.resolve({ density }));
-
+  // economy 3.2, widened W3-D5): density resolves explicit ?? ambient
+  // scope; the seven sibling axes join the same record — the rail
+  // root stamps the §10 carriers (JOINing the consumer style attr,
+  // the merge law), supplies downward to the anchor items (they ride
+  // the supply chain) and anchors query() after the anchor state
+  // declaration (the W3-C TDZ law); no opinion stamps nothing, the
+  // ambient css scope channel keeps flowing
+  const d = $derived(
+    AnchorDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
   let navEl = $state<HTMLElement | undefined>();
+  provideQueryAnchor(() => navEl ?? null);
   let activeId = $state('');
 
   setContext<AnchorApi>(ANCHOR_KEY, {
@@ -166,8 +226,10 @@
 <nav
   bind:this={navEl}
   data-jx-anchor=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={cx(anchorStyles.rail, className)}
+  class:dark={d.theme === 'dark'}
+  style={[carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined}
   aria-label={label}
   onclick={handleClick}
   {...rest}

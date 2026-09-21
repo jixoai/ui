@@ -233,7 +233,13 @@ ${close}
   /* leading-[1] leading-[1.25] leading-[1.5] leading-[1.75] leading-[2]
      font-[450] tracking-[-0.02em] [font-family:IBM_Plex_Mono]
      [font-size:11px] [font-size:12px] [font-size:13px] [font-size:14px]
-     [font-size:16px] */</script>
+     [font-size:16px] */
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<InlineCode lang="ts" size={18}>const axes = 8</InlineCode>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+</script>
 
 <svelte:head>
   <title>InlineCode · jixoai-ui</title>
@@ -499,6 +505,21 @@ ${close}
     <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'code', value: 'native element', description: 'Communicates "this is code" without extra ARIA; the range engine never touches the DOM text.' }, { name: 'highlight ranges', value: 'async, cosmetic', description: 'Paint rides the CSS Custom Highlight API over the SAME text node — screen readers read the identical characters before and after hydration.' }]}/></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><InlineCode lang="ts">const value = 42</InlineCode></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-chip-radius', default: 'density ladder 2/2/2/4/8px', source: 'density', description: 'The chip corner — its own ladder, not the global --radius fleet corner.' }, { name: '--jx-tonal', default: 'var(--primary); tonal injects var(--muted-foreground)', source: 'color', description: 'Tonal ground/border/text hue slot — the design.md §1 recipe.' }, { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' }, { name: '--tok-token-keyword', default: 'var(--primary)', source: 'color', description: 'The range palette the microlighter jixoai theme bridges onto — the same values code-card.css wires, carried by the chip itself.' }, { name: '--tok-token-string', default: 'var(--accent)', source: 'color' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query(). The carriers JOIN the style channel first, the modifier mirrors follow, the consumer style closes (the merge law). The size axis is separate from the modifier fontSize mirror that feeds the padding formula — different names, no collision."
+    >
+      <ComponentCanvas title="inline-code · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><InlineCode lang="ts" size={18}>const axes = 8</InlineCode></div>
+      <div class={cx(rt.panel)}><InlineCode lang="ts" size="medium" radius="large">const named = 'steps'</InlineCode></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
     <div id="api" data-reveal=""><SectionCard eyebrow="api" title="InlineCode props"><PropsTable props={[{ name: 'variant', type: "'fused' | 'tonal' | 'outline'", default: "'fused' · ambient zone", description: "The ladder paint (fused own, the backdrop-fusion band); omitted → the ambient paint zone, else the frozen own fused." }, { name: 'lang', type: 'string', default: "'auto'", description: "'auto' = fingerprint heuristic; an explicit id/alias skips detection; 'text'/'plain' stay plain." }, { name: 'backend', type: 'HighlightBackend', description: 'The engine seam: prop → HIGHLIGHT_KEY context → the stock microlighter range engine. A rejecting backend leaves the plain chip standing.' }, { name: 'lineHeight', type: 'number | string', description: 'The shared text-modifier kernel: number ⇒ the unitless ratio (leading-[1.5]); string ⇒ verbatim. Also feeds the padding calc; absent ⇒ the ambient line flows.' }, { name: 'weight', type: 'string', description: "A weight word or number — 'bold' → font-bold (named map); '450' → font-[450]." }, { name: 'italic', type: 'boolean', description: 'true ⇒ italic; absent stays ambient (never not-italic).' }, { name: 'tracking', type: 'string', description: "A letter-spacing word or length — 'wide' → tracking-wide; '-0.02em' → tracking-[-0.02em]." }, { name: 'family', type: 'string', description: 'A font-family value — verbatim [font-family:…] (spaces escape to underscores).' }, { name: 'fontSize', type: 'string', description: 'A CSS length — verbatim [font-size:…]; also feeds the padding calc. Never named size (the axis-word law).' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'class', type: 'string', description: 'Adds consumer classes; jx-hue-* intent utilities retune the tonal slot, and [--tok-token-…:…] injections land here.' }]} /><p class={cx(rt.mt16, rt.text125, rt.inkMuted)}>Every other attribute (title, data-*, aria-*) flows through to the native &lt;code&gt; element verbatim. Module exports: <InlineCode lang="text" variant="outline">INLINE_LANGS</InlineCode> (the detection candidates) and <InlineCode lang="text" variant="outline">detectInlineLang(code)</InlineCode> (the pure heuristic).</p></SectionCard></div>
   </div>
 </div>

@@ -258,9 +258,19 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
   // density-bearing families: the window-bound ambient lanes and the
   // plugin-scope read make the plain unit form a hard-contract throw
   it('InlineCodeDefaults and the density-slot families resolve their own defaults', () => {
+    // W3-D5 (the hole round): inline-code joined the eight-axis
+    // surface — the silent window resolves 'auto' (the §0.1
+    // no-opinion spelling), variant keeps the frozen own 'fused'
     expect(resolveInWindow(() => InlineCodeDefaults.resolve({}))).toEqual({
       variant: 'fused',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
     // W3-D1 (explicit-props, task 3.4): chart's contract gained the
     // seven non-size axis members (the `size` key stays the donut
@@ -325,7 +335,21 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
       elevation: 'auto',
       motion: 'auto',
     });
-    expect(ThemeToggleDefaults.resolve({})).toEqual({ variant: 'compact' });
+    // W3-D5 (the hole round): theme-toggle's contract gained the
+    // eight universal axes beside the structural variant — the axis
+    // slots read context, so the call leaves the pure-literal set and
+    // joins the in-window form (silent 'auto')
+    expect(resolveInWindow(() => ThemeToggleDefaults.resolve({}))).toEqual({
+      variant: 'compact',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
     // W3-D1 (explicit-props, task 3.4): the switcher's contract
     // gained the eight universal axes (all no-own — density joins
     // fresh; variant keeps its 'pair' own)

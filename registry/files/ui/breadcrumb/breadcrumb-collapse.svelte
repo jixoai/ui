@@ -27,6 +27,7 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { setContext } from 'svelte';
   import { cn } from '$lib/utils';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { breadcrumbStyles } from './breadcrumb.stylex';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
@@ -87,11 +88,11 @@
   const target = $derived(href ?? derivedHref);
 </script>
 
-<li data-density={d.density} {...rest} class={className}>
+<li data-density={densityRungOf(d.density)} {...rest} class={className}>
   <a
     bind:this={ellipsisEl}
     data-jx-breadcrumb-collapse=""
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
     class={cn(cx(breadcrumbStyles.link), 'jx-bc-link', className)}
     href={target}
   >…</a>

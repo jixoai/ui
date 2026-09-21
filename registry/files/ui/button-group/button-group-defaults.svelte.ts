@@ -23,14 +23,33 @@
  *     (explicit ?? inherited ?? undefined), resolving what it then
  *     PROVIDES to the subtree (the joined buttons adopt the tier);
  *     no opinion stamps nothing (fleet law).
+ *   - size · shape · radius · color · theme · elevation · motion: the
+ *     seven sibling axis members (explicit-props W3-D5, FIRST-TIME on
+ *     this contract — the family deferred from batch B lands here):
+ *     the group root is a LAYOUT container that paints no bezel of
+ *     its own, so every axis is no-own — an explicit lane stamps the
+ *     §10 carriers on the group root (font-size flows to the joined
+ *     buttons through inheritance; the radius anchor supplies the
+ *     concentric chain) and forwards through the ambient chain to
+ *     the composed members (吃也供 — the wrapped press-buttons stamp
+ *     their own roots).
  *
  * 惰性律: construction captures own/values only; context reads happen
  * at resolve time inside the consumer's $derived window. Member of the
  * registry:ui item (installs with the family, byte mirrored, zero
  * kernel imports).
  */
-import { defineComponentDefaults } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import { definePaintSlot } from '$lib/paint.svelte';
 
 /**
@@ -49,5 +68,12 @@ export type ButtonGroupVariant = ReturnType<typeof buttonGroupVariantSlot>;
 
 export const ButtonGroupDefaults = defineComponentDefaults({
   variant: buttonGroupVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

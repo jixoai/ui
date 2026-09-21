@@ -2,6 +2,7 @@
   import Accordion from '$lib/ui/accordion/accordion.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import AccordionItem from '$lib/ui/accordion/accordion-item.svelte';
+  import Card from '$lib/ui/card/card.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -114,6 +115,21 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<Accordion size={18}>
+  <AccordionItem>
+    {#snippet summary()}Shipping{/snippet}
+    Orders leave the warehouse within 48h.
+  </AccordionItem>
+  <AccordionItem>
+    {#snippet summary()}Returns{/snippet}
+    30 days, no questions — the label is prepaid.
+  </AccordionItem>
+</Accordion>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -276,5 +292,40 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Wrap items in the group for the collapsed frame and opt-in exclusive mode; use a bare item for a one-off disclosure."><CodeBlock code={usage} lang="svelte" meta="Accordion usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component adds zero ARIA of its own — the browser maps details/summary to the disclosure pattern, including open state."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus to the summary line' }, { key: 'Enter / Space', action: 'Toggles the focused item open/closed (native summary behavior)' }]} aria={[{ name: 'details / summary', value: 'native semantics', description: 'The platform exposes name, role, and open state; no ARIA attributes are added or needed.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The accordion is utility-authored: the frame, seam, and 13px summary rhythm are fixed literals, so the scopes below leave it unchanged."><div class={cx(rt.col20)}><DensityDemo><Accordion><AccordionItem>{#snippet summary()}density sample{/snippet}The summary rhythm, chevron, and seam are fixed across xs/sm/default/lg.</AccordionItem></Accordion></DensityDemo><TokenTable tokens={[{ name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-stack', default: '4 / 4 / 8 / 8px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: 'border (frame + seam)', default: '1px', source: 'structural' }, { name: 'summary rhythm', default: '13px, fixed utility', source: 'structural' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query(). One Defaults contract resolved at the GROUP root; the items ride the supply chain through the plain cascade (the native-details architecture has no portal boundary — the content inherits the frame carriers)."
+    >
+      <ComponentCanvas title="accordion · universal props" stage="fill" files={universalFiles}>
+<Accordion size={18}>
+        <AccordionItem>
+          {#snippet summary()}Shipping{/snippet}
+          Orders leave the warehouse within 48h.
+        </AccordionItem>
+        <AccordionItem>
+          {#snippet summary()}Returns{/snippet}
+          30 days, no questions — the label is prepaid.
+        </AccordionItem>
+      </Accordion>
+      <Accordion size="medium" density="small">
+        <AccordionItem>
+          {#snippet summary()}Named steps{/snippet}
+          The whole disclosure set scales — summary and body, one number.
+        </AccordionItem>
+      </Accordion>
+      <Accordion radius={20}>
+        <AccordionItem>
+          {#snippet summary()}Concentric anchor{/snippet}
+          <Card radius="auto"><div class={cx(rt.panel)}>the auto Card child computes max(0px, 20px − inset) through the §3 expression — the radius var inherits the group root stamp</div></Card>
+        </AccordionItem>
+      </Accordion>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Two halves: the group owns the frame and the exclusive guard; the item is a styled details/summary with a snippet summary."><div class={cx(rt.col24)}><PropsTable title="Accordion (group)" props={[{ name: 'exclusive', type: 'boolean', default: 'false', description: 'Radio behavior: opening one direct child closes its siblings via a capture-phase toggle listener.' }, { name: 'ghost', type: 'boolean', default: 'false', description: "antd Collapse ghost paint — frameless, hairline separators only." }, { name: 'children', type: 'Snippet', default: '—', description: 'AccordionItem (or raw details) children.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the group container.' }]} /><PropsTable title="AccordionItem" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Disclosure state; bindable (bind:open) for controlled use.', bindable: true }, { name: 'summary', type: 'Snippet', default: '—', description: 'The summary line — plain text or a composed snippet (no interactive elements).' }, { name: 'children', type: 'Snippet', default: '—', description: 'The expanded body.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the details element.' }]} /></div></SectionCard></div>
 </div>

@@ -63,7 +63,9 @@ describe('the provider families\' contract surfaces', () => {
       [TabsDefaults, ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion']],
       // table keeps the design-frozen density own 'sm'
       [TableDefaults, ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion']],
-      [BreadcrumbDefaults, ['density']],
+      // W3-D5 (the hole round): breadcrumb joins the same shape (its
+      // density rides the trail root's bridged provideDensity lane)
+      [BreadcrumbDefaults, ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion']],
       // W3-C: the trio joined the eight-axis surface (the panel's own
       // elevation level2 rides the same record — the menu rung)
       [MenubarDefaults, ['color', 'density', 'elevation', 'motion', 'radius', 'shape', 'size', 'theme', 'variant']],
@@ -114,7 +116,18 @@ describe('the provider families\' contract surfaces', () => {
         elevation: 'auto',
         motion: 'auto',
       },
-      { density: undefined },
+      // W3-D5: breadcrumb resolves the same eight-key shape (the
+      // silent window resolves 'auto' — the §0.1 no-opinion spelling)
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
       // the design-frozen family own: a table with NO opinion resolves 'sm'
       {
         density: 'sm',

@@ -11,6 +11,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { cn } from '$lib/utils';
   import { breadcrumbStyles } from './breadcrumb.stylex';
 
@@ -44,7 +45,7 @@
 
 <ol
   data-jx-breadcrumb-list=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={cn(cx(breadcrumbStyles.list), className)}
   {...rest}
   role="list"

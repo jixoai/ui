@@ -36,6 +36,21 @@
 -->
 <script lang="ts">
   import Icon from '$lib/ui/icon';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { ThemeToggleDefaults, type ThemeToggleVariant } from './theme-toggle-defaults.svelte';
   import { themeToggleStyles } from './theme-toggle.stylex';
 
@@ -75,13 +90,64 @@
     /** localize the mode labels and the group aria name; absent =
      *  English (the shipped defaults) — no behavioral change */
     labels?: ThemeToggleLabels;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): tree-scoped paint (class:dark on
+     *  the control's own root); auto = inheritance — deliberately NOT
+     *  the global flip (the §6 system lane keeps driving html.dark +
+     *  localStorage through set/cycle below, untouched by this
+     *  lane) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
-  let { variant, hideLabels = false, labels = undefined }: Props = $props();
+  let {
+    variant,
+    hideLabels = false,
+    labels = undefined,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+  }: Props = $props();
   // the family Defaults is the single read point (context-defaults-
   // economy 3.4): variant rides a literal slot (own 'compact', never
-  // reads context — a structural selector, not a paint rung)
-  const d = $derived(ThemeToggleDefaults.resolve({ variant }));
+  // reads context — a structural selector, not a paint rung); W3-D5
+  // widens the record to the EIGHT-axis surface (all no-own) — the
+  // carriers stamp whichever root renders (the segmented group or
+  // the cycle button), the supply + the query() anchor ride the
+  // standard wiring. The GLOBAL flip machinery below is never
+  // touched by the axis surface
+  const d = $derived(
+    ThemeToggleDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement | undefined>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
+  const rootDensity = $derived(densityRungOf(d.density));
 
   const ORDER: Theme[] = ['light', 'dark', 'system'];
   // the resolved vocabulary: explicit labels over the English own — one
@@ -137,7 +203,16 @@
 {/snippet}
 
 {#if d.variant === 'full'}
-  <div data-jx-theme-segmented="" class={cx(themeToggleStyles.group)} role="group" aria-label={labels?.groupAriaLabel ?? 'Color theme'}>
+  <div
+    bind:this={uniRoot}
+    data-jx-theme-segmented=""
+    class={cx(themeToggleStyles.group)}
+    data-density={rootDensity}
+    class:dark={d.theme === 'dark'}
+    style={rootStyle}
+    role="group"
+    aria-label={labels?.groupAriaLabel ?? 'Color theme'}
+  >
     {#each ORDER as theme, index (theme)}
       <button
         type="button"
@@ -162,10 +237,14 @@
   </div>
 {:else}
   <button
+    bind:this={uniRoot}
     type="button"
     onclick={cycle}
     data-jx-theme-btn=""
     class={cx(themeToggleStyles.bezel, themeToggleStyles.cycle)}
+    data-density={rootDensity}
+    class:dark={d.theme === 'dark'}
+    style={rootStyle}
     aria-label={`theme: ${current}`}
   >
     {#if d.variant === 'compact'}

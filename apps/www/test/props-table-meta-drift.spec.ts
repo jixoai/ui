@@ -176,7 +176,7 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'Raw exports', type: 'P · Strong · Em · Del · Mark · Ins · Sub · Sup', default: '—', description: 'The eight sugar components — each renders the base with its mark fixed (class/children/attrs forwarded); identical markup to <Text mark="{word}">.' },
   ],
   'inline-code': [
-    { name: 'density', type: 'Density', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    { name: 'density', type: 'DensityLane | QueryResult<DensityLane>', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
     { name: 'variant', type: "'fused' | 'tonal' | 'outline'", default: "'fused'", description: 'The ladder paint (fused own, the backdrop-fusion band); omitted → the ambient paint zone, else the frozen own fused.', ambient: 'zone' },
     { name: 'lang', type: 'string', default: "'auto'", description: "'auto' = fingerprint heuristic; an explicit id/alias skips detection; 'text'/'plain' stay plain." },
     { name: 'backend', type: 'HighlightBackend', default: '—', description: 'The engine seam: prop → HIGHLIGHT_KEY context → the stock microlighter range engine. A rejecting backend leaves the plain chip standing.' },
@@ -198,6 +198,16 @@ const DATE_PICKER_LOCALE_ROW: PropEntry = {
   type: 'string',
   default: '—',
   description: "BCP 47 locale for the panel vocabulary + the 'locale' display format (Intl.DateTimeFormat); default = the page's <html lang>.",
+};
+// W3-D5 (the hole round): inline-code's style passthrough row — the
+// consumer-merge law (carriers JOIN the consumer's style attr) made
+// the prop explicit, so the extractor surfaces it beside class (the
+// text pilot's own style row precedent)
+const INLINE_CODE_STYLE_ROW: PropEntry = {
+  name: 'style',
+  type: 'unknown',
+  default: '—',
+  description: '',
 };
 
 // ── the seven pilots, wired ────────────────────────────────────────────
@@ -259,7 +269,11 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'inline-code',
     meta: inlineCodeMeta,
     docs: INLINE_CODE_DOCS,
-    renderedOrder: ['density', 'variant', 'lang', 'backend', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'class'],
+    // W3-D5 (the hole round): inline-code joins the eight-axis surface
+    // (density migrates onto the universal lane — the type widens; the
+    // seven siblings add between variant and lang; the style passthrough
+    // row lands beside class)
+    renderedOrder: ['density', 'variant', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'lang', 'backend', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'class', 'style'],
   },
 ];
 
@@ -289,12 +303,20 @@ describe('props-table meta migration — zero content drift (pilot nine)', () =>
     // W3 batch D3: select joins (density migrates onto the axis lane;
     // the seven siblings add beside onchange, elevation owning level2)
     'select',
+    // W3 batch D5 (the hole round): inline-code joins the eight-axis
+    // surface (density migrates onto the universal lane, the seven
+    // siblings add — the same intended, additive drift)
+    'inline-code',
   ]);
   for (const pilot of PILOTS) {
     it(`${pilot.name}: every legacy row's content survives byte-for-byte`, () => {
       const rendered = propsFromMeta(pilot.meta, pilot.docs);
       const legacy =
-        pilot.name === 'date-picker' ? [...LEGACY['date-picker'], DATE_PICKER_LOCALE_ROW] : LEGACY[pilot.name];
+        pilot.name === 'date-picker'
+          ? [...LEGACY['date-picker'], DATE_PICKER_LOCALE_ROW]
+          : pilot.name === 'inline-code'
+            ? [...LEGACY['inline-code'], INLINE_CODE_STYLE_ROW]
+            : LEGACY[pilot.name];
       const axisCount = UNIVERSAL_PILOTS.has(pilot.name)
         ? AXIS_ROWS.filter(
             (axis) => rendered.some((r) => r.name === axis) && !legacy.some((r) => r.name === axis),

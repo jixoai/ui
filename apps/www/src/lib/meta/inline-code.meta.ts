@@ -7,13 +7,48 @@ export const meta = defineComponentMeta(
     "props": {
       "density": {
         "kind": "opaque",
-        "typeText": "Density",
+        "typeText": "DensityLane | QueryResult<DensityLane>",
         "ambient": "scope"
       },
       "variant": {
         "kind": "opaque",
         "typeText": "InlineCodeVariant",
         "ambient": "zone"
+      },
+      "size": {
+        "kind": "opaque",
+        "typeText": "SizeLane | QueryResult<SizeLane>",
+        "ambient": "scope"
+      },
+      "shape": {
+        "kind": "opaque",
+        "typeText": "ShapeLane | QueryResult<ShapeLane>",
+        "ambient": "scope"
+      },
+      "radius": {
+        "kind": "opaque",
+        "typeText": "RadiusLane | QueryResult<RadiusLane>",
+        "ambient": "scope"
+      },
+      "color": {
+        "kind": "opaque",
+        "typeText": "ColorLane | QueryResult<ColorLane>",
+        "ambient": "scope"
+      },
+      "theme": {
+        "kind": "opaque",
+        "typeText": "ThemeLane | QueryResult<ThemeLane>",
+        "ambient": "scope"
+      },
+      "elevation": {
+        "kind": "opaque",
+        "typeText": "ElevationLane | QueryResult<ElevationLane>",
+        "ambient": "scope"
+      },
+      "motion": {
+        "kind": "opaque",
+        "typeText": "MotionLane | QueryResult<MotionLane>",
+        "ambient": "scope"
       },
       "lang": {
         "kind": "string",
@@ -50,6 +85,10 @@ export const meta = defineComponentMeta(
       "class": {
         "kind": "string",
         "default": ""
+      },
+      "style": {
+        "kind": "opaque",
+        "typeText": "unknown"
       },
       "children": {
         "kind": "opaque",

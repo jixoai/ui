@@ -42,10 +42,26 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { BootSplashDefaults } from './boot-splash-defaults.svelte';
 
   type ExitKind = 'opacity-out' | 'blur-out' | 'none';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** the brand mark (LOGO slot) */
     logo?: Snippet;
     /** the loading animation slot (default: hardcoded SMIL spinner) */
@@ -68,6 +84,32 @@
     durationMs?: number;
     /** the dismissal state (bindable; manual mode's control surface) */
     open?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the boot copy scales; the
+     *  zero-css-file law is untouched — the carrier is an INLINE
+     *  style declaration, this component's own element idiom) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge — the layer's own
+     *  hardcoded grounds keep their precedence) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -82,8 +124,42 @@
     minMs = 350,
     durationMs = 350,
     open = $bindable(true),
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    style: consumerStyle,
     ...rest
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D5 — FIRST-TIME contract, all
+  // no-own): one resolution record on the layer root; the §10
+  // carriers JOIN the exit-duration style channel (the merge law —
+  // inline declarations, the zero-css-file law untouched); the supply
+  // + the query() anchor follow the standard wiring. The layer's
+  // existence is TRANSIENT by design (it unmounts when the page is
+  // ready) — the surface rides whatever window it has and never
+  // touches the exit/reveal machinery
+  const d = $derived(
+    BootSplashDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniLayer = $state<HTMLDivElement | undefined>();
+  provideQueryAnchor(() => uniLayer ?? null);
+  const layerStyle = $derived(
+    [
+      `--jx-boot-splash-duration: ${durationMs}ms`,
+      carriers || undefined,
+      consumerStyle ?? undefined,
+    ]
+      .filter(Boolean)
+      .join('; ') || undefined,
+  );
 
   // the exit phase: '' while covering, the keyframe class while
   // leaving — animationend completes the dismissal
@@ -232,11 +308,14 @@
 
 {#if open || leaving}
   <div
+    bind:this={uniLayer}
     data-jx-splash="layer"
     class="jx-boot-splash-layer"
     class:jx-boot-splash-exit-opacity={leaving && exit === 'opacity-out'}
     class:jx-boot-splash-exit-blur={leaving && exit === 'blur-out'}
-    style="--jx-boot-splash-duration: {durationMs}ms"
+    class:dark={d.theme === 'dark'}
+    data-density={densityRungOf(d.density)}
+    style={layerStyle}
     role="status"
     aria-label={title ?? 'loading'}
     onanimationend={onExitEnd}

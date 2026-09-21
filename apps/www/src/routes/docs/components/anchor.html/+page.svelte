@@ -62,6 +62,15 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<Anchor label="on this page" size={18}>
+  <AnchorItem href="#what">what it does</AnchorItem>
+  <AnchorItem href="#api">api</AnchorItem>
+</Anchor>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -206,6 +215,21 @@ ${close}
           { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density', description: 'AnchorItem label line height.' },
         ]} />
       </div>
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query(). The rail root resolves the record and supplies downward — the anchor items ride the supply chain, the breadcrumb-parts shape (one contract, many ambient readers)."
+    >
+      <ComponentCanvas title="anchor · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Anchor label="axes joined" size={18}><AnchorItem href="#what">what it does</AnchorItem><AnchorItem href="#api">api</AnchorItem></Anchor></div>
+      <div class={cx(rt.panel)}><Anchor label="named steps" size="medium" radius="large"><AnchorItem href="#universal-props">universal props</AnchorItem></Anchor></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

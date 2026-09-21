@@ -11,6 +11,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
   import { cn } from '$lib/utils';
 
@@ -32,7 +33,7 @@
 
 <li
   data-jx-breadcrumb-collapsed={collapsed ? '' : undefined}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   hidden={collapsed ? true : undefined}
   class={cn(className)}
   {...rest}

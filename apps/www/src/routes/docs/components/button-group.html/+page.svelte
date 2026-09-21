@@ -167,6 +167,15 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<ButtonGroup label="export actions" size={18}>
+  <PressButton variant="outline">copy</PressButton>
+  <PressButton variant="outline">move</PressButton>
+</ButtonGroup>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -492,6 +501,28 @@ ${close}
           { name: 'no aria-pressed', value: 'law', description: 'No button carries a pressed state here — that is toggle-group’s contract' },
         ]}
       />
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query(). The group is a LAYOUT container that paints no bezel: the root stamps the carriers (font-size flows to the joined buttons through inheritance) and the wrapped press-buttons stamp their own roots through the ambient chain. Density rides the reactive bridged provider (the provider-snapshot kernel law)."
+    >
+      <ComponentCanvas title="button-group · universal props" stage="fill" files={universalFiles}>
+<ButtonGroup label="axes joined" size={18}>
+        <PressButton variant="outline">copy</PressButton>
+        <PressButton variant="outline">move</PressButton>
+        <PressButton variant="outline">delete</PressButton>
+      </ButtonGroup>
+      <ButtonGroup label="named steps" size="medium" radius="large">
+        <PressButton variant="outline">copy</PressButton>
+        <PressButton variant="outline">move</PressButton>
+      </ButtonGroup>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 

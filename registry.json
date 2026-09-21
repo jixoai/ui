@@ -2745,7 +2745,9 @@
         "group": "layout",
         "href": "/docs/components/boot-splash.html"
       },
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@jixoai/defaults"
+      ],
       "files": [
         {
           "path": "registry/files/ui/boot-splash/boot-splash.svelte",
@@ -2755,6 +2757,11 @@
         {
           "path": "registry/files/ui/boot-splash/index.ts",
           "target": "@ui/boot-splash/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/boot-splash/boot-splash-defaults.svelte.ts",
+          "target": "@ui/boot-splash/boot-splash-defaults.svelte.ts",
           "type": "registry:file"
         }
       ]
@@ -2804,8 +2811,7 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ]
     },
     {
@@ -2905,7 +2911,6 @@
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/paint"
       ]
     },
@@ -2950,6 +2955,11 @@
           "path": "registry/files/tokens.stylex.ts",
           "target": "@lib/tokens.stylex.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/accordion/accordion-defaults.svelte.ts",
+          "target": "@ui/accordion/accordion-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Group props: exclusive?, class? — children snippet holds accordion-item.svelte (or bare <details>). Item props: open ($bindable), summary (named snippet), children.",
@@ -2959,7 +2969,8 @@
       },
       "registryDependencies": [
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -3410,7 +3421,6 @@
         "@jixoai/jixoai-theme",
         "@jixoai/utils",
         "@jixoai/defaults",
-        "@jixoai/density",
         "@jixoai/paint",
         "@jixoai/highlight",
         "@jixoai/highlight-microlighter",
@@ -4856,6 +4866,11 @@
           "path": "registry/files/tokens.stylex.ts",
           "target": "@lib/tokens.stylex.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/image/image-defaults.svelte.ts",
+          "target": "@ui/image/image-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: alt (required), width/height (required intrinsic), fallback? (snippet), plus <img> passthrough.",
@@ -4866,7 +4881,8 @@
       "registryDependencies": [
         "@jixoai/utils",
         "@jixoai/jixoai-theme",
-        "@jixoai/icon"
+        "@jixoai/icon",
+        "@jixoai/defaults"
       ]
     },
     {
@@ -5004,8 +5020,7 @@
       "registryDependencies": [
         "@jixoai/scroll-spy",
         "@jixoai/jixoai-theme",
-        "@jixoai/defaults",
-        "@jixoai/density"
+        "@jixoai/defaults"
       ],
       "meta": {
         "group": "navigation",
@@ -5363,7 +5378,8 @@
       "registryDependencies": [
         "@jixoai/highlight-lang-detector",
         "@jixoai/highlight",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ],
       "files": [
         {
@@ -5374,6 +5390,11 @@
         {
           "path": "registry/files/ui/highlight-detect-default/index.ts",
           "target": "@ui/highlight-detect-default/index.ts",
+          "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/highlight-detect-default/highlight-detect-default-defaults.svelte.ts",
+          "target": "@ui/highlight-detect-default/highlight-detect-default-defaults.svelte.ts",
           "type": "registry:file"
         }
       ],
@@ -5535,6 +5556,11 @@
           "path": "registry/files/ui/native-scroll-area/native-scroll-area.stylex.ts",
           "target": "@ui/native-scroll-area/native-scroll-area.stylex.ts",
           "type": "registry:file"
+        },
+        {
+          "path": "registry/files/ui/native-scroll-area/native-scroll-area-defaults.svelte.ts",
+          "target": "@ui/native-scroll-area/native-scroll-area-defaults.svelte.ts",
+          "type": "registry:file"
         }
       ],
       "docs": "Props: orientation? ('vertical' | 'horizontal' | 'both'), scrollbarWidth? ('auto' | 'thin' | 'none', default thin — the theme's global scrollbar law), label?, class/style + restProps passthrough to the viewport, children snippet. getViewport() feeds the family's ToC pairing exactly like the styled sibling.",
@@ -5546,7 +5572,8 @@
       "registryDependencies": [
         "@jixoai/scroll-area-kit",
         "@jixoai/utils",
-        "@jixoai/jixoai-theme"
+        "@jixoai/jixoai-theme",
+        "@jixoai/defaults"
       ]
     },
     {

@@ -201,6 +201,17 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<Breadcrumb size={18}>
+  <BreadcrumbList>
+    <BreadcrumbItem><BreadcrumbLink href="/">root</BreadcrumbLink></BreadcrumbItem>
+    <BreadcrumbItem><BreadcrumbPage href="/leaf">leaf</BreadcrumbPage></BreadcrumbItem>
+  </BreadcrumbList>
+</Breadcrumb>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -329,5 +340,32 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Author the ordered list directly; the ol order is the hierarchy and the current page remains a real page part."><CodeBlock code={usage} lang="svelte" meta="Breadcrumb usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Native navigation landmark, ordered list, links, and aria-current carry the full semantics. In the dropdown menu, the keyboard walk's highlight is a paint-only data attribute — aria-current on the current entry is never rewritten by the walk, so the you-are-here marker survives navigation with its semantics intact."><A11yTable aria={[{ name: 'aria-label', value: 'Breadcrumb', description: 'Names the navigation landmark.' }, { name: 'aria-current', value: 'page', description: 'Marks the current trail destination — and the current entry inside the dropdown menu (never touched by the menu walk’s highlight).' }, { name: 'aria-hidden', value: 'true', description: 'Hides decorative separators and manual ellipses.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Breadcrumb has no component-specific --jx tokens; parts inherit the shared density context."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem></BreadcrumbList></Breadcrumb></DensityDemo><TokenTable tokens={[]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query(). The trail root resolves the record; the parts keep their ambient reads through the SAME contract. Density rides the reactive bridged provider (the provider-snapshot kernel law: the bridged write carries the density supply, the literal carries the other seven)."
+    >
+      <ComponentCanvas title="breadcrumb · universal props" stage="fill" files={universalFiles}>
+<Breadcrumb size={18}>
+        <BreadcrumbList>
+          <BreadcrumbItem><BreadcrumbLink href="/">root</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem><BreadcrumbPage href="#universal-props">axes joined</BreadcrumbPage></BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <Breadcrumb size="medium" radius="large">
+        <BreadcrumbList>
+          <BreadcrumbItem><BreadcrumbLink href="/">root</BreadcrumbLink></BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem><BreadcrumbPage href="#universal-props">named steps</BreadcrumbPage></BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The root and composition parts keep the trail structure explicit."><PropsTable title="Breadcrumb" props={[{ name: 'label', type: 'string', default: "'Breadcrumb'", description: 'Accessible navigation landmark label.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /><div class={cx(rt.mt20)}><PropsTable title="BreadcrumbLink / Page / Collapse / Separator" props={[{ name: 'href', type: 'string', description: 'Destination for a link or collapse target.' }, { name: 'aria-current', type: '"page"', default: 'Page only', description: 'BreadcrumbPage marks the current destination.' }, { name: 'children', type: 'Snippet', required: true, description: 'Composed trail content; on Separator it REPLACES the chevron glyph (data-glyph=custom, aria-hidden stays).' }]} /></div><div class={cx(rt.mt20)}><PropsTable title="BreadcrumbDropdown" props={[{ name: 'label', type: 'string', required: true, description: 'The trail label on the trigger — the section this node stands for.' }, { name: 'items', type: '{ label, href }[]', required: true, description: 'Peer destinations offered in the menu — every entry a REAL anchor.' }, { name: 'current', type: 'string', description: 'href of the current page among the items: aria-current=page + the you-are-here paint.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></div></SectionCard></div>
 </div>

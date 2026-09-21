@@ -43,6 +43,12 @@
             ).join(' '),
       )
       .join(' ');
+  // ---- the universal props demo (explicit-props W3-D5) --------------------
+  const universalUsage = `<Image src="/icon.svg" alt="the jixoai mark" width={96} height={96} size={18} />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -131,5 +137,20 @@
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="width and height are REQUIRED — the no-CLS contract is not optional."><CodeBlock code={usage} lang="svelte" meta="Image usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A native img with real alt semantics; the fallback keeps the name and stays decorative when alt is empty."><A11yTable keys={[{ key: '—', action: 'Not interactive — a picture with alt semantics' }]} aria={[{ name: 'alt', value: 'string (required)', description: 'The picture’s meaning; "" marks it decorative.' }, { name: 'role / aria-label', value: 'img / "image unavailable"', description: 'On the default fallback frame — only when alt is non-empty.' }, { name: 'aria-hidden', value: 'true', description: 'On the fallback when alt="" keeps the picture decorative through failure.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Utility-authored, zero css residue — the box is your intrinsic dims; density does not rescale it."><div class={cx(rt.col20)}><DensityDemo><Image src="/icon.svg" alt="density sample" width={48} height={48} /></DensityDemo><TokenTable tokens={[{ name: 'intrinsic box', default: 'width/height (required)', source: 'structural', description: 'The no-CLS contract — the rendered img stays max-w-full h-auto.' }, { name: 'fallback frame', default: 'dashed border, muted fill', source: 'structural' }, { name: 'fallback glyph', default: '32px svg', source: 'structural' }, { name: '--jx-image', default: '32 / 36 / 40 / 48px', source: 'density', description: 'The density media-image alias (consumers may adopt it for boxes).' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props), the native-wrapper rule: the family owns only the axis names it destructures — width/height stay the no-CLS contract own and the rest spread keeps forwarding. The carriers stamp the img root AND join the failure panel dimension literals: the surface survives a broken source. Size scales the fallback copy; radius supplies the concentric anchor."
+    >
+      <ComponentCanvas title="image · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Image src="/icon.svg" alt="the jixoai mark" width={96} height={96} size={18} /></div>
+      <div class={cx(rt.panel)}><Image src="/icon.svg" alt="named steps" width={96} height={96} size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native img attributes; alt, width, height are required."><PropsTable props={[{ name: 'alt', type: 'string', default: '—', description: 'The picture’s meaning; "" marks it decorative.', required: true }, { name: 'width', type: 'number | string', default: '—', description: 'REQUIRED intrinsic width — the no-CLS contract.', required: true }, { name: 'height', type: 'number | string', default: '—', description: 'REQUIRED intrinsic height — the no-CLS contract.', required: true }, { name: 'src', type: 'string', default: '—', description: 'Via native img attributes; a changed src re-arms the load after failure.' }, { name: 'fallback', type: 'Snippet', default: 'default frame', description: 'Composed failure state — keep the intrinsic dims in your slot markup.' }, { name: 'class', type: 'string', default: "''", description: 'Rendered width/height classes when different from intrinsic.' }]} /></SectionCard></div>
 </div>

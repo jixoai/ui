@@ -10,6 +10,7 @@
 <script lang="ts">
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { breadcrumbStyles } from './breadcrumb.stylex';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
@@ -42,7 +43,7 @@
 
 <span
   data-jx-breadcrumb-ellipsis=""
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
   class={cn(cx(breadcrumbStyles.ellipsis), className)}
   {...rest}
   aria-hidden="true"

@@ -39,6 +39,22 @@
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
   import { resolveThemeScope } from '$lib/scroll-area-kit/core';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { NativeScrollAreaDefaults } from './native-scroll-area-defaults.svelte';
   import { nativeScrollAreaStyles } from './native-scroll-area.stylex';
   import '$lib/scroll-area-kit/native-capability.css';
   import './native-scroll-area.css';
@@ -75,6 +91,33 @@
     scrollbarWidth?: ScrollbarWidthTier;
     /** a11y name for the scrollable region */
     label?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the native-wrapper batch A
+     *  rule: the family owns only the axis names it destructures on
+     *  the OUTER root — no native size-like attribute collides here;
+     *  the scrollbar tiers ride their own data-width hook) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (the region root SUPPLIES the anchor) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge; the scheme OBSERVER below
+     *  is family STATE and never reads this lane) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     style?: string;
     onscroll?: (event: ViewportScrollEvent) => void;
@@ -85,12 +128,35 @@
     orientation = 'vertical',
     scrollbarWidth = 'thin',
     label = 'scrollable content',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
     style,
     onscroll,
     children,
     ...restProps
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D5 — FIRST-TIME contract, all
+  // no-own): one resolution record stamped on the OUTER family root
+  // (the .jx-native-scroll-area div — never the scrollport: the
+  // consumer `style` stays the viewport's own channel); the §11
+  // supply + the query() anchor ride the standard wiring (the anchor
+  // after the state decl)
+  const d = $derived(
+    NativeScrollAreaDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement | null>(null);
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   let viewportEl = $state<HTMLDivElement | null>(null);
 
@@ -138,7 +204,14 @@
   } as const;
 </script>
 
-<div class={cx('jx-native-scroll-area', nativeScrollAreaStyles.area)} data-orientation={orientation}>
+<div
+  bind:this={uniRoot}
+  class={cx('jx-native-scroll-area', nativeScrollAreaStyles.area)}
+  data-orientation={orientation}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
   <!-- svelte-ignore a11y_no_noninteractive_tabindex (the WAI scrollable-
        region pattern: role=region + name + tabindex makes it a keyboard
        scroll surface — and the ONLY a11y surface here: the platform
