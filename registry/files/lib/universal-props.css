@@ -1,0 +1,120 @@
+/* ----------------------------------------------------------------------
+ * jixoai universal props — the generated plugin layer
+ * (universal-props.css; explicit-props W2 tasks 2.1/2.2/2.7).
+ *
+ * GENERATED FILE — do not hand-edit: scripts/gen-universal-props-css.mjs
+ * regenerates this byte-identical mirror pair from the ONE shared
+ * artifact (apps/www/src/lib/universal-props.schema.ts ↔
+ * registry/files/lib/universal-props.schema.ts) + the plugin alias
+ * tables (packages/vite-plugin/src/universal-props/alias-tables.ts).
+ * `npm run verify:universal-props` is the drift gate.
+ *
+ * Content (design §12): the per-axis `--jx-<axis>-<alias>` definitions
+ * (the VAR-INDIRECTION law: a named step NEVER inlines its value at a
+ * use site — defaults.svelte.ts stamps var(--jx-<axis>-<alias>), a
+ * plugin remap = overriding the var, ZERO runtime resolver); the §5
+ * oklch hue-formula vars per theme profile (the number lane composes
+ * oklch(var(--jx-color-formula-l, …) var(--jx-color-formula-c, …)
+ * calc(<hue> + var(--jx-color-formula-drift, …))) — the fallbacks in
+ * that stamp are LOAD-BEARING per the §3 fallback law; the profile
+ * vars below re-point them per theme scope; and the §14 @supports
+ * corner-shape capability verdict stamps VARS, never classes: the
+ * shape alias ladder (§2 degrade table: scoop|bevel|notch → square,
+ * squircle → round) and the per-shape radius factors (the squircle ×2
+ * law and its degrade reversal ride
+ * --jx-radius-factor-squircle: 2 supported / 1 degraded).
+ *
+ * Density/elevation/theme are DELIBERATELY ABSENT: density resolves
+ * through the [data-density] rung scopes + the coefficient carrier
+ * (jixoai.css, W1 §4); elevation stamps exact dp numbers from the
+ * the schema's frozen table (§0.1); theme rides the .dark class bridge.
+ * ------------------------------------------------------------------- */
+
+:root {
+  /* size (§1): root font-size px — the base ladder brackets the sheet
+     base; children size in em (one number moves a family) */
+  --jx-size-small: 14px;
+  --jx-size-medium: 16px;
+  --jx-size-large: 18px;
+
+  /* radius (§3): corner size px — 8px is the theme's bevel baseline */
+  --jx-radius-small: 6px;
+  --jx-radius-medium: 8px;
+  --jx-radius-large: 10px;
+
+  /* color (§5): semantic > palette > raw is NAME resolution; the value
+     lane is always the theme token (warn is the lane spelling of the
+     theme's --warning) */
+  --jx-color-primary: var(--primary);
+  --jx-color-secondary: var(--secondary);
+  --jx-color-error: var(--error);
+  --jx-color-warn: var(--warning);
+  --jx-color-success: var(--success);
+  --jx-color-info: var(--info);
+
+  /* motion (§8): intensity coefficients — the number lane stamps the
+     coefficient verbatim; the per-kernel duration presets live in the
+     plugin motion map (alias-tables.ts MOTION_KERNEL_PRESETS) */
+  --jx-motion-reduced: 0;
+  --jx-motion-subtle: 0.5;
+  --jx-motion-normal: 1;
+  --jx-motion-expressive: 1.5;
+}
+
+/* §5: the oklch hue formula per theme profile — L/C/drift verbatim
+   from the theme's own --primary declarations; a hue-degree number
+   lane composes the formula and follows the live profile */
+:root {
+  --jx-color-formula-l: 0.6489;
+  --jx-color-formula-c: 0.237;
+  --jx-color-formula-drift: 0;
+}
+.dark {
+  --jx-color-formula-l: 0.7044;
+  --jx-color-formula-c: 0.1872;
+  --jx-color-formula-drift: -4;
+}
+
+/* §14: the corner-shape capability verdict, stamped as VARS (never
+   classes — §10's zero-class-identity law). The consumption chain is
+   frozen: the shape lane stamps
+   --jx-radius-factor-effective: var(--jx-radius-factor-<resolved>)
+   and --jx-shape-effective: var(--jx-shape-<resolved>) as static
+   per-render strings; family css composes
+   corner-shape: var(--jx-shape-effective, round) and
+   border-radius: calc(var(--jx-radius-effective, 0px) *
+   var(--jx-radius-factor-effective, 1)). Capability verdict, alias
+   choice, the squircle ×2 law and its degrade reversal are pure var
+   composition — one auditable chain, zero branches. */
+@supports (corner-shape: bevel) {
+  :root {
+    --jx-shape-round: round;
+    --jx-shape-scoop: scoop;
+    --jx-shape-bevel: bevel;
+    --jx-shape-notch: notch;
+    --jx-shape-square: square;
+    --jx-shape-squircle: squircle;
+    --jx-radius-factor-round: 1;
+    --jx-radius-factor-scoop: 1;
+    --jx-radius-factor-bevel: 1;
+    --jx-radius-factor-notch: 1;
+    --jx-radius-factor-square: 0;
+    --jx-radius-factor-squircle: 2;
+  }
+}
+@supports not (corner-shape: bevel) {
+  :root {
+    --jx-shape-round: round;
+    --jx-shape-scoop: square;
+    --jx-shape-bevel: square;
+    --jx-shape-notch: square;
+    --jx-shape-square: square;
+    --jx-shape-squircle: round;
+    --jx-radius-factor-round: 1;
+    --jx-radius-factor-scoop: 0;
+    --jx-radius-factor-bevel: 0;
+    --jx-radius-factor-notch: 0;
+    --jx-radius-factor-square: 0;
+    --jx-radius-factor-squircle: 1;
+  }
+}

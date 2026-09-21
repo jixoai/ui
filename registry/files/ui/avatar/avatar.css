@@ -13,27 +13,42 @@
  * radii ride the --radius token (bevel scales it 6/8/10px across
  * sm/md/lg; md IS the baseline); the circle's 50% is the geometry of
  * a circle, not a scale step — recorded here because the tier-2 gate
- * binds every radius literal to tokens. corner-shape degrades
- * natively (bevel → square, squircle → circle) where unsupported.
+ * binds every radius literal to tokens.
+ *
+ * explicit-props W2 task 2.6 — the degrade ABSORBED into the §14
+ * capability ladder (the registered exception retires): corner-shape
+ * reads the ALIAS ladder vars (var(--jx-shape-<variant>) — 'square'
+ * in the degrade branch) and bevel's radius composes the per-shape
+ * FACTOR (var(--jx-radius-factor-bevel): 1 supported / 0 degraded →
+ * §2's bevel → square ruling, one auditable chain with the sheet;
+ * the var() fallbacks keep this sheet standalone where the kernel
+ * lib is absent — the native degrade then returns). EXEMPTION, filed
+ * with reasons: squircle keeps border-radius 50% WITHOUT the factor —
+ * the ×2 law is a px-radii law (§2: superellipse reads equal-corner
+ * at half the radius), and 50% is already the superellipse-correct
+ * corner for a full box; 50% × 2 would compute 100% (an ellipse on
+ * non-square boxes). squircle's degrade is the ladder alias alone:
+ * corner-shape: var(--jx-shape-squircle) drops to 'round' where
+ * unsupported → the plain circle, §2's squircle → round target.
  */
 
 @layer components {
 :where([data-jx-avatar-variant='bevel']) {
-  corner-shape: bevel;
-  border-radius: calc(var(--radius) * 0.75);
+  corner-shape: var(--jx-shape-bevel, bevel);
+  border-radius: calc(var(--radius) * 0.75 * var(--jx-radius-factor-bevel, 1));
 }
 :where([data-jx-avatar='md'][data-jx-avatar-variant='bevel']) {
-  border-radius: var(--radius);
+  border-radius: calc(var(--radius) * var(--jx-radius-factor-bevel, 1));
 }
 :where([data-jx-avatar='lg'][data-jx-avatar-variant='bevel']) {
-  border-radius: calc(var(--radius) * 1.25);
+  border-radius: calc(var(--radius) * 1.25 * var(--jx-radius-factor-bevel, 1));
 }
 :where([data-jx-avatar-variant='rounded']) {
-  corner-shape: round;
+  corner-shape: var(--jx-shape-round, round);
   border-radius: 50%;
 }
 :where([data-jx-avatar-variant='squircle']) {
-  corner-shape: squircle;
+  corner-shape: var(--jx-shape-squircle, squircle);
   border-radius: 50%;
 }
 }

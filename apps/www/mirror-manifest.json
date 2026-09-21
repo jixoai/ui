@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-21T09:38:41.736Z",
+  "generatedAt": "2026-09-21T10:58:01.195Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -130,6 +130,26 @@
       ]
     },
     {
+      "itemName": "universal-props",
+      "type": "registry:lib",
+      "files": [
+        {
+          "source": "registry/files/lib/universal-props.schema.ts",
+          "mirror": "apps/www/src/lib/universal-props.schema.ts",
+          "target": "@lib/universal-props.schema.ts",
+          "sourceSha": "ce8eefb29267e010d26cf0ab300c8c7ad3c04f2afbf1073151b7ff237a878a87",
+          "mirrorSha": "ce8eefb29267e010d26cf0ab300c8c7ad3c04f2afbf1073151b7ff237a878a87"
+        },
+        {
+          "source": "registry/files/lib/universal-props.css",
+          "mirror": "apps/www/src/lib/universal-props.css",
+          "target": "@lib/universal-props.css",
+          "sourceSha": "eb7149eb0717230a9f60932f43e0c84515286e791f4a29ad3aae0e39350f2ead",
+          "mirrorSha": "eb7149eb0717230a9f60932f43e0c84515286e791f4a29ad3aae0e39350f2ead"
+        }
+      ]
+    },
+    {
       "itemName": "tokens",
       "type": "registry:lib",
       "files": [
@@ -192,8 +212,8 @@
           "source": "registry/files/ui/press-button/press-effect-runtime.ts",
           "mirror": "apps/www/src/lib/ui/press-button/press-effect-runtime.ts",
           "target": "@ui/press-button/press-effect-runtime.ts",
-          "sourceSha": "cdca971a52001de62d45ce82078ea20199ef09ec3fa272b39cef071e44ff4893",
-          "mirrorSha": "cdca971a52001de62d45ce82078ea20199ef09ec3fa272b39cef071e44ff4893"
+          "sourceSha": "677c1c806e00b8cde6f175ecb47b6037513a1023bd646a868ad5c44efd26a8b5",
+          "mirrorSha": "677c1c806e00b8cde6f175ecb47b6037513a1023bd646a868ad5c44efd26a8b5"
         },
         {
           "source": "registry/files/ui/press-button/press-button-defaults.svelte.ts",
@@ -2603,8 +2623,8 @@
           "source": "registry/files/ui/avatar/avatar.css",
           "mirror": "apps/www/src/lib/ui/avatar/avatar.css",
           "target": "@ui/avatar/avatar.css",
-          "sourceSha": "2ca006b8763e816f339184556e0debc215286d64731405602af7332a0db04273",
-          "mirrorSha": "2ca006b8763e816f339184556e0debc215286d64731405602af7332a0db04273"
+          "sourceSha": "1497e0afdcc61ff22b49ab5d0d4d8447a2ffca2907283ee5345e6d3a407a32d4",
+          "mirrorSha": "1497e0afdcc61ff22b49ab5d0d4d8447a2ffca2907283ee5345e6d3a407a32d4"
         },
         {
           "sharedClaimOf": "press-button",
@@ -5457,8 +5477,8 @@
           "source": "registry/files/lib/defaults.svelte.ts",
           "mirror": "apps/www/src/lib/defaults.svelte.ts",
           "target": "@lib/defaults.svelte.ts",
-          "sourceSha": "f7ab360e9b901c5507f1e9f8ab6f88b1ec4f513d4a8d1955f4059556e1b1c247",
-          "mirrorSha": "f7ab360e9b901c5507f1e9f8ab6f88b1ec4f513d4a8d1955f4059556e1b1c247"
+          "sourceSha": "5ff64efbd6bdb43e83554ee268824928ea2cd75273fc8c90df5189c96b1a92ac",
+          "mirrorSha": "5ff64efbd6bdb43e83554ee268824928ea2cd75273fc8c90df5189c96b1a92ac"
         }
       ]
     },
@@ -6296,12 +6316,12 @@
       "note": "highlight context wiring — mirrored by the syncer, shipped by no item (r9 seam ruling)"
     },
     {
-      "path": "registry/files/lib/universal-props.schema.ts",
-      "note": "explicit-props W1 1.9 — the ONE shared artifact pair (§17: interfaces + UNIVERSAL_AXES + the §9.1 type block); the W2/W4 registry item ships it"
+      "path": "registry/files/lib/universal-props.inventory.json",
+      "note": "explicit-props W1 1.9 — the §17.2 census pair; the frozen §12 item ships schema+css only, so the inventory stays site-consumed until a later wave gives it an item"
     },
     {
-      "path": "registry/files/lib/universal-props.inventory.json",
-      "note": "explicit-props W1 1.9 — the §17.2 census pair promoted beside the schema; the W2/W4 registry item ships it"
+      "path": "registry/files/lib/universal-props-query.svelte.ts",
+      "note": "explicit-props W2 2.3 — the query() runtime-engine pair (§9 semantics; slots resolve through it); site-consumed, shipped by no item yet — W3/W4 wire the consumers and own its final home"
     }
   ]
 }

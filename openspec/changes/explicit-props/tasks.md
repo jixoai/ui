@@ -84,22 +84,69 @@
       `universal-props.schema.ts` (the §17 interfaces + UNIVERSAL_AXES) +
       the generator's merge step + the inventory promoted beside the schema
 
-## W2 — plugin layer
+## W2 — plugin layer — LANDED (this commit)
 
-- [ ] 2.1 alias schema: per-axis `[$alias]: value` tables; `auto`/number
-      reserved-literal enforcement (schema rejects remaps)
-- [ ] 2.2 @supports verdicts: corner-shape global stamp + the §2 degrade table
-      (incl. the squircle ×2 law + its degrade reversal)
-- [ ] 2.3 `query()`: compile-time desugar (media/container custom-prop
+- [x] 2.1 alias schema: per-axis `[$alias]: value` tables; `auto`/number
+      reserved-literal enforcement (schema rejects remaps) —
+      packages/vite-plugin/src/universal-props/alias-tables.ts (the
+      plugin-layer tables + validateAliasTables(), the generation-time
+      gate; the scale tables carry §15.5's remap-rights thresholds,
+      Tailwind v4's own container values grep-verified)
+- [x] 2.2 @supports verdicts: corner-shape global stamp + the §2 degrade table
+      (incl. the squircle ×2 law + its degrade reversal) — generated
+      universal-props.css (both mirrors, byte-identical): the §14
+      ladder stamps VARS never classes (shape aliases scoop|bevel|
+      notch→square, squircle→round; per-shape radius factors round 1/1,
+      squircle 2/1; §3's inert-radius law as factor 0)
+- [x] 2.3 `query()`: compile-time desugar (media/container custom-prop
       re-assignment) + the JS shim shell (progressive module); named-container
-      key grammar per research/0.3; container-supply build warning
-- [ ] 2.4 motion map: intensity → surface-motion/press-effect/SMIL presets
-- [ ] 2.5 plugin test battery (the vite-plugin suite pattern, 500+ precedent)
-- [ ] 2.6 the registered exceptions absorbed: press-effect-runtime's inline
+      key grammar per research/0.3; container-supply build warning —
+      the desugarer (src/universal-props/desugar.ts + vite-plugin.ts,
+      default-OFF `universalProps` umbrella feature) emits
+      ladder-ordered blocks on `[data-jx-q-<axis>]` with all four
+      diagnostics (`@md/` = §9's FATAL parse error, the other three
+      warnings); the shim at the FROZEN `./universal-props/query-shim`
+      export (auditTree + mountQueryShim + the manifest schema); the
+      RUNTIME ENGINE in the kernel lib
+      (universal-props-query.svelte.ts, both mirrors) — §9 semantics:
+      registered-scale order (authoring-order-independent), matchMedia
+      media lane reactive through $state ticks, ResizeObserver'd
+      container lane via the nearest qualifying ancestor,
+      missing-container = never-matches, SSR = base; slots resolve
+      through it (defaults.svelte.ts unwrapQueryLane)
+- [x] 2.4 motion map: intensity → surface-motion/press-effect/SMIL presets —
+      MOTION_ALIASES (the css vars' coefficients) +
+      MOTION_KERNEL_PRESETS (every normal row the kernels' own
+      defaults VERBATIM: 460/600/2500/4000) + the number lane's knot
+      law (motionPresetForCoefficient, anchor-pinned by the battery)
+- [x] 2.5 plugin test battery (the vite-plugin suite pattern, 500+ precedent)
+      — test/universal-props/ ×6 files, 79 tests (alias reserved-
+      literals + twin-table lockstep pins, generator golden + the
+      committed-mirror drift pin, desugar snapshots × the §9.1 matrix
+      + all four diagnostics, shim manifest schema + restamp
+      idempotence, vite build e2e, the §9.1 tsc fixture pair
+      positive/negative pinned byte-identical to design.md's frozen
+      block) + the kernel engine spec in apps/www (16 tests); full
+      suite 605/605; engine SMOKE green in real Chrome
+      (scripts/probe-universal-props-smoke.mjs — a stamped query flips
+      the var at media AND container boundaries through the live
+      reactive chain)
+- [x] 2.6 the registered exceptions absorbed: press-effect-runtime's inline
       CSS.supports + avatar's component degrade route through the ladder
-      vars (or exemption-ledgered with reasons) — design §14
-- [ ] 2.7 alias-as-var-indirection receipt: a consumer override of
+      vars (or exemption-ledgered with reasons) — design §14 —
+      press-effect-runtime's bevelInk reads the LADDER VAR
+      (--jx-shape-bevel from the cascade, CSS.supports only as the
+      sheet-absent fallback); avatar.css composes the alias ladder +
+      the bevel radius factor (degrade → §2's square ruling); squircle
+      EXEMPTION-LEDGERED in the sheet with reasons (50% is a px-law
+      boundary: the ×2 law cannot ride a percentage radius)
+- [x] 2.7 alias-as-var-indirection receipt: a consumer override of
       `--jx-<axis>-<alias>` remaps a named step with zero resolver code
+      — the generated sheet IS the receipt vehicle: named steps stamp
+      var(--jx-<axis>-<alias>) everywhere (defaults.svelte.ts +
+      desugarer twins), zero inline values at use sites; the full
+      consumer-side override proof (computed px flip) is W5 task 5.4's
+      clean-install gate per the registry spec's three-way receipt
 
 ## W3 — component migration (batched, the 0.4 map; EVERY batch closes on
 its own gate — slot-surface lint green for its families + doc pages

@@ -71,11 +71,28 @@ import { createRipple } from './ripple.svelte';
 
 /** corner-shape gates the bevel ink's support marker; where it's missing
  *  the flat fallback stamps the node — the path draws the same diamond
- *  either way (the component's own module-scope probe, mirrored) */
-const bevelInk =
-  typeof CSS !== 'undefined' &&
-  typeof CSS.supports === 'function' &&
-  CSS.supports('corner-shape', 'bevel');
+ *  either way. ABSORBED into the §14 capability ladder (explicit-props
+ *  W2 task 2.6, design §14's registered-exceptions ruling): the verdict
+ *  is read from the LADDER VARS the generated universal-props.css
+ *  stamps (--jx-shape-bevel resolves 'bevel' inside @supports
+ *  (corner-shape: bevel), 'square' in the degrade branch) — the SAME
+ *  auditable chain the css rides, no second probe. Read PER SPAWN (a
+ *  function, never frozen at module eval — the sheet may land after
+ *  this module); where the kernel sheet is absent (raw var empty) the
+ *  CSS.supports fallback serves the bare-press-button consumer. */
+function bevelInk(): boolean {
+  if (typeof document !== 'undefined') {
+    const ladder = getComputedStyle(document.documentElement)
+      .getPropertyValue('--jx-shape-bevel')
+      .trim();
+    if (ladder !== '') return ladder === 'bevel';
+  }
+  return (
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('corner-shape', 'bevel')
+  );
+}
 
 /** THE BORDER-AREA GATE (Owner r11): Chrome 139+ can clip a background
  *  to the border band itself — the true cutout, no fill layer needed
@@ -619,7 +636,7 @@ function rippleRuntime(element: HTMLElement, fx: RippleEffect): {
     const cx = point.x;
     const cy = point.y;
     const ink = svgNode(fx.shape === 'bevel' ? 'path' : 'circle');
-    ink.setAttribute('class', `jx-ripple-ink${fx.shape === 'bevel' && !bevelInk ? ' jx-ripple-flat' : ''}`);
+    ink.setAttribute('class', `jx-ripple-ink${fx.shape === 'bevel' && !bevelInk() ? ' jx-ripple-flat' : ''}`);
     ink.setAttribute('data-shape', fx.shape);
     if (fx.shape === 'bevel') {
       // the shape law's 50% corner cut: a square of side=size with the

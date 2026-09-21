@@ -70,6 +70,7 @@ import {
   type UniversalAxisDoc,
 } from './universal-props.schema';
 import { getContext, setContext } from 'svelte';
+import { resolveQueryLane } from './universal-props-query.svelte';
 
 declare const jxSlot: unique symbol;
 const SLOT_BRAND = Symbol('jx-defaults-slot') as typeof jxSlot;
@@ -360,16 +361,18 @@ export function provideAxisLane<K extends keyof UniversalLaneMap>(
 }
 
 /**
- * A query() carrier resolves to its unconditional `base` lane — the
- * §9 SSR-first-paint semantics (a correct-if-unresponsive first
- * paint; the responsive desugarer + shim land with W2's query()).
+ * A query() carrier resolves through the RUNTIME ENGINE (W2 task
+ * 2.3a, §9): the media lane evaluates LIVE (matchMedia — reactive
+ * through the engine's $state ticks, so a consumer's $derived
+ * re-resolves on viewport change); container keys need an element
+ * anchor the family wiring supplies (W3) and NEVER match without one
+ * (§9's missing-container semantics); on the server (no window) the
+ * engine returns the unconditional `base` — the §9.1 SSR
+ * first-paint semantics, a correct-if-unresponsive first paint.
  * Plain lanes pass through untouched.
  */
 function unwrapQueryLane<T>(lane: T | QueryResult<T> | undefined): T | undefined {
-  if (typeof lane === 'object' && lane !== null && '$query' in lane) {
-    return (lane as QueryResult<T>).base;
-  }
-  return lane as T | undefined;
+  return resolveQueryLane(lane);
 }
 
 /**

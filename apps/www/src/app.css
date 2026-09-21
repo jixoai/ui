@@ -21,6 +21,7 @@
  * through the component-scoped --tok-* palette).
  * ---------------------------------------------------------------------- */
 @import './lib/jixoai.css';
+@import './lib/universal-props.css';
 @import './lib/jx-pure.css';
 /* icons vocabulary (ICON-4 dogfood, 2026-09-02): the icon plugin's
  * virtual CSS rides the JS entry (+layout.svelte imports

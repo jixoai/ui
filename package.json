@@ -36,6 +36,8 @@
     "verify:migration": "node scripts/verify-icon-migration.mjs --check",
     "verify:stylex-authoring": "node scripts/verify-stylex-authoring.mjs",
     "verify:stylex-payload": "node scripts/verify-stylex-payload.mjs",
+    "gen:universal-props": "node scripts/gen-universal-props-css.mjs",
+    "verify:universal-props": "node scripts/gen-universal-props-css.mjs --check",
     "gen:stylex-payload": "node scripts/gen-stylex-payload.mjs",
     "verify:shadcn-add": "node scripts/verify-shadcn-add.mjs",
     "verify:ghostty-pin": "node scripts/verify-ghostty-pin.mjs",

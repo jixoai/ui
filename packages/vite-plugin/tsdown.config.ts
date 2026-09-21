@@ -67,6 +67,15 @@ export default defineConfig([
       'spinners/magecdn': 'src/spinners/packs/magecdn.ts',
       'spinners/svg-loaders': 'src/spinners/packs/svg-loaders.ts',
       canvas: 'src/canvas/index.ts',
+      // the universal-props sub-entry (explicit-props W2): the alias
+      // tables + css generator + desugarer + the vite pass. FLAT file
+      // (dist/universal-props.js), the spinners sub-entry precedent.
+      'universal-props': 'src/universal-props/index.ts',
+      // the browser-side query shim — §9.1's FROZEN export paths
+      // (./dist/query-shim.js + ./dist/query-shim.d.ts): its own entry
+      // so a page importing ./universal-props/query-shim never pulls
+      // the node-side vite pass graph
+      'query-shim': 'src/universal-props/query-shim.ts',
       probe: 'src/probe.ts',
     },
     outDir: 'dist',

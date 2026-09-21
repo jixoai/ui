@@ -55,6 +55,14 @@
       "types": "./dist/canvas.d.ts",
       "import": "./dist/canvas.js"
     },
+    "./universal-props": {
+      "types": "./dist/universal-props.d.ts",
+      "import": "./dist/universal-props.js"
+    },
+    "./universal-props/query-shim": {
+      "types": "./dist/query-shim.d.ts",
+      "import": "./dist/query-shim.js"
+    },
     "./client": {
       "types": "./dist/client.d.ts"
     },

@@ -54,6 +54,14 @@
 //      canonical layer law, and the css-entry trap warning (see
 //      src/stylex/vite-plugin.ts header). The dist graph-purity gate
 //      now pins TWO dynamic imports: the icons bridge and this one.
+//   6. `universalProps` (explicit-props W2, 2026-09-21) is the fifth
+//      feature: the query() desugar pass (the four key diagnostics +
+//      ladder-ordered custom-property blocks from literal query()
+//      calls). Default-OFF; small and pure, wired DIRECTLY like
+//      spinners (the purity gate's dynamic-import count is
+//      untouched). The alias tables + css generator ship from the
+//      ./universal-props sub-entry; the browser shim from
+//      ./universal-props/query-shim (§9.1's frozen export).
 //
 // Owner original demand: 2026-08-28 "ghostty-term / packages/vite-plugin".
 // merge-alignment A1 (2026-08-29): icons fold in as a feature option.
@@ -276,6 +284,17 @@ export interface IconsPluginOptions {
  *  re-exported for umbrella consumers; the face itself is small and
  *  pure, wired directly (no bridge) */
 export type { SpinnersPluginOptions } from './spinners/types.js';
+
+// the universal-props feature (explicit-props W2, design §12/§9): the
+// query() desugar pass — small and pure (scanner + diagnostics +
+// virtual-css emission), wired DIRECTLY like spinners (no bridge; the
+// dist graph-purity gate's dynamic-import count is untouched). The
+// css GENERATOR and the alias tables ship from the
+// ./universal-props sub-entry; the browser shim from
+// ./universal-props/query-shim (§9.1's frozen export — never this
+// entry, so the node graph never rides into a page)
+import { createUniversalPropsPlugin } from './universal-props/vite-plugin.js';
+export type { UniversalPropsPluginOptions } from './universal-props/vite-plugin.js';
 
 /**
  * the design §1 matrix startup error — byte-identical to the icons
@@ -570,6 +589,18 @@ export interface JixoaiOptions {
    * loaded unless the kernel trees are explicitly named.
    */
   stylex?: StylexPluginOptions | false;
+  /**
+   * The universal-props query() desugar pass (explicit-props W2,
+   * design §9/§12): a PRE-transform over Svelte sources raising the
+   * four key diagnostics (unknown-scale / duplicate-key /
+   * missing-container-ancestor as warnings; the `@md/` empty
+   * container name as §9's parse ERROR) and compiling statically
+   * provable literal query({...}) calls into ladder-ordered
+   * custom-property blocks on a virtual css module. Default:
+   * `false` — nothing is scanned until the W3 family wiring adopts
+   * the instance attribute.
+   */
+  universalProps?: UniversalPropsPluginOptions | false;
 }
 
 export function jixoai(options: JixoaiOptions = {}): Plugin[] {
@@ -604,6 +635,11 @@ export function jixoai(options: JixoaiOptions = {}): Plugin[] {
       );
     }
     plugins.push(stylexBridgePlugin(options.stylex));
+  }
+  // the universal-props query() desugar pass (explicit-props W2): a
+  // small, pure face — wired DIRECTLY like spinners (no bridge)
+  if (options.universalProps !== false && options.universalProps !== undefined) {
+    plugins.push(createUniversalPropsPlugin(options.universalProps));
   }
   return plugins;
 }
