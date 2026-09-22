@@ -702,6 +702,7 @@ let codeOpen = $state(false);
         {title}
         bind:theme
         bind:axes
+        resolvedLanes={barLanes}
         {playground}
         rows={schema ? rows : undefined}
         schemaDefaults={schema ? defaults : undefined}
@@ -714,7 +715,7 @@ let codeOpen = $state(false);
       <!-- chrome-only dock (the unified-chrome ruling, 2026-09-08): the
            eight-axis bar ships on EVERY canvas — without body content
            there is no chevron and no expansion -->
-      <CanvasPlayground {title} bind:theme bind:axes />
+      <CanvasPlayground {title} bind:theme bind:axes resolvedLanes={barLanes} />
     {/if}
   </div>
 

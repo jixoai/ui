@@ -324,6 +324,22 @@
   outline-offset: 2px;
 }
 
+/* THE RUN'S MEMBERS CARRY THE INSET RING (W7-r2, the stray-bars
+   MAJOR): the +2px-offset outline around a full-height member of an
+   overflow-clipped scroller paints ONLY its inline edges — the
+   scrollport eats the top/bottom pair, leaving two free-floating
+   2px ring bars spanning the head after a scroll (the keyboard
+   focus returning from a closed axis menu + a mid-scrolled run was
+   the vision round's cyan artifact). The inset ring stays fully
+   inside the button box, immune to the clip — the focus ink stays
+   VISIBLE everywhere, it just never leaks past the run. Later rule,
+   same zero-specificity lane: the run's members win over the shared
+   block above */
+:where([data-jx-canvas-dock-head] [data-jx-scroll-run] :focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   :where(.jx-canvas-code-drawer),
   :where(.jx-canvas-chevron),
@@ -422,12 +438,16 @@
   touch-action: pan-x;
 }
 
-/* a SET axis reads at full ink: the ghost zone quiets every trigger,
-   an axis carrying a non-`auto` lane (data-axis-auto absent) is the
-   one state the bar has — the foreground ink whispers it (a visual
-   aid, zero tokens) */
+/* a SET axis reads in the BRAND INK (W7-r2, the invisible-set MAJOR):
+   the first round's `color: var(--foreground)` was a NO-OP — ghost's
+   own ink IS foreground (press-button.stylex), so the size button
+   measured pixel-identical before/after set (≤3/255). The set state
+   now paints the primary hue plus a whisper fill — the hue step is
+   the clearly perceptible signal (the ghost hover's own ink lane),
+   the 10% wash frames it without a token beyond the brand */
 :where([data-jx-canvas-axis]:not([data-axis-auto])) {
-  color: var(--foreground);
+  color: var(--primary);
+  background-color: color-mix(in oklab, var(--primary) 10%, transparent);
 }
 
 /* the axis menu item's check lane: the slot is ALWAYS rendered (the

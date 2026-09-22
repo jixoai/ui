@@ -144,4 +144,51 @@ describe('pilot page schema playground', () => {
     // receipt.
     expect(drivenRoot()?.getAttribute('style')).not.toContain('--jx-size-effective: 20px');
   });
+
+  // W7-r2 (the vision round's bar/panel desync MAJOR): the bar's lane
+  // record and the panel's axis rows are ONE state — a bar write carries
+  // the panel's own axis-enum row along (the record the page's stage
+  // drivers read), a panel write mirrors into the bar's record, and the
+  // panel's select DISPLAYS the canvas's resolved lane (the
+  // consumer-explicit ?? bar-lane getter record handed down as
+  // `resolvedLanes`). Asserted end-to-end through both write paths.
+  it('the bar and the panel share ONE truth — both write paths carry each other', async () => {
+    const { container } = render(Page);
+    const sizeSelect = container.querySelector<HTMLSelectElement>(
+      '[data-jx-canvas-axis-select]#jx-canvas-press-button-ctl-size',
+    )!;
+    const sizeBtn = container.querySelector<HTMLElement>('[data-jx-canvas-axis="size"]')!;
+    const shapeSelect = container.querySelector<HTMLSelectElement>(
+      '[data-jx-canvas-axis-select]#jx-canvas-press-button-ctl-shape',
+    )!;
+    const shapeBtn = container.querySelector<HTMLElement>('[data-jx-canvas-axis="shape"]')!;
+
+    // BAR PATH: menu item click → the panel's own size select reads the
+    // pick (the resolved lane the carriers ride), the bar button paints
+    // set (data-axis-auto absent), and the page's driven stage instance
+    // stamps the lane (values carried along — explicit + ambient agree)
+    const large = container.querySelector<HTMLButtonElement>(
+      '#jx-canvas-press-button-axis-size [data-axis-value="large"]',
+    )!;
+    await fireEvent.click(large);
+    expect(sizeSelect.value).toBe('large');
+    expect(sizeBtn.hasAttribute('data-axis-auto')).toBe(false);
+
+    // PANEL PATH: the shape select's write mirrors into the bar's own
+    // record — the button's set state flips without touching the bar
+    await fireEvent.change(shapeSelect, { target: { value: 'squircle' } });
+    expect(shapeBtn.hasAttribute('data-axis-auto')).toBe(false);
+    expect(
+      container
+        .querySelector('#jx-canvas-press-button-axis-shape [data-axis-value="squircle"]')!
+        .hasAttribute('data-axis-current'),
+    ).toBe(true);
+
+    // the panel's number mode clears the bar lane (the bar has no
+    // number mode — an honest bar shows no stale set)
+    await fireEvent.change(sizeSelect, { target: { value: 'number' } });
+    expect(sizeBtn.hasAttribute('data-axis-auto')).toBe(true);
+    // the axis-number row appears in number mode (the seeded exact value)
+    expect(container.querySelector('[data-jx-canvas-axis-number]')).not.toBeNull();
+  });
 });

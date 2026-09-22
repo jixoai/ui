@@ -19,6 +19,10 @@ export const meta = defineComponentMeta(
         "kind": "opaque",
         "typeText": "CanvasAxisLanes"
       },
+      "resolvedLanes": {
+        "kind": "opaque",
+        "typeText": "ResolvedAxisLanes"
+      },
       "playground": {
         "kind": "snippet",
         "typeText": "Snippet"

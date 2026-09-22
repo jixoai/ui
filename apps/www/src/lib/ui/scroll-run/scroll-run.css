@@ -27,12 +27,16 @@
  *    are the run's siblings).
  *  - THE CHIPS: FROSTED EDGE CHIPS — inset·1.5 square, IN-BOARD
  *    (flush against the edge the chip serves, no overhang) and
- *    CENTERED on the cross axis; translucent white ink
- *    (theme-independent — the frost carries the adaptation), the
- *    glyph as the chip's own background layer; a soft 1px-offset
- *    lift. The edges are LOGICAL (start/end) and the run's data-axis
- *    places them — inline edges on a horizontal run, block edges on
- *    a vertical one — while the GLYPHS are four PHYSICAL slots
+ *    CENTERED on the cross axis; translucent ink whose VALUE follows
+ *    the theme (W7-r2, the unthemed-chip MAJOR: a fixed near-white
+ *    frost made the chip the BRIGHTEST object on a dark bar — "the
+ *    frost carries the adaptation" is now REALIZED as a .dark-scope
+ *    var swap: dark frost + white glyphs; the component theme lane's
+ *    own .dark run carries its host with it), the glyph as the
+ *    chip's own background layer; a soft 1px-offset lift. The edges
+ *    are LOGICAL (start/end) and the run's data-axis places them —
+ *    inline edges on a horizontal run, block edges on a vertical
+ *    one — while the GLYPHS are four PHYSICAL slots
  *    (--jx-scroll-chevron-left/right/up/down, the customization
  *    surface: axis + edge + direction pick the slot; RTL swaps the
  *    inline pair). Existence keys on the JS-stamped
@@ -120,6 +124,24 @@
     --jx-scroll-chevron-chip: oklab(1 0 0 / 0.8);
     --jx-scroll-chevron-chip-hover: oklab(1 0 0 / 0.95);
     --jx-scroll-veil: calc(var(--jx-inset) * 1.5);
+  }
+
+  /* THE THEME-SWAP (W7-r2, the unthemed-chip MAJOR): under a dark
+   * page (html.dark) — or a host whose run carries the theme lane's
+   * own .dark — the frost INVERTS: a near-black translucent chip with
+   * WHITE glyphs. The fixed near-white frost made the chip the
+   * brightest object on a dark surface and read unthemed; the
+   * adaptation the header law always claimed now happens. Same
+   * zero-specificity lane, later in the sheet: the swap wins under
+   * .dark without touching any light-mode consumer */
+  :where(.dark) :where(.jx-scroll-host),
+  :where(.jx-scroll-host):has(> [data-jx-scroll-run].dark) {
+    --jx-scroll-chevron-left: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='m15 18-6-6 6-6'/%3E%3C/svg%3E");
+    --jx-scroll-chevron-right: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+    --jx-scroll-chevron-up: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M18 15l-6-6-6 6'/%3E%3C/svg%3E");
+    --jx-scroll-chevron-down: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    --jx-scroll-chevron-chip: oklab(0.22 0 0 / 0.75);
+    --jx-scroll-chevron-chip-hover: oklab(0.3 0 0 / 0.9);
   }
 
   /* the chips: FROSTED EDGE CHIPS (the Owner's reference law,

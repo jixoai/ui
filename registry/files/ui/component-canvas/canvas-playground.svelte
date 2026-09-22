@@ -32,6 +32,18 @@
       2xs stays reachable through the demo pages' own inspectors).
       Every item shows a check glyph for the current value; `auto`
       is the default and stamps NOTHING (the supply-not-force law).
+    · THE SINGLE TRUTH (W7-r2, the vision round's desync MAJOR): the
+      bar's lane record and the panel's axis rows are ONE state — a
+      bar write carries the panel's own axis-enum row along (the
+      record the page's stage drivers read never contradicts the
+      bar), a panel write mirrors into the bar's record, and the
+      panel's selects DISPLAY the canvas's resolved lane
+      (consumer-explicit ?? bar-lane — the same getter-fielded record
+      the carriers ride, handed down as `resolvedLanes`). A set axis
+      also carries its button into the run's view (`nearest`, a
+      no-op when visible) and paints the BRAND INK (component-
+      canvas.css — the first round's foreground-on-ghost ink was a
+      no-op, ghost already paints foreground).
     · THE RUN: the eight controls ride ONE ButtonGroup with
       overflow="scroll" (the family's own scroll capability — the
       Owner: 「bar 可能会很长，所以可以考虑使用 ButtonGroup 的可
@@ -131,6 +143,25 @@
   /** the seven non-theme axis names, §0 order */
   export type CanvasAxisName = keyof CanvasAxisLanes;
 
+  /**
+   * The canvas's RESOLVED lane record — the SAME getter-fielded object
+   * the carriers ride (`consumer-explicit ?? bar-lane`, computed in
+   * component-canvas.svelte and handed down here). The properties are
+   * GETTERS over the canvas's reactive state (never a value snapshot —
+   * the provider-snapshot law): a $derived in this file that READS one
+   * re-resolves in the same frame the bar flips (the same signal
+   * mechanism provideUniversalLanes rides). The panel's axis selects
+   * READ it — the bar and the panel display ONE truth (the vision
+   * round's bar/panel desync MAJOR: a bar-path set left the panel's
+   * SIZE select reading 'auto' while the stage rendered large). The
+   * value type is unknown on purpose: the canvas's own explicit lane
+   * may be any Lane spelling (px, query()…); the panel only ever
+   * DISPLAYS members of its own option list.
+   */
+  export interface ResolvedAxisLanes {
+    readonly [K in CanvasAxisName]: unknown;
+  }
+
   /** the all-`auto` seed — read-only by construction (writers REASSIGN,
    *  never mutate: `axes = { ...axes, [axis]: value }`) */
   export const CANVAS_AXIS_LANES: Readonly<CanvasAxisLanes> = Object.freeze({
@@ -177,6 +208,15 @@
      * stage component obeys is its own freedom).
      */
     axes?: CanvasAxisLanes;
+    /**
+     * The RESOLVED lane getters (consumer-explicit ?? bar-lane) — the
+     * record the canvas's own carriers ride, handed down so the panel's
+     * axis selects display the lane the STAGE actually rides (the
+     * bar/panel single-truth fix, W7-r2). Optional and inert when
+     * absent (a hand-mounted dock without a canvas root falls back to
+     * the record's own value).
+     */
+    resolvedLanes?: ResolvedAxisLanes;
     /** Consumer-authored controls (escape-hatch precedence over rows). */
     playground?: Snippet;
     /** Schema-lowered rows (the kernel's controlsFor output). */
@@ -198,6 +238,7 @@
     title,
     theme = $bindable('light'),
     axes = $bindable({ ...CANVAS_AXIS_LANES }),
+    resolvedLanes,
     playground,
     rows,
     schemaDefaults,
@@ -262,12 +303,48 @@
     },
   };
 
-  /** one axis flips (a menu item click): the record REASSIGNS, never
-   *  mutates — the bound canvas root re-resolves in the same frame */
-  function setAxis<K extends CanvasAxisName>(axis: K, value: CanvasAxisLanes[K]): void {
+  /** one axis flips — the ONE primitive both paths funnel through
+   *  (W7-r2, the bar/panel single-truth law). The record REASSIGNS,
+   *  never mutates — the bound canvas root re-resolves in the same
+   *  frame. MIRROR (the bar path): the panel's own axis-enum row for
+   *  this axis carries along — the record the page's stage drivers
+   *  read must never contradict the bar (a panel-written explicit
+   *  lane would otherwise BEAT the bar's fresh pick on the stage
+   *  while the bar's ink claimed it) — written only when the row's
+   *  own options carry the value (an off-enum write would blank the
+   *  native select). The panel path passes mirror=false: it JUST
+   *  wrote the record itself.
+   *  THE SET-BUTTON SCROLL (the set-indicator/scroll finding): a set
+   *  whose button sits scrolled out of the 28px head is invisible —
+   *  the run carries the set button into view with `nearest` (a NO-OP
+   *  when already visible; smooth honors the reduced-motion
+   *  preference), so the set-ink lands in view from EITHER path */
+  function setAxis<K extends CanvasAxisName>(
+    axis: K,
+    value: CanvasAxisLanes[K],
+    mirror = true,
+  ): void {
     const next = { ...axes };
     next[axis] = value;
     axes = next;
+    if (mirror && typeof value === 'string') {
+      const row = rows?.find((r) => r.axis === axis && r.control === 'axis-enum');
+      if (row && (row.values ?? []).includes(value)) setValue(row.key, value);
+    }
+    queueMicrotask(() => {
+      // optional-chained on purpose: jsdom ships no scrollIntoView and
+      // no matchMedia layouts — the scroll is a chrome nicety, never a
+      // contract (the hand-drawn/disclosure-motion guards' precedent)
+      const btn = dockEl?.querySelector(`[data-jx-canvas-axis="${axis}"]`);
+      btn?.scrollIntoView?.({
+        inline: 'nearest',
+        block: 'nearest',
+        behavior:
+          typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
+            ? 'auto'
+            : 'smooth',
+      });
+    });
   }
 
   // deterministic aria wiring, derived from the title the same way the
@@ -357,6 +434,23 @@
   const axisNumberRow = (row: ControlRow): ControlRow | undefined =>
     rows?.find((r) => r.axis === row.axis && r.control === 'axis-number');
 
+  // ── THE BAR/PANEL SINGLE TRUTH (W7-r2, the desync MAJOR) ───────────
+  // The panel's axis selects display ONE truth with the bar: the
+  // record's OWN non-`auto` mode wins (the panel's number/query()
+  // vocabulary is its own), else the canvas's RESOLVED lane — the same
+  // getter the carriers ride (consumer-explicit ?? bar-lane) — when it
+  // names one of the row's own options; otherwise the record's value.
+  // A bar-path set therefore lands in the panel's select, and a
+  // consumer-owned seat reads honestly (a resolved lane outside this
+  // row's options — px, query() — keeps the record's own display)
+  const axisDisplay = (row: ControlRow): string => {
+    const own = values?.[row.key];
+    if (typeof own === 'string' && own !== 'auto') return own;
+    const resolved = row.axis !== undefined ? resolvedLanes?.[row.axis] : undefined;
+    if (typeof resolved === 'string' && (row.values ?? []).includes(resolved)) return resolved;
+    return typeof own === 'string' ? own : String(row.default ?? 'auto');
+  };
+
   /** the axis-number row's controlled value (typeof-narrowed, zero casts) */
   const axisNumberOf = (row: ControlRow): number | undefined => {
     const current = values?.[row.key];
@@ -364,9 +458,22 @@
     return typeof row.default === 'number' ? row.default : undefined;
   };
 
-  /** entering number mode seeds the stepper once (never a 0px root) */
+  /** entering number mode seeds the stepper once (never a 0px root).
+   *  THE BAR CARRIES ALONG (W7-r2, the single-truth write path): a
+   *  panel write on an axis the bar speaks mirrors into the bar's own
+   *  record (mirror=false below — the record write already happened
+   *  here) — a named step lands the bar button's set-ink and the
+   *  ambient supply in the same frame; `auto`/number/query() clear
+   *  the bar lane (the bar has no number mode — an honest bar shows
+   *  no stale set). The one cast is membership-checked (the
+   *  axis-controls.svelte precedent) */
   function onAxisModeChange(row: ControlRow, mode: string): void {
     setValue(row.key, mode);
+    if (row.axis !== undefined && row.axis in CANVAS_AXIS_LANES) {
+      const axis = row.axis as CanvasAxisName;
+      const known = AXIS_CONTROLS[axis].values as readonly string[];
+      setAxis(axis, (known.includes(mode) ? mode : 'auto') as CanvasAxisLanes[CanvasAxisName], false);
+    }
     if (mode === 'number' && typeof values?.[`${row.key}:number`] !== 'number') {
       const sibling = axisNumberRow(row);
       setValue(`${row.key}:number`, typeof sibling?.default === 'number' ? sibling.default : 1);
@@ -639,11 +746,18 @@
              coherently (glyphs 12→11 with it, the seams and the
              legibility kept). Under the head's ghost zone the group
              inherits ghost: the borderless row's seams ARE the
-             policy's own -->
+             policy's own. THE FULL RAMP (W7-r2, the chip-collision
+             MINOR): the cheap posture ramp({ blur: false }) let the
+             frosted chip SLICE the cutoff glyph mid-shape at rest —
+             an opaque square over a hard edge reads as collision, not
+             scroll. The full builder (opacity + blur + translate, the
+             family's own ramp capabilities, default magnitudes) melts
+             the crossing member toward the edge so the cutoff reads
+             as scroll-fade under the frost -->
         <ButtonGroup
           label="Stage axes"
           overflow="scroll"
-          scrollEffect={ramp({ blur: false })}
+          scrollEffect={ramp()}
           density="xs"
           data-jx-canvas-dock-axes
         >
@@ -819,12 +933,15 @@
                   <!-- the axis lane switch (W4): auto + named steps +
                        the number/query() modes; the select drives the
                        lane key itself — data-jx-canvas-axis-select is
-                       the probe's DOM anchor -->
+                       the probe's DOM anchor. The DISPLAYED value is
+                       the bar/panel SINGLE TRUTH (W7-r2): the record's
+                       own mode, else the canvas's resolved lane (see
+                       axisDisplay) — a bar-path set reads here too -->
                   <ItemSelect
                     id={ctlId(row.key)}
                     label={rowLabel(row)}
                     description={row.description}
-                    value={String(rowValue(row) ?? 'auto')}
+                    value={axisDisplay(row)}
                     onchange={(event) => onAxisModeChange(row, event.currentTarget.value)}
                     data-jx-canvas-axis-select
                   >
