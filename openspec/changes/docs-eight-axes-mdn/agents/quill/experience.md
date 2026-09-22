@@ -666,3 +666,34 @@
   link's hue drifts per-panel (hue injection), so compare the IDLE ink or
   a pure variable read across scopes; anything hue-bearing near an
   injected scope is noise (the task 22 lesson, now the standing rule).
+
+## Techniques (mine, added 2026-09-23, task 24 — popconfirm)
+- **A CLAIMED PROP CLOBBERS THE AUTO-WIRE (the served dead-trigger
+  defect)**: a family's $effect setAttribute on a CHILD COMPONENT's
+  button dies when that component declares the same attribute as its own
+  prop — Svelte's reconciliation removes the claimed-but-undefined
+  attribute on the next re-render (PressButton's press state flips on
+  the very click that should open the panel). Diagnostic signature:
+  the effect's OTHER attributes survive (aria-controls) while the
+  claimed one reads null. Page-side fix: the EXPLICIT wire (stable id +
+  the component's own passthrough prop); family-side: owner's call.
+  Probes must click-and-assert :popover-open — an aria-expanded mirror
+  can read true while the declarative wire is dead.
+- **PORTAL LAW vs PROMOTION-AWAY — CHECK THE DOM SHAPE FIRST**: two
+  popover families share one consumption law with different delivery:
+  navigation-menu's bar stamps and .jx-pop reads through DOM
+  inheritance (promotion-away); popconfirm's anchor and panel are
+  SIBLINGS, so the carriers stamp the PANEL itself (self-carried — the
+  source calls it the portal law). The tell is the markup shape: is
+  there a common ancestor element to hang the stamp on? Same css law
+  verbatim in both sheets; different carrier delivery.
+- **THE STALE-TOC-ID AUDIT**: old-generation ToCs can reference ids no
+  section ever shipped (popconfirm's 'popconfirm-base') — the toc==DOM
+  check must assert BOTH directions: every toc id resolves AND every
+  section id appears (in order) in the toc data, chrome ids excluded.
+- **SYNTHETIC EVENTS CANNOT DRIVE UA-INTERNAL PATHS**: dispatching a
+  KeyboardEvent('Escape') on an open popover does nothing — the light
+  dismiss is the UA's internal close-request handling, not a keydown
+  listener. Probe platform-owned behavior through the platform (the
+  cancel button, hidePopover()) or pin it at the spec level; don't
+  report the synthetic silence as a defect.

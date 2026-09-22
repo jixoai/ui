@@ -669,8 +669,9 @@
     "vellum",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 24 tier-2; DEAD-TRIGGER defect found+fixed page-side (PressButton claimed-prop clobber); family flag W-next #5; siblings-not-carriers (panel self-carried)"
   },
   {
    "page": "popover",
