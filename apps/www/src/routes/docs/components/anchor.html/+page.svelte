@@ -22,6 +22,7 @@
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -76,12 +77,15 @@ ${close}
 <Anchor label="compact rail" density="small">…</Anchor>
 <Anchor label="roomy rail" density="large">…</Anchor>
 
-<!-- theme: a resolved dark scopes the .dark class bridge on the nav -->
+<!-- theme: supply-side here — a resolved dark stamps the .dark
+     class bridge on the nav; the rail's ink follows the site theme -->
 <Anchor label="dark rail" theme="dark">…</Anchor>
 
 <!-- query(): below the lg viewport rung (64rem) the rail rides
-     small; at ≥64rem it steps to large. Resize and watch. -->
-<Anchor label="responsive rail" density={query({ lg: 'large' }, 'small')}>…</Anchor>`;
+     small; at ≥64rem it steps to large. Resize and watch. The
+     explicit generics pin the case AND the base to the lane (the
+     bare form infers QueryResult<string> — a type error). -->
+<Anchor label="responsive rail" density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}>…</Anchor>`;
 
   const axesFiles: TreeFile[] = [
     { name: 'src/lib/ui/anchor-axes.svelte', content: axesUsage, kind: 'usage' },
@@ -97,7 +101,7 @@ ${close}
       type: 'data-density rung · --jx-density-coefficient',
       default: 'auto',
       description:
-        'The axis the rail consumes. Named steps small · medium · large stamp the rung on the nav and re-scope the channels the paint reads — --jx-stack (rail gap), --jx-hit (link min-height), --jx-inset (inline padding), --jx-text / --jx-line (label). A number is a coefficient: it multiplies the same channels and leaves the rung ambient.',
+        'The one axis whose paint the rail itself consumes. Named steps small · medium · large stamp the rung on the nav and re-scope the channels the paint reads — --jx-stack (rail gap), --jx-hit (link min-height), --jx-inset (inline padding), --jx-text / --jx-line (label). A number is a coefficient: it multiplies the same channels and leaves the rung ambient. The five legacy rung spellings (xs · 2xs · sm · default · lg) also address lanes directly.',
     },
     {
       name: 'size',
@@ -132,7 +136,7 @@ ${close}
       type: 'the .dark class bridge',
       default: 'auto',
       description:
-        "The other axis the rail consumes: a resolved dark puts .dark on the nav and flips every semantic token the rail reads. Steps light · dark · system; auto inherits the tree.",
+        "Stamp-side on this family: a resolved dark puts .dark on the nav and flips the raw token layer (--foreground, --muted-foreground) at that scope — but the rail's ink reads the root-anchored --jx-* aliases, declared only at :root and the stylex theme scopes, which a plain .dark never re-substitutes. The rail follows the site theme, not this lane. Steps light · dark · system; auto inherits the tree.",
     },
     {
       name: 'elevation',
@@ -328,9 +332,14 @@ ${close}
     <SectionCard
       eyebrow="axes"
       title="The eight axes on anchor"
-      summary="anchor carries all eight lanes as a first-time no-own surface (migration census, W3 close D5): an explicit lane stamps its carrier on the nav and supplies downward — AnchorItem parts and nested components read the supply (吃也供 — the breadcrumb-parts shape). Only density and theme change the rail's own paint; the other six stamp carriers this family does not consume."
+      summary="anchor carries all eight lanes as a first-time no-own surface (migration census, W3 close D5): an explicit lane stamps its carrier on the nav and supplies downward — AnchorItem parts and nested components read the supply, the broadcast protocol (吃也供, supply-and-consume). Density is the one axis whose paint the rail itself consumes; the other seven stamp-and-supply carriers its paint does not read (theme's .dark bridge flips the raw token layer only — see the theme row)."
     >
       <div class={cx(rt.col20)}>
+        <p class={cx(rt.note12, rt.inkMuted70)}>
+          Reading the table: Property is the axis, Type is the real carrier it stamps on the nav
+          here, Default is the lane default — the named steps, number unit, and consumption on
+          this family are in each description.
+        </p>
         <PropsTable title="" props={axisRows} />
         <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
           Deviations, cited: the eight-axis adoption itself is the census row — anchor was one of
@@ -373,7 +382,7 @@ ${close}
                 </Anchor>
               </div>
               <div class={cx(rt.panel)}>
-                <span class={cx(rt.note11)}>theme="dark"</span>
+                <span class={cx(rt.note11)}>theme="dark" — .dark stamps the nav; the rail's ink stays site-themed</span>
                 <Anchor label="dark rail" theme="dark">
                   <AnchorItem href="#props">props</AnchorItem>
                   <AnchorItem href="#anchor-axes">the eight axes</AnchorItem>
@@ -382,8 +391,8 @@ ${close}
               </div>
             </div>
             <div class={cx(rt.col20, rt.wFull, rt.anMt32)}>
-              <span class={cx(rt.note11)}>density={"{query({ lg: 'large' }, 'small')}"}</span>
-              <Anchor label="responsive rail" density={query({ lg: 'large' }, 'small')}>
+              <span class={cx(rt.note11)}>density={"{query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}"}</span>
+              <Anchor label="responsive rail" density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}>
                 <AnchorItem href="#anchor-what">what it does</AnchorItem>
                 <AnchorItem href="#anchor-pick">the line pick</AnchorItem>
                 <AnchorItem href="#anchor-vs-toc">anchor vs toc</AnchorItem>
@@ -416,6 +425,11 @@ ${close}
           { name: 'href', value: '#fragment', description: 'Real fragment hrefs keep native navigation, deep links, and middle-click.' },
         ]}
       />
+      <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+        Density is also the hit-surface axis here: the link's minimum target height (--jx-hit)
+        measures 32 / 40 / 48px at small / default / large — every rung clears the 24px
+        WCAG 2.5.8 AA target floor.
+      </p>
     </SectionCard>
   </div>
 
