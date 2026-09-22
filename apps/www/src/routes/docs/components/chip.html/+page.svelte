@@ -1,12 +1,37 @@
+<!--
+  Docs page for chip (docs-eight-axes-mdn round 1, quill — tier 2).
+  The page follows the baseline archetype (skills/mdn-doc-style.md §2):
+  hero, install, overview, usage, the primary live canvas (the
+  spec-pinned play-state lab), the family demos (anchors / slots / the
+  badge-twin law / hue injection), API from the GENERATED meta + docs
+  curation (the hand table retired), the eight-axes section (per-axis
+  table + grouped demos + one real query() case), accessibility (the
+  hit-floor ruling note), see-also. The playground state object, the
+  canvas children and the usage assembly stay byte-identical to the
+  pre-refactor page (component-canvas-floor.spec.ts pins the chip lab's
+  output rows; variant-grammar.spec.ts pins the registry drawer paths).
+
+  Mechanism rows are measurement-first: every axis claim below was
+  probed against the SERVED page (SSR carrier stamps + computed
+  styles) — radius/color/elevation/motion are supply-only on this
+  family (the consuming blocks are keyed to [data-jx-press-button] and
+  the theme sheet's slot re-declarations, none of which the chip root
+  carries), size/density/theme are consumed. The shape axis is ABSENT:
+  the family-local shape prop owns the name (migration-census.md batch
+  B; W6-dossier-flagged).
+-->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
-  import type { Attachment } from 'svelte/attachments';
+  import Link from '$lib/ui/link/link.svelte';
   import Chip from '$lib/ui/chip/chip.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import type { Attachment } from 'svelte/attachments';
   import { pressEffect } from '$lib/ui/press-button';
   import { pulse, rainbow, ripple, shimmer } from '$lib/ui/press-button/press-button.svelte';
   import chipSource from '$lib/ui/chip/chip.svelte?raw';
@@ -14,11 +39,11 @@
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { playOutputs, playState, PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
   import { registrySourceUrl } from '$lib/registry-source';
+  import { query } from '$lib/universal-props-query.svelte';
+  import { meta as chipMeta } from '$lib/meta/chip.meta';
+  import { CHIP_DOCS } from '$lib/ui/props-table/docs/chip.docs';
+  import type { PropEntry } from '$lib/ui/props-table/props-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
-
-  // ToC outline: anchors + slots + the scale ruling, then the house
-  // template sections, in page order. The engine pairs these ids with
-  // the SectionCard data-family extents + header data-region leaves.
 
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -186,16 +211,6 @@ ${close}
 <Chip variant="tonal">activation</Chip>
 <Badge>display</Badge>`;
 
-  const chipVariantsDemo = `<script lang="ts">
-  import Chip from '@ui/chip/chip.svelte';
-${close}
-
-<!-- prominence, never semantic hue -->
-<Chip variant="fill">Solid ground</Chip>
-<Chip variant="tonal">Tinted rest — the default</Chip>
-<Chip variant="outline">Structural border</Chip>
-<Chip variant="ghost">Quiet seat</Chip>`;
-
   const chipHueDemo = `<script lang="ts">
   import Chip from '@ui/chip/chip.svelte';
 ${close}
@@ -222,22 +237,112 @@ ${close}
             ).join(' '),
       )
       .join(' ');
-  // ---- the universal props demo (explicit-props W3-B) --------------------
-  const universalUsage = `<!-- seven axes (the shape name collides with the silhouette
-     vocabulary — unruled, left out) -->
-<Chip size={14} density="small">px number</Chip>
-<Chip size="large" radius="medium">named steps</Chip>`;
-  const universalFiles: TreeFile[] = [
-    { name: 'src/lib/ui/chip-universal.svelte', content: universalUsage },
+
+  // ---- the eight-axes canvas (docs-eight-axes-mdn §2.5) -------------------
+  // The consumed lanes live (size on the glyphs, the density rungs on the
+  // whole box, the dark bridge), the number-lane no-op, one real query()
+  // case, and the supply-only pair — the color axis stamps a carrier
+  // nothing in the family reads, while the jx-hue-* class next to it
+  // paints. The drawer carries the import so the file stays runnable.
+  const axesUsage = `<script lang="ts">
+  import Chip from '@ui/chip/chip.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+${close}
+
+<!-- CONSUMED — size rides the glyph lane; the box stays density-anchored -->
+<Chip size={14}>14px glyphs, the default 20px box</Chip>
+<Chip size="large">the named step resolves var(--jx-size-large)</Chip>
+
+<!-- CONSUMED — the named rungs re-base the channels the twin reads -->
+<Chip density="small">the sm rung: inset 8px, label 11px, height 18px</Chip>
+<Chip density={1.5}>a coefficient stamps no rung — nothing recomposes</Chip>
+
+<!-- CONSUMED — dark stamps the .dark class bridge on the root -->
+<Chip variant="fill" theme="dark">dark profile</Chip>
+
+<!-- one real query() case: 14px below the 48rem viewport, 16px at md -->
+<Chip size={query({ md: 16 }, 14)}>responsive label</Chip>
+
+<!-- SUPPLY-ONLY vs the lane that paints -->
+<Chip color="error">the carrier stamps — the paint stays primary</Chip>
+<Chip class="jx-hue-error">jx-hue-error injects --jx-tonal — the paint moves</Chip>`;
+  const axesFiles: TreeFile[] = [
+    { name: 'registry/files/ui/chip/chip.svelte', content: chipSource },
+    { name: 'src/lib/ui/chip-axes-usage.svelte', content: axesUsage, kind: 'usage' },
   ];
 
+  // ---- the per-axis table (docs-eight-axes-mdn §2.5) ----------------------
+  // What each universal axis drives on THIS family — the carrier/var
+  // names are the family's real ones (chip.stylex.ts, chip.css,
+  // stampCarriersForLanes in defaults.svelte.ts); steps and units per
+  // universal-props.schema.ts; supply states are measured, not assumed:
+  // the consuming blocks in press-button.css are keyed to
+  // [data-jx-press-button], which the chip root never carries.
+  const axisRows: PropEntry[] = [
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: "'auto'",
+      description:
+        "CONSUMED — on the GLYPHS only. The kernel stamps --jx-size-effective and font-size inline, and the inline stamp outranks the base atom's density-anchored label size (14 → 14px; large → var(--jx-size-large) = 18px). The BOX does not follow: height, insets and the slot svg stay on the density lane (the badge-twin law — measured: a 24px label in the 20px default box). Number unit: px.",
+    },
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number`,
+      default: "'auto'",
+      description:
+        "CONSUMED — the named rungs. The rung stamps data-density and the kernel's scope block re-declares the channels the twin reads ON the root (--jx-inset, --jx-gap, --jx-text-secondary, --jx-line-secondary): inset 8 / 12 / 16px, label 11 / 12 / 13px, height ≈18 / 20 / 23px at sm / default / lg — the whole badge-twin geometry re-bases. small / medium / large alias sm / default / lg; the five legacy spellings stay addressable. A coefficient number stamps --jx-density-coefficient only — no rung attribute matches, nothing recomposes on the chip (the declaring-element law; measured: box unmoved at 1.5). Number unit: coefficient.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: "'auto'",
+      description:
+        "CONSUMED — one-way. dark stamps the .dark class bridge on the root, and the theme sheet's .dark block re-declares the four grammar slots (--jx-fill, --jx-fill-ink, --jx-tonal, --jx-outline) there — the variant paint re-resolves the dark profile. light and system stamp nothing: they ride tree inheritance, so a light chip inside a dark tree stays dark. No number lane.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: "'auto'",
+      description:
+        "SUPPLY-ONLY — stamps --jx-radius-effective for the concentric consumers (press-button's corner calc, card, tooltip, menubar read the same carrier). The silhouette atoms never read it: square paints the site radius var(--jx-radius), pill paints calc(infinity * 1px). Measured: a stamped 10px carrier under an 8px computed corner. Documented absence on the chip itself. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: "'auto'",
+      description:
+        "ABSENT — the family-local shape prop ('square' | 'pill', the silhouette corner-law vocabulary) owns the name and 'pill' is outside ShapeLane; not a §13-ruled rename family, so the axis is left out (forwarding ambient) rather than renamed — flagged for the W6 Owner dossier as an open refinement (migration-census.md batch B, LANDED). See the family shape prop in the API table.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: "'auto'",
+      description:
+        "SUPPLY-ONLY — stamps --jx-color-effective (named → the §12 var indirection; a number → hue degrees through the oklch formula; raw strings pass through, closed at build). No chip css reads it: the variant atoms consume the four grammar slots, and the slot re-derivation from the carrier is keyed to [data-jx-press-button] — the chip root never carries it (measured: an error carrier leaves the primary tint). Hue that paints rides the jx-hue-* / jx-pair-* classes. Number unit: hue degrees.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: "'auto'",
+      description:
+        "SUPPLY-ONLY — stamps --jx-elevation-effective; no family css reads it (the only consumer of elevation on the press side is --jx-elevation-shadow, stamped by the press-button component's own pair — the chip never stamps it). The chip's one shadow is the shared .jx-press rest (var(--shadow-xs)), and ghost nulls it. Measured: the rest shadow unchanged under a stamped level. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: "'auto'",
+      description:
+        "SUPPLY-ONLY — stamps --jx-motion-effective; no family css reads it. The press law's transition chain is 150ms literals with a prefers-reduced-motion kill, and the effect loops freeze the same way — the axis has no chip-local kernel to step. Number unit: coefficient.",
+    },
+  ];
 </script>
 
 <svelte:head>
   <title>Chip · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai chip: the badge's activation twin — badge geometry verbatim, the button/anchor root the only structural difference — riding the four-step ladder (fill / tonal / outline / ghost) consumed as global tokens, slotStart/slotEnd lanes that replace their side's padding, and the component-tag effect attachment (pressEffect(ripple()) through the component tag mounts ink on the stamped root)."
+    content="The jixoai chip: the badge's activation twin — badge geometry verbatim, the button/anchor root the only structural difference — riding the four-step ladder (fill / tonal / outline / ghost) consumed as global tokens, slotStart/slotEnd lanes at the label scale, and the component-tag effect attachment."
   />
 </svelte:head>
 
@@ -251,18 +356,75 @@ ${close}
         tone="hero"
         eyebrow="registry:ui · General"
         title="chip — the grammar's compact activation"
-        summary="The chip is what a filter, a toggle, or an inline nav target looks like in this language: the badge's font-nav uppercase micro-label voice at badge scale — badge geometry verbatim, the ONLY structural difference being the activation root (button/anchor, press physics, the focus law; Owner ruling 2026-09-01, superseding the control-scale hit-lane floor). The paint is the frozen variant ladder consumed as global tokens — fill for the one active filter, tonal for the resting set, outline for structure, ghost for the quiet seats — and semantic hue is always injected (jx-hue-success), never named. Press physics are the theme's shared .jx-press law; effect loops ride the component-tag attachment (r4, 2026-09-10 — the effect prop, its default ripple and the interim record all retired): arm pressEffect(ripple()) through the component tag and ink expands from your pointer."
+        summary="What a filter, a toggle, or an inline nav target looks like in this language: the badge's uppercase micro-label at badge scale with an activation root — button or anchor, press physics, the focus law. Paint is the frozen four-rung ladder (fill / tonal / outline / ghost) consumed as global tokens; hue is injected through classes, never named."
       >
         <div class={cx(rt.wrap12)}>
           <span class="pill">badge twin · inline scale</span>
           <span class="pill">fill · tonal · outline · ghost</span>
-          <span class="pill">attachment ink</span>
           <span class="pill">button or anchor</span>
+          <span class="pill">attachment ink</span>
         </div>
       </SectionCard>
     </div>
 
     <div data-reveal="">
+      <DocsInstall name="chip" />
+    </div>
+
+    <div id="overview" data-reveal="">
+      <SectionCard
+        family="overview"
+        headerRegion="overview"
+        eyebrow="overview"
+        title="Overview"
+        summary="The badge's activation twin: one label, one ladder, two slot lanes, and a root that is a real button or a real anchor."
+      >
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.measurePara)}>
+            Chip is the grammar's compact activation — a control that filters, toggles, or
+            navigates without leaving the label's size class. The scale law is an Owner ruling
+            (2026-09-01, superseding the control-scale hit-lane floor): chip geometry is badge
+            geometry verbatim — height from the secondary line, inline insets only, never block
+            padding. The ONLY structural difference from a Badge is the activation root: a real
+            <code>&lt;button&gt;</code>, or a real <code>&lt;a&gt;</code> when <code>href</code>
+            is set, with the shared press physics and the focus law.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            The paint is the variant-grammar ladder consumed as global tokens —
+            <code>fill</code> for the one active filter, <code>tonal</code> for the resting set
+            (the frozen own default), <code>outline</code> for structure, <code>ghost</code> for
+            the quiet seats. Semantic hue is INJECTED into the four grammar slots through the
+            <code>jx-hue-*</code> classes, never named as a variant. Effect loops are opt-in
+            through the component tag: <code>&#123;@attach pressEffect(ripple())&#125;</code> mounts
+            press-point ink from the shared press-button runtime onto the stamped root — a bare
+            chip is plain.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            Two snippet lanes (<code>slotStart</code> / <code>slotEnd</code>) carry leading and
+            trailing glyphs at the label scale under the data-icon law. The universal axes
+            resolve on the same root — three are consumed here (size, density, theme), four are
+            supply-only, and the shape axis is deliberately absent: the family's own
+            <code>shape</code> prop (<code>'square' | 'pill'</code>) owns the name. The axis
+            grammar (named steps, auto, numbers, <code>query()</code>) is documented once on the
+            <Link href="/docs/universal-props.html" title="the universal props page">universal props page</Link>.
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="usage" data-reveal="">
+      <SectionCard
+        family="usage"
+        headerRegion="usage"
+        eyebrow="usage"
+        title="Usage"
+        summary="Import the component, pick the ladder step, inject hue through the classes when the intent is semantic, and arm effects through the component tag."
+      >
+        <CodeBlock code={usage} lang="svelte" meta="Chip usage" />
+      </SectionCard>
+    </div>
+
+    <div id="ladder" data-reveal="">
       <ComponentCanvas
         title="chip"
         description="The grammar ladder at badge scale. The top row is the four variants; the second row shows the plain effect-free chip, the bevel-silhouette ripple through the component tag, and the shimmer loop; the bottom instance is driven by the playground."
@@ -356,13 +518,12 @@ ${close}
         title="Button or anchor"
         summary="href switches the root from button to anchor — internal hrefs navigate in place, anything else opens a new tab with noreferrer automatically. A chip without href is a real button: the onclick demo toggles its own label."
       >
-        <div class={cx(rt.col20)}>
-          <ComponentCanvas
-            title="chip · anchors"
-            files={[{ name: 'chip-anchors-demo.svelte', content: chipAnchorsDemo, kind: 'usage' }]}
-            stage="center"
-          >
-            <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20)}>
+        <ComponentCanvas
+          title="chip · anchors"
+          files={[{ name: 'chip-anchors-demo.svelte', content: chipAnchorsDemo, kind: 'usage' }]}
+          stage="center"
+        >
+          <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.justifyCenter, rt.gapX8, rt.gapY20)}>
             <div class={cx(rt.rowC10, rt.inkMuted, rt.text12)}>
               <span>internal → same tab</span>
               <Chip variant="outline" href="/docs/components.html">overview</Chip>
@@ -395,9 +556,7 @@ ${close}
               <Chip variant="tonal" onclick={() => (following = !following)}>{following ? 'following' : 'follow'}</Chip>
             </div>
           </div>
-          </ComponentCanvas>
-          <CodeBlock code={usage} lang="svelte" meta="usage" />
-        </div>
+        </ComponentCanvas>
       </SectionCard>
     </div>
 
@@ -471,10 +630,10 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="scale" data-reveal="">
+    <div id="twin" data-reveal="">
       <SectionCard
-        family="scale"
-        headerRegion="scale"
+        family="twin"
+        headerRegion="twin"
         eyebrow="law"
         title="The badge's activation twin"
         summary="Chips ride badge geometry verbatim (Owner ruling, 2026-09-01, superseding the control-scale hit-lane floor): height from the secondary line, inline insets only, never block padding — the ONLY structural difference from a Badge is the activation root."
@@ -501,139 +660,164 @@ ${close}
               <span>the scale law: badge geometry verbatim — height from
               <code class={cx(rt.inkAccent)}>--jx-line-secondary</code>, inline insets from
               <code class={cx(rt.inkAccent)}>--jx-inset</code>, never block padding; what makes it a
-              chip is the activation root, not a bigger box</span></li>
+              chip is the activation root, not a bigger box. The hit lane is deliberately NOT a
+              chip channel — the pseudo-element lane expansion stays rejected; the real box is
+              the target</span></li>
             <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>slotStart/slotEnd lanes replace their side's padding (the data-icon
               law): the icon lane carries the edge at half the inset — the same law badge
               practices and the input's edge glyph lanes (clear, steppers) take to zero</span></li>
             <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>forced colors degrade explicitly (design §6): fill becomes
-              ButtonFace/ButtonText, tonal/outline become Canvas/CanvasText with the
-              color-mix tints dropped, ghost rests transparent and takes ButtonFace on
-              hover — and the 2px Highlight focus ring is never removed</span></li>
+              <span>the silhouette vocabulary is the family's own
+              <code>shape</code> prop: <code>square</code> keeps the site radius
+              (<code>var(--jx-radius)</code> — not sharp corners), <code>pill</code> rounds fully
+              (<code>calc(infinity * 1px)</code>)</span></li>
           </ul>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="hue" data-reveal="">
+      <SectionCard
+        family="hue"
+        headerRegion="hue"
+        eyebrow="theming"
+        title="Hue injection and tokens"
+        summary="Color is injected, never named: the jx-hue-* / jx-pair-* intent utilities re-point the four grammar slots above a chip and every slot consumer inside retunes. Geometry rides the density channels."
+      >
+        <div class={cx(rt.col20)}>
+          <ComponentCanvas
+            title="chip · hue injection"
+            files={[{ name: 'chip-hue-demo.svelte', content: chipHueDemo, kind: 'usage' }]}
+            stage="center"
+          >
+            <div class={cx(rt.rowC12, rt.wrap, rt.justifyCenter)}>
+              <Chip class="jx-hue-success">passing</Chip>
+              <Chip class="jx-hue-warning">degraded</Chip>
+              <Chip class="jx-hue-neutral">metadata</Chip>
+              <Chip
+                variant="fill"
+                class="jx-pair-destructive"
+              >
+                clear
+              </Chip>
+            </div>
+          </ComponentCanvas>
+          <TokenTable tokens={[
+            { name: '--jx-inset', default: '8 / 12 / 16px at sm / default / lg', source: 'density', description: 'Inline chip padding — a slot lane replaces its side at half.' },
+            { name: '--jx-gap', default: 'density scale', source: 'density', description: 'Spacing base — the root gap runs at half.' },
+            { name: '--jx-text-secondary', default: '11 / 12 / 13px at sm / default / lg', source: 'density', description: 'Micro-label size; also the composed svg size.' },
+            { name: '--jx-line-secondary', default: 'density scale', source: 'density', description: 'Micro-label line height — the badge-twin height source.' },
+            { name: '--jx-radius', default: 'the site radius', source: 'structural', description: 'The square silhouette corner — the pill silhouette ignores it (full round).' },
+            { name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border (fill variant); re-declared under .dark.' },
+            { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected together with --jx-fill.' },
+            { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue; ghost hover derives from it — inject through the jx-hue-* intent utilities (arbitrary form only outside the closed set).' },
+            { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' },
+          ]} />
         </div>
       </SectionCard>
     </div>
   </div>
 
-  <div id="types" data-reveal="">
-    <SectionCard eyebrow="types" title="Variant ladder" summary="Prominence, never semantic hue — every variant keeps the same badge-scale geometry, border weight and press physics.">
-      <ComponentCanvas
-        title="chip · variant ladder"
-        files={[{ name: 'chip-variants-demo.svelte', content: chipVariantsDemo, kind: 'usage' }]}
-        stage="fill"
+  <div class={cx(rt.shellFlush)}>
+    <div id="props" data-reveal="">
+      <SectionCard
+        family="api"
+        headerRegion="api"
+        eyebrow="api"
+        title="API"
+        summary="The table renders from the GENERATED meta; the seven axis props split into the shared Universal props section beneath the family rows. shape stays in the family table — it is the silhouette prop, not the axis (it rides the curation's extra lane because the shared split filters its name)."
       >
-        <div class={cx(rt.chipGrid)}>
-          {#each [
-            ['fill', 'Solid ground'],
-            ['tonal', 'Tinted rest — the default'],
-            ['outline', 'Structural border'],
-            ['ghost', 'Quiet seat'],
-          ] as item}
-            <div class={cx(rt.panel60P12)}>
-              <Chip variant={item[0] as 'fill' | 'tonal' | 'outline' | 'ghost'}>{item[1]}</Chip>
-              <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>{item[0]}</p>
+        <PropsTable meta={chipMeta} docs={CHIP_DOCS} />
+      </SectionCard>
+    </div>
+
+    <div id="axes" data-reveal="">
+      <SectionCard
+        family="axes"
+        headerRegion="axes"
+        eyebrow="axes"
+        title="The eight axes on this component"
+        summary="What each axis drives HERE — the carrier names are the family's real vars (chip.stylex.ts, chip.css, stampCarriersForLanes), steps and units per universal-props.schema.ts, every axis defaulting auto. Three are consumed on the chip itself (size on the glyphs, density's named rungs on the whole box, theme's dark bridge); four are supply-only (radius, color, elevation, motion — the consuming blocks are keyed to [data-jx-press-button] and the theme sheet's slot re-declarations, none of which the chip root carries); the shape axis is ABSENT — the family-local silhouette prop owns the name (migration-census.md batch B; W6-dossier-flagged)."
+      >
+        <div class={cx(rt.col20, rt.wFull)}>
+          <PropsTable props={axisRows} title="" />
+          <ComponentCanvas
+            id="axes"
+            title="The consumed lanes, live"
+            description="size rides the glyph lane while the box stays density-anchored; the sm rung re-bases the whole twin; the coefficient number recomposes nothing; the dark bridge re-resolves the paint; one real query() case — 14px below the 48rem viewport, 16px at md and wider (resize the window); and the supply-only pair — the color carrier changes nothing while the jx-hue-error class next to it repaints."
+            sourceUrl={registrySourceUrl('chip')}
+            files={axesFiles}
+            stage="fill"
+          >
+            <div class={cx(rt.gridSm2)}>
+              <div class={cx(rt.panel)}>
+                <Chip size={14}>size 14 · glyphs 14px</Chip>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>size number · glyphs only — the box stays 20px</p>
+              </div>
+              <div class={cx(rt.panel)}>
+                <Chip size="large">large · 18px</Chip>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>named step · var(--jx-size-large)</p>
+              </div>
+              <div class={cx(rt.panel)}>
+                <Chip density="small">density small · the twin</Chip>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>sm rung · data-density re-bases the channels</p>
+              </div>
+              <div class={cx(rt.panel)}>
+                <Chip density={1.5}>density 1.5 · unmoved</Chip>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>coefficient · no rung attribute, box unmoved</p>
+              </div>
+              <div class={cx(rt.panel)}>
+                <Chip variant="fill" theme="dark">theme dark · profile</Chip>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>.dark bridge · the four grammar slots re-resolve</p>
+              </div>
+              <div class={cx(rt.panel)}>
+                <Chip size={query({ md: 16 }, 14)}>responsive label</Chip>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>query() · 14px base, 16px at md and wider</p>
+              </div>
+              <div class={cx(rt.panel)}>
+                <Chip color="error">color error · still primary</Chip>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>supply-only · --jx-color-effective is unread</p>
+              </div>
+              <div class={cx(rt.panel)}>
+                <Chip class="jx-hue-error">jx-hue-error · repaints</Chip>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>the lane that paints · --jx-tonal injected</p>
+              </div>
             </div>
-          {/each}
+          </ComponentCanvas>
         </div>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
+      </SectionCard>
+    </div>
 
-  <div id="usage" data-reveal="">
-    <SectionCard eyebrow="usage" title="Compose a chip" summary="Pick the ladder step, inject hue through the global slots when the intent is semantic, and pass one press-button effect builder — or null for stillness.">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
-
-  <div id="accessibility" data-reveal="">
-    <SectionCard eyebrow="a11y" title="Keyboard and semantics" summary="Native buttons and anchors retain their platform behavior; the hit lane is the real box, and motion degrades under both reduced-motion and forced-colors.">
-      <A11yTable
-        keys={[{ key: 'Tab', action: 'Move focus to the chip or link' }, { key: 'Enter / Space', action: 'Activate a button chip' }, { key: 'Enter', action: 'Follow an href rendered as an anchor' }]}
-        aria={[{ name: 'aria-label', value: 'optional', description: 'Names icon-only or otherwise unlabeled chips.' }, { name: 'href', value: 'optional', description: 'Switches the root from button to anchor semantics.' }, { name: 'prefers-reduced-motion', value: 'supported', description: 'Skips the ripple ink; the anchored press still answers.' }, { name: 'forced-colors', value: 'supported', description: 'Explicit system-color degradation; the 2px Highlight focus ring survives.' }]}
-      />
-    </SectionCard>
-  </div>
-
-  <div id="theming" data-reveal="">
-    <SectionCard eyebrow="theming" title="Density and tokens" summary="Geometry rides the inherited density scale; color rides the four global grammar slots — inject a hue anywhere above a chip and every slot consumer inside retunes.">
-      <div class={cx(rt.col20)}>
-        <p class={cx(rt.bodyMuted)}>
-          geometry rides the inherited density scale — flip the canvas dock's density select
-          (xs / sm / default / lg) to re-scope the hit lane on the stage alone; the four-copy
-          DensityDemo row is retired by that select.
-        </p>
-        <ComponentCanvas
-          title="chip · hue injection"
-          files={[{ name: 'chip-hue-demo.svelte', content: chipHueDemo, kind: 'usage' }]}
-          stage="center"
-        >
-          <div class={cx(rt.rowC12, rt.wrap, rt.justifyCenter)}>
-            <Chip class="jx-hue-success">passing</Chip>
-            <Chip class="jx-hue-warning">degraded</Chip>
-            <Chip class="jx-hue-neutral">metadata</Chip>
-            <Chip
-              variant="fill"
-              class="jx-pair-destructive"
-            >
-              clear
-            </Chip>
-          </div>
-        </ComponentCanvas>
-        <TokenTable tokens={[
-          { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum block size of the root — the physical activation rectangle.' },
-          { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Inline chip padding.' },
-          { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Spacing base — lanes run at half-gap.' },
-          { name: '--jx-text-secondary', default: 'density scale', source: 'density', description: 'Micro-label size; also the composed svg size.' },
-          { name: '--jx-line-secondary', default: 'density scale', source: 'density', description: 'Micro-label line height.' },
-          { name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border (fill variant).' },
-          { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected together with --jx-fill.' },
-          { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue; ghost hover derives from it — inject through the jx-hue-* intent utilities (arbitrary form only outside the closed set).' },
-          { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source.' },
-        ]} />
-      </div>
-    </SectionCard>
-  </div>
-
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="Chip usage" /></SectionCard></div>
-  <div id="universal-props" data-reveal="">
-    <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The §2 shape axis is deliberately absent: the square|pill silhouette vocabulary collides with the axis name and §13 rules no mapping — the seven other axes landed, the collision is flagged for a ruling."
-    >
-      <ComponentCanvas title="Chip · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}><Chip size={14} density="small">size 14 · density small</Chip></div>
-        <div class={cx(rt.panel)}><Chip size="large" radius="medium" density="large">size large · radius medium</Chip></div>
-        <div class={cx(rt.panel)}><Chip radius={10} color="primary">radius 10 · primary</Chip></div>
-        <div class={cx(rt.panel)}><Chip radius="auto" shape="pill">radius auto · pill silhouette</Chip></div>
+    <div id="accessibility" data-reveal="">
+      <SectionCard
+        family="accessibility"
+        headerRegion="accessibility"
+        eyebrow="a11y"
+        title="Accessibility"
+        summary="Native buttons and anchors retain their platform behavior; the hit target is the real box at badge scale; motion degrades under both reduced-motion and forced-colors."
+      >
+        <A11yTable
+          keys={[{ key: 'Tab', action: 'Move focus to the chip or link' }, { key: 'Enter / Space', action: 'Activate a button chip' }, { key: 'Enter', action: 'Follow an href rendered as an anchor' }]}
+          aria={[{ name: 'aria-label', value: 'optional', description: 'Names icon-only or otherwise unlabeled chips.' }, { name: 'data-jx-chip', value: 'variant', description: 'Hook attribute carrying the ladder step for styling and tooling.' }, { name: 'prefers-reduced-motion', value: 'supported', description: 'Kills the press transition and freezes every effect loop; the anchored press still answers.' }, { name: 'forced-colors', value: 'supported', description: 'Explicit system-color degradation; the 2px Highlight focus ring survives.' }]}
+        />
+        <div class={cx(rt.col16)}>
+          <p class={cx(rt.measurePara)}>
+            The hit-floor note: the chip deliberately rides badge geometry BELOW the
+            control-scale hit lane — roughly 20px tall at default density — by the Owner's
+            2026-09-01 scale ruling (the badge twins are activation, not targets that float).
+            The activation target is still the whole real box: pseudo-element lane expansion
+            stays rejected, so what you see is what you press. Under forced colors the
+            color-mix tints drop explicitly (design §6): fill becomes ButtonFace/ButtonText,
+            tonal and outline become Canvas/CanvasText, ghost rests transparent and takes
+            ButtonFace on hover — and the 2px Highlight focus ring is never removed.
+          </p>
         </div>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
+      </SectionCard>
+    </div>
 
-  <div id="api" data-reveal="">
-    <SectionCard eyebrow="api" title="Props" summary="The public contract: the ladder, the silhouette, one optional effect through the component tag, navigation, and two snippet lanes around the required children.">
-      <PropsTable universal props={[
-        { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: 'ambient scope', description: 'Explicit override of the surrounding density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
-        { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: "'tonal' · ambient zone", description: 'Selects the grammar ladder step. Omitted → the ambient paint zone (ButtonGroup / zone scope), else the frozen own.' },
-        { name: 'shape', type: "'square' | 'pill'", default: "'square'", description: 'Square keeps the site radius; pill rounds fully. Own default, not ambient.' },
-        { name: '{@attach …} (component tag)', type: 'Attachment<HTMLElement>', default: '—', description: 'The effect mount (r4): <Chip {@attach pressEffect(ripple())}> mounts ink on the stamped activation root through the rest spread; a bare chip carries no loop.' },
-        { name: '…rest', type: 'HTMLAttributes<HTMLElement>', default: '—', description: 'The rest lane: arbitrary attributes land verbatim on the root (button or anchor) — the same lane the component-tag attachment rides.' },
-        { name: 'href', type: 'string', default: '—', description: 'Renders an anchor and navigates to the target.' },
-        { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },
-        { name: 'onclick', type: '() => void', default: '—', description: 'Runs for button activation (directly — the ripple seam moved into pressEffect\'s own gesture surface).' },
-        { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
-        { name: 'ariaLabel', type: 'string', default: '—', description: 'Accessible name override for icon-only use.' },
-        { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes; hue injection rides here (jx-hue-error; arbitrary form for values outside the closed set).' },
-        { name: 'slotStart', type: 'Snippet', default: '—', description: 'Leading lane — svg pinned to var(--jx-text-secondary).' },
-        { name: 'slotEnd', type: 'Snippet', default: '—', description: 'Trailing lane — svg pinned to var(--jx-text-secondary).' },
-        { name: 'children', type: 'Snippet', required: true, description: 'Chip label content.' },
-      ]} />
-    </SectionCard>
+    <div id="see-also" data-reveal="">
+      <DocsSeeAlso name="chip" />
+    </div>
   </div>
 </div>

@@ -91,3 +91,50 @@
   verified against the served markup, meta+docs PropsTable, canvas pin
   audit before restructuring, query() via inline compound expression +
   usageFile import record.
+
+## Techniques (mine, added 2026-09-22, chip 4-chip)
+- **The generated table can eat a family prop on name collision**: when a meta carries a
+  family-local prop sharing an axis name (chip/badge `shape`), the shared split's
+  `UNIVERSAL_AXIS_NAMES` filter silently drops it from the main table the moment the meta
+  path renders the universal section. The curation's `extra` lane is the sanctioned home —
+  re-add the row with its real union + `ambient: 'own'`, and say in the description that it
+  renders from extra (self-documenting ceiling).
+- **Supply claims need named consumers — or a negative receipt**: "supplies descendants"
+  written without a grep is a guess. chip's radius/color have named consumers
+  (press-button.css blocks, card/tooltip/menubar); elevation/motion have NONE (only the
+  :root invariants) — the honest row says "no family css reads it". The negative receipt is
+  as load-bearing as the positive one.
+- **The one-line consumption probe that settles "does the carrier paint"**: computed
+  border-radius under a stamped `--jx-radius-effective` that DISAGREES with it (10px stamp,
+  8px corner) is a two-number proof no css reading can match. Stage demo numbers to
+  deliberately disagree with ambient values — a coinciding number (radius 10 vs a 10px site
+  radius) is how the old page's false demo survived.
+- **Keyed-consumer mapping before writing an axis row**: find WHICH selector consumes the
+  carrier (`[data-jx-press-button]`, `.dark` slot re-declarations, rung scope blocks) and
+  check whether THIS family's root carries it. Chip's color/elevation look identical to
+  press-button's on paper and diverge in fact because the consuming blocks key on a hook the
+  chip root never stamps.
+- **Badge-twin geometry is density-anchored; size is glyph-only** — when a family's box
+  comes from channel vars (line/inset) rather than em, the universal size axis composes
+  asymmetrically: the inline font-size stamp wins on the glyphs while the box stays put.
+  Measure height at size={24} before writing "parts size in em" anywhere near the row.
+
+## Learned from coordinator (2026-09-22, mid-task law drop)
+- **query() typing law**: the base argument is not optional in practice — pass it always
+  (`query({ md: 16 }, 14)`), and when explicit type args are ever needed, BOTH go in. My
+  page uses inference + base, so the failure mode is structurally absent; svelte-check
+  clean is the receipt.
+- **Grep-receipt law**: any broadcast/supply sentence must be preceded by a named-consumer
+  grep. Wrote two rows differently BECAUSE of it (elevation/motion "no consumer" instead of
+  "supplies descendants").
+
+## Mistakes to avoid (chip round)
+- Don't reuse a prior page's claim as a prior (the old chip demo's "radius 10" was pure
+  coincidence rendered convincing — 10px stamped vs 8px corner was only visible because I
+  probed a DISAGREEING value via `radius="medium"`).
+- Don't trust a TokenTable inherited from a pre-ruling page: the `--jx-hit` row outlived the
+  ruling that retired the hit lane by three changes. Token tables need the same
+  "does the family read this var" grep as axis rows.
+- `TokenTable`'s `source` prop accepts only density/color/component/structural — 'theme'
+  ships a real svelte-check error (badge.html:341 carries the same standing one; not mine
+  to fix on a sibling's page under review).
