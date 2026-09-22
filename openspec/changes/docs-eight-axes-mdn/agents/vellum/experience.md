@@ -335,6 +335,29 @@
   (cp to /tmp, git checkout -- mine, mv untracked mine, build, restore) —
   a same-shape failure without my files proves pre-existence in one 15s
   build, no stash, no sibling files touched.
+- (date-picker review, task 10)
+  **Polar invariants beat string equality on rotating tokens**: the site
+  primary's HUE rotates wall-clock (and the dark formula's hue is
+  `calc(H - 4)` — a calc() inside the oklch hue!). Naive oklch regexes
+  return null and byte-equal double-reads always "fail". The stable claim
+  is the L/C pair — parse tolerantly (hue may be a number OR calc()),
+  assert L/C within tolerance, and treat hue only as a live-rotation
+  signature. Third time the rotation has bitten (chip grounds, badge
+  probes, now date-picker) — make the polar parser a library function.
+  **Component ids land on the TRIGGER in form families**: date-picker's
+  `id` prop flows to the trigger button (label[for] wiring), not a
+  wrapper div — locator by `#id` on the wrapper times out. Diagnose the
+  id landing site before writing locators (or read the family source
+  first — measurement-first applies to probes too).
+  **min-height lanes vs rendered boxes**: a min-height-driven claim
+  (`--jx-hit` floors) measures on computed minHeight, NOT
+  getBoundingClientRect — content and leading legitimately overshoot the
+  floor at big rungs (58px over a 48px floor at lg). Quote the lane the
+  page claims, assert that lane, and log the rendered box separately.
+  **The popover-family exclusion check is an import grep**: "family X is
+  not in the composition chain" = grep the family's imports for X's
+  module path (attribute/keyword matches like `:popover-open` don't
+  count) — one grep, a named receipt in the report.
 
 ## Upgrade commitments (from the breadcrumb review)
 - Alert's density row gets the landed-where clause pattern (and any future
