@@ -2,10 +2,11 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 16 | color-picker (OWN) | CODE | in-flight |
-| marginalia | 19 | avatar (vellum's fix @2c185457) | RE-VERIFY | in-flight |
+| marginalia | 20 | button-group (vellum's) | REVIEW (2nd) | in-flight |
 | vellum | 17 | hero-section (quill's) | REVIEW (1st) | in-flight |
 | quill | 16 | inline-code (OWN) + heading cx predicate micro | CODE + MICRO | in-flight |
 ## DONE
+- ✅ **avatar** (owner vellum) — fifteenth closed page (the SECOND-OVERTURN arc complete: scribe PASS → marginalia NEEDS-WORK (initials follow size; the §11 echo as defect) → vellum reword fix + cx predicate (page zero diagnostics) → marginalia re-verify PASS with every task-16 number reproduced live)
 - ✅ **heading** (owner quill) — fourteenth closed page (vellum double-passed as designated reviewer under re-verify-grade self-confirmation — 16/16 fresh probes, not re-read conclusions; the inline-stamp mechanism triple-verified; cx predicate MINOR carried to quill's micro-pass ledger)
 - ✅ **dropdown-menu** (owner quill) — thirteenth closed page (the OVERTURN arc complete: vellum PASS → marginalia NEEDS-WORK overturn → quill fix with root cause → marginalia re-verify PASS; three-and-only-three composers confirmed by independent shape-agnostic grep; fill-attribution + shadow-flip + caption all measured on the current tree)
 - ✅ **empty** (owner quill) — twelfth closed page (vellum+marginalia double PASS; the frozen pole re-derived at all three levels — grep/mechanism/probe, the runtime-stylesheet emission scan is the new standard; size-lane echo lands but every descendant self-sets → supply-only IN EFFECT, the post-avatar lesson applied; avatar divergence consolidation archived: the 1st measured boxes, not initials fonts — that's where the MAJOR lived)

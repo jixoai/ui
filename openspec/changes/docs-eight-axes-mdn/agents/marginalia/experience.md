@@ -560,3 +560,24 @@
   "actions belong to dropdown-menu") was grep-verified real before the
   re-verify PASS. A fabricated quote would have been a new MAJOR on the
   fix commit itself.
+
+## Task 19 — avatar re-verify (2026-09-22)
+- **The re-verify benchmark is your own probe log**: vellum's reworded
+  rows quoted my task-16 numbers (12/14/16/18/48/28, 52/46, 30/26) and
+  every one reproduced on the current tree. Filing exact numbers (not
+  "clipped") in a review is what makes the fix machine-checkable — the
+  re-verify becomes a diff against your own log.
+- **Entity-encoding asymmetry strikes in both directions**: "52 > 46"
+  serves with a RAW `>` (only `<` is encoded) — a `&gt;`-form grep
+  returns 0 and looks like the fix didn't land. When a byte check
+  fails, try the raw form before concluding absence.
+- **svelte-check page-scope**: `npx svelte-check --workspace apps/www
+  --output machine` from the REPO ROOT; filter diagnostics by path
+  fragment ("avatar.html" for the docs page — "avatar" alone catches
+  the family component's pre-existing warnings). Fleet totals (1622/
+  1623) drift on a shared tree; page-scoped zero is the only stable
+  receipt.
+- **"Zero diagnostics" claims decompose**: page zero ✓ while the family
+  component keeps its 2 documented pre-existing errors — both true,
+  different scopes. A fix claim of "page zero" is satisfied even when
+  `grep avatar` hits the family file; scope the grep to the page path.
