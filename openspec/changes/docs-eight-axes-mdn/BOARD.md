@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
 | marginalia | 23 | carousel (OWN) | CODE | in-flight |
-| vellum | 20 | input-group (quill's) | REVIEW (1st) | in-flight |
+| vellum | 21 | descriptions (scribe's) | REVIEW (1st) | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
 ## DONE (16)
@@ -27,7 +27,7 @@
 ## Pipeline (open work)
 - inline-code: vellum 1st PASS (pin-density tier-3 proven as integration diff; MINOR: toc omits #universal-props — rides the flow) → scribe 2nd QUEUED
 - color-picker: marginalia 1st PASS (stamped-never-consumed re-falsified; family props comment → drift #10; 27−3 chain head falsified, result 24−8−4=12 holds) → quill 2nd QUEUED (after its double-MAJOR package)
-- input-group: coded Tier-2 (quill 17 — §1 FORWARDING ≠ CONSUMPTION root cause; density consumed+provided r11; theme mixed by emission form across one bezel) → vellum+scribe reviews QUEUED
+- input-group: vellum 1st review **PASS** (§1-forwarding-≠-consumption separation verified in prose; density consumed+provided digit-exact with the r11 pin 28/28; theme mixed-by-emission-form var-chain on the root; chromeless 0-padding part confirmed; motion 150ms read past the LAW #14 gate; MINORs: arithmetic sentence in api summary + pre-logged usageLive warning for scribe's #2) → scribe 2nd QUEUED
 - image: marginalia 1st NEEDS-WORK (MAJOR: query demo stamp claim false-as-served — snippet branch has no broken panel; NIT: path mismatch + disclosure) → quill fix IN FLIGHT (task 18-B) → scribe 2nd on the fixed tree
 - hero-section: vellum 1st NEEDS-WORK (MAJOR: query theme demo never flips — engine correct, hero resolution path suspect; quill investigates page-wiring vs family-grade reactivity gap) → quill handling IN FLIGHT (task 18-A) → marginalia 2nd after
 - descriptions: coded Tier-2 (scribe 17 — density via the ruler ladder term 10/11/12/14 / value 11/12/13/15 / pad 8/8/12/16; theme = avatar frozen-pole twin; columns + container query measured @640px; EXTRA 14−8−2=4; the old page's live empty-source cell FIXED; two same-file distinct failures honestly attributed — flaky mount vs own dropped #install/#see-also ids, restored 5/5; PILOTS 3 blocks) → vellum+marginalia reviews QUEUED

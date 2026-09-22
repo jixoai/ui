@@ -598,3 +598,25 @@
   delays, not just transitions — and a deterministic
   scrollIntoView+setInterval-armed check beats a blind scroll-through
   for distinguishing "dead" from "not yet".
+
+## Task 20 (input-group REVIEW) — lessons
+- **Computed duration serialization**: getComputedStyle returns
+  durations in SECONDS for whole values ('0.15s', '1s') and ms for
+  fractional ('150ms' stays only if authored fractionally...) — never
+  string-compare a duration token literal; parse to ms or compare
+  against both forms. My only probe FAIL this task was the assertion,
+  not the family.
+- **The :has() state machines read raw theme tokens deliberately**:
+  input-group.css's well/hover/focus/invalid/disabled machines are the
+  elevation grammar's WELL tier riding raw --shadow-well/--ring/--muted
+  — a css state machine is a legitimate RAW-READ home (it wants theme
+  response), unlike an atom that merely forgot its layer. The
+  emission-form split crosses ONE bezel here: raw seam/well flip while
+  the typed bezel freezes — the fleet's cleanest single-element
+  demonstration of the refined law.
+- **The legacy attribute as a family row**: data-density appears in the
+  meta as its own main row (the escape hatch for consumers keying css
+  on the attribute), sitting beside — not colliding with — the density
+  AXIS row in the universal section. When auditing EXTRA arithmetic on
+  form families, expect both keys and check the served tables keep
+  them separate.
