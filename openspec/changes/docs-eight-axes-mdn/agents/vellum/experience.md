@@ -803,3 +803,39 @@
   kit's sheet (count 0) before accepting "the OS owns the motion" — plus the
   reduced-motion block forcing scroll-behavior: auto is the guarantee the
   sheet keeps, not an animation claim.
+
+## task 27 (CODE ghostty-term)
+
+- **THE INTEGRATOR STOMPS UNCOMMITTED WORK**: mid-edit, the orchestrator's
+  integration commits landed on the shared tree and my in-flight +page.svelte
+  reverted to HEAD (only the edit applied AFTER the clobber survived). All
+  section edits were re-applied from context. Defense: commit-adjacent
+  checkpoints are forbidden to me (NO commits), so (a) re-apply from report
+  drafts immediately, (b) verify with rg after every write (write-then-verify
+  caught the stomp within one command), (c) expect M-status files to be a mix
+  of mine + HEAD at any moment — `git diff` before resuming.
+- **The universal directive's fold has an EXTRA escape hatch on hand tables**:
+  props-table filters authored rows NAMED as axes when the universal section
+  renders (`!UNIVERSAL_AXIS_NAMES.has(row.name) || extraRows.has(row)`), and
+  extraRows = docs.extra BY REFERENCE — pass the same row objects in
+  `docs={{ extra: [row, …] }}` and they survive the fold. This is the fix for
+  "family prop shadows an axis name" (ghostty's theme OBJECT + family-own
+  density) without losing the universal marker.
+- **A missing-const error can be the ONLY symptom of a missing TreeFile**:
+  ComponentCanvas files={queryFiles} with no const — svelte-check catches it,
+  but the lesson is to define queryFiles IN THE SAME EDIT as the query case
+  markup.
+- **Ghostty-term is the typed-frozen pole's cleanest terminal case**: every
+  painted voice is a typed token (--jx-terminal/-foreground/-ring/-primary)
+  and the content is wasm ANSI — under scoped .dark NOTHING moves (measured
+  ground/ink unchanged). A terminal is deliberately theme-independent; the
+  theme slot is the absent-slot OBJECT escape hatch (the §13 shadow the
+  carriers-bijection ruling names).
+- **python heredoc block-moves need geometric asserts, not textual hope**:
+  s.index anchors + assert 'marker' in span + assert count==1 BEFORE write,
+  read-back after. The failed assert (span computed backwards) proved the
+  asserts work — never "fix" a failing assert by loosening it.
+- **docs-universal marker placement**: with the directive kept on the api
+  table, the marker lives there; the axes section's hand table carries NO
+  directive (its rows would all fold away — every row is axis-named). Marker
+  + generic reference section on api; family truth on the axes table.

@@ -2,7 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | marginalia | 29 | card-grid (vellum's fix) | REVIEW (2nd) | in-flight |
-| vellum | 27 | ghostty-term (OWN) | CODE | in-flight |
+| vellum | 28 | combobox (OWN) | REVIEW (1st) | in-flight |
 | marginalia | 30 | navigation-menu (quill's) | REVIEW (2nd) | in-flight |
 | scribe | 28 | badge-indicator (marginalia's) | REVIEW (2nd) | in-flight |
 | quill | 24 | popconfirm (OWN) | CODE | in-flight |
@@ -16,7 +16,7 @@
 - file-input: coded Tier-2 (vellum 25-B — the FLEET'S DEEPEST density adoption via alias seams: zone 63/72/90/108 hit ×2.25, rows 28/40/48, thumbs 18/22/26, name 11/13/15, label 10/11/12/14, zone-title 11px fixed anomaly; theme: typed border+ground frozen / well sweep white-inset flips; drag/accept/ARIA end-to-end with synthetic DataTransfer + the REAL filechooser event; matrix re-pinned table[0]→table[1]) → scribe+marginalia reviews QUEUED
 - native-scroll-area: CLOSED #26
 - navigation-menu: coded Tier-2 (quill 22 — the image model: the duplication contract is the spine (panels real links, actions belong to dropdown-menu, three roots deliberate duplicates — sharing is fleet-law level only); radius/shape CONSUMED ONE PROMOTION AWAY (root stamps --jx-radius-consumed → .jx-pop reads it; 0px→10px on the OPEN popover); theme split vindicated THROUGH the hue-injection red herring (panel flips 0.96→0.185 live, bar ink freezes 0.3211 both scopes); density declaration-scope freeze (coef stamps carrier, no rung attribute, 40/13 unchanged); size supply-only for entries; indicator pins all live (viewTransitionName, hug-box 145==145, roving tab stop); matrix re-pinned table 0→1 + scope-marked size) → scribe 1st **PASS** (all five claims re-derived TRUE — the red-herring trap avoided zero-hue-reads; LOW: a11y row claims tabindex −1 the DOM doesn't carry, measured-must-reproduce — reword rides closure consolidation; NOTE: 13 authored = source count, served = 3 tables/18 rows, count row names) → marginalia 2nd IN FLIGHT (task 30)
-- ghostty-term: vellum CODE IN FLIGHT (task 27)
+- ghostty-term: coded Tier-2 (vellum 27 — LIVE MISFOLD found+fixed: the fold hid the family's density + theme-OBJECT rows while serving a generic theme enum the family doesn't accept; EXTRA reference-identity promotion → 11 served rows; theme = THE SHADOWED SLOT (absentSlot shell-object, typed-frozen under .dark, ANSI verbatim); density CONSUMED kernel ladder 12/13/15 + 18/20/24; size §11 echo proven by the false face holding 13px; integrator-stomp incident survived (her agent detected the HEAD revert mid-edit, reapplied, re-verified); 3 open questions to reviewers: the fold's generic theme row (code-card precedent), the SHADOWED type-cell phrasing, hand-picked kinship pair) → reviews QUEUED (2 of scribe/marginalia/quill)
 
 ## RULINGS: a11y floor (24 = WCAG 2.5.8 AA minimum; 28 = fleet default exceeding) · toc/See-also: chrome, OUT of the toc · component fixes: three-strikes → fix now (EXTRA lane, hardening pins, structural arm precedents) · reviewer page-edits: flag-only, route through owner/orchestrator
 

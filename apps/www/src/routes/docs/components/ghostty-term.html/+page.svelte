@@ -1,5 +1,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -526,7 +528,7 @@ export default {
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -535,6 +537,105 @@ export default {
             ).join(' '),
       )
       .join(' ');
+
+  // ── the API table's EXTRA lane (docs-eight-axes-mdn task 27) ──
+  // density + theme authored rows carry axis NAMES whose family truth
+  // differs from the generic universal vocabulary — the docs.extra lane
+  // (same object references) exempts them from the universal fold.
+  const apiDensityRow = {
+    name: 'density',
+    type: 'Density',
+    default: "'default' · ambient scope",
+    description:
+      "Explicit density for the cell metric kernels (--jx-text cell font, --jx-line row pitch — measured 12/13/15px and 18/20/24px across sm/default/lg). Omitted → the ambient density scope, else the family own 'default' (the always-concrete cell math).",
+  };
+  const apiThemeRow = {
+    name: 'theme',
+    type: '{ background?, foreground?, … }',
+    default: 'terminal tokens',
+    description:
+      'Shell overrides ONLY — the ABSENT-SLOT escape hatch (no theme = the jixoai token sheet owns every shell color, and the surface is typed-frozen: a scoped .dark moves nothing, measured). ANSI/256/truecolor CONTENT colors are never themed through this prop. The generic light/dark/system THEME AXIS is shadowed by this object — see the axes table.',
+  };
+
+  // ── the measured per-axis table (task 27) — every cell measured or
+  // negative-grepped over ui/ghostty-term/ + vt-deps.ts ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'default' · ambient scope`,
+      description:
+        "CONSUMED — the cell-metric kernels ARE the density contract: the cell font rides --jx-text and the row pitch --jx-line, measured across the demo rungs (kernel ladder 12 / 13 / 15px text, 18 / 20 / 24px line at sm/default/lg; the rung stamps data-density on the family root). The family own 'default' is the always-concrete cell math — a terminal never renders unspecified. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE §11 ECHO — the stamp lands verbatim (measured root inline: --jx-size-effective: 13px; font-size: var(--jx-size-effective, 1rem); computed 13px / 18px at the demo lanes) and the cell math follows NOTHING of it: the canvas font is fontSize → --jx-text (density-governed) and the error face is the FIXED --jx-text-base voice (measured 13px at both size lanes — the nothing-follows proof). A div carries no size-like attribute (the native-wrapper §1 rule). Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-shape-effective + --jx-radius-factor-effective; no family css reads them (grep receipt: zero carrier reads in ui/ghostty-term/ + vt-deps.ts). The surface is square by the terminal law. Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-radius-effective; zero readers (grep receipt: no border-radius anywhere in the family css — the region root is the §3 concentric ANCHOR for composed chrome, the supply is the point). Number unit: px.',
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-color-effective; zero readers (grep receipt). The shell ink/paper are the typed terminal tokens; the error prompt is --jx-primary; content colors are the wasm\u2019s ANSI/256/truecolor, verbatim. Number unit: hue degrees.',
+    },
+    {
+      name: 'theme',
+      type: 'SHADOWED — the shell-theme OBJECT, not the axis enum',
+      default: 'terminal tokens (absent = the sheet owns the shell)',
+      description:
+        "THE SHADOWED SLOT (the §13 case this campaign named the ruling after): the family's theme prop is the ABSENT-SLOT escape hatch — a structured { background, foreground, selectionBackground, … } object; ABSENCE is the meaningful state (the token sheet owns every shell color). 'light'/'dark'/'system' are not lanes here. THE MEASURED SPLIT: every painted voice is a TYPED token (--jx-terminal, --jx-terminal-foreground, --jx-ring, --jx-primary) — under a scoped .dark the surface keeps the :root pole (measured: ground oklch(0.9551 0 0) and ink oklch(0 0 0) unchanged inside a dark scope while the scope's own --terminal reads the dark pole), and the CONTENT is the wasm's ANSI — absolute under any theme. A terminal is deliberately theme-independent: typed-frozen by construction, ANSI-verbatim by contract. No number lane, no enum lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-elevation-effective; zero readers in the family css (grep receipt: zero shadow declarations — the demo window\u2019s float shadow belongs to the PAGE chrome, --shadow-md on the demo shell, not the component). Number unit: dp.',
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-motion-effective; zero readers (grep receipt). The family declares no transitions; the cursor blink is the wasm\u2019s own state machine and painting is rAF-batched data flow, not choreography. Number unit: coefficient.',
+    },
+  ];
+
+  // the ONE query() case: responsive size — the number lane goes bare
+  // (results infer); string lanes need both generics. md = 48rem
+  // (the registered VIEWPORT_SCALE — cite the key, not a guess).
+  const responsiveSize = query({ md: 18 }, 13);
+
+  const queryUsage = `<script lang="ts">
+  import GhosttyTerm from '@ui/ghostty-term';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- below 48rem the base (13px) applies; at 48rem+ the md case (18px)
+     wins — the §11 echo the root stamps (the cell math follows the
+     density kernels, not this stamp) -->
+<GhosttyTerm rows={3} cols={40} size={query({ md: 18 }, 13)} wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" />`;
+
+  const queryFiles: TreeFile[] = [
+    { name: 'ghostty-term-query-demo.svelte', content: queryUsage, kind: 'usage' },
+  ];
 </script>
 
 <svelte:head>
@@ -566,8 +667,82 @@ export default {
       </SectionCard>
     </div>
 
-    <!-- ② workbench: the live demo -->
-    <div id="ghostty-term-workbench" data-reveal="">
+    <!-- ② install prerequisites (the archetype's install anchor — the one
+         jixoai component with a supply-chain step) -->
+    <div id="install" data-reveal="">
+      <SectionCard
+        family="install"
+        headerRegion="install"
+        eyebrow="install"
+        title="Install prerequisites"
+        summary="The one jixoai component with a supply-chain step: the wasm never enters git or your bundle source — the vite plugin pins its sha256, resolves it (env → cache → verified download), and hands the URL over through the virtual:jixoai-ghostty module. Two steps on a tailwind v4 + vite project:"
+      >
+        <div class={cx(rt.col20)}>
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.eyebrowPrimary)}
+              >1 — the jixoai base (tw4)</span
+            >
+            <CodeBlock code={initCode} lang="bash" meta="terminal" />
+            <CodeBlock code={registryCode} lang="json" meta="components.json" />
+            <CodeBlock code={addCode} lang="bash" meta="terminal" />
+          </div>
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.eyebrowPrimary)}
+              >2 — the vite plugin (wasm supply)</span
+            >
+            <CodeBlock code={pluginCode} lang="bash" meta="terminal" />
+            <CodeBlock code={viteConfigCode} lang="ts" meta="vite.config.ts" />
+            <CodeBlock code={clientTypesCode} lang="ts" meta="src/vite-env.d.ts" />
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- ③ overview (docs-eight-axes-mdn task 27, tier 2) -->
+    <div id="overview" data-reveal="">
+      <SectionCard
+        family="overview"
+        headerRegion="overview"
+        eyebrow="overview"
+        title="Overview"
+        summary="The live terminal surface: a DPR-aware canvas grid painted by the real libghostty-vt wasm — the component owns paint and geometry, the consumer owns the pty, and the color boundary is deliberately one-sided."
+      >
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.para)}>
+            Nothing re-implements VT here: parsing, grid state and scrollback live inside
+            libghostty-vt; the component adds the browser-shaped pieces — DPR-aware cell metrics
+            derived from the density kernels, rAF-batched dirty-row repaints, and the input bridge.
+            The pty is yours: <code class={cx(rt.inkPrimary)}>onData</code> carries terminal input
+            out (encoded keys, gated pastes, wheel), and the bind:this
+            <code class={cx(rt.inkPrimary)}>write()</code> feeds pty output back in — the page's
+            demo is a loopback answering through exactly that seam, no hidden shell.
+          </p>
+          <p class={cx(rt.para)}>
+            Degradation is a typed state machine: <code class={cx(rt.inkPrimary)}>data-state</code> goes
+            loading → ready | error, a failed wasm load renders a polite
+            <code class={cx(rt.inkPrimary)}>role="status"</code> face carrying the GhosttyVTError
+            message, and the children slot hands the degraded face to the consumer. The supply
+            chain is the install section's contract — the wasm never enters git or the bundle
+            source; the vite plugin pins its sha256 and serves it through the
+            <code class={cx(rt.inkPrimary)}>virtual:jixoai-ghostty</code> module.
+          </p>
+          <p class={cx(rt.para)}>
+            The axes story is this family's signature: SEVEN of the eight axes take lanes —
+            density consumed as the cell-metric kernels (the one live ladder), size the §11 echo,
+            the rest stamp-and-supply — and the eighth is the §13 shadow case: the
+            <code class={cx(rt.inkPrimary)}>theme</code> prop is the shell-color OBJECT (absent-slot
+            escape hatch), never the light/dark/system enum. The surface is typed-frozen under
+            scoped .dark by design and the content is ANSI verbatim — a terminal keeps its colors.
+            Kinship: <code class={cx(rt.inkPrimary)}>terminal-card</code> (the chrome paint law this
+            page's window borrows) and <code class={cx(rt.inkPrimary)}>code-card</code> (the readonly
+            render-side sibling).
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- ④ workbench: the live demo -->
+    <div id="ghostty-term-workbench" data-region="ghostty-term-workbench" data-reveal="">
       <ComponentCanvas
         title="ghostty-term"
         description="The live loopback: click the terminal and type — the fake shell on this page answers through onData/write with zero network. help · color · clear · ↑ history."
@@ -680,52 +855,6 @@ export default {
       </ComponentCanvas>
     </div>
 
-    <!-- install prerequisites -->
-    <div id="install" data-reveal="">
-      <SectionCard
-        family="install"
-        headerRegion="install"
-        eyebrow="install"
-        title="Install prerequisites"
-        summary="The one jixoai component with a supply-chain step: the wasm never enters git or your bundle source — the vite plugin pins its sha256, resolves it (env → cache → verified download), and hands the URL over through the virtual:jixoai-ghostty module. Two steps on a tailwind v4 + vite project:"
-      >
-        <div class={cx(rt.col20)}>
-          <div class={cx(rt.col12)}>
-            <span class={cx(rt.eyebrowPrimary)}
-              >1 — the jixoai base (tw4)</span
-            >
-            <CodeBlock code={initCode} lang="bash" meta="terminal" />
-            <CodeBlock code={registryCode} lang="json" meta="components.json" />
-            <CodeBlock code={addCode} lang="bash" meta="terminal" />
-          </div>
-          <div class={cx(rt.col12)}>
-            <span class={cx(rt.eyebrowPrimary)}
-              >2 — the vite plugin (wasm supply)</span
-            >
-            <CodeBlock code={pluginCode} lang="bash" meta="terminal" />
-            <CodeBlock code={viteConfigCode} lang="ts" meta="vite.config.ts" />
-            <CodeBlock code={clientTypesCode} lang="ts" meta="src/vite-env.d.ts" />
-          </div>
-        </div>
-      </SectionCard>
-    </div>
-
-    <!-- usage -->
-    <div id="usage" data-reveal="">
-      <SectionCard
-        family="usage"
-        headerRegion="usage"
-        eyebrow="usage"
-        title="Usage"
-        summary="Auto sizing fills the container; explicit cols/rows fixes the grid. The consumer owns the pty loop: onData out, write in."
-      >
-        <div class={cx(rt.col16)}>
-          <CodeBlock code={usage} lang="svelte" meta="GhosttyTerm usage" />
-          <CodeBlock code={loop} lang="text" meta="the pty loop" />
-        </div>
-      </SectionCard>
-    </div>
-
     <!-- failure & degradation -->
     <div id="degradation" data-reveal="">
       <SectionCard
@@ -832,6 +961,133 @@ export default {
     </div>
 
     <!-- accessibility -->
+    <!-- law 收尾 -->
+    <div id="ghostty-term-law" data-reveal="">
+      <SectionCard
+        family="ghostty-term-law"
+        headerRegion="ghostty-term-law"
+        eyebrow="law"
+        title="The wasm is the terminal"
+        summary="Nothing re-implements VT here. The platform gives parsing, grid state and scrollback inside libghostty-vt; this component adds exactly the browser-shaped pieces around it — DPR-aware painting, density-derived metrics, the input bridge, the degradation machine."
+      >
+        <ul class={cx(rt.col8, rt.body13)}>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>painting is data, not decoration: rAF batches writes, only dirty rows repaint,
+            a row cache serves full repaints (theme/font changes) — no loops, no blink</span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>the color boundary is one-sided by design: shell paper/ink resolve from jixoai
+              tokens; content colors leave the wasm verbatim — theming never rewrites user
+              output</span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>the pty is yours: onData out, write in — the component never guesses what a
+              shell is (this page’s demo is a loopback, not hidden behavior)</span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>V1 bounds, stated plainly: no cursor/selection paint (the frozen vt face exposes
+              no cursor read), no hyperlink activation, viewport-only scroll, and a clamped wheel
+              shift where the upstream render state under-reports dirty rows</span></li>
+        </ul>
+      </SectionCard>
+    </div>
+    <!-- usage -->
+    <div id="usage" data-reveal="">
+      <SectionCard
+        family="usage"
+        headerRegion="usage"
+        eyebrow="usage"
+        title="Usage"
+        summary="Auto sizing fills the container; explicit cols/rows fixes the grid. The consumer owns the pty loop: onData out, write in."
+      >
+        <div class={cx(rt.col16)}>
+          <CodeBlock code={usage} lang="svelte" meta="GhosttyTerm usage" />
+          <CodeBlock code={loop} lang="text" meta="the pty loop" />
+        </div>
+      </SectionCard>
+    </div>
+
+  <div id="api" data-reveal="">
+      <SectionCard
+        family="api"
+        headerRegion="api"
+        eyebrow="api"
+        title="API"
+        summary="Props from the GhosttyTerm Props interface; the bind:this surface mirrors a pty handle. Rest props spread onto the root. The generated meta carries 27 props (26 named + the synthesized rest) — the hand table serves the 11 consumer rows, with density and theme riding the EXTRA lane (reference identity): density because the family own 'default' is contract, theme because the generic light/dark/system enum is SHADOWED by the shell-object escape hatch — the carriers-bijection ruling, task 27."
+      >
+        <div class={cx(rt.col24)}>
+          <PropsTable
+            universal
+            docs={{ extra: [apiDensityRow, apiThemeRow] }}
+          props={[
+              { name: 'cols', type: 'number', default: '—', description: 'Fixed grid columns; any explicit cols/rows (or auto={false}) switches out of auto sizing.' },
+              { name: 'rows', type: 'number', default: '—', description: 'Fixed grid rows.' },
+              { name: 'auto', type: 'boolean', default: 'true', description: 'Derive the grid from the container box (ResizeObserver).' },
+              { name: 'fontSize', type: 'number', default: '--jx-text', description: 'Cell font size in px — must be finite positive; anything else warns once and falls back to the density token.' },
+              { name: 'wasmUrl', type: 'string', default: 'virtual:jixoai-ghostty', description: 'wasm asset URL; the default resolves the vite plugin\u2019s virtual module (the install prerequisite).' },
+              apiThemeRow,
+              { name: 'onData', type: '(bytes: Uint8Array) => void', default: '—', description: 'Terminal INPUT out: encoded keys, gated pastes (bind:this write feeds OUTPUT in).' },
+              { name: 'onResize', type: '(detail: { cols, rows }) => void', default: '—', description: 'Fires when the auto-mode grid derivation changes.' },
+              apiDensityRow,
+              { name: 'class', type: 'string', default: "''", description: 'Merged onto the root through cn().' },
+              { name: 'children', type: 'Snippet', default: '—', description: 'Overlay slot; when provided it also replaces the default error fallback face.' },
+            ]}
+          />
+          <PropsTable
+            title="Handle (bind:this)"
+            props={[
+              { name: 'write', type: '(bytes: Uint8Array) => void', description: 'Feed pty OUTPUT into the terminal — rAF-batched with in-flight writes.' },
+              { name: 'reset', type: '() => void', description: 'Full reset (RIS) back to a pristine grid.' },
+              { name: 'resizeTo', type: '(cols: number, rows: number) => void', description: 'Imperative grid resize; an auto-mode container change overrides it on the next derivation.' },
+              { name: 'snapshot', type: '() => string', description: 'Base64 terminal snapshot for diagnostics/tests (V1: encode only).' },
+            ]}
+          />
+        </div>
+      </SectionCard>
+    </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="The eight axes on ghostty-term"
+      summary="SEVEN of the eight axes take lanes — size · shape · radius · density · color · elevation · motion — and the eighth is the §13 shadow case that names the ruling: the family's own `theme` prop is the shell-color OBJECT (the absent-slot escape hatch), so the generic light/dark/system enum has no seat. Density is the one consumed ladder (the cell-metric kernels, measured 12/13/15px + 18/20/24px); size is the §11 echo with the fixed error voice as its nothing-follows proof; the shell is typed-frozen under scoped .dark by design — a terminal is deliberately theme-independent; everything else stamps-and-supplies. fontSize keeps its component-specific name (no collision, §13)."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the density kernel ladder, the size echo (with the fixed
+          --jx-text-base error voice), and the typed-frozen split were measured
+          on this page's served DOM (probe, task 27); the supply-only rows carry
+          grep receipts over ui/ghostty-term/ and vt-deps.ts. The adoption is
+          the census batch A row (explicit-props W3-A); the theme shadow is the
+          §13 no-rename precedent (the absent-slot contract,
+          ghostty-term-defaults.svelte.ts).
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="ghostty-term · query()" files={queryFiles}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+              <GhosttyTerm rows={3} cols={40} size={responsiveSize} wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" />
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 48rem the base applies — the
+                root stamp reads 13px; at 48rem and wider the md case wins —
+                18px. The number lane goes bare (results infer); string lanes
+                take both generics. Resize across 48rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+      <ComponentCanvas title="ghostty-term · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><GhosttyTerm rows={3} cols={40} size={13} density="small" wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" /></div>
+        <div class={cx(rt.panel)}><GhosttyTerm rows={3} cols={40} size="large" radius="medium" wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" /></div>
+        </div>
+      </ComponentCanvas>
+      </div>
+    </SectionCard>
+  </div>
+
     <div id="accessibility" data-reveal="">
       <SectionCard
         family="accessibility"
@@ -868,88 +1124,12 @@ export default {
       </SectionCard>
     </div>
 
-    <!-- api -->
-    <div id="universal-props" data-reveal="">
-    <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="The universal axis surface (explicit-props) — SEVEN of the eight axes here: size · shape · radius · density · color · elevation · motion take named steps, auto (inherit; stamps nothing), exact numbers, or query(). The theme axis is SHADOWED by the family's own `theme` prop (the terminal shell-theme OBJECT — background/foreground/…), and fontSize keeps its component-specific name (no collision, §13)."
-    >
-      <ComponentCanvas title="ghostty-term · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}><GhosttyTerm rows={3} cols={40} size={13} density="small" wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" /></div>
-        <div class={cx(rt.panel)}><GhosttyTerm rows={3} cols={40} size="large" radius="medium" wasmUrl="https://invalid.jixoai.test/ghostty-vt.wasm" /></div>
-        </div>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
-
-  <div id="api" data-reveal="">
-      <SectionCard
-        family="api"
-        headerRegion="api"
-        eyebrow="api"
-        title="API"
-        summary="Props from the GhosttyTerm Props interface; the bind:this surface mirrors a pty handle. Rest props spread onto the root."
-      >
-        <div class={cx(rt.col24)}>
-          <PropsTable
-            universal
-          props={[
-              { name: 'cols', type: 'number', default: '—', description: 'Fixed grid columns; any explicit cols/rows (or auto={false}) switches out of auto sizing.' },
-              { name: 'rows', type: 'number', default: '—', description: 'Fixed grid rows.' },
-              { name: 'auto', type: 'boolean', default: 'true', description: 'Derive the grid from the container box (ResizeObserver).' },
-              { name: 'fontSize', type: 'number', default: '--jx-text', description: 'Cell font size in px — must be finite positive; anything else warns once and falls back to the density token.' },
-              { name: 'wasmUrl', type: 'string', default: 'virtual:jixoai-ghostty', description: 'wasm asset URL; the default resolves the vite plugin\u2019s virtual module (the install prerequisite).' },
-              { name: 'theme', type: '{ background?, foreground? }', default: 'terminal tokens', description: 'Shell overrides ONLY — ANSI/256/truecolor content colors are never themed through this prop.' },
-              { name: 'onData', type: '(bytes: Uint8Array) => void', default: '—', description: 'Terminal INPUT out: encoded keys, gated pastes (bind:this write feeds OUTPUT in).' },
-              { name: 'onResize', type: '(detail: { cols, rows }) => void', default: '—', description: 'Fires when the auto-mode grid derivation changes.' },
-              { name: 'density', type: 'Density', default: "'default' · ambient scope", description: 'Explicit density for the cell metric kernels. Omitted → the ambient density scope, else the family own \'default\' (the always-concrete cell math).' },
-              { name: 'class', type: 'string', default: "''", description: 'Merged onto the root through cn().' },
-              { name: 'children', type: 'Snippet', default: '—', description: 'Overlay slot; when provided it also replaces the default error fallback face.' },
-            ]}
-          />
-          <PropsTable
-            title="Handle (bind:this)"
-            props={[
-              { name: 'write', type: '(bytes: Uint8Array) => void', description: 'Feed pty OUTPUT into the terminal — rAF-batched with in-flight writes.' },
-              { name: 'reset', type: '() => void', description: 'Full reset (RIS) back to a pristine grid.' },
-              { name: 'resizeTo', type: '(cols: number, rows: number) => void', description: 'Imperative grid resize; an auto-mode container change overrides it on the next derivation.' },
-              { name: 'snapshot', type: '() => string', description: 'Base64 terminal snapshot for diagnostics/tests (V1: encode only).' },
-            ]}
-          />
-        </div>
-      </SectionCard>
-    </div>
-
-    <!-- law 收尾 -->
-    <div id="ghostty-term-law" data-reveal="">
-      <SectionCard
-        family="ghostty-term-law"
-        headerRegion="ghostty-term-law"
-        eyebrow="law"
-        title="The wasm is the terminal"
-        summary="Nothing re-implements VT here. The platform gives parsing, grid state and scrollback inside libghostty-vt; this component adds exactly the browser-shaped pieces around it — DPR-aware painting, density-derived metrics, the input bridge, the degradation machine."
-      >
-        <ul class={cx(rt.col8, rt.body13)}>
-          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-            <span>painting is data, not decoration: rAF batches writes, only dirty rows repaint,
-            a row cache serves full repaints (theme/font changes) — no loops, no blink</span></li>
-          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-            <span>the color boundary is one-sided by design: shell paper/ink resolve from jixoai
-              tokens; content colors leave the wasm verbatim — theming never rewrites user
-              output</span></li>
-          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-            <span>the pty is yours: onData out, write in — the component never guesses what a
-              shell is (this page’s demo is a loopback, not hidden behavior)</span></li>
-          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-            <span>V1 bounds, stated plainly: no cursor/selection paint (the frozen vt face exposes
-              no cursor read), no hyperlink activation, viewport-only scroll, and a clamped wheel
-              shift where the upstream render state under-reports dirty rows</span></li>
-        </ul>
-      </SectionCard>
+    <!-- universal-props → the eight axes (task 27): the measured table.
+         The theme row is the §13 shadow story; the rest measure or
+         negative-grep. -->
+    <!-- see-also -->
+    <div id="see-also" data-reveal="">
+      <DocsSeeAlso name="ghostty-term" />
     </div>
   </div>
 </div>
