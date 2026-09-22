@@ -12,6 +12,23 @@
 // PROGRAMMATIC stage-region pixel delta (the anti-AXIS-NOT-VISIBLE
 // receipt, r1 finding 19) with a reset≈baseline diff receipt.
 //
+// W6-r5 — the harness close-out (both re-judge MEDIUMs were capture
+// defects, not page defects): (a) the d2xs #scale ladder table lives
+// in an overflow-x:auto scroller (content min-width 64rem inside the
+// ~686px card — 338px scroll BY DESIGN); the r3 padded clip could
+// never reveal the out-of-frame hit-min/icon/image/T-sec columns, so
+// the harness now SCROLLS the scroller to max for a dedicated
+// right-half row carrying DOM (hit cells in-frame + unclipped) and
+// PIXEL (right-zone ink lift) receipts; (b) the sheet mid-open frame
+// re-pins by GEOMETRY, not wall-clock — the 200ms ease-nav slide
+// covers ~90% of its distance by ~90ms, so the r2 80ms pin read as
+// settled; the freeze now pauses every animation, SEEKs the panel's
+// own entry animation to a fixed time, and WALKS that time back until
+// the panel's live transform magnitude (distance still to travel) is
+// ≥60px — mid by measurement, with the receipt on the row. Partial
+// rounds MERGE over the prior manifest (re-captured rows replace by
+// id+theme; untouched rows survive verbatim).
+//
 // Drives REAL interactions (hover · click · type · resize · toggle · drag
 // a slider) against the dev server and captures pinned-phase screenshots,
 // LIGHT and DARK, for the W6 vision-subagent walkthrough rounds. This
@@ -56,7 +73,7 @@
 //    into view, and the original size is restored after.
 import { createHash } from 'node:crypto';
 import { inflateSync } from 'node:zlib';
-import { mkdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { chromium } from 'playwright-core';
 
@@ -187,6 +204,50 @@ async function flipAndDiff(page, stage, flip) {
   return pixelDiff(before, after);
 }
 
+// ── the W6-r5 region-ink receipt ─────────────────────────────────────────
+// pixelStats over a horizontal SLICE of a frame (x∈[x0,x1) of its width,
+// y band trimmed 15%/15% to skip card chrome): the dominant-color-differs
+// ratio inside the slice. Proves a frame REGION carries ink — the d2xs
+// right-half row uses it to show the previously-empty right zone now
+// paints the out-of-scroller columns.
+function sliceNonBg(png, x0, x1) {
+  const { w, h, pixels, channels } = png;
+  const xs = Math.floor(w * x0);
+  const xe = Math.floor(w * x1);
+  const ys = Math.floor(h * 0.15);
+  const ye = Math.floor(h * 0.85);
+  const counts = new Map();
+  const stride = 4 * 7;
+  let sampled = 0;
+  for (let y = ys; y < ye; y++) {
+    for (let x = xs; x < xe; x += stride) {
+      const o = (y * w + x) * channels;
+      const key = (pixels[o] << 16) | (pixels[o + 1] << 8) | pixels[o + 2];
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+      sampled += 1;
+    }
+  }
+  let dominantKey = 0;
+  let dominantCount = 0;
+  for (const [k, n] of counts) if (n > dominantCount) { dominantCount = n; dominantKey = k; }
+  const dr = (dominantKey >> 16) & 255, dg = (dominantKey >> 8) & 255, db = dominantKey & 255;
+  let nonBg = 0;
+  for (let y = ys; y < ye; y++) {
+    for (let x = xs; x < xe; x += stride) {
+      const o = (y * w + x) * channels;
+      if (Math.abs(pixels[o] - dr) > DIFF_TOL || Math.abs(pixels[o + 1] - dg) > DIFF_TOL || Math.abs(pixels[o + 2] - db) > DIFF_TOL) nonBg += 1;
+    }
+  }
+  return { slice: `[${x0},${x1}) of width`, sampled, nonBgRatio: Number((nonBg / Math.max(1, sampled)).toFixed(5)) };
+}
+
+/** attach a receipt to an already-pushed manifest row (id+theme keyed) */
+function attachReceipt(id, theme, key, value) {
+  const row = manifest.captures.find((c) => c.id === id && c.theme === theme && c.status === 'ok');
+  if (row) (row.receipts ??= {})[key] = value;
+  return !!row;
+}
+
 // ── beyond-viewport fit (W6-r3 capture law 6) ────────────────────────────
 // Chrome rasterizes the scrollport: an element taller than the viewport
 // screenshots with its below-fold half BLANK (the r1 tokens ladder
@@ -224,7 +285,7 @@ const manifest = {
     viewport: [1280, 900],
     themeSwitch: "the site's own contract: localStorage['theme'] + reload (never inversion); canvas-stage dark rides the dock theme-toggle click",
     pinnedPhase:
-      "reducedMotion 'reduce' by default; motion subjects pinned by pausing document.getAnimations({subtree:true}) at a fixed delay into the motion (WAAPI surfaces), resumed after the mid-phase shot — delays stated against the REAL declared durations: dialog 200ms into the 460ms surface timeline (~43%), sheet 80ms into the 200ms slide (~40%), toast 150ms into the 200ms entry",
+      "reducedMotion 'reduce' by default; motion subjects pinned by pausing document.getAnimations({subtree:true}) (WAAPI surfaces), resumed after the mid-phase shot — delays stated against the REAL declared durations: dialog 200ms into the 460ms surface timeline (~43%), toast 150ms into the 200ms entry; the SHEET mid-open pin is GEOMETRY-VERIFIED (W6-r5): every animation paused, the panel's own entry animation seeked to a fixed time walked back until the panel's live transform magnitude (distance still to travel) is ≥60px — the r2 80ms wall-clock pin sat ~90% along the ease-nav distance and read as settled",
     tallFit: 'element targets taller than the viewport grow the viewport first (capture law 6) — the r1 below-fold blank is a raster artifact, never a page defect',
     axisDelta: 'every axis-flip row carries stage.changedShare — the programmatic anti-AXIS-NOT-VISIBLE receipt (r1 finding 19); the reset row carries the same diff against a pre-reset baseline stage',
     floors: { uniqueColors: FLOOR_UNIQUE, nonBgRatio: FLOOR_NON_BG, diffTol: DIFF_TOL },
@@ -265,6 +326,64 @@ async function pauseAnimations(page) {
 }
 async function unpauseAnimations(page) {
   await page.evaluate(() => document.getAnimations({ subtree: true }).forEach((a) => a.play()));
+}
+
+// ── the W6-r5 sheet mid-open pin: GEOMETRY-VERIFIED, not wall-clock ──────
+// The 200ms ease-nav slide covers ~90% of its distance by ~90ms (measured:
+// tx 384→252→155→90→51→28px at t≈46/62/78/95/112ms), so a wall-clock pin
+// lands "mid" in TIME but nearly settled in SPACE. This pin: waits for the
+// panel's own entry animation to exist, pauses EVERYTHING (the freeze
+// law), then SEEKs only the panel-targeted animations (never the page's
+// reveal/logo/infinite animations) to a fixed time and walks that time
+// back until the panel's live transform magnitude — the distance still to
+// travel — clears minPx. Returns the receipt for the manifest row.
+async function pinSheetMidOpen(page, minPx) {
+  return page.evaluate((minPx) => new Promise((resolve, reject) => {
+    const t0 = performance.now();
+    const step = () => {
+      const panel = document.querySelector('dialog.jx-sheet[open]');
+      const all = document.getAnimations({ subtree: true });
+      const sheetAnims = all.filter((a) => {
+        const t = a.effect && a.effect.target;
+        return t === panel ||
+          (typeof CSSPseudoElement === 'function' && t instanceof CSSPseudoElement && t.element === panel);
+      });
+      if (!panel || sheetAnims.length === 0) {
+        if (performance.now() - t0 > 600) return reject(new Error('sheet entry animation never appeared'));
+        return requestAnimationFrame(step);
+      }
+      const pausedAtMs = Math.round(performance.now() - t0);
+      all.forEach((a) => a.pause()); // freeze the page (the freeze law)
+      const remaining = () => {
+        const tr = getComputedStyle(panel).transform;
+        if (tr === 'none') return 0;
+        const m = new DOMMatrixReadOnly(tr);
+        return Math.round(Math.hypot(m.m41, m.m42) * 10) / 10;
+      };
+      // start at the measured ~50%-arrived time of the 200ms ease-nav
+      // slide, walk back until the remaining travel clears minPx
+      let seekMs = 52;
+      let rem = 0;
+      for (let i = 0; i < 12; i++) {
+        for (const a of sheetAnims) a.currentTime = seekMs;
+        rem = remaining();
+        if (rem >= minPx || seekMs <= 6) break;
+        seekMs -= 6;
+      }
+      const rect = panel.getBoundingClientRect();
+      const bd = getComputedStyle(panel, '::backdrop');
+      resolve({
+        pausedAtMs, seekMs, minPx,
+        remainingPx: rem, // == the mid-vs-settled panel edge delta (settled transform is none)
+        panelWidthPx: Math.round(rect.width),
+        panelLeftAtPin: Math.round(rect.left),
+        side: (panel.className.match(/jx-sheet-(left|right|top|bottom)/) || [])[1] ?? null,
+        pinnedAnimations: sheetAnims.map((a) => a.animationName ?? String(a.transitionProperty)),
+        backdrop: { opacity: bd.opacity, background: bd.backgroundColor },
+      });
+    };
+    requestAnimationFrame(step);
+  }), minPx);
 }
 
 // the carrier receipt: the §11 effective vars as COMPUTED on a locator —
@@ -348,10 +467,12 @@ async function capture(page, row) {
       const sha = createHash('sha256').update(buf).digest('hex');
       // the W6-r3 receipts ride the row verbatim: axisDelta (the stage
       // pixel diff across the flip), hue/shadow (the computed channel
-      // before/after), reset (the ≈baseline diff) — whatever the row
-      // carried beyond the standard fields
+      // before/after), reset (the ≈baseline diff), sheetMid (the W6-r5
+      // geometry-verified sheet pin), scroller (the W6-r5 d2xs right-
+      // half DOM receipt) — whatever the row carried beyond the
+      // standard fields
       const receipts = {};
-      for (const key of ['axisDelta', 'hue', 'shadow', 'reset']) {
+      for (const key of ['axisDelta', 'hue', 'shadow', 'reset', 'sheetMid', 'scroller']) {
         if (row[key] !== undefined) receipts[key] = row[key];
       }
       manifest.captures.push({
@@ -712,9 +833,14 @@ async function dialog(page) {
   }
 }
 
-// 4. sheet — click-open, mid-slide (paused), settled, Escape-close
+// 4. sheet — click-open, mid-slide (GEOMETRY-verified pause+seek, W6-r5),
+//    settled, Escape-close
 async function sheet(page) {
   const route = '/docs/components/sheet.html';
+  // the W6-r5 mid-pin threshold: the mid frame's panel edge must sit at
+  // least this far from settled (the re-judge's "clearly visible margin";
+  // the panel is 384px wide, so 60px ≈ 16% of the slide still to travel)
+  const SHEET_MID_MIN_PX = 60;
   for (const theme of ['light', 'dark']) {
     await gotoRoute(page, route);
     await setTheme(page, theme, route);
@@ -724,18 +850,39 @@ async function sheet(page) {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     const label = (await trigger.textContent()) ?? 'open sheet';
     await trigger.click();
-    // W6-r3 re-pin: 80ms into the declared 200ms slide (~40% —
-    // visibly mid-slide). The r1 110ms frame sat at 55%, already
-    // nearly settled.
-    await page.waitForTimeout(80);
-    await pauseAnimations(page);
-    await capture(page, {
-      id: 'sheet-mid-open', page: 'sheet', route, phase: 'mid-open (animations paused 80ms into the 200ms slide)', theme,
-      interaction: `CLICK "${label.trim()}" — every animation paused in-page 80ms into the slide`,
-      motion: { freeMs: 80, declaredTotal: '200ms sheet entry slide (CLOSE_MS=200)', pinnedBy: 'document.getAnimations pause — the freeze law for WAAPI surfaces' },
-      settle: false,
-      target: { kind: 'viewport' },
-    });
+    // W6-r5 re-pin: pause + SEEK + VERIFY. The r2 80ms wall-clock pin
+    // sat ~90% of the DISTANCE along the 200ms ease-nav slide (the
+    // re-judge measured the panel 15px from settled — pedagogically
+    // settled). The pin now seeks the panel's own entry animation to a
+    // fixed time and walks it back until the live transform magnitude
+    // (distance still to travel) clears SHEET_MID_MIN_PX; the receipt
+    // rides the row and a miss is a manifest FINDING, not a shrug.
+    let mid;
+    try {
+      mid = await pinSheetMidOpen(page, SHEET_MID_MIN_PX);
+    } catch (e) {
+      finding(route, `sheet mid-open pin failed: ${e.message} — theme ${theme}`);
+      mid = null;
+    }
+    if (mid) {
+      await page.waitForTimeout(60); // the seeked phase flushes before the shot
+      await capture(page, {
+        id: 'sheet-mid-open', page: 'sheet', route,
+        phase: `mid-open (entry animation paused+seeked to ${mid.seekMs}ms of the 200ms slide — ${mid.remainingPx}px of the ${mid.panelWidthPx}px slide still to travel, ≥${mid.minPx}px demanded)`,
+        theme,
+        interaction: `CLICK "${label.trim()}" — every animation paused, the panel's own jx-sheet-in-* seeked to a GEOMETRY-verified mid phase (W6-r5)`,
+        motion: {
+          pinnedBy: 'pause + currentTime seek, verified against the live panel transform magnitude (W6-r5) — the r2 80ms wall-clock pin read as settled under ease-nav',
+          seekMs: mid.seekMs, declaredTotal: '200ms sheet entry slide (CLOSE_MS=200, ease-nav)', minRemainingPx: mid.minPx,
+        },
+        sheetMid: mid,
+        settle: false,
+        target: { kind: 'viewport' },
+      });
+      if (mid.remainingPx < SHEET_MID_MIN_PX) {
+        finding(route, `sheet mid-open pinned too late: remaining travel ${mid.remainingPx}px < ${SHEET_MID_MIN_PX}px — theme ${theme}`);
+      }
+    }
     await unpauseAnimations(page);
     await page.waitForTimeout(500);
     await capture(page, {
@@ -745,6 +892,20 @@ async function sheet(page) {
       settle: false,
       target: { kind: 'viewport' },
     });
+    // the independent mid-vs-settled receipt: the settled panel's left
+    // edge against the pin-time edge (equals remainingPx by construction
+    // — this cross-checks it from a different frame)
+    if (mid) {
+      const settledLeft = await page.evaluate(() => {
+        const p = document.querySelector('dialog.jx-sheet[open]');
+        return p ? Math.round(p.getBoundingClientRect().left) : null;
+      });
+      attachReceipt('sheet-mid-open', theme, 'settledDelta', {
+        midLeftPx: mid.panelLeftAtPin,
+        settledLeftPx: settledLeft,
+        edgeDeltaPx: settledLeft === null ? null : Math.round(Math.abs(mid.panelLeftAtPin - settledLeft)),
+      });
+    }
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
     const stillOpen = await page.locator('dialog[open]').count();
@@ -816,9 +977,61 @@ async function selectDemo(page) {
   }
 }
 
-// 7. density-2xs — the five-rung ladder + the 2xs-vs-default inspector scene
+// 7. density-2xs — the five-rung ladder + the 2xs-vs-default inspector scene.
+//    W6-r5: the ladder table is an overflow-x:auto SCROLLER by design
+//    (content min-width 64rem inside the ~686px card — 338px of scroll);
+//    the capture takes BOTH halves — the resting frame (scroll 0) and a
+//    right-half frame with the scroller scrolled to max — so the
+//    hit-min/icon/image/T-sec columns land in evidence with DOM + pixel
+//    receipts. The page is untouched: a 10-column table scrolls.
 async function density2xs(page) {
   const route = '/docs/density-2xs.html';
+  // the scroller DOM receipt: finds the REAL scroller inside #scale (the
+  // element with overflow-x auto AND actual overflow — the r3 probe
+  // measured #scale itself, an ancestor that never overflows, and
+  // mis-concluded "nothing overflows"), optionally scrolls it, and
+  // verifies the hit-min column cells: full text, unclipped span, rect
+  // inside the scroller's visible range.
+  const scrollerState = (scrollToMax) => page.evaluate((toMax) => {
+    const root = document.querySelector('#scale');
+    if (!root) return { found: false };
+    const scroller = [...root.querySelectorAll('*')].find((el) => {
+      const cs = getComputedStyle(el);
+      return (cs.overflowX === 'auto' || cs.overflowX === 'scroll') && el.scrollWidth - el.clientWidth > 8;
+    });
+    if (!scroller) return { found: false, note: 'no overflowing overflow-x element inside #scale' };
+    if (toMax) scroller.scrollLeft = scroller.scrollWidth;
+    const scRect = scroller.getBoundingClientRect();
+    // index sanity: the header row's 8th cell must BE hit-min (label +
+    // text/line/gap/stack/inset/row-min → hit is AXES[6], grid child 7)
+    const header = scroller.firstElementChild?.children[0];
+    const headerHit = header?.children[7]?.textContent?.trim();
+    if (headerHit !== 'hit-min') {
+      return { found: false, note: `header alignment drifted: grid child 7 reads '${headerHit}' (want 'hit-min')` };
+    }
+    const hitCells = [...root.querySelectorAll('[data-scale-rung]')].map((row) => {
+      // the rung grid is the DIRECT non-aria-hidden div child — a plain
+      // descendant querySelector would match the invisible probe
+      // cluster's inner divs first (they carry no aria-hidden)
+      const grid = row.querySelector(':scope > div:not([aria-hidden])');
+      const cell = grid?.children[7];
+      if (!cell) throw new Error(`rung ${row.getAttribute('data-scale-rung')}: hit cell (grid child 7) missing — grid carries ${grid?.children.length ?? 0} children`);
+      return cell;
+    });
+    const spans = hitCells.map((c) => c.querySelector('span'));
+    const inFrame = hitCells.map((c) => {
+      const r = c.getBoundingClientRect();
+      return r.left >= scRect.left - 1 && r.right <= scRect.right + 1;
+    });
+    return {
+      found: true,
+      scrolledTo: Math.round(scroller.scrollLeft),
+      maxScroll: scroller.scrollWidth - scroller.clientWidth,
+      hitTexts: spans.map((s) => s.textContent),
+      hitAllInFrame: inFrame.every(Boolean),
+      hitAllUnclipped: spans.every((s) => s.scrollWidth <= s.clientWidth + 1),
+    };
+  }, scrollToMax);
   for (const theme of ['light', 'dark']) {
     await gotoRoute(page, route);
     await setTheme(page, theme, route);
@@ -840,12 +1053,48 @@ async function density2xs(page) {
     const ladderTarget = (await ladder.count()) ? ladder : page.locator('main');
     await ladderTarget.scrollIntoViewIfNeeded();
     await ladderTarget.locator('[data-density]').first().hover();
+    // the resting (scroll 0) half — carries the before-state receipt
+    const before = await scrollerState(false);
     await capture(page, {
       id: 'd2xs-ladder', page: 'density-2xs', route, phase: 'settled', theme,
-      interaction: 'hover the 2xs rung scope in the five-rung ladder table (computed live from the css vars) — W6-r3: padded clip (16px), the r1 tight crop read the edge-touching HIT column as clipped (DOM: scrollWidth == clientWidth, nothing actually overflows)',
+      interaction: 'hover the 2xs rung scope in the five-rung ladder table (computed live from the css vars) — the RESTING half: the scroller at scroll 0 (W6-r5; the r3 16px padded clip could not reveal columns beyond the scroller edge)',
       pad: 16,
+      scroller: before,
       target: { kind: 'element', locator: ladderTarget },
     });
+    if (!before.found) finding(route, `the #scale scroller was not found — theme ${theme}`);
+    // the RIGHT half: scroll the scroller to max, verify the hit column,
+    // shoot — the out-of-frame columns land in evidence
+    const after = await scrollerState(true);
+    await capture(page, {
+      id: 'd2xs-ladder-right', page: 'density-2xs', route, phase: 'settled (scroller scrolled to max)', theme,
+      interaction: 'the same ladder with the #scale overflow-x scroller SCROLLED to max (a real in-page scroll, W6-r5) — the hit-min/icon/image/T-sec columns the resting frame cannot show',
+      pad: 16,
+      scroller: after,
+      target: { kind: 'element', locator: ladderTarget },
+    });
+    if (!after.found || !after.hitAllInFrame || !after.hitAllUnclipped || after.scrolledTo <= 0) {
+      finding(route, `d2xs right-half capture unsound: ${JSON.stringify(after)} — theme ${theme}`);
+    }
+    // the PIXEL receipt: the scroller is full of columns in BOTH states
+    // (ink cannot "lift" in a fixed frame region — the resting right
+    // zone shows row-min/hit-straddle), so the pixel proof is (a) the
+    // scrolled frame's right zone CARRIES ink, and (b) the two frames
+    // DIFFER substantially — the right half is scrolled content, not a
+    // re-shoot of the resting state. The DOM receipt above carries the
+    // authoritative in-frame/unclipped geometry of the hit cells.
+    const leftPng = decodePng(readFileSync(join(OUT, `d2xs-ladder-${theme}.png`)));
+    const rightPng = decodePng(readFileSync(join(OUT, `d2xs-ladder-right-${theme}.png`)));
+    const frameDelta = pixelDiff(leftPng, rightPng);
+    const rightInk = sliceNonBg(rightPng, 0.75, 1);
+    attachReceipt('d2xs-ladder-right', theme, 'rightZoneInk', {
+      zone: 'right 25% of the frame, y band 15%..85%',
+      scrolledHalfInk: rightInk.nonBgRatio,
+      frameDeltaVsResting: frameDelta.changedShare,
+    });
+    if (rightInk.nonBgRatio < 0.015 || frameDelta.changedShare < 0.03) {
+      finding(route, `d2xs right-half pixel receipt unsound (scrolled ink ${rightInk.nonBgRatio}, frame delta ${frameDelta.changedShare}) — theme ${theme}`);
+    }
   }
 }
 
@@ -1103,10 +1352,16 @@ manifest.triage = [
       "the drain gauge is OPT-IN (ToastCountdown renders only when item.countdown && duration > 0); the polite toast pushes neither. The r2 settled+hover capture drives 'pulse · countdown' (8s) so the frozen bar is visible; the mid-entry capture keeps the polite variant with the corrected note.",
   },
   {
-    finding: 'd2xs ladder last column clipped at the right edge (r1)',
-    verdict: 'capture crop, not page overflow — corrected in r2',
+    finding: 'd2xs ladder last column clipped at the right edge (r1; triaged r3 as "capture crop, not page overflow")',
+    verdict: 'r3 triage WRONG (probe measured an ancestor) — corrected r5: the table scrolls BY DESIGN, and the capture now shows both halves',
     evidence:
-      'DOM probe: #scale scrollWidth == clientWidth == 720, body scrollWidth == innerWidth (1280) — nothing overflows; the r1 element crop hugged the table edge so the edge-touching HIT column read as cut. r2 captures with a 16px padded clip.',
+      "the r3 probe read #scale itself (scrollWidth == clientWidth == 720 — an ancestor that never overflows) and mis-concluded nothing overflows. The REAL scroller is the rt.oxAuto div inside (overflow-x:auto; clientWidth 686, scrollWidth 1024 — 338px of scroll by design: a 10-axis table inside the ~720px column): at scroll 0 the hit-min cell shows 28px of its 82px width and the icon/image/T-sec columns sit out of frame, in BOTH themes — a capture-evidence gap, never a page defect (the page was correctly left untouched). r5 captures BOTH halves: d2xs-ladder (resting, with the before-state DOM receipt) + d2xs-ladder-right (the scroller scrolled to max — hit cells verified in-frame and unclipped in DOM, right-zone pixel ink lifted on the row receipt).",
+  },
+  {
+    finding: 'sheet mid-open frame pedagogically settled (r2: panel edge 15px from settled, scrim delta imperceptible)',
+    verdict: 'harness pin defect — corrected r5 (geometry-verified seek)',
+    evidence:
+      'the 200ms ease-nav slide covers distance extremely early (measured: remaining travel 384→252→155→90→51→28px at t≈46/62/78/95/112ms), so the r2 80ms wall-clock pin was mid in TIME but ~90-96% along in DISTANCE. The r5 pin pauses every animation, seeks ONLY the panel-targeted entry animation (never the page reveal/logo/infinite animations) to a fixed time walked back until the live transform magnitude — the distance still to travel — clears 60px, and records the receipt (seekMs, remainingPx, panel width, backdrop state) plus an independent settled-edge cross-check; a miss is a manifest finding, not a shrug.',
   },
   {
     finding: 'squircle demo caption truncated mid-phrase (r1)',
@@ -1115,12 +1370,42 @@ manifest.triage = [
       'DOM probe: the caption wraps (white-space normal), scrollWidth == clientWidth, and its box sits 26px inside the card edge; the phrase "…on degrade, the same var" IS the full sentence (no terminal period — added one in W6-r3 so the ending reads as intentional).',
   },
   {
-    finding: 'NIT records (r1, unfixed by design)',
+    finding: 'NIT records (r1, unfixed by design) + the r5 LOW/INFO dispositions',
     verdict: 'recorded',
     evidence:
-      'dock occludes specimen labels in captures (the floating dock IS the driver — kept in frame); theme chip olive residue (unverified — needs an Owner-eye pass); RADIUS select row half-clipped at the dock scroll edge (the dock body scrolls, capture artifact); XS/SM site-adoption cards near-indistinguishable (the kernel values themselves step 1px — 11 vs 12px text, honest); middle query card square corners annotated in-page (W6-r3: the caption now names the 0px auto state).',
+      'dock occludes specimen labels in captures (the floating dock IS the driver — kept in frame); theme chip olive residue (unverified — needs an Owner-eye pass); RADIUS select row half-clipped at the dock scroll edge (the dock body scrolls, capture artifact); XS/SM site-adoption cards near-indistinguishable (the kernel values themselves step 1px — 11 vs 12px text, honest); middle query card square corners annotated in-page (W6-r3: the caption now names the 0px auto state). r5 LOW (viewport-fit bounded): NOT REPRODUCED — tokens-density-ladder frame 2209css == live #density-kernel 2208css and tokens-full-sheet 1397css == live #palette 1396css; content ink ends 110/200css above each frame bottom over clean card padding, no blank bands — both frames already contain their whole element, recorded with the height-equality receipt, no fit change made. r5 INFO (blend-select hover indistinguishable in the d2xs scene): deferred — add a hover/unhover diff pair next round IF the walkthrough depends on it; dock occlusion NIT unchanged.',
   },
 ];
+
+// ── the W6-r5 partial-round merge ─────────────────────────────────────────
+// Re-capturing ONLY the affected rows must not erase the round's other
+// evidence: when the output manifest already exists (a partial re-run over
+// a prior full round), this run's rows REPLACE their same-(id,theme)
+// predecessors and every untouched prior row/file survives verbatim.
+// Findings merge deduped (where+what); the triage block is this script's
+// own (the corrected set always wins).
+const manifestPath = join(OUT, 'manifest.json');
+const prior = existsSync(manifestPath)
+  ? (() => { try { return JSON.parse(readFileSync(manifestPath, 'utf8')); } catch { return null; } })()
+  : null;
+let mergedRows = manifest.captures;
+let mergedFindings = manifest.findings;
+if (prior && Array.isArray(prior.captures)) {
+  const key = (r) => `${r.id}\u0000${r.theme}`;
+  const fresh = new Map(manifest.captures.map((r) => [key(r), r]));
+  mergedRows = [
+    ...prior.captures.filter((r) => !fresh.has(key(r))),
+    ...manifest.captures,
+  ];
+  mergedFindings = [
+    ...prior.findings.filter((f) => !manifest.findings.some((g) => g.where === f.where && g.what === f.what)),
+    ...manifest.findings,
+  ];
+  manifest.roundNote = `partial re-run${ONLY ? ` (ONLY=${ONLY})` : ''} merged over the prior ${prior.generatedAt} manifest: ${manifest.captures.length} row(s) replaced/appended, ${mergedRows.length - manifest.captures.length} prior row(s) survived verbatim`;
+  console.log(`  merge: ${manifest.captures.length} row(s) this run over ${prior.captures.length} prior → ${mergedRows.length} total`);
+}
+manifest.captures = mergedRows;
+manifest.findings = mergedFindings;
 
 // ── the manifest summary ──────────────────────────────────────────────────
 const perPage = {};
@@ -1133,15 +1418,16 @@ for (const row of manifest.captures) {
 }
 manifest.summary = {
   scenariosPlanned: SCENARIOS.length,
-  scenariosRun: SCENARIOS.filter(([id]) => !ONLY || id === ONLY).length,
+  scenariosRun: new Set(manifest.captures.map((r) => r.page)).size,
   scenariosFailed: failedPages,
   capturesAttempted: manifest.captures.length,
-  captured: captureCounters.ok,
-  failedTrivial: captureCounters.failedTrivial,
+  captured: manifest.captures.filter((r) => r.status === 'ok').length,
+  failedTrivial: manifest.captures.filter((r) => r.status === 'failed-trivial').length,
+  thisRun: { captured: captureCounters.ok, failedTrivial: captureCounters.failedTrivial },
   findings: manifest.findings.length,
   perPage,
 };
-writeFileSync(join(OUT, 'manifest.json'), JSON.stringify(manifest, null, 2));
+writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
 console.log(
   `\nround ${ROUND}: ${captureCounters.ok} captured, ${captureCounters.failedTrivial} failed-trivial, ` +
     `${manifest.findings.length} findings → ${OUT}/manifest.json`,
