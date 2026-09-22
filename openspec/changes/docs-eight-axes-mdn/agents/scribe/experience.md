@@ -511,3 +511,31 @@
   (caret/border/shadow/ring/terminal), stylex-alias frozen chrome,
   color-space constants neutral — and the falsified family comment
   flagged rather than repeated.
+
+## Techniques (task 17 additions)
+- READ THE ASSERTION before diagnosing a "flake": two different
+  failures wore the same spec file — the pre-edit one was a real 5s
+  mount flake (2/3 solo greens), the post-edit ones were my own missing
+  section ids (DocsInstall/DocsSeeAlso wrappers dropped the #install/
+  #see-also hooks the page pin demands). Wrapping docs primitives in
+  id-carrying divs is part of migrating a page that pins its skeleton.
+- A virtual module does not auto-invalidate when the page that feeds it
+  changes mid-session: resolveRawCode kept serving the pre-edit id list
+  ("the page ids are: [types, axes]") through touch + HMR — only a dev
+  restart regenerated it. Budget one restart when adding canvas ids.
+- The frozen-pole probe generalizes: co-resident light/dark specimens +
+  a built-CSS declaration count (each alias exactly 2 poles, one .dark
+  in the sheet) is a two-minute receipt for any stylex-alias family —
+  avatar and descriptions share the same five-voice chrome set.
+- The empty-source disease is a MIGRATION hazard, not a one-off: any
+  hand TokenTable row with source 'structural' renders an empty cell —
+  sweep for it on every page rewrite until W-next #3 lands.
+
+## Highlights (task 17)
+- (scribe, descriptions) The ruler's THREE voices measured per rung —
+  terms (secondary), values (body), padding (gap/inset) — because the
+  family reads six ambient channels, not two; the axes row names all
+  three and the ladder receipts each.
+- (scribe) The dl semantics carried the a11y story for free: dl/dt/dd
+  rows preserved verbatim — the component's honesty (never a table in
+  disguise) is its own accessibility receipt.

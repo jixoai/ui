@@ -1,7 +1,7 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| scribe | 17 | descriptions (OWN) | CODE | in-flight |
+| scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
 | marginalia | 23 | carousel (OWN) | CODE | in-flight |
 | vellum | 20 | input-group (quill's) | REVIEW (1st) | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
@@ -30,7 +30,7 @@
 - input-group: coded Tier-2 (quill 17 — §1 FORWARDING ≠ CONSUMPTION root cause; density consumed+provided r11; theme mixed by emission form across one bezel) → vellum+scribe reviews QUEUED
 - image: marginalia 1st NEEDS-WORK (MAJOR: query demo stamp claim false-as-served — snippet branch has no broken panel; NIT: path mismatch + disclosure) → quill fix IN FLIGHT (task 18-B) → scribe 2nd on the fixed tree
 - hero-section: vellum 1st NEEDS-WORK (MAJOR: query theme demo never flips — engine correct, hero resolution path suspect; quill investigates page-wiring vs family-grade reactivity gap) → quill handling IN FLIGHT (task 18-A) → marginalia 2nd after
-- descriptions: scribe CODE IN FLIGHT (task 17)
+- descriptions: coded Tier-2 (scribe 17 — density via the ruler ladder term 10/11/12/14 / value 11/12/13/15 / pad 8/8/12/16; theme = avatar frozen-pole twin; columns + container query measured @640px; EXTRA 14−8−2=4; the old page's live empty-source cell FIXED; two same-file distinct failures honestly attributed — flaky mount vs own dropped #install/#see-also ids, restored 5/5; PILOTS 3 blocks) → vellum+marginalia reviews QUEUED
 - card-grid: coded Tier-2 (vellum 19 — LAYOUT two-halves density: self inert on the fixed spatial gradient (--space-20 = --jx-unit×5, :root-only), tenants real through rung scopes 12/16/20; size = heading contrast case confirmed; theme bridge-only; motion = the family's own IO-armed rule, carriers unread; no rest spread → no synthesized row — served-count arithmetic; page ZERO diagnostics) → scribe+marginalia reviews QUEUED
 - carousel: marginalia CODE IN FLIGHT (task 23)
 

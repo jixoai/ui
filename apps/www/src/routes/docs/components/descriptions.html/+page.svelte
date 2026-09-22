@@ -1,41 +1,69 @@
 <!--
-  Docs page for the descriptions family (openspec
-  2026-08-30-table-grid-toolbar, on top of the composition-first-apis
-  base, 2026-08-25).
+  Docs page for the descriptions family (docs-eight-axes-mdn task 17,
+  scribe 2026-09-22 — tier 2 over the docs-restructure page: the
+  archetype skeleton re-orders and gains Overview + the generated-props
+  lane (the family HAS meta — the 2-row hand API table retires) + the
+  per-axis table + one real query() case; the theming DensityDemo
+  folds into the axes demos; the types and vertical canvases join the
+  same-source lane (static stages) while the lab, the responsive rig
+  and the extra-slot recipe stay hand mirrors — their stages bind page
+  state (the extractor's documented rejection class, the avatar
+  play-state lab precedent).
 
-  docs-demo-standard skeleton: Intro → Install → live demo (the
-  columns/bordered playground) → Usage (the ONE h2) → Examples
-  (ability-named recipes: vertical terms, responsive columns, extra
-  header actions) → Accessibility → Theming → API → See also.
+  Order: hero → install → overview → usage → the lab → lane shapes →
+  vertical terms → responsive columns → extra header actions → Props →
+  the eight axes → accessibility → see-also.
 
-  Composition law: vertical stacking is the Item's own grid re-run
-  (grid-cols-1! — the consumer class wins the merge); responsive
-  columns are the dl's own 640px container query (the frame rig drags
-  the container across it); the extra slot composes a header around
-  the dl (antd's title/extra props would fight dl semantics — the
-  wrapper IS the composition, recorded in followups.md).
+  Mechanism rows are measurement-first (probed against the served
+  family, 2026-09-22): the anatomy rides the density ruler's ambient
+  channels (--jx-gap/--jx-inset padding, --jx-text/--jx-line value
+  voice, --jx-text-secondary/--jx-line-secondary term voice — measured
+  10/11/12/14px terms · 11/12/13/15px values · 8/8/12/16px padding
+  across xs/sm/default/lg; the number coefficient composes at :root —
+  inert). size/shape/radius/color/elevation/motion stamp carriers zero
+  family readers read (negative-grep receipt). Theme is the avatar
+  frozen-pole twin: the chrome's five stylex aliases declare only at
+  the :root,.xbpgcew pole + the theme class (built-CSS grep), the .dark
+  bridge lands and nothing repaints — the documented absence, W-next #1.
 -->
+
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
-  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import Descriptions, { DescriptionsItem } from '$lib/ui/descriptions/index';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayRow, PlayRange, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
   import Badge from '$lib/ui/badge/badge.svelte';
-  import Descriptions, { DescriptionsItem } from '$lib/ui/descriptions/index';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
+  import { meta as descriptionsMeta } from '$lib/meta/descriptions.meta';
+  import { DESCRIPTIONS_DOCS } from '$lib/ui/props-table/docs/descriptions.docs';
 
-  // Same-source law: the drawer shows the exact registry copy this site runs.
+  // Same-source law: the canvas drawer shows the exact registry copy this site runs.
   import descriptionsSource from '$lib/ui/descriptions/descriptions.svelte?raw';
   import descriptionsItemSource from '$lib/ui/descriptions/descriptions-item.svelte?raw';
   import descriptionsCssSource from '$lib/ui/descriptions/descriptions.css?raw';
   import descriptionsIndexSource from '$lib/ui/descriptions/index.ts?raw';
+
+  // The canvas same-source lane: the types and vertical canvases are
+  // STATIC stages — their usage files compose from THIS PAGE's own
+  // stage markup via resolveRawCode (one source, two surfaces). The
+  // lab, the responsive rig and the extra-slot recipe stay hand
+  // mirrors: their stages bind page state (columns/bordered, the frame
+  // width, the action echo — the extractor's documented rejection
+  // class, the avatar play-state lab precedent), and the query()
+  // canvas embeds the responsive call for the same reason.
+  import { usageFile } from '$lib/canvas-usage';
+  import { resolveRawCode } from 'virtual:jixoai-canvas/docs/components/descriptions.html/+page';
 
   // catalog sync-binding: the hero summary IS the registry description;
   // a miss means registry.json meta drifted — fail loud, never patch copy.
@@ -44,7 +72,39 @@
     throw new Error('catalog miss: "descriptions" has no registry meta — fix registry.json');
   }
 
-  // single usage sample: the drawer's usage file and the body CodeBlock share it
+  // A literal closing-script tag inside the code string would terminate
+  // this component's own script tag during the HTML-level scan — splice it.
+  const close = '</' + 'script>';
+
+  // ---- same-source: the types and vertical canvases (static stages) ----
+  const importMap = { Descriptions: '@ui/descriptions/index', DescriptionsItem: '@ui/descriptions/index' } as const;
+  const typesUsage = usageFile(importMap, resolveRawCode('types'));
+  const typesFiles: TreeFile[] = [
+    { name: 'src/lib/ui/descriptions-types.svelte', content: typesUsage, kind: 'usage' },
+  ];
+  const verticalUsage2 = usageFile(
+    { Descriptions: '@ui/descriptions/index', DescriptionsItem: '@ui/descriptions/index', Badge: '@ui/badge/badge.svelte' },
+    resolveRawCode('vertical'),
+  );
+  const verticalFiles: TreeFile[] = [
+    {
+      name: 'registry/files/ui/descriptions/descriptions-item.svelte',
+      content: descriptionsItemSource,
+    },
+    { name: 'src/lib/ui/descriptions-vertical.svelte', content: verticalUsage2, kind: 'usage' },
+  ];
+
+  // the axes canvas is static too — its drawer composes from the same
+  // extraction (one source, two surfaces)
+  const axesUsage = usageFile(
+    { Descriptions: '@ui/descriptions/index', DescriptionsItem: '@ui/descriptions/index' },
+    resolveRawCode('axes'),
+  );
+  const axesFiles: TreeFile[] = [
+    { name: 'src/lib/ui/descriptions-axes.svelte', content: axesUsage, kind: 'usage' },
+  ];
+
+  // ---- the lab canvas (columns/bordered playground) ----------------------
   const usage = `<Descriptions columns={2} bordered>
   <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
   <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
@@ -54,10 +114,6 @@
   <DescriptionsItem term="notes" /><!-- no children ⇒ the em dash -->
 </Descriptions>`;
 
-  // Playground protocol: the page owns the snapshot + reset; the segmented
-  // control drives columns (PlaySegmented is string-typed — the string is the
-  // source, the number a projection), the toggle flips bordered; the drawer's
-  // usage file tracks both live.
   const canvasInitial = { columns: '2', bordered: true };
   let columnsOption = $state(canvasInitial.columns);
   let bordered = $state(canvasInitial.bordered);
@@ -92,7 +148,7 @@
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -102,12 +158,7 @@
       )
       .join(' ');
 
-
   // ---- recipe: responsive columns (the frame rig) -------------------------
-  // The dl's own container query clamps to one pair per row under 640px of
-  // CONTAINER width — the rig drags the wrapper across that line so the same
-  // dl re-lays out live. (jsdom cannot run container queries; the law is
-  // pinned as the css source in the component's own suite.)
   const responsiveInitial = { frameWidth: 680 };
   let frameWidth = $state(responsiveInitial.frameWidth);
   function resetResponsive(): void {
@@ -124,17 +175,6 @@
     <!-- … -->
   </Descriptions>
 </div>`;
-
-  // ---- recipe: vertical terms ---------------------------------------------
-  const verticalUsage = `<!-- vertical (antd layout="vertical") is the Item's own
-     grid re-run: the consumer class wins the tailwind-merge, and the
-     important variant pins it against the component's own utility.
-     term renders the dt ABOVE the dd — same dl, same semantics. -->
-<Descriptions columns={2}>
-  <DescriptionsItem term="owner" class="grid-cols-1!">@gaubee</DescriptionsItem>
-  <DescriptionsItem term="region" class="grid-cols-1!">iad1 · washington</DescriptionsItem>
-  <DescriptionsItem term="status" class="grid-cols-1!"><Badge>passing</Badge></DescriptionsItem>
-</Descriptions>`;
 
   // ---- recipe: extra header actions ----------------------------------------
   let extraEcho = $state('—');
@@ -156,32 +196,22 @@
   </Descriptions>
 </section>`;
 
-  // ---- sweep usage mirror (canvas-everywhere-demos, 2026-09-08) -----------
-  // Hand-authored mirror of the wrapped types demo below; the
-  // same-source resolveRawCode migration of this string is the
-  // recorded follow-up. (A literal closing-script tag inside the code
-  // string would terminate this component's own script tag during the
-  // HTML-level scan — splice it.)
-  const close = '</' + 'script>';
-  const descriptionsTypesDemo = `<script lang="ts">
+  // ---- the ONE query() case: responsive density on the dl — the base
+  // (small) applies below the 40rem viewport; at ≥40rem the lg case wins
+  // and the whole grid steps to the touch tier. BOTH generics are the
+  // §6 typing law: with an explicit type-argument list TS disables
+  // inference for the base parameter, so the single-arg form pins B to
+  // undefined and ships a real svelte-check error.
+  const queryUsage = `<script lang="ts">
   import Descriptions, { DescriptionsItem } from '@ui/descriptions/index';
+  import { query } from '@lib/universal-props-query.svelte';
+  import type { DensityLane } from '@lib/defaults.svelte';
 ${close}
 
-<!-- one pair per row, no frame -->
-<Descriptions>
-  <DescriptionsItem term="owner">gaubee</DescriptionsItem>
-</Descriptions>
-
-<!-- two pairs per row, bordered -->
-<Descriptions columns={2} bordered>
-  <DescriptionsItem term="status">live</DescriptionsItem>
-  <DescriptionsItem term="scope">public</DescriptionsItem>
-</Descriptions>`;  // ---- the universal props demo (explicit-props W3-D1) --------------------
-  const universalUsage = `<Descriptions density="small">…</Descriptions>`;
-  const universalFiles: TreeFile[] = [
-    { name: 'src/lib/ui/descriptions-universal.svelte', content: universalUsage },
-  ];
-
+<Descriptions density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')} bordered>
+  <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+  <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+</Descriptions>`;
 </script>
 
 <svelte:head>
@@ -212,70 +242,114 @@ ${close}
       </SectionCard>
     </div>
 
-    <!-- install -->
     <div id="install" data-reveal="">
+      <DocsInstall name="descriptions" />
+    </div>
+
+    <div id="overview" data-reveal="">
       <SectionCard
-        family="install"
-        headerRegion="install"
-        eyebrow="install"
-        title="Install"
-        summary="One registry item — the root and the Item ship together (the barrel exports both). The recipes below add press-button and badge."
+        family="overview"
+        headerRegion="overview"
+        eyebrow="overview"
+        title="Overview"
+        summary="The enterprise detail view, W3C-first: a dl IS a description list — dt/dd pairs in source order over a grid, one DescriptionsItem per pair. The bordered look is CSS on the same dl; columns and bordered are HOW-props — they change how the grid paints, never what renders."
       >
-        <CodeBlock code={`npx jixoai-ui add descriptions`} lang="sh" meta="install" />
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.measurePara)}>
+            One <code>DescriptionsItem</code> per pair: the <code>term</code> prop renders the
+            dt, children render the dd — rich cells are just children (badges, links, markup),
+            and a childless Item renders the em dash, never a blank cell. <code>columns=N</code>
+            splits rows into N pairs per row, clamped 1–4 and responsive down to one pair per row
+            on narrow containers — the container query reads the dl's OWN container, never the
+            viewport, so any layout column inherits the law.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            The anatomy rides the density ruler's ambient channels — the term's micro-label voice
+            and the value's body voice re-tier with the ambient scope while the eight-axis
+            carriers the root stamps have zero family readers: the chrome's theme voices are
+            stylex aliases frozen at the :root pole (the avatar twin). The per-axis receipts are
+            below.
+          </p>
+        </div>
       </SectionCard>
     </div>
 
-    <div id="descriptions-demo" data-region="descriptions-demo" data-family="descriptions-demo" data-reveal="">
-      <ComponentCanvas
-        title="descriptions"
-        stage="fill"
-        description="One Item per pair: the term prop renders the dt, children render the dd — the status badge is just children, the childless notes Item falls back to the em dash."
-        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/descriptions/descriptions.svelte"
-        files={canvasFiles}
-        onreset={resetCanvas}
-        output={[
-          { label: 'columns', value: columns },
-          { label: 'bordered', value: bordered },
-        ]}
-        resolveFileContent={resolveUsage}
+    <div id="usage" data-reveal="">
+      <SectionCard
+        family="usage"
+        headerRegion="usage"
+        eyebrow="usage"
+        title="Usage"
+        summary="The composition contract in one sample: import the family from the registry barrel (@ui/descriptions/index — per-part targets exist per file). There is no items[] prop and no value snippet — rich cells are plain children of the Item."
       >
-        <div class={cx(rt.wFull, rt.maxW2xl)}>
-          <Descriptions {columns} {bordered}>
-            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
-            <DescriptionsItem term="checks">12 passed · 0 failed</DescriptionsItem>
-            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
-            <DescriptionsItem term="region">iad1 · washington</DescriptionsItem>
-            <DescriptionsItem term="status">
-              <Badge>passing</Badge>
-            </DescriptionsItem>
-            <DescriptionsItem term="notes" />
-          </Descriptions>
-        </div>
-        {#snippet playground()}
-          <PlayFields>
-            <PlayRow label="columns" hint="term/value pairs per row (1–4, clamped)">
-              <PlaySegmented bind:value={columnsOption} options={columnOptions} />
-            </PlayRow>
-            <PlayRow label="bordered" hint="hairline frame on the same dl">
-              <PlayToggle bind:value={bordered} />
-            </PlayRow>
-            <PlayHelp>
-              columns and bordered are HOW-props — they change how the grid paints, never what
-              renders. Narrow containers clamp to one pair per row via a container query; a
-              childless Item renders the em dash, never a blank cell.
-            </PlayHelp>
-          </PlayFields>
-        {/snippet}
-      </ComponentCanvas>
+        <CodeBlock code={usage} lang="svelte" meta="usage" />
+      </SectionCard>
     </div>
   </div>
 </div>
 
 <div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
-  <!-- usage: the ONE h2 -->
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The composition contract in one sample: import the family from the registry barrel (@ui/descriptions/index — per-part targets exist per file). There is no items[] prop and no value snippet — rich cells are plain children of the Item."><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
+  <div id="descriptions-demo" data-region="descriptions-demo" data-family="descriptions-demo" data-reveal="">
+    <ComponentCanvas
+      title="descriptions"
+      stage="fill"
+      description="One Item per pair: the term prop renders the dt, children render the dd — the status badge is just children, the childless notes Item falls back to the em dash."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/descriptions/descriptions.svelte"
+      files={canvasFiles}
+      onreset={resetCanvas}
+      output={[
+        { label: 'columns', value: columns },
+        { label: 'bordered', value: bordered },
+      ]}
+      resolveFileContent={resolveUsage}
+    >
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
+        <Descriptions {columns} {bordered}>
+          <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+          <DescriptionsItem term="checks">12 passed · 0 failed</DescriptionsItem>
+          <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          <DescriptionsItem term="region">iad1 · washington</DescriptionsItem>
+          <DescriptionsItem term="status">
+            <Badge>passing</Badge>
+          </DescriptionsItem>
+          <DescriptionsItem term="notes" />
+        </Descriptions>
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="columns" hint="term/value pairs per row (1–4, clamped)">
+            <PlaySegmented bind:value={columnsOption} options={columnOptions} />
+          </PlayRow>
+          <PlayRow label="bordered" hint="hairline frame on the same dl">
+            <PlayToggle bind:value={bordered} />
+          </PlayRow>
+          <PlayHelp>
+            columns and bordered are HOW-props — they change how the grid paints, never what
+            renders. Narrow containers clamp to one pair per row via a container query; a
+            childless Item renders the em dash, never a blank cell.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
 
-  <!-- examples -->
+  <div id="types" data-region="types" data-family="types" data-reveal="">
+    <SectionCard
+      family="types"
+      headerRegion="types"
+      eyebrow="lane shapes"
+      title="Description layouts"
+      summary="Descriptions is a semantic dl: one or more term/value pairs per row, the bordered treatment optional. This canvas composes its drawer from the stage markup itself — the code shown is the code running."
+    >
+      <ComponentCanvas id="types" title="descriptions · types" files={typesFiles} stage="fill">
+        <div class={cx(rt.deGridMd2)}>
+          <div class={cx(rt.panel)}><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div>
+          <div class={cx(rt.panel)}><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="examples" data-reveal="">
     <SectionCard
       family="examples"
@@ -291,16 +365,13 @@ ${close}
     </SectionCard>
   </div>
 
-  <!-- recipe: vertical terms -->
   <div id="descriptions-vertical" data-region="descriptions-vertical" data-family="descriptions-vertical" data-reveal="">
     <ComponentCanvas
+      id="vertical"
       title="with vertical terms"
-      description="antd's layout=vertical, composed: each Item re-runs its own grid as one column — the dt stacks above its dd. Same dl, same semantics, the term reads as a field label instead of a row lead."
+      description="antd's layout=vertical, composed: each Item re-runs its own grid as one column — the dt stacks above its dd. Same dl, same semantics, the term reads as a field label instead of a row lead. This drawer composes from the stage markup itself."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/descriptions/descriptions-item.svelte"
-      files={[
-        { name: 'registry/files/ui/descriptions/descriptions-item.svelte', content: descriptionsItemSource },
-        { name: 'src/lib/ui/descriptions-vertical-usage.svelte', content: verticalUsage, kind: 'usage' },
-      ]}
+      files={verticalFiles}
       stage="fill"
       output={[{ label: 'layout', value: 'vertical · grid-cols-1!' }]}
     >
@@ -329,7 +400,6 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <!-- recipe: responsive columns -->
   <div id="descriptions-responsive" data-region="descriptions-responsive" data-family="descriptions-responsive" data-reveal="">
     <ComponentCanvas
       title="with responsive columns"
@@ -372,7 +442,6 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <!-- recipe: extra header actions -->
   <div id="descriptions-extra" data-region="descriptions-extra" data-family="descriptions-extra" data-reveal="">
     <ComponentCanvas
       title="with extra header actions"
@@ -417,40 +486,195 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Description layouts" summary="Descriptions is a semantic dl: choose one or more term/value pairs per row and opt into the bordered treatment."><ComponentCanvas title="descriptions · types" files={[{ name: 'descriptions-types-demo.svelte', content: descriptionsTypesDemo, kind: 'usage' }]} stage="fill"><div class={cx(rt.deGridMd2)}><div class={cx(rt.panel)}><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div><div class={cx(rt.panel)}><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div></div></ComponentCanvas></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'dl', value: 'Descriptions root', description: 'Preserves description-list semantics — wrappers add chrome, never list content.' }, { name: 'dt', value: 'term', description: 'Names each property.' }, { name: 'dd', value: 'value', description: 'Contains the corresponding value.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Descriptions><DescriptionsItem term="density">scoped</DescriptionsItem></Descriptions></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-desc-cols', default: 'columns prop', source: 'structural' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  <div id="universal-props" data-reveal="">
+  <div id="api" data-reveal="">
     <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. Migrated contract: bordered keeps its literal slot; the enterprise detail grid is flat content — the axes are all no-own."
+      family="api"
+      headerRegion="api"
+      eyebrow="props"
+      title="Props"
+      summary="Props extend the native HTML dl attributes — minus color, whose name the eight-axis surface owns (the §1 native collision rule); the entries below are descriptions-specific additions, and everything else rides the rest object through to the dl."
     >
-      <ComponentCanvas title="Descriptions · universal props" stage="fill" files={universalFiles}>
-<div class={cx(rt.panel)}><p class={cx(rt.text13)}>The dl grid forwards the ambient tree; an explicit lane stamps the carriers.</p></div>
-      </ComponentCanvas>
+      <PropsTable meta={descriptionsMeta} docs={DESCRIPTIONS_DOCS} />
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Descriptions props"><PropsTable universal props={[{ name: 'columns', type: 'number', default: '1', description: 'Term/value pairs per row.' }, { name: 'bordered', type: 'boolean', default: 'false', description: 'Paints hairline cell borders. Defaults: literal slot — own false, not ambient.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
-
-  <div id="see-also" data-reveal="">
+  <div id="axes" data-reveal="">
     <SectionCard
-      family="see-also"
-      headerRegion="see-also"
-      eyebrow="see also"
-      title="See also"
-      summary="The surfaces descriptions composes with."
+      family="axes"
+      headerRegion="axes"
+      eyebrow="axes"
+      title="The eight axes on descriptions"
+      summary="The anatomy rides the density ruler's ambient channels: the term/value padding is --jx-gap/--jx-inset, the value's body voice is --jx-text/--jx-line, the term's micro-label is --jx-text-secondary/--jx-line-secondary — the named rung re-tiers the whole grid (measured 10/11/12/14 · 11/12/13/15 · 8/8/12/16 across xs/sm/default/lg; the number coefficient composes at :root — inert). size, shape, radius, color, elevation and motion stamp carriers nothing here reads (negative-grep receipt). Theme is the avatar frozen-pole twin: the chrome's five stylex aliases declare only at the :root,.xbpgcew pole + the theme class — the .dark bridge lands and nothing repaints (documented absence, W-next #1). Census: batch A (migration-census.md)."
     >
-      <div class={cx(rt.wrap12)}>
-        <a class="pill" href="/docs/components/table.html">table — the tabular sibling</a>
-        <a class="pill" href="/docs/components/badge.html">badge — rich value cells</a>
-        <a class="pill" href="/docs/components/press-button.html">press-button — the extra actions</a>
-        <a class="pill" href="/docs/components/statistic.html">statistic — the metric readout</a>
+      <div class={cx(rt.col20)}>
+        <PropsTable
+          props={[
+            {
+              name: 'size',
+              type: `'small' | 'medium' | 'large' | 'auto' | number`,
+              default: 'ambient scope',
+              description:
+                "SUPPLY-ONLY — the root stamps --jx-size-effective plus an inline font-size, and every voice on the grid is density-channel-anchored (--jx-text / --jx-text-secondary), so the stamp reaches only unstyled flow under the root (the dt/dd never inherit it). The §1 collision applies: the dl never receives a size attribute. Number unit: px.",
+            },
+            {
+              name: 'shape',
+              type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+              default: 'ambient scope',
+              description:
+                "SUPPLY-ONLY — stamps --jx-shape-effective + --jx-radius-factor-effective; zero readers (grep receipt: zero carrier reads in ui/descriptions/). A detail grid has no corners of its own; the bordered frame is square-edged by the card law. Number unit: none.",
+            },
+            {
+              name: 'radius',
+              type: `'small' | 'medium' | 'large' | 'auto' | number`,
+              default: 'ambient scope',
+              description:
+                "SUPPLY-ONLY — stamps --jx-radius-effective; zero readers (the same grep receipt). The bordered frame stays square; nothing computes the §3 concentric corner. Number unit: px.",
+            },
+            {
+              name: 'density',
+              type: `'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number`,
+              default: 'ambient scope',
+              description:
+                "CONSUMED through the ambient scope (the no-own axis slot — no provider and no explicit prop resolve auto, stamp nothing, and the ambient css scope channel keeps flowing): the grid re-tiers end to end. Padding rides --jx-gap/--jx-inset, the value's body voice --jx-text/--jx-line, the term's micro-label --jx-text-secondary/--jx-line-secondary — measured 10/11/12/14px terms · 11/12/13/15px values · 8/8/12/16px padding across xs/sm/default/lg. The NUMBER lane is inert (the coefficient composes at the :root rung scopes; the wrapper never re-declares — measured: a 3× coefficient leaves 13px/12px unmoved). Number unit: coefficient.",
+            },
+            {
+              name: 'color',
+              type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+              default: 'ambient scope',
+              description:
+                "SUPPLY-ONLY — stamps --jx-color-effective; zero family readers (grep receipt). A detail grid is content, not a painted object: the dt reads the muted alias, the dd the foreground alias, the bordered frame the border/card aliases — all theme voices, none of them the hue axis. Number unit: hue degrees.",
+            },
+            {
+              name: 'theme',
+              type: `'light' | 'dark' | 'system' | 'auto'`,
+              default: 'ambient scope',
+              description:
+                "THEME-FROZEN (the avatar twin, the documented absence W-next #1) — the root lands the .dark class bridge, and NOTHING repaints: every chrome voice is a stylex alias (--jx-border, --jx-card, --jx-muted, --jx-muted-foreground, --jx-foreground) whose declaration substitutes at the :root,.xbpgcew pole (built-CSS grep: each alias declares exactly twice — the pole + the theme class; never plain .dark). A documented absence: when the raw layer's dark values want in, the alias re-declaration is the named fix. light and system stamp nothing. No number lane.",
+            },
+            {
+              name: 'elevation',
+              type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+              default: 'ambient scope',
+              description:
+                "SUPPLY-ONLY — stamps --jx-elevation-effective; zero family readers (grep receipt). The bordered frame is a hairline on the card ground, no shadow layer; depth composes by the entity laws around the dl, never inside it. Number unit: dp.",
+            },
+            {
+              name: 'motion',
+              type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+              default: 'ambient scope',
+              description:
+                "SUPPLY-ONLY — stamps --jx-motion-effective; no family css reads it (grep receipt). A detail grid is a static read: nothing transitions, nothing moves — the reduced-motion law costs nothing here. Number unit: coefficient.",
+            },
+          ]}
+          title=""
+        />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Deviations, cited: the adoption is the census batch A row (explicit-props W3-D1 — the
+          data-display families join the eight-axis surface;
+          openspec/changes/explicit-props/research/migration-census.md). The §1 collision rule:
+          the interface Omits 'color', the dl never receives an axis name. `bordered` keeps its
+          literal slot (own false — booleans are a closed domain); `columns` is the family's own
+          HOW-prop.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas id="axes" title="descriptions · the ruler and the frozen island" files={axesFiles} stage="fill">
+            <div class={cx(rt.gridSm2, rt.wFull)}>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>density default — 13px values, 12px secondary terms, 12px padding</span>
+                <Descriptions bordered>
+                  <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+                  <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+                </Descriptions>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>density="lg" — the touch tier steps the whole grid (15px, 16px padding)</span>
+                <Descriptions bordered density="lg">
+                  <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+                  <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+                </Descriptions>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>theme="dark" — the bridge lands; the chrome stays frozen (nothing repaints)</span>
+                <Descriptions bordered theme="dark">
+                  <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+                  <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+                </Descriptions>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>color="error" — stamped, unread: content is not a painted object</span>
+                <Descriptions bordered color="error">
+                  <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+                  <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+                </Descriptions>
+              </div>
+            </div>
+            <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+              The number lanes stamp and re-base nothing here — the declaring element for every
+              channel this family reads is the ambient scope (:root), the wrapper never
+              re-declares (the declaring-element law). Measure the voices, not the coefficient:
+              10 / 11 / 12 / 14px terms, 11 / 12 / 13 / 15px values, 8 / 8 / 12 / 16px padding.
+            </p>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="descriptions · query()" files={[{ name: 'descriptions-query-demo.svelte', content: queryUsage, kind: 'usage' }]}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+              <Descriptions
+                density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}
+                bordered
+              >
+                <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+                <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+              </Descriptions>
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 40rem the base applies — the small rung, the
+                pointer-lane grid; at 40rem and wider the lg case wins and the grid steps to the
+                touch tier (12px/8px padding below, 15px/16px above — measured). Resize across
+                40rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <TokenTable tokens={[
+            { name: '--jx-desc-cols', default: 'columns prop (clamped 1–4)', source: 'component', description: 'The root\'s own column-count channel — repeat(var(--jx-desc-cols), minmax(0, 1fr)); folds to 1fr under 640px of container width.' },
+            { name: '--jx-gap', default: '8 / 8 / 12 / 16px across xs / sm / default / lg', source: 'density', description: 'The cells\' padding-block voice.' },
+            { name: '--jx-inset', default: '8 / 8 / 12 / 16px across xs / sm / default / lg', source: 'density', description: 'The cells\' padding-inline voice.' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px across xs / sm / default / lg', source: 'density', description: 'The dd\'s body voice (measured).' },
+            { name: '--jx-text-secondary', default: '10 / 11 / 12 / 14px across xs / sm / default / lg', source: 'density', description: 'The dt\'s micro-label voice (measured).' },
+            { name: '--jx-line', default: 'the dd\'s leading rung', source: 'density', description: 'Value-voice leading, re-based with the type lane.' },
+            { name: '--jx-line-secondary', default: 'the dt\'s leading rung', source: 'density', description: 'Term-voice leading, re-based with the type lane.' },
+          ]} />
+        </div>
       </div>
     </SectionCard>
+  </div>
+
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="The dl preserves description-list semantics — wrappers add chrome, never list content; the term names the property, the value answers it."
+    >
+      <A11yTable
+        aria={[
+          { name: 'dl', value: 'Descriptions root', description: 'Preserves description-list semantics — wrappers add chrome, never list content.' },
+          { name: 'dt', value: 'term', description: 'Names each property.' },
+          { name: 'dd', value: 'value', description: 'Contains the corresponding value.' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="descriptions" />
   </div>
 </div>
 

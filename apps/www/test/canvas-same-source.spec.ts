@@ -57,6 +57,7 @@ const PILOTS = [
   'components/breadcrumb.html',
   'components/checkbox.html',
   'components/color-picker.html',
+  'components/descriptions.html',
   'components/link.html',
   'components/prose.html',
   'components/list.html',
@@ -651,6 +652,74 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
         (the declaring-element law). Measure the well floor, not the coefficient:
         34 / 36 / 46 / 58px across xs / sm / default / lg — the ruler equation
         max(--jx-hit, --jx-icon + 2×--jx-inset + 2px).
+      </p>"
+    `);
+  });
+  it('descriptions.html :: types', async () => {
+    // the descriptions page joined the same-source lane at its tier-2
+    // restructure (scribe task 17): the types and vertical canvases are
+    // static stages; the lab/responsive/extra stay hand mirrors (the
+    // bind:value rejection class)
+    expect((await extractionFor('components/descriptions.html')).canvases['types']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.deGridMd2)}>
+        <div class={cx(rt.panel)}><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div>
+        <div class={cx(rt.panel)}><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div>
+      </div>"
+    `);
+  });
+  it('descriptions.html :: vertical', async () => {
+    expect((await extractionFor('components/descriptions.html')).canvases['vertical']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.deGrid)}>
+        <Descriptions>
+          <DescriptionsItem term="owner" class={cx(rt.deCols1Imp)}>@gaubee</DescriptionsItem>
+          <DescriptionsItem term="region" class={cx(rt.deCols1Imp)}>iad1 · washington</DescriptionsItem>
+          <DescriptionsItem term="status" class={cx(rt.deCols1Imp)}><Badge>passing</Badge></DescriptionsItem>
+        </Descriptions>
+        <Descriptions bordered>
+          <DescriptionsItem term="build" class={cx(rt.deCols1Imp)}>4f2a1c</DescriptionsItem>
+          <DescriptionsItem term="runtime" class={cx(rt.deCols1Imp)}>node 24 · bun</DescriptionsItem>
+          <DescriptionsItem term="notes" class={cx(rt.deCols1Imp)} />
+        </Descriptions>
+      </div>"
+    `);
+  });
+  it('descriptions.html :: axes', async () => {
+    expect((await extractionFor('components/descriptions.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2, rt.wFull)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density default — 13px values, 12px secondary terms, 12px padding</span>
+          <Descriptions bordered>
+            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          </Descriptions>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density="lg" — the touch tier steps the whole grid (15px, 16px padding)</span>
+          <Descriptions bordered density="lg">
+            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          </Descriptions>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>theme="dark" — the bridge lands; the chrome stays frozen (nothing repaints)</span>
+          <Descriptions bordered theme="dark">
+            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          </Descriptions>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>color="error" — stamped, unread: content is not a painted object</span>
+          <Descriptions bordered color="error">
+            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          </Descriptions>
+        </div>
+      </div>
+      <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+        The number lanes stamp and re-base nothing here — the declaring element for every
+        channel this family reads is the ambient scope (:root), the wrapper never
+        re-declares (the declaring-element law). Measure the voices, not the coefficient:
+        10 / 11 / 12 / 14px terms, 11 / 12 / 13 / 15px values, 8 / 8 / 12 / 16px padding.
       </p>"
     `);
   });
