@@ -15,3 +15,20 @@
 :where(.jx-otp-slot.jx-otp-complete:focus) {
   outline-color: var(--primary);
 }
+
+/* state-border carve-outs (docs-eight-axes-mdn, the atom-vs-atom cascade
+ * kill): conditional border atoms tie with the base solid atom on
+ * specificity and lose to the lexicographic sheet order (solid > dashed,
+ * always). Unlayered :where() wins by LAYERING — the same carve-out the
+ * :focus rules above use. Source order among these: filled < complete <
+ * invalid, so the error state paints last. */
+:where(.jx-otp-slot[data-jx-otp-filled]) {
+  border-color: var(--jx-foreground);
+}
+:where(.jx-otp-slot.jx-otp-complete) {
+  border-color: var(--jx-primary);
+}
+:where(.jx-otp-slot[data-jx-otp-invalid]) {
+  border-color: var(--jx-destructive);
+  border-style: dashed;
+}

@@ -936,3 +936,43 @@
   every observable and diverge only on the counterfactual (prop-driven
   re-runs re-probe live) — the source deps array settled it without a
   second probe round.
+
+## Techniques (task 31 additions)
+- Dev-server warm/cold discipline is now a measured law of this
+  campaign: three separate probe rounds on input-otp produced
+  contradictory state-border reads (empty --jx-* vars, missing
+  complete/filled/invalid rules) that ALL traced to cold-compile
+  reads. The settled-page rule: double-200 with a 10s+ settle before
+  the first read, a window flag to prove no HMR reload mid-probe, and
+  a sanity token read before trusting any negative.
+- The a11y-announcement law (measure announced text, not
+  textContent) DOWNGRADED a cross-reviewer LOW: the error line's "!"
+  is aria-hidden, so the announced text is the message alone.
+  textContent reads over-count; filter aria-hidden subtrees.
+- OTP behavior chains need REAL input events: programmatic focus +
+  page.keyboard for typing/advance; real clipboard
+  (grantPermissions + writeText + ControlOrMeta+V) for paste
+  distribution. Synthetic ClipboardEvent was ignored (the handler is
+  native-bound); synthetic keydowns never reached Svelte 5's
+  delegated handlers (task 29's lesson, re-earned).
+- Re-entry probes: Tab-after-blur navigates FORWARD from the blur
+  point (past the group). To test entry redirection, focus an element
+  BEFORE the group and Tab until focus enters it, then read the
+  landed index.
+- max() lane claims have TIE zones: when both legs of a max() are
+  equal at some rungs, the winner narration must claim only the
+  strict-wins rungs — input-otp's row does (line×2 wins xs/sm only;
+  default/lg are ties). Verify the phrasing against the leg
+  arithmetic, not against a "the winner is X" summary.
+
+## Highlights (task 31)
+- (input-otp) The complete-state brand border painted live
+  (oklch(0.6489 0.237 …)) while the invalid dashed rule was absent
+  from the served document entirely — conditional stylex atoms are
+  selective in dev emission: same file, same create() call, different
+  injection outcomes. The plugin suspicion is routed; the a11y state
+  (aria-invalid/describedby) flows regardless.
+- The measured-must-reproduce class now has a sibling: the
+  announced-text-vs-textContent class. Both are "the page teaches X,
+  the DOM serves Y" checks — one for CSS, one for the accessibility
+  tree. The "!" mark is the fleet's first announced-text receipt.

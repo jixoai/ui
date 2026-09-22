@@ -99,7 +99,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'auto' | number`,
       default: `'auto'`,
       description:
-        "THE §11 ECHO — the stamp lands verbatim (measured root inline: --jx-size-effective: 14px; font-size: var(--jx-size-effective, 1rem); computed 14px / 18px at the demo lanes) and the slots follow NOTHING of it: the slot voice is --jx-text (density-governed) and the slot box is the hit/line lane. The pre-29 page text claimed the family CONSUMES size — falsified, this row is the correction. Number unit: px.",
+        "THE §11 ECHO — the stamp lands verbatim (measured root inline: --jx-size-effective: 14px; font-size: var(--jx-size-effective, 1rem); computed 14px / 18px at the demo lanes) and the slots follow NOTHING of it: the slot voice is --jx-text (density-governed) and the slot box is the hit/line lane. Number unit: px.",
     },
     {
       name: 'shape',
@@ -171,7 +171,7 @@ ${close}
     type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'",
     default: 'ambient scope',
     description:
-      'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows. The geometry it drives is measured in the axes table (slot box 32/36/40/48px).',
+      'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows. These are the rung ids you pass; the axes table carries the alias ladder they resolve to, with the measured geometry (slot box 32/36/40/48px).',
   };
 
   // the page's local join (the separator serialize law): plain
@@ -236,7 +236,7 @@ ${close}
         headerRegion="overview"
         eyebrow="overview"
         title="Overview"
-        summary="N real inputs with the mechanics a raw stack lacks — and the ElementInternals bridge that makes them submit as ONE honest value."
+        summary="N real inputs with the mechanics a raw stack lacks — and the ElementInternals bridge that makes them submit as ONE honest value. The per-slot model is the choice: real inputs are what one-time-code autofill targets, and backstep, arrow keys, and paste distribution come free from native input behavior — a single-hidden-input alternative would have to rebuild all three."
       >
         <div class={cx(rt.col20)}>
           <p class={cx(rt.para)}>
