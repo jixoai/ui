@@ -44,7 +44,7 @@
  * editing this file, which is the review seam for extractor ceilings.
  */
 import { describe, expect, it } from 'vitest';
-import { propsFromMeta, type PropEntry, type PropsDocs } from '../src/lib/ui/props-table/from-meta';
+import { propsFromMeta, UNIVERSAL_AXIS_NAMES, type PropEntry, type PropsDocs } from '../src/lib/ui/props-table/from-meta';
 import { meta as selectMeta } from '../src/lib/meta/select.meta';
 import { meta as popoverMeta } from '../src/lib/meta/popover.meta';
 import { meta as checkboxMeta } from '../src/lib/meta/checkbox.meta';
@@ -63,6 +63,12 @@ import { TOAST_VIEWPORT_DOCS } from '../src/lib/ui/props-table/docs/toast-viewpo
 import { COMBOBOX_DOCS } from '../src/lib/ui/props-table/docs/combobox.docs';
 import { TEXT_DOCS } from '../src/lib/ui/props-table/docs/text.docs';
 import { INLINE_CODE_DOCS } from '../src/lib/ui/props-table/docs/inline-code.docs';
+import { meta as badgeMeta } from '../src/lib/meta/badge.meta';
+import { meta as chipMeta } from '../src/lib/meta/chip.meta';
+import { meta as componentCanvasMeta } from '../src/lib/meta/component-canvas.meta';
+import { BADGE_DOCS } from '../src/lib/ui/props-table/docs/badge.docs';
+import { CHIP_DOCS } from '../src/lib/ui/props-table/docs/chip.docs';
+import { COMPONENT_CANVAS_DOCS } from '../src/lib/ui/props-table/docs/component-canvas.docs';
 
 // ── the frozen legacy tables (2026-08-30, pre-migration) ───────────────
 
@@ -355,6 +361,52 @@ describe('props-table meta migration — zero content drift (pilot nine)', () =>
     expect(comboboxMeta.source).toBe('registry/files/ui/combobox/combobox.svelte');
     expect(textMeta.source).toBe('registry/files/ui/text/text.svelte');
     expect(inlineCodeMeta.source).toBe('registry/files/ui/inline-code/inline-code.svelte');
+  });
+});
+
+// ── the extra lane — the reference-identity contract (6900340b) ────────
+//
+// The docs curation's `extra` rows (chip/badge's family-local `shape`,
+// component-canvas's theme/density §13 seats, popover's bind:this,
+// text's Raw exports) survive the universal split ONLY because
+// propsFromMeta spreads docs.extra BY REFERENCE and PropsTable's
+// mainRows filter keeps rows whose object identity is in the extras
+// Set (props-table.svelte — "reference identity: propsFromMeta spreads
+// docs.extra as-is"). Until 6900340b the split name-filtered extras
+// and the lane was dead fleet-wide with every content test green —
+// these pins make a future clone in propsFromMeta fail LOUDLY here.
+
+describe('the extra lane — the reference-identity contract', () => {
+  const EXTRA_BEARING = [
+    { name: 'badge', meta: badgeMeta, docs: BADGE_DOCS },
+    { name: 'chip', meta: chipMeta, docs: CHIP_DOCS },
+    { name: 'component-canvas', meta: componentCanvasMeta, docs: COMPONENT_CANVAS_DOCS },
+    { name: 'popover', meta: popoverMeta, docs: POPOVER_DOCS },
+    { name: 'text', meta: textMeta, docs: TEXT_DOCS },
+  ];
+
+  for (const pilot of EXTRA_BEARING) {
+    it(`${pilot.name}: propsFromMeta spreads docs.extra by REFERENCE (no clone)`, () => {
+      const extras = pilot.docs.extra ?? [];
+      expect(extras.length, 'pilot must carry extras — the contract is load-bearing here').toBeGreaterThan(0);
+      const rendered = propsFromMeta(pilot.meta, pilot.docs);
+      expect(rendered.length).toBeGreaterThan(extras.length);
+      const tail = rendered.slice(rendered.length - extras.length);
+      for (let i = 0; i < extras.length; i++) {
+        expect(tail[i], `${pilot.name}.extra[${i}] must be the SAME OBJECT that went in`).toBe(extras[i]);
+      }
+    });
+  }
+
+  it('the identity branch is load-bearing: badge/chip extras shadow an axis name', () => {
+    // 'shape' IS a universal axis name — the mainRows filter keeps these
+    // rows ONLY through the reference-identity branch. A clone would fail
+    // the identity tests above AND drop the row from the family table.
+    expect(UNIVERSAL_AXIS_NAMES.has('shape')).toBe(true);
+    for (const docs of [BADGE_DOCS, CHIP_DOCS]) {
+      const shapeExtras = (docs.extra ?? []).filter((row) => UNIVERSAL_AXIS_NAMES.has(row.name));
+      expect(shapeExtras.length, 'the collision-casualty extra must exist').toBeGreaterThan(0);
+    }
   });
 });
 

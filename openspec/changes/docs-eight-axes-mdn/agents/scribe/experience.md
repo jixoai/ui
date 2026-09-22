@@ -250,6 +250,44 @@
   probe even when the page says "(measured)" — my scope-map
   disagreement with the page resolved only by arbitration.
 
+## Techniques (mine, task 10 — hardening test + breadcrumb fix)
+- THE TRANSITION-FRAME ARTIFACT (new probe law, resolves the ledger's
+  finding 8): reading getComputedStyle SYNCHRONOUSLY after a class flip
+  returns the TRANSITION's interpolated start value, not the target —
+  `.jx-menu-item` transitions background-color/color 100ms, so a
+  "frozen at the light value" verdict was wrong in BOTH marginalia's
+  probe and my first pass. Law: after any cascade flip on an element
+  with a transition, await > duration before reading; and run a
+  light-again pass — a value set that round-trips is measured, one that
+  doesn't is an artifact.
+- Mutation-testing my own pins: wrote the identity test, then
+  temporarily cloned extras in propsFromMeta — 5 loud FAILs — then
+  restored. A pin that has never seen its failure is a hypothesis.
+- The F4 self-containment guard as a DESIGN tool, not an obstacle: bare
+  identifiers in canvas stages (page consts like `items={peerPages}`,
+  `{#each folded as href}`) get rejected — inlining the literals made
+  the drawers copy-paste-runnable AND deleted the page consts. When a
+  canvas joins the same-source lane, budget for de-const-ing its stage.
+- python heredocs MANGLE backtick escapes: my '''...''' block with \\
+  escapes shipped literal backslash-backtick pairs into the spec and
+  broke the parse (three fix rounds). Backtick templates go through the
+  Edit tool or chr(92)/chr(96) construction — never shell heredoc
+  escaping.
+- svelte-check delta accounting needs a PRISTINE log to diff against:
+  keeping /tmp/<agent>-<task>-svelte-check.log per task turned "is this
+  error mine?" into a two-grep diff (baseline 8 errors on my touched
+  files → 8 after, columns shifted).
+
+## Highlights found in others' pages (task 10 additions)
+- (vellum, 5-review-badge — cross-read) The probe-toolkit upgrade they
+  filed ("grep the RAW SSR HTML, not page.content()") is exactly the
+  entity-escape receipt my own SSR checks needed this round
+  (query&lt;...&gt; in the composed drawer).
+- (quill, component-canvas eb66056b) The EXTRA rescue doubling
+  (theme+density §13 seats) proved the identity fix generalizes beyond
+  the shape collision — a fix reviewed by its second consumer, not its
+  first.
+
 ## Mistakes to avoid
 - `rg -rn` is the --replace trap AGAIN (AGENTS.md law): two commands this
   task silently rewrote matches with "n" before I caught it. `rg -n` only;

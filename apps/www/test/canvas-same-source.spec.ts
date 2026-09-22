@@ -53,6 +53,7 @@ const PILOTS = [
   'components/accordion.html',
   'components/badge.html',
   'components/avatar.html',
+  'components/breadcrumb.html',
   'components/checkbox.html',
   'components/link.html',
   'components/prose.html',
@@ -502,6 +503,213 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
           <div class={cx(rt.panel)}><Checkbox label="2xs rung — the floor lowers to 24px" name="axes-d-2xs" density="2xs" /></div>
         </div>
       </div>"
+    `);
+  });
+  it('breadcrumb.html :: demo', async () => {
+    expect((await extractionFor('components/breadcrumb.html')).canvases['demo']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.flex, rt.col, rt.itemsStart, rt.gap20)}>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components.html">components</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components/breadcrumb.html?trail=1">page 1</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbCollapse>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=2">page 2</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=3">page 3</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=4">page 4</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=5">page 5</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=6">page 6</BreadcrumbLink></BreadcrumbItem>
+            </BreadcrumbCollapse>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components/breadcrumb.html?trail=7">page 7</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage href="/docs/components/breadcrumb.html?trail=8">page 8</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>"
+    `);
+  });
+  it('breadcrumb.html :: fold', async () => {
+    expect((await extractionFor('components/breadcrumb.html')).canvases['fold']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.bcGrid)}>
+        <div class={cx(rt.panel)}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbCollapse href="/docs">
+                <BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem>
+              </BreadcrumbCollapse>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbSeparator><span class={cx(rt.inkMuted)}>/</span></BreadcrumbSeparator>
+              </BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </div>"
+    `);
+  });
+  it('breadcrumb.html :: dropdown', async () => {
+    expect((await extractionFor('components/breadcrumb.html')).canvases['dropdown']).toMatchInlineSnapshot(`
+      "  <div class={cx(rt.maxWXl, rt.panel)}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+              </BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>"
+    `);
+  });
+  it('breadcrumb.html :: axes', async () => {
+    expect((await extractionFor('components/breadcrumb.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "      <div class={cx(rt.gridSm2, rt.wFull)}>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>auto — ambient scope, stamps nothing</span>
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>density="small" — open the node: the menu rides the rung</span>
+                <Breadcrumb density="small">
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem>
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+                    </BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>density="large" — the same trail, the roomy rung</span>
+                <Breadcrumb density="large">
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem>
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+                    </BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>radius="large" — the trail is cornerless; the menu panel takes it</span>
+                <Breadcrumb radius="large">
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem>
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+                    </BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>theme="dark" — a split, measured: the trail text keeps the light stylex inks; the chevron, focus ring and the composed menu re-theme</span>
+                <Breadcrumb theme="dark">
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+            </div>
+            <div class={cx(rt.col20, rt.wFull, rt.anMt32)}>
+              <span class={cx(rt.note11)}>density={"{query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}"}</span>
+              <Breadcrumb density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}>
+                <BreadcrumbList>
+                  <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+                  <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                  <BreadcrumbItem>
+                    <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+                  </BreadcrumbItem>
+                  <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                  <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+              <p class={cx(rt.mt4, rt.note12, rt.inkMuted70)}>
+                SSR resolves the query's base (small) onto the root's rung stamp — inspect the
+                markup: data-density="sm" on this nav, and the nav's scope block re-declares the
+                five channels the composed menu reads. At the lg viewport rung (≥64rem) the engine
+                re-resolves to large and the scope re-stamps; open the node on either side of 64rem
+                and watch the menu rhythm step.
+              </p>
+            </div>"
     `);
   });
   it('link.html :: lanes', async () => {

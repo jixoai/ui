@@ -16,6 +16,8 @@ import { describe, expect, it } from 'vitest';
 import PropsTable from '$lib/ui/props-table/props-table.svelte';
 import { meta as selectMeta } from '$lib/meta/select.meta';
 import { SELECT_DOCS } from '$lib/ui/props-table/docs/select.docs';
+import { meta as chipMeta } from '$lib/meta/chip.meta';
+import { CHIP_DOCS } from '$lib/ui/props-table/docs/chip.docs';
 
 describe('PropsTable — meta mode (the single source)', () => {
   it('renders the projection with the lint marker and the four columns', () => {
@@ -73,6 +75,33 @@ describe('PropsTable — meta mode (the single source)', () => {
     const density = rows.find((r) => r.cells[0].textContent!.trim().startsWith('density'))!;
     expect(density.textContent).toContain('ambient scope');
     expect(density.textContent).not.toContain('inherited');
+  });
+});
+
+describe('PropsTable — the extra lane survives the universal split (6900340b)', () => {
+  // The reference-identity exemption's RENDER pin: chip's family-local
+  // `shape` prop shares its name with the §2 axis, so the split would
+  // drop the meta row — the curation's extra row must render in its
+  // place (the axis-named extra survives mainRows; the meta twin does
+  // not). Companion identity pins live in props-table-meta-drift.spec.
+  it('chip: the family table keeps the extra shape row (12 rows), the universal section stays the eight axes', () => {
+    const { container } = render(PropsTable, {
+      props: { meta: chipMeta, docs: CHIP_DOCS },
+    });
+    const tables = container.querySelectorAll('table[data-doc-props-table]');
+    expect(tables.length, 'family table + the shared universal section').toBe(2);
+
+    const rowsOf = (t: Element) => [...t.querySelectorAll('tbody tr')] as HTMLTableRowElement[];
+    const familyNames = rowsOf(tables[0]!).map((r) => r.cells[0].textContent!.trim());
+    expect(familyNames.length, 'chip renders 12 family rows (the extra lane included)').toBe(12);
+    expect(familyNames.filter((n) => n === 'shape').length, 'exactly ONE shape row — the extra, not the meta twin').toBe(1);
+    // the extra's union is the corner law, NOT the §2 lane text
+    const shapeRow = rowsOf(tables[0]!).find((r) => r.cells[0].textContent!.trim() === 'shape')!;
+    expect(shapeRow.textContent).toContain("'square' | 'pill'");
+    expect(shapeRow.textContent).not.toContain("'squircle'");
+
+    const universalNames = rowsOf(tables[1]!).map((r) => r.cells[0].textContent!.trim());
+    expect(universalNames).toEqual(['size', 'shape', 'radius', 'density', 'color', 'theme', 'elevation', 'motion']);
   });
 });
 

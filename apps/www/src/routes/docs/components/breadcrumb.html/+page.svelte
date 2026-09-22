@@ -1,12 +1,16 @@
 <!--
   Docs page for the breadcrumb family (MDN archetype, docs-eight-axes-mdn
-  round 2, scribe 2026-09-22). Order: hero → install → overview → usage
-  → the live examples (THIS PAGE carries the demos — trail, opt-in
-  fold, sibling jump) → props → the eight axes on breadcrumb (per-axis
-  table + runnable demos + one real query() case) → accessibility →
-  see-also. Structure follows the baseline skill
+  round 2, scribe 2026-09-22; consolidated fix round 10). Order: hero →
+  install → overview → usage → the live examples (THIS PAGE carries the
+  demos — trail, opt-in fold, sibling jump) → props → the eight axes on
+  breadcrumb (per-axis table + runnable demos + one real query() case) →
+  accessibility → see-also. Structure follows the baseline skill
   (skills/mdn-doc-style.md §2); the component family is untouchable
   from here.
+  Same-source law (fix round 10): every canvas drawer composes from
+  resolveRawCode — the shown source IS the running stage; the theme
+  prose names the split per voice (stylex-frozen trail inks vs the
+  raw-layer menu, steady-state probed).
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
@@ -21,6 +25,7 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
   import Breadcrumb from '$lib/ui/breadcrumb/breadcrumb.svelte';
   import BreadcrumbList from '$lib/ui/breadcrumb/breadcrumb-list.svelte';
   import BreadcrumbItem from '$lib/ui/breadcrumb/breadcrumb-item.svelte';
@@ -36,9 +41,75 @@
   import breadcrumbDropdownSource from '$lib/ui/breadcrumb/breadcrumb-dropdown.svelte?raw';
   import breadcrumbCssSource from '$lib/ui/breadcrumb/breadcrumb.css?raw';
 
-  const close = '</' + 'script>';
+  // The canvas same-source lane (fix round 10): each canvas's usage
+  // TreeFile composes from THIS PAGE's own stage markup via
+  // resolveRawCode — one source, two surfaces; the hand-mirrored
+  // drawer literals (and the query() sample that drifted from its
+  // stage) are gone.
+  import { usageFile } from '$lib/canvas-usage';
+  import { resolveRawCode } from 'virtual:jixoai-canvas/docs/components/breadcrumb.html/+page';
 
-  // single usage sample: the drawer's usage file and the body CodeBlock share it
+  const TRAIL_IMPORTS = {
+    Breadcrumb: '@ui/breadcrumb/index',
+    BreadcrumbList: '@ui/breadcrumb/index',
+    BreadcrumbItem: '@ui/breadcrumb/index',
+    BreadcrumbLink: '@ui/breadcrumb/index',
+    BreadcrumbPage: '@ui/breadcrumb/index',
+    BreadcrumbSeparator: '@ui/breadcrumb/index',
+    BreadcrumbCollapse: '@ui/breadcrumb/index',
+  };
+
+  const sourceFiles: TreeFile[] = [
+    { name: 'registry/files/ui/breadcrumb/breadcrumb.svelte', content: breadcrumbSource },
+    { name: 'registry/files/ui/breadcrumb/breadcrumb-collapse.svelte', content: breadcrumbCollapseSource },
+    { name: 'registry/files/ui/breadcrumb/breadcrumb-dropdown.svelte', content: breadcrumbDropdownSource },
+    { name: 'registry/files/ui/breadcrumb/breadcrumb.css', content: breadcrumbCssSource },
+  ];
+
+  const demoUsage = usageFile({ ...TRAIL_IMPORTS }, resolveRawCode('demo'));
+  const demoFiles: TreeFile[] = [
+    ...sourceFiles,
+    { name: 'src/lib/ui/breadcrumb-usage.svelte', content: demoUsage, kind: 'usage' },
+  ];
+
+  const foldUsage = usageFile({ ...TRAIL_IMPORTS }, resolveRawCode('fold'));
+  const foldFiles: TreeFile[] = [
+    { name: 'breadcrumb-fold-demo.svelte', content: foldUsage, kind: 'usage' },
+  ];
+
+  const dropdownUsage = usageFile(
+    {
+      Breadcrumb: '@ui/breadcrumb/index',
+      BreadcrumbList: '@ui/breadcrumb/index',
+      BreadcrumbItem: '@ui/breadcrumb/index',
+      BreadcrumbLink: '@ui/breadcrumb/index',
+      BreadcrumbPage: '@ui/breadcrumb/index',
+      BreadcrumbSeparator: '@ui/breadcrumb/index',
+      BreadcrumbDropdown: '@ui/breadcrumb/index',
+    },
+    resolveRawCode('dropdown'),
+  );
+  const dropdownFiles: TreeFile[] = [
+    { name: 'breadcrumb-dropdown-demo.svelte', content: dropdownUsage, kind: 'usage' },
+  ];
+
+  // the axes drawer composes from the stage AND carries the query()
+  // imports, so the shown file stays copy-paste-runnable
+  const axesUsage = usageFile(
+    {
+      ...TRAIL_IMPORTS,
+      BreadcrumbDropdown: '@ui/breadcrumb/index',
+      '{ query }': '@lib/universal-props-query.svelte',
+      'type { DensityLane }': '@lib/defaults.svelte',
+    },
+    resolveRawCode('axes'),
+  );
+  const axesFiles: TreeFile[] = [
+    { name: 'src/lib/ui/breadcrumb-axes.svelte', content: axesUsage, kind: 'usage' },
+  ];
+
+  // single usage sample: the body CodeBlock's canonical composition
+  const close = '</' + 'script>';
   const usage = `<script lang="ts">
   import {
     Breadcrumb,
@@ -82,136 +153,6 @@ ${close}
   />
 </BreadcrumbItem>`;
 
-  const canvasFiles: TreeFile[] = [
-    { name: 'registry/files/ui/breadcrumb/breadcrumb.svelte', content: breadcrumbSource },
-    { name: 'registry/files/ui/breadcrumb/breadcrumb-collapse.svelte', content: breadcrumbCollapseSource },
-    { name: 'registry/files/ui/breadcrumb/breadcrumb-dropdown.svelte', content: breadcrumbDropdownSource },
-    { name: 'registry/files/ui/breadcrumb/breadcrumb.css', content: breadcrumbCssSource },
-    { name: 'src/lib/ui/breadcrumb-usage.svelte', content: usage, kind: 'usage' },
-  ];
-
-  // the fold variants: the complete trail, the opt-in fold, the custom
-  // separator glyph (code shown = code running)
-  const foldDemo = `<script lang="ts">
-  import {
-    Breadcrumb,
-    BreadcrumbList,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-    BreadcrumbCollapse,
-  } from '@ui/breadcrumb/index';
-${close}
-
-<!-- the complete trail -->
-<Breadcrumb>
-  <BreadcrumbList>
-    <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
-  </BreadcrumbList>
-</Breadcrumb>
-
-<!-- the opt-in fold: wrap the middle items -->
-<Breadcrumb>
-  <BreadcrumbList>
-    <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
-    <BreadcrumbCollapse href="/docs">
-      <BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem>
-    </BreadcrumbCollapse>
-    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
-  </BreadcrumbList>
-</Breadcrumb>
-
-<!-- the separator glyph swapped through its children snippet -->
-<Breadcrumb>
-  <BreadcrumbList>
-    <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbSeparator><span class="text-muted-foreground">/</span></BreadcrumbSeparator></BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
-  </BreadcrumbList>
-</Breadcrumb>`;
-
-  const foldFiles: TreeFile[] = [
-    { name: 'breadcrumb-fold-demo.svelte', content: foldDemo, kind: 'usage' },
-  ];
-
-  // the sibling jump: one node opens a menu of peer pages, every
-  // entry a REAL anchor
-  const dropdownDemo = `<script lang="ts">
-  import {
-    Breadcrumb,
-    BreadcrumbList,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    BreadcrumbPage,
-    BreadcrumbSeparator,
-    BreadcrumbDropdown,
-  } from '@ui/breadcrumb/index';
-${close}
-
-<Breadcrumb>
-  <BreadcrumbList>
-    <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
-    <BreadcrumbItem>
-      <BreadcrumbDropdown
-        label="components"
-        current="/docs/components/breadcrumb.html"
-        items={[
-          { label: 'tabs', href: '/docs/components/tabs.html' },
-          { label: 'toast', href: '/docs/components/toast.html' },
-          { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
-        ]}
-      />
-    </BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
-    <BreadcrumbItem><BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage></BreadcrumbItem>
-  </BreadcrumbList>
-</Breadcrumb>`;
-
-  const dropdownFiles: TreeFile[] = [
-    { name: 'breadcrumb-dropdown-demo.svelte', content: dropdownDemo, kind: 'usage' },
-  ];
-
-  // the eight-page trail: first + fold(p2..p6) + last two — the same
-  // shape the closed collapse=4 produced
-  const folded = [2, 3, 4, 5, 6].map((n) => `/docs/components/breadcrumb.html?trail=${n}`);
-
-  // peer docs pages for the sibling-jump demos (REAL hrefs — the menu
-  // entries navigate exactly like trail links do)
-  const peerPages = [
-    { label: 'tabs', href: '/docs/components/tabs.html' },
-    { label: 'toast', href: '/docs/components/toast.html' },
-    { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
-  ];
-
-  // ---- the eight axes on breadcrumb: the runnable demos -------------------
-  // code shown = code running: the panels below pass these exact lanes.
-  const axesUsage = `<!-- density: the trail's own paint is density-immobile — the
-     rung re-scopes the channels the COMPOSED parts read. Open the
-     sibling-jump node: the menu items ride the rung. -->
-<Breadcrumb density="small">…</Breadcrumb>
-<Breadcrumb density="large">…</Breadcrumb>
-
-<!-- radius: the trail paints no corners — the composed menu panel
-     takes it through the §3 concentric broadcast. Open the node. -->
-<Breadcrumb radius="large">…</Breadcrumb>
-
-<!-- theme: a resolved dark scopes the .dark class bridge on the nav -->
-<Breadcrumb theme="dark">…</Breadcrumb>
-
-<!-- query(): below the lg viewport rung (64rem) the trail resolves
-     small; at ≥64rem it steps to large. -->
-<Breadcrumb density={query({ lg: 'large' }, 'small')}>…</Breadcrumb>`;
-
-  const axesFiles: TreeFile[] = [
-    { name: 'src/lib/ui/breadcrumb-axes.svelte', content: axesUsage, kind: 'usage' },
-  ];
-
   // the per-axis table (skill §2.5): mechanism names are the REAL
   // carriers/vars the family stamps or reads (breadcrumb.svelte +
   // breadcrumb.stylex.ts + breadcrumb.css; the composed menu's reads
@@ -222,7 +163,7 @@ ${close}
       type: 'data-density rung · --jx-density-coefficient',
       default: 'auto',
       description:
-        'The axis this family supplies, not paints. The root is a structural provider: an explicit rung stamps data-density on the nav (small · medium · large normalize onto the rungs sm · default · lg) and re-declares the channel set on it; a number stamps --jx-density-coefficient and leaves the rung ambient. The trail\'s own atoms pin fixed tokens (gap --jx-space-6, label --jx-text-label-lg), so the trail itself is density-immobile — the supply is the point: all 8 parts re-stamp the ambient rung (densityRungOf), and the composed menu consumes the channels (--jx-hit / --jx-line / --jx-inset / --jx-text in dropdown-menu.css). Open the sibling-jump node and the menu rides the rung.',
+        'The axis this family supplies, not paints. The root is a structural provider: an explicit rung stamps data-density on the nav (small · medium · large normalize onto the rungs sm · default · lg) and re-declares the channel set on it — a named rung also resets the coefficient to 1 (explicit rung = exact rung, never double-scaled); a number stamps --jx-density-coefficient and leaves the rung ambient (the declaring-element law: nothing here re-declares AT a coefficient stamp, so the number lane moves nothing on this composition). The trail\'s own atoms pin fixed tokens (gap --jx-space-6, label --jx-text-label-lg), so the trail itself is density-immobile — the supply is the point: all 8 parts re-stamp the ambient rung (densityRungOf), and the composed menu consumes the FIVE channels (--jx-hit / --jx-line / --jx-inset / --jx-text / --jx-gap in dropdown-menu.css). Open the sibling-jump node and the menu rides the rung.',
     },
     {
       name: 'size',
@@ -254,10 +195,10 @@ ${close}
     },
     {
       name: 'theme',
-      type: 'the .dark class bridge',
+      type: 'the .dark class bridge — a split on this family, measured',
       default: 'auto',
       description:
-        'The other axis the trail consumes: a resolved dark puts .dark on the nav and flips every semantic token the trail and the composed menu read. Steps light · dark · system; auto inherits the tree.',
+        "dark stamps the .dark class bridge on the nav, and WHICH voices follow splits by declaring layer (steady-state probe, both levels). The trail's own TEXT INKS stay frozen: link ink (--jx-muted-foreground, hover --jx-primary) and the current page's ink (--jx-foreground) ride the stylex layer — declared only on :root + the stylex theme classes, never plain .dark — so the trail text keeps the light values (the W-next semantic-ink gap). Everything RAW re-themes: the separator chevron (var(--muted-foreground) 0.32 → 0.85 lightness), the focus outline (--hairline / --ring), and the WHOLE composed menu — panel ground, border, item ink and the you-are-here paint (raw --foreground + the --muted mix) all flip, because the popover panel is a DOM descendant of the nav and inherits the island's tokens. Steps light · dark · system; auto inherits the tree.",
     },
     {
       name: 'elevation',
@@ -282,7 +223,8 @@ ${close}
     { name: '--jx-text-label-lg', default: '12px', source: 'structural' as const, description: 'The trail label size — pinned by the list atom; why the size axis cannot scale the trail.' },
     { name: '--jx-track-wide', default: '0.08em', source: 'structural' as const, description: 'The trail label tracking.' },
     { name: '--jx-space-6', default: 'unit × 1.5', source: 'structural' as const, description: 'The ol gap — the trail\'s whole rhythm; a fixed token, not a density channel.' },
-    { name: '--jx-muted-foreground', default: 'theme', source: 'color' as const, description: 'Trail link ink at rest; also the chevron border (opacity 0.7).' },
+    { name: '--jx-muted-foreground', default: 'theme · stylex-frozen', source: 'color' as const, description: 'Trail link ink at rest — stays light under a .dark island (the W-next gap).' },
+    { name: '--muted-foreground (raw)', default: 'theme · raw layer', source: 'color' as const, description: 'The separator chevron\'s border (opacity 0.7) — re-themes with the island (0.32 → 0.85 lightness, measured).' },
     { name: '--jx-primary', default: 'theme', source: 'color' as const, description: 'Trail link ink on hover.' },
     { name: '--jx-foreground', default: 'theme', source: 'color' as const, description: 'The current page\'s ink — never underlined.' },
     { name: '--hairline + --ring', default: 'theme', source: 'color' as const, description: 'The link/trigger focus-visible outline (2px offset).' },
@@ -383,11 +325,12 @@ ${close}
 
   <div id="breadcrumb-demo" data-reveal="">
     <ComponentCanvas
+      id="demo"
       title="breadcrumb"
       stage="fill"
       description="A three-crumb trail, and an eight-page trail with the middle wrapped in BreadcrumbCollapse — the folded items self-hide and the ellipsis links to the first hidden page (never a dead span)."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/breadcrumb/breadcrumb.svelte"
-      files={canvasFiles}
+      files={demoFiles}
     >
       <div class={cx(rt.flex, rt.col, rt.itemsStart, rt.gap20)}>
         <Breadcrumb>
@@ -410,11 +353,11 @@ ${close}
             </BreadcrumbItem>
             <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
             <BreadcrumbCollapse>
-              {#each folded as href, i (href)}
-                <BreadcrumbItem>
-                  <BreadcrumbLink {href}>page {i + 2}</BreadcrumbLink>
-                </BreadcrumbItem>
-              {/each}
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=2">page 2</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=3">page 3</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=4">page 4</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=5">page 5</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=6">page 6</BreadcrumbLink></BreadcrumbItem>
             </BreadcrumbCollapse>
             <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
             <BreadcrumbItem>
@@ -448,7 +391,7 @@ ${close}
       title="Fold a long trail"
       summary="Use a complete trail for short paths, wrap the middle items for an opt-in fold, or swap the separator glyph through its children snippet (aria-hidden stays by construction)."
     >
-      <ComponentCanvas title="breadcrumb · fold and separator" stage="fill" files={foldFiles}>
+      <ComponentCanvas id="fold" title="breadcrumb · fold and separator" stage="fill" files={foldFiles}>
         <div class={cx(rt.bcGrid)}>
           <div class={cx(rt.panel)}>
             <Breadcrumb>
@@ -496,14 +439,18 @@ ${close}
       title="Jump between siblings"
       summary="BreadcrumbDropdown is one trail node that opens a menu of peer destinations: click — or the dropdown-menu keyboard contract (arrows, typeahead, Home/End) — opens the popover; every entry is a REAL anchor; the current peer carries the you-are-here paint; selecting dismisses the menu and navigates."
     >
-      <ComponentCanvas title="breadcrumb · dropdown" stage="fill" files={dropdownFiles}>
+      <ComponentCanvas id="dropdown" title="breadcrumb · dropdown" stage="fill" files={dropdownFiles}>
         <div class={cx(rt.maxWXl, rt.panel)}>
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
               <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
               <BreadcrumbItem>
-                <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={peerPages} />
+                <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
               </BreadcrumbItem>
               <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
               <BreadcrumbItem><BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage></BreadcrumbItem>
@@ -518,7 +465,7 @@ ${close}
     <SectionCard
       eyebrow="api"
       title="Props"
-      summary="The root carries the landmark label and forwards the eight-axis surface (the generated Universal section below); the parts keep the trail structure explicit. The composed dropdown-menu inside BreadcrumbDropdown is documented on its own page."
+      summary="The root carries the landmark label and forwards the eight-axis surface (the shared Universal props section below); the parts keep the trail structure explicit. The composed dropdown-menu inside BreadcrumbDropdown is documented on its own page."
     >
       <div class={cx(rt.col24)}>
         <PropsTable universal title="Breadcrumb" props={[
@@ -564,7 +511,7 @@ ${close}
     <SectionCard
       eyebrow="axes"
       title="The eight axes on breadcrumb"
-      summary="breadcrumb carries all eight lanes as a first-time no-own surface (migration census, W3 close D5): an explicit lane stamps its §10 carrier on the nav and supplies downward. PROVIDER-SNAPSHOT KERNEL LAW: density does NOT ride the provideUniversalLanes literal — the reactive bridged provideDensity write carries the universal density supply; the literal carries the other seven — and all 8 parts moved to densityRungOf stamps, re-stamping the ambient rung through the SAME contract. On the trail's own paint only theme is live; density, shape and radius land in the composed menu; size, color, elevation and motion stamp carriers nothing here consumes."
+      summary="breadcrumb carries all eight lanes as a first-time no-own surface (migration census, W3 close D5): an explicit lane stamps its §10 carrier on the nav and supplies downward. The split on THIS family: density, shape and radius land in the composed menu (open the node), the theme island re-themes the menu wholesale while the trail's own text inks stay stylex-frozen, and size, color, elevation and motion stamp carriers nothing here consumes. The lane grammar (named · auto · number · query()) is the universal props page's."
     >
       <div class={cx(rt.col20)}>
         <PropsTable title="" props={axisRows} />
@@ -572,7 +519,11 @@ ${close}
           Deviations, cited: the eight-axis adoption itself is the census row — breadcrumb was one of
           the 13 sweep holes migrated in the W3 close (D5), the bridge keeping the legacy rung
           channel for the ~60 legacy consumers
-          (openspec/changes/explicit-props/research/migration-census.md). No §13 renames apply:
+          (openspec/changes/explicit-props/research/migration-census.md). The PROVIDER-SNAPSHOT
+          kernel law rides this family: density does NOT ride the provideUniversalLanes literal —
+          the reactive bridged provideDensity write carries the universal density supply, the
+          literal carries the other seven, and all 8 parts stamp the ambient rung through the SAME
+          densityRungOf contract. No §13 renames apply:
           <code>label</code> is a family prop, and BreadcrumbDropdown's <code>density</code> is the
           part's own opinion slot feeding the composed menu, not an axis rename.
         </p>
@@ -580,10 +531,7 @@ ${close}
           <TokenTable tokens={trailTokens} />
         </div>
         <div class={cx(rt.mt20)}>
-          <CodeBlock code={axesUsage} lang="svelte" meta="the eight axes on breadcrumb" />
-        </div>
-        <div class={cx(rt.mt20)}>
-          <ComponentCanvas title="breadcrumb · the eight axes" stage="fill" files={axesFiles}>
+          <ComponentCanvas id="axes" title="breadcrumb · the eight axes" stage="fill" files={axesFiles}>
             <div class={cx(rt.gridSm2, rt.wFull)}>
               <div class={cx(rt.panel)}>
                 <span class={cx(rt.note11)}>auto — ambient scope, stamps nothing</span>
@@ -602,7 +550,11 @@ ${close}
                     <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
                     <BreadcrumbItem>
-                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={peerPages} />
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
                     </BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
@@ -616,7 +568,11 @@ ${close}
                     <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
                     <BreadcrumbItem>
-                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={peerPages} />
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
                     </BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
@@ -630,7 +586,11 @@ ${close}
                     <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
                     <BreadcrumbItem>
-                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={peerPages} />
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
                     </BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
                     <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
@@ -638,7 +598,7 @@ ${close}
                 </Breadcrumb>
               </div>
               <div class={cx(rt.panel)}>
-                <span class={cx(rt.note11)}>theme="dark" — the trail consumes this one live</span>
+                <span class={cx(rt.note11)}>theme="dark" — a split, measured: the trail text keeps the light stylex inks; the chevron, focus ring and the composed menu re-theme</span>
                 <Breadcrumb theme="dark">
                   <BreadcrumbList>
                     <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
@@ -649,13 +609,17 @@ ${close}
               </div>
             </div>
             <div class={cx(rt.col20, rt.wFull, rt.anMt32)}>
-              <span class={cx(rt.note11)}>density={"{query({ lg: 'large' }, 'small')}"}</span>
-              <Breadcrumb density={query({ lg: 'large' }, 'small')}>
+              <span class={cx(rt.note11)}>density={"{query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}"}</span>
+              <Breadcrumb density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}>
                 <BreadcrumbList>
                   <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
                   <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
                   <BreadcrumbItem>
-                    <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={peerPages} />
+                    <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
                   </BreadcrumbItem>
                   <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
                   <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
@@ -663,9 +627,10 @@ ${close}
               </Breadcrumb>
               <p class={cx(rt.mt4, rt.note12, rt.inkMuted70)}>
                 SSR resolves the query's base (small) onto the root's rung stamp — inspect the
-                markup: data-density="sm" on this nav (the parts keep their ambient read until the
-                engine resolves). At the lg viewport rung (≥64rem) it re-resolves to large; open the
-                node on either side of 64rem and watch the menu rhythm step.
+                markup: data-density="sm" on this nav, and the nav's scope block re-declares the
+                five channels the composed menu reads. At the lg viewport rung (≥64rem) the engine
+                re-resolves to large and the scope re-stamps; open the node on either side of 64rem
+                and watch the menu rhythm step.
               </p>
             </div>
           </ComponentCanvas>
