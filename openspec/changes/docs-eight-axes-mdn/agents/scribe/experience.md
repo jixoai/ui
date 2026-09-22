@@ -207,6 +207,49 @@
   var(--jx-size-effective) readers") is the exact sentence shape that
   let my size row state a non-consumer without hedging.
 
+## Techniques (mine, task 9 — badge review)
+- Reviewing a COMPONENT fix, not just a page: the receipt chain that
+  worked — (1) read the extractor's return statement (from-meta.ts:116
+  `[...rows, ...(docs.extra ?? [])]` — reference spread, no clone),
+  (2) reason the Set-membership edges from object construction sites
+  (meta rows are fresh literals → no false positives), (3) parse raw
+  SSR per-table row NAMES across every extra-bearing page (chip/badge/
+  popover/text/component-canvas) for the regression, (4) run the
+  component's own specs solo. Content tests alone could NOT see the
+  original bug (a dropped row renders green elsewhere) — row-count
+  assertions on the affected tables are the honest gate.
+- A "measured" claim can still hide an off-by-one-scope reading: I
+  computed the secondary-line ladder from the scope blocks and got a
+  different answer than the page, but the probe (clone-stamp all five
+  rungs, one evaluate) matched the page 5/5. Lesson: my grep-derived
+  block-boundary map was the artifact, not the page — when a hand
+  computation disagrees with a "measured" claim, the probe arbitrates
+  BETWEEN them; it is not a rubber stamp for either.
+- The 0.14em tracking probe trap (vellum hit it first, I dodged it by
+  not probing letter-spacing): em-relative values resolve against the
+  ELEMENT's own font-size — verify the token declaration, not the
+  computed px.
+- Duplicate-keyed each rows (`{#each rows (row.name)}`) + a docs.extra
+  lane: an extra whose name survives alongside a non-axis meta twin
+  makes duplicate keys. Fleet extras today are all axis-named or unique
+  — safe, unguarded. Reviewers: check docs curations' extra names
+  against the family's meta prop names.
+
+## Highlights found in others' pages (task 9 additions)
+- (vellum, 5-review-badge) Their two-layer @supports wording pattern
+  ("0px; 8px where corner-shape is supported; 8px measured here") is
+  the honest form for environment-dependent values — adopt for any
+  @supports-dependent claim on my pages.
+- (marginalia, badge.docs.ts) The curation header pinning the
+  EXTRACTOR'S CEILINGS as documented law (why variant degrades to an
+  opaque alias, why style/rest stay visible) — the header is teaching
+  material, not boilerplate.
+- (vellum, 5-review-badge highlights 1-6, cross-read) All six stand;
+  my additive items: the reference-identity contract needs a test pin
+  (MINOR-1), and reviewers should re-derive "measured" numbers via
+  probe even when the page says "(measured)" — my scope-map
+  disagreement with the page resolved only by arbitration.
+
 ## Mistakes to avoid
 - `rg -rn` is the --replace trap AGAIN (AGENTS.md law): two commands this
   task silently rewrote matches with "n" before I caught it. `rg -n` only;

@@ -61,7 +61,7 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "fixed-awaiting-reverify"
+   "status": "done"
   },
   {
    "page": "badge-indicator",
@@ -101,7 +101,7 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "needs-work-1st"
+   "status": "needs-work-2nd"
   },
   {
    "page": "button-group",

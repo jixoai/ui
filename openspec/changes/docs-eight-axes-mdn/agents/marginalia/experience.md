@@ -198,6 +198,40 @@
   attribute every one. Retry only after attribution says the flake isn't
   structural; never `-u` over another agent's placeholder snapshot.
 
+## Task 7 (breadcrumb review round, 2026-09-22) — learnings
+- **The menu's ink is TWO voices, and the panel-level read lies.** My probe
+  read the popover panel's `color` (the `.jx-menu` CSS rule's raw
+  `--popover-foreground` — flips under `.dark`) and nearly reported "the
+  composed menu re-themes". The ITEM ink rides a frozen stylex voice
+  (dropdown-menu.stylex.ts:43) — my own probe's `itemColor` stayed BLACK
+  under the dark toggle, corroborating vellum's dist grep only after I
+  re-read my own payload. Law: for composed consumers, probe at the level
+  the READER sees (the item), not the level the CSS rule lives at (the
+  panel); one element's computed color is not a subtree's theme story.
+- **"Complete" needs a denominator.** Vellum called breadcrumb's toc
+  complete (8/8 ids in DOM — true, toc↔DOM 1:1); I called it incomplete
+  (See also missing vs the badge/alert cohort — also true). The cohort was
+  SPLIT (anchor/blockquote omit it too), so both claims were true under
+  different denominators. The residue that survives every denominator: the
+  DocsSeeAlso wrapper carries no id anywhere in the no-entry half —
+  unreachable from the rail is a DOM fact, not a convention. State the
+  denominator, then check what's invariant across all of them.
+- **Casing conventions: check the nearest sibling before filing a NIT.** My
+  toc-label-case nit died in one grep — anchor's toc uses the same
+  lowercase demo-label pattern. Sibling-first, cohort-second, self-last.
+- **Read my own probe payload twice before writing the claim.** The
+  itemColor-black-in-dark was IN my first menu probe's output and I
+  almost filed the menu as re-themeing because the panel flipped. The
+  consolidation law works only if the pre-cross-read report records the
+  raw measurements, not the narrative — the payload kept me honest.
+- **The independence law pays twice**: writing findings first forced me to
+  derive the theme split empirically (my BLOCKER), catch the gap channel
+  and the "generated" wording miss that vellum lacks; the cross-read then
+  killed two of my weak findings (casing, toc denominator) and upgraded my
+  query() inference with vellum's scribe-self-reported error receipt.
+  Divergence isn't failure — two reviewers with different denominators is
+  the redundancy that catches the un-provable-by-one-check claims.
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation
