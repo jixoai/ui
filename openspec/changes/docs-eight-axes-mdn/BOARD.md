@@ -1,7 +1,7 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| marginalia | 27 | badge-indicator (OWN) | CODE | in-flight |
+| marginalia | 28 | link (quill's) | REVIEW (2nd) | in-flight |
 | vellum | 25 | card-grid fix (A, OWN) + file-input (B, OWN) | FIX + CODE | in-flight |
 | quill | 22 | navigation-menu (OWN) | CODE | in-flight |
 | scribe | 25 | code-card 2nd (+LOW ids) (quill's) | REVIEW (2nd) | in-flight |
@@ -16,7 +16,7 @@
 - combobox: coded Tier-2 (vellum 24 — two self-fixed MAJORs; FLOOR-ASYMMETRY class; ARIA end-to-end; two-time-bases demonstrator) → scribe+marginalia reviews QUEUED
 - native-scroll-area: coded Tier-2 + remediation (quill 21 — the universal table restored 9 rows; the LAST-WRITE write-then-verify incident archived; observer-consumed FIFTH theme mechanism) → vellum+scribe reviews QUEUED
 - descriptions: CLOSED #23 (the two one-liners landed empirically harder — flex-basis overrode width; the working fix rides the derived frameStyle; fold at the exact 640px line)
-- badge-indicator: marginalia CODE IN FLIGHT (task 27)
+- badge-indicator: coded Tier-2 (marginalia 27 — POSTURE-SPLIT size echo self-caught (standalone = root, mirror wins 18px / riding child, wrap takes it, chip 10px); the --destructive black/white raw-vs-typed cleanest contrast; composition measured (PressButton 40→48 under lg wrap); EXTRA 15−8−1=6; zero imports from badge/chip — kinship ≠ composition) → scribe+quill reviews QUEUED
 - file-input: vellum CODE IN FLIGHT (task 25-B)
 - navigation-menu: quill CODE IN FLIGHT (task 22)
 
