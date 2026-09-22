@@ -439,3 +439,35 @@
 - (vellum, avatar) Play-state lab kept hand by the documented rejection
   class (playground bind + {name}/{variant} shorthands) with the chip
   FAQ precedent cited inline — the rejection itself is receipted.
+
+## Techniques (task 15 additions)
+- Co-resident theme specimens beat flip probes when the page offers
+  both: the axes canvas carries a light group and a permanent theme="dark"
+  group side by side — ONE evaluate reads all four voices in one instant,
+  no class flip, no transition-frame exposure. My first attempt used the
+  dark specimen as its own baseline; the `darkClass` field in the probe
+  output caught it (measurement-first applied to my own rig).
+- Rung-ladder receipt without per-rung specimens: set the rung's
+  data-density attribute on a live group root — the component's
+  named-rung stamp IS that attribute, so the css scope (the mechanism
+  under test) is exercised verbatim. Method-note it; don't let it pose
+  as a prop-driven measurement.
+- Old-page token rows are evidence in BOTH directions: avatar's --jx-inset
+  row was FALSE (no reader), button-group's was TRUE (paddingInline reads
+  it) — dropping a row needs the same grep-the-reader proof as keeping
+  one. The provider review's extra duty caught the drop.
+- Type-union vs render-map drift: a sourceLabel-style mapper that maps
+  three of four union members renders '' silently — count empty cells in
+  the SSR table parse, then chase the missing map arm.
+
+## Highlights (task 15)
+- (vellum, button-group) The axes-canvas dark specimen is a standing
+  four-voice exhibit: border flips, ink frozen, seams color-free, cluster
+  shadow inverts — each clause probed true, and the page names the
+  declaring layer per voice (the island re-declaration at jixoai.css's
+  slot block, the :root alias, the raw token).
+- (vellum) The query() case documents its own typing law inline (why BOTH
+  generics are load-bearing) — the drawer code teaches the §6 law.
+- (vellum) Honest commit message vs imprecise page comment: "disclosed as
+  follow-up" (deferral) is what the report owns; the page comment's
+  rejection-class lumping is the residual wording fix.
