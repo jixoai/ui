@@ -2,7 +2,7 @@
 
 ## W0 — change alignment (remix round 0)
 
-- [ ] 0.1 change docs written (proposal/design/tasks/spec deltas) — THIS commit
+- [x] 0.1 change docs written (proposal/design/tasks/spec deltas) — THIS commit
 - [x] 0.2 Codex reviews the change docs (herdr, gpt-5.6-terra/xhigh) → blocking
       findings folded back; ≥8/10 with no blockers before W1 starts —
       TEN rounds, 4.5→6.3→7.0→7.3→5.8→7.6→7.7→7.3→7.7→**8.4 GO**
@@ -57,29 +57,29 @@
       metas regenerated (annotation zones byte-identical) + ir.ts's
       minimal `universal?` field
 
-- [ ] 1.1 surface ladder: `surface`, `surface-container-lowest…highest` (+ the
+- [x] 1.1 surface ladder: `surface`, `surface-container-lowest…highest` (+ the
       `-1dp` deepest rung) for light AND dark in `registry/files/theme/jixoai.css`
       (mirror pair byte-identical) — 减色墨律 compliant
-- [ ] 1.2 elevation level table: `level-1…level5` ↔ dp (−1/0/1/3/6/8/12) ↔
+- [x] 1.2 elevation level table: `level-1…level5` ↔ dp (−1/0/1/3/6/8/12) ↔
       (shadow recipe, surface role) per theme profile; NO surface tint
-- [ ] 1.3 the eight axes' expression carriers: `--jx-size(-effective)`,
+- [x] 1.3 the eight axes' expression carriers: `--jx-size(-effective)`,
       `--jx-radius(-effective)`, `--jx-inset-effective`, `--jx-shape(-effective)`,
       `--jx-color`, `--jx-elevation`, `--jx-motion` (+theme class bridge reuse)
-- [ ] 1.4 `defaults.svelte.ts`: generalized `sizeSlot`/`radiusSlot`/`colorSlot`/
+- [x] 1.4 `defaults.svelte.ts`: generalized `sizeSlot`/`radiusSlot`/`colorSlot`/
       `shapeSlot`/`elevationSlot`/`motionSlot` beside `densitySlot` (same
       explicit ?? ambient ?? own law); registry mirror pair updated
-- [ ] 1.5 density rename lands: docs vocabulary small|medium|large, legacy
+- [x] 1.5 density rename lands: docs vocabulary small|medium|large, legacy
       rungs re-exposed as aliases; `density.svelte.ts` mirror pair updated
-- [ ] 1.6 fixed micro-typography exemption verified (caption 9px / micro 10px
+- [x] 1.6 fixed micro-typography exemption verified (caption 9px / micro 10px
       stay absolute under em-scaling — probe receipt)
-- [ ] 1.7 `context-coverage.config.json` synced to the eight-axis supply set
+- [x] 1.7 `context-coverage.config.json` synced to the eight-axis supply set
       (design §11 — the coverage gate knows every context key)
-- [ ] 1.8 the density coefficient carrier lands: every kernel channel
+- [x] 1.8 the density coefficient carrier lands: every kernel channel
       splits base/effective per the frozen §4 pattern (the four guardrail
       channels ride their max() forms); precedence + legacy-alias mapping
       (small→sm · medium→default · large→lg) + computed-style probe
       receipts incl. the --jx-hit guardrail case
-- [ ] 1.9 the shared artifact lands EARLY (moved from W4 — the W3 batch
+- [x] 1.9 the shared artifact lands EARLY (moved from W4 — the W3 batch
       gate and PropsTable both consume it, it cannot arrive after):
       `universal-props.schema.ts` (the §17 interfaces + UNIVERSAL_AXES) +
       the generator's merge step + the inventory promoted beside the schema
