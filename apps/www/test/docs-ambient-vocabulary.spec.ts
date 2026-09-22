@@ -427,14 +427,32 @@ describe('matrix↔tasks bijection', () => {
     .map((dir) => join(REPO, dir, 'tasks.md'))
     .find((p) => existsSync(p));
   let tasksMd = readFileSync(tasksPath!, 'utf8');
-  // ARCHIVE-STALENESS OVERLAY (W5-r2, evidence: the pre-sweep live copy
-  // at 37ad6c9d^ spelled system-dialog; the sweep kept the OLDER
-  // archive whose batch lists still say alert-dialog — the 2026-09-09
-  // rename amendment never reached the frozen copy). openspec/ is
-  // outside this round's write scope (fold reported), so the rename is
-  // carried HERE, one documented token: the bijection itself still
-  // runs at full strength against the live page universe.
-  tasksMd = tasksMd.replaceAll('alert-dialog', 'system-dialog');
+  // ARCHIVE-STALENESS RENAME LEDGER (the Codex W6-final P1 fold): the
+  // frozen archive predates the 2026-09-09 rename amendment (the
+  // pre-sweep live copy at 37ad6c9d^ already spelled system-dialog; the
+  // sweep kept the older archive). The transformation is AUDITABLE, not
+  // blanket: each ledger entry asserts its stale premise still holds
+  // (a regenerated archive that already spells the new token THROWS,
+  // forcing the entry's retirement) and applies exactly one mapping.
+  // Any OTHER stale token survives this loop untouched and fails the
+  // bijection below as a PARSE VIOLATION — nothing is ever masked.
+  const RENAME_LEDGER = [
+    {
+      from: 'alert-dialog',
+      to: 'system-dialog',
+      evidence: '2026-09-09 rename amendment; pre-sweep live copy at 37ad6c9d^',
+    },
+  ] as const;
+  for (const { from, to } of RENAME_LEDGER) {
+    const staleCount = tasksMd.split(from).length - 1;
+    if (staleCount === 0) {
+      throw new Error(
+        `RENAME_LEDGER stale entry: '${from}' no longer appears in the frozen archive — ` +
+          `the archive was regenerated with the new vocabulary; retire the ledger entry`,
+      );
+    }
+    tasksMd = tasksMd.split(from).join(to);
+  }
 
   // the independent route universe: every docs page directory that really
   // exists on disk (the matrix is never consulted)

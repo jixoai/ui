@@ -151,7 +151,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  
+
 
   <div id="pblur-law" data-reveal="">
     <SectionCard
@@ -198,7 +198,7 @@ backdrop-filter: blur(levels[i]px);`}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Mount the band as an EARLY child of the scroll container, before the sticky head it sits under."><CodeBlock code={usage} lang="svelte" meta="ProgressiveBlur usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Pure scenery: the band is aria-hidden, pointer-events-none decoration over the scroller's real content."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'The band is decoration; screen readers skip it entirely' }, { name: 'pointer-events', value: 'none', description: 'The band never intercepts pointer input over the scrolling content' }, { name: 'scroll()', value: '@supports-gated', description: 'Engines without scroll timelines keep the resting clean state — never a wrongly-painted band' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint — the band is dimensionless chrome; its one token tunes the scroll-in ramp distance."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.prScroll40)}><ProgressiveBlur position="top" reveal="scroll" height="4rem" class={cx(rt.prZ5)} /><div class={cx(rt.prPinnedHead)}>pinned head</div><ul class={cx(rt.flex, rt.col, rt.gap4, rt.p12)} role="list">{#each rows.slice(0, 8) as row (row)}<li class={cx(rt.prRow)}>{row}</li>{/each}</ul></div></DensityDemo><TokenTable tokens={[{ name: '--jx-pblur-ramp', default: '72px', source: 'component', description: 'Scroll distance of the reveal fade-in (scroll timeline range)' }, { name: 'height', default: "'6rem'", source: 'component', description: 'Band height — any definite CSS length; % unsupported' }]} /></div></SectionCard></div>
-  
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"

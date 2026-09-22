@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-22T00:16:02.832Z",
+  "generatedAt": "2026-09-22T03:32:38.172Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -2039,8 +2039,8 @@
           "source": "registry/files/ui/toggle/toggle-defaults.svelte.ts",
           "mirror": "apps/www/src/lib/ui/toggle/toggle-defaults.svelte.ts",
           "target": "@ui/toggle/toggle-defaults.svelte.ts",
-          "sourceSha": "aa0cfa048bbf97581ceb6d58ecdc48101145fd57b40239ae76e412651e6dc370",
-          "mirrorSha": "aa0cfa048bbf97581ceb6d58ecdc48101145fd57b40239ae76e412651e6dc370"
+          "sourceSha": "6f7f8b31ca328a624648bcf8f79dc3a5caf05ee3d03ccbc4be5a85674bc564ae",
+          "mirrorSha": "6f7f8b31ca328a624648bcf8f79dc3a5caf05ee3d03ccbc4be5a85674bc564ae"
         },
         {
           "source": "registry/files/ui/toggle/toggle.stylex.ts",
@@ -2735,8 +2735,8 @@
           "source": "registry/files/ui/avatar/avatar-defaults.svelte.ts",
           "mirror": "apps/www/src/lib/ui/avatar/avatar-defaults.svelte.ts",
           "target": "@ui/avatar/avatar-defaults.svelte.ts",
-          "sourceSha": "71b638b44da29397f4eaf313c0e7d22add2e674c4cb5fc32be4854f324fa874e",
-          "mirrorSha": "71b638b44da29397f4eaf313c0e7d22add2e674c4cb5fc32be4854f324fa874e"
+          "sourceSha": "221b76d672f9dd01396f0bbb4350a68b102299de695a7adb407f26ce963cce77",
+          "mirrorSha": "221b76d672f9dd01396f0bbb4350a68b102299de695a7adb407f26ce963cce77"
         },
         {
           "source": "registry/files/ui/avatar/avatar.stylex.ts",
@@ -3896,8 +3896,8 @@
           "source": "registry/files/ui/toggle-group/toggle-group-defaults.svelte.ts",
           "mirror": "apps/www/src/lib/ui/toggle-group/toggle-group-defaults.svelte.ts",
           "target": "@ui/toggle-group/toggle-group-defaults.svelte.ts",
-          "sourceSha": "35471d04d218306effbb32170cd2dbe19a0a1e8abdbbb281decd14d3ab116de8",
-          "mirrorSha": "35471d04d218306effbb32170cd2dbe19a0a1e8abdbbb281decd14d3ab116de8"
+          "sourceSha": "0cdd0e87d6516279fd44fdaa0a0e115b1842960eebedc003d83ca2b927ec1508",
+          "mirrorSha": "0cdd0e87d6516279fd44fdaa0a0e115b1842960eebedc003d83ca2b927ec1508"
         },
         {
           "source": "registry/files/ui/toggle-group/toggle-group.stylex.ts",

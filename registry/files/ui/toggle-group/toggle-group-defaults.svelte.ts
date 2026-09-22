@@ -46,4 +46,3 @@ export const ToggleGroupDefaults = defineComponentDefaults({
   elevation: elevationAxisSlot(),
   motion: motionAxisSlot(),
 });
-

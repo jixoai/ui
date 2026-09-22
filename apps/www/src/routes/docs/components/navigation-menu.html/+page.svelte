@@ -237,7 +237,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  
+
   </div>
 </div>
 
@@ -294,7 +294,7 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Keep navigation links in panels; actions belong in dropdown-menu."><CodeBlock code={usage} lang="svelte" meta="NavigationMenu usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The bar exposes one roving tab stop and keeps every destination a real link."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between top-level triggers and wrap.' }, { key: 'Enter / Space', action: 'Open the focused trigger panel.' }, { key: 'Escape', action: 'Close the panel and restore focus to its trigger.' }]} aria={[{ name: 'aria-current', value: 'page / true', description: 'Marks the current destination.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs a trigger with its panel.' }, { name: 'aria-expanded', value: 'boolean', description: 'Mirrors the native popover toggle state.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Navigation links and panels inherit shared density tokens; the panel adds popover padding tokens."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo scopes={['xs', 'default', 'lg']}><NavigationMenu label="density"><NavigationMenuLink href="/docs">docs</NavigationMenuLink></NavigationMenu></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-pad', default: '12px 14px', source: 'component' }, { name: '--jx-pop-pad-inline', default: '14px', source: 'component' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"

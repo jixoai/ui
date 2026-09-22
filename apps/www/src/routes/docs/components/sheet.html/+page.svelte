@@ -154,7 +154,7 @@ ${close}
     {/snippet}
   </Sheet>
 
-  
+
   </div>
 </div>
 
@@ -178,7 +178,7 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Backdrop click is deliberately not wired — sheet content is often a form; close via ×, Escape, or your own footer action."><CodeBlock code={usage} lang="svelte" meta="Sheet usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog carries the modal contract; title is REQUIRED — it is the dialog's accessible name."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the drawer — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted to share the 200ms animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer actions)' }]} aria={[{ name: 'aria-label', value: 'title (required)', description: 'On the dialog element — the title is the REQUIRED accessible name.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; focus trap and top layer are native.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The drawer extent rides --jx-sheet-size; timing is a declared 200ms exception to the dialog family's 120ms."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo><div class={cx(rt.col12)}><PressButton onclick={() => (open = true)}>open sheet</PressButton><span class={cx(rt.text125, rt.inkMuted)}>the trigger inherits scope; the drawer surface inherits through the DOM tree.</span></div></DensityDemo><TokenTable tokens={[{ name: '--jx-sheet-size', default: '24rem (size prop)', source: 'component', description: 'Panel extent along the docked axis; side panels cap at 92vw.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Body scrollbar compensation in the scroll ring.' }, { name: 'slide timing', default: '200ms (declared exception)', source: 'structural' }, { name: 'top/bottom cap', default: '85dvh', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
-  
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"

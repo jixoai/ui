@@ -91,4 +91,3 @@ export const AvatarDefaults = defineComponentDefaults({
   elevation: elevationAxisSlot(),
   motion: motionAxisSlot(),
 });
-

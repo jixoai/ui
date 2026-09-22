@@ -127,7 +127,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  
+
   </div>
 </div>
 
@@ -151,7 +151,7 @@ ${close}
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The trigger snippet is usually a link; the card is free content — headings, links, images."><CodeBlock code={usage} lang="svelte" meta="HoverCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="No tooltip role and no aria-describedby — the card is supplementary rich content, not a description."><A11yTable keys={[{ key: 'Tab', action: 'Focus opens the card instantly; focus crossings into the card never dismiss' }, { key: 'Escape', action: 'Closes the card immediately (global)' }]} aria={[{ name: 'role', value: 'none imposed', description: 'Not role=tooltip — compose headings/links inside; the card is content.' }, { name: 'aria-describedby', value: '—', description: 'Deliberately absent: the card is not a description of the trigger.' }, { name: 'popover', value: 'manual', description: 'Light dismiss stays OFF — pointer and focus crossings must not dismiss.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The panel rides the shared surface-motion kernel and the jx-surface paint law."><div class={cx(rt.flex, rt.col, rt.gap20)}><DensityDemo><HoverCard><p class={cx(rt.text125)}>hover the trigger — the card measures panel↔anchor live.</p>{#snippet trigger()}<span class={cx(rt.inkPrimary, rt.underline, rt.dotted, rt.hcOffset4)}>@density</span>{/snippet}</HoverCard></DensityDemo><TokenTable tokens={[{ name: '--jx-hover-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The surface-motion kernel driving open/close.' }, { name: 'panel width', default: 'max min(88vw, 20rem)', source: 'structural' }, { name: 'open / close delays', default: '300ms / 200ms', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
-  
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"

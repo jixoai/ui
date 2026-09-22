@@ -285,9 +285,12 @@ census: **105 surface · 4 siteOnly · 4 context-only (icon-button,
 scroll-run, pattern-hero-set family-level, highlight-detect-default —
 the rootless check found a component wrapper, not a lib) · 1
 engine-wrapper (scroll-virtual) · 1 rootless-lib (glass)**. Late folds:
-component-canvas carries SIX lanes (theme + density LEFT OUT — the
-stage-preview BINDABLES own the prop names and two-way typing pins
-them; §13 no-rename law; W6-dossier-flagged); accordion's content is
+component-canvas carries SIX lanes (theme LEFT OUT — the stage-preview
+bindable owns the name; density: the UNIVERSAL lane is absent while
+the LEGACY local `densitySlot('default')` is retained — the page's
+two-way binding owns the semantics and the lint pins it as a `local`
+departure; both under the §13 no-rename law, W6-dossier-flagged — the
+Codex W6-final P2 wording fold); accordion's content is
 native-details IN-FLOW — no portal boundary (the brief's assumption
 corrected honestly); alert/anchor/inline-code/skeleton retired their
 declaration-only density postures. Standing-debt note for W5:

@@ -317,7 +317,7 @@ ${close}
   </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="FloatButton usage" /></SectionCard></div>
-  
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
