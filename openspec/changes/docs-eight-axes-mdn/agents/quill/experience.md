@@ -465,3 +465,36 @@
   3/3 solo seconds later. Attributing a jitter red to the sibling (or to
   yourself) without the solo re-run wastes a round; the before/after ledger
   should record "cleared solo" as the baseline entry.
+
+## Techniques (mine, added 2026-09-22, task 18 — hero/image MAJOR package)
+- **"NEVER FLIPS" HAS A BENIGN TWIN: "NEVER FLIPS IN THE CHECKED MEDIUM"**:
+  the hero query demo was reported dead, but the three-state live measurement
+  (resize → class + color → resize back) showed it flipping both directions —
+  the report's likely false-negative medium was the SSR bytes or a
+  pre-hydration read, where §9.1's base-first-paint semantics guarantee the
+  BASE always. Query-reactivity findings must state WHICH medium was checked
+  (raw bytes / pre-hydration / post-hydration live) and the demo captions now
+  carry the §9.1 first-paint note so reviewers measure the right state. The
+  engine's reactive substrate is auditable in one grep: liveMediaMatches
+  reads the mediaTick $state inside the family's $derived frame.
+- **A FAILURE-PATH DEMO MUST DEMONSTRATE ON THE BRANCH THAT CARRIES THE
+  CLAIM**: image's query demo passed a fallback snippet, but the snippet
+  branch renders consumer markup ONLY — no family root, no stamp — so any
+  "the panel's data-density moves" claim was structurally false. When a
+  component has exclusive render branches (failed+snippet / failed-default /
+  ok), each demo claim must name its branch and the demo must mount ON that
+  branch. The fix (drop the snippet → the default frame's panel carries
+  data-density) was verified by the flip measurement, not by re-reading the
+  caption.
+- **A FROZEN-VOICE ASSERTION IS AN EQUALITY WITH A RECEIPT**: the input-group
+  bezel check inverted the expectation (flagging equality as failure) — for
+  emission-form-frozen voices the pass condition IS byte-equality across the
+  island, receipted by the var chain (raw var flips on the same element; the
+  alias doesn't). Write the direction of each assertion from the claim, then
+  re-read the claim before trusting the red.
+- **LOAD-AVERAGE IS PART OF THE GATE REPORT**: at load 28-59 a 5s render
+  timeout is environmental noise (two agents' vitest + build concurrently);
+  the honest ledger entry is "cleared solo / with --testTimeout=30000" plus
+  the load reading — and build failures get route-level attribution from the
+  prerender log (a single carousel 500 with zero errors on your pages is the
+  sibling's in-flight state, cited by their diff stat).

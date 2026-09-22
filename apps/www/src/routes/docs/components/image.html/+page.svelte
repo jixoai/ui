@@ -72,7 +72,7 @@ ${close}
      border and padding ride stylex defineVars aliases (declared, and
      therefore resolved, at the stylex :root scope), so a dark island
      re-substitutes NOTHING: the panel is byte-identical -->
-<Image src="/missing.png" alt="dark island" width={96} height={96} theme="dark" />
+<Image src="/definitely-missing.png" alt="dark island" width={96} height={96} theme="dark" />
 
 <!-- size: the stamp lands on the img root and nothing follows — the
      box is the width/height attributes' own, the glyph is a fixed
@@ -83,10 +83,11 @@ ${close}
   ];
 
   // the ONE query() case: responsive density on the failure surface.
-  // The named rung stamps the broken panel (and the img root), and the
-  // COMPOSED fallback content inherits the re-based channels — the
-  // supply chain is what the breakpoint moves. The STRING lane needs
-  // both generics (the campaign's typing law).
+  // Deliberately NO fallback snippet: the DEFAULT frame's broken panel
+  // is what carries data-density (the composed-slot branch renders
+  // consumer markup only — nothing stamps), so the demo shows the
+  // family's own stamp flipping sm ↔ lg across the breakpoint. The
+  // string lane needs both generics (the campaign's typing law).
   const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'small' }, 'large');
 
   const queryUsage = `<script lang="ts">
@@ -96,21 +97,17 @@ ${close}
 ${close}
 
 <!-- below 48rem the base (large rung) applies; at 48rem+ the md case
-     wins and the failure surface stamps sm — composed slot content
-     inherits the re-based channels -->
+     wins and the DEFAULT fallback frame stamps sm — the data-density
+     on the broken panel flips with the viewport. No fallback snippet
+     here on purpose: the snippet branch renders YOUR markup only
+     (nothing stamps it). -->
 <Image
-  src={flakyUrl}
+  src="/definitely-missing.png"
   alt="responsive failure"
   width={640}
   height={360}
   density={query<{ md: DensityLane }, DensityLane>({ md: 'small' }, 'large')}
->
-  {#snippet fallback()}
-    <span style="width: 640px; height: 360px; display: grid; place-items: center;">
-      retry later
-    </span>
-  {/snippet}
-</Image>`;
+/>`;
   const queryFiles: TreeFile[] = [{ name: 'image-query-demo.svelte', content: queryUsage, kind: 'usage' }];
 
   // the page's local join (the separator serialize law): plain
@@ -120,7 +117,10 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter(
+        (style): style is string | { readonly [key: string]: string | object } =>
+          Boolean(style),
+      )
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -421,6 +421,9 @@ ${close}
               emission-form receipt as hero's lead, with no raw-var voice to flip). The size
               pair is the inertness probe: the stamped img's computed font-size is exactly 14px
               while the rendered box stays the attributes' 96×96 — pixels have no em voice.
+              Disclosure: the demos' usage mirrors above are HAND-AUTHORED to match the stage
+              markup (the same-source migration is the recorded follow-up) — the component
+              source in each drawer is the registry's own.
             </p>
           </ComponentCanvas>
         </div>
@@ -437,19 +440,14 @@ ${close}
                 width={640}
                 height={360}
                 density={responsiveDensity}
-              >
-                {#snippet fallback()}
-                  <span style="width: 640px; height: 360px; display: grid; place-items: center;">
-                    retry later — the sm rung stamps at 48rem+
-                  </span>
-                {/snippet}
-              </Image>
+              />
               <p class={cx(rt.para)}>
                 Media keys are min-width: below 48rem the base applies — the large rung; at
-                48rem and wider the md case wins and the failure surface stamps sm (the
-                data-density on the broken panel moves in the raw bytes). The composed slot's
-                content inherits the re-based channels — the supply chain is what the breakpoint
-                moves. The string lane takes both generics.
+                48rem and wider the md case wins and the DEFAULT fallback frame stamps sm (the
+                broken panel's data-density flips lg ↔ sm across the breakpoint — the family's
+                own panel, measured). No fallback snippet here ON PURPOSE: the snippet branch
+                renders your markup only — nothing stamps it — so the default frame is the
+                honest demo surface. The string lane takes both generics.
               </p>
             </div>
           </ComponentCanvas>

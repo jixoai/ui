@@ -176,7 +176,10 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter(
+        (style): style is string | { readonly [key: string]: string | object } =>
+          Boolean(style),
+      )
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -645,7 +648,9 @@ ${close}
               <p class={cx(rt.para)}>
                 Media keys are min-width: below 48rem the base applies — the ambient light
                 profile; at 48rem and wider the md case wins and the accent voices flip. The
-                theme lane is a STRING lane: both generics are load-bearing (the heading page's
+                first paint is the BASE by §9.1 (SSR renders before any media can answer), so
+                the flip engages after hydration and then tracks the viewport live. The theme
+                lane is a STRING lane: both generics are load-bearing (the heading page's
                 query case shows the number-lane bare form).
               </p>
             </div>
