@@ -411,7 +411,7 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "needs-work-1st"
+   "status": "fixed-awaiting-reverify"
   },
   {
    "page": "inline-code",
@@ -421,7 +421,7 @@
     "scribe"
    ],
    "tier": 3,
-   "status": "pass-1st"
+   "status": "done"
   },
   {
    "page": "input",

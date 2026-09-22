@@ -539,3 +539,33 @@
 - (scribe) The dl semantics carried the a11y story for free: dl/dt/dd
   rows preserved verbatim — the component's honesty (never a table in
   disguise) is its own accessibility receipt.
+
+## Techniques (task 18 additions)
+- Tier-3-by-pin-density is a REVIEWABLE process: the review re-runs the
+  pins (AST source read + served bytes + spec execution) and re-diffs
+  the integration commit for table-row touches. A zero-row-touch diff +
+  three green pins is what makes a surviving hand table honest.
+- The zero-markup receipt has a precise shape: childTypes over the
+  chip's childNodes. [8,3,8] (comment/text/comment) = the page author's
+  own Svelte comments flanking one text node; the engine adds zero
+  elements. Attribute the comment nodes honestly (author markup, not
+  engine/stylex artifacts) — the receipt survives either attribution,
+  but the next auditor shouldn't chase the wrong source.
+- Padding formulas verify at EVERY rung, not just the worked example:
+  radius + font×(lh−1)/2 predicted 3.25/3.75/4.475/7/11.5 and the DOM
+  delivered exactly that — a one-line-per-rung check that turns a
+  hand-table claim into a law.
+- Kinship naming wants three greps: the shared-import grep (same
+  symbols, same module), the mount-site grep (who setContexts the
+  provider — page demos vs family vs scenes), and the leaf grep (zero
+  component imports + zero edge references; beware token-NAME collisions
+  like chip's "Highlight" focus ring).
+
+## Highlights (task 18)
+- (quill, inline-code) The padding formula as NORMATIVE css in the
+  geometry section (padding-inline = radius + fontSize × (lineHeight−1)/2)
+  with worked examples — the page teaches the equation, the probe
+  confirms it at every rung. The best-measured page of the batch.
+- (quill) Tier-3 honesty: the hand table survived BECAUSE it is
+  triple-pinned, and the page says so — the tier decision itself is
+  documented in the toc comment and the integration commit.

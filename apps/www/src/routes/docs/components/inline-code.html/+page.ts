@@ -17,6 +17,7 @@ const toc: TocSection[] = [
   { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },
   { id: 'theming', label: 'Density and tokens' },
+  { id: 'universal-props', label: 'The eight axes' },
   { id: 'api', label: 'Props' },
 ];
 
