@@ -581,3 +581,28 @@
   component keeps its 2 documented pre-existing errors — both true,
   different scopes. A fix claim of "page zero" is satisfied even when
   `grep avatar` hits the family file; scope the grep to the page path.
+
+## Task 20 — button-group review (2026-09-22)
+- **Provider families move the measurement target**: the group stamps,
+  the COMPOSED buttons consume — so the density ladder is read off the
+  BUTTONS (height/font), not the wrapper; and a channel is "read" if any
+  composed consumer reads it (press-button's paddingInline var(--jx-inset)
+  is a density channel of the GROUP's row). Enumerating "the lanes the
+  joined buttons read" requires sweeping the consumers' atom tables, not
+  the family's own files — my third channel-list miss caught (dropdown
+  size echo, avatar voice, button-group inset) all share the shape: the
+  enumeration lived in one file while the reads lived in another.
+- **Stamp-the-rung-attribute to reach undemoed rungs**: a page demos only
+  default+lg; the xs/sm rungs measure fine by setting data-density on a
+  live clone (the attribute IS the mechanism the named stamp writes).
+  Same for the number lane (coefficient inline) — but always on a clone,
+  never the pinned specimen.
+- **W7 scroll verdicts are JS-stamped strings** (data-jx-scroll-state=
+  "start-closed") — read the stamp first, then the chrome displays;
+  chevron chips are aria-label'd ("Scroll actions backward/forward"),
+  not class-found. Overflow numbers are viewport-relative — always pair
+  scrollWidth/clientWidth with the viewport you measured at.
+- **Dead CSS detection**: a class count in the SERVED CSS is not a DOM
+  count — .jx-btngroup-veil-layer appeared ×2 in the page bytes (the
+  stylesheet text) and ×0 as elements. Grep the stylesheet AND query the
+  DOM separately; the difference IS the dead-rule receipt.

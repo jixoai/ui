@@ -264,7 +264,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number`,
       default: 'ambient scope',
       description:
-        "CONSUMED — the PROVIDER axis (the reactive bridged provider, the provider-snapshot kernel law). The named rung stamps data-density on the group root and the scope block re-bases the lanes the joined buttons read (--jx-hit, --jx-text): measured 28/11px at xs, 32/12 at sm, 40/13 at default, 48/15 at lg — the whole joined row re-tiers through one prop. The NUMBER lane is inert (the declaring-element law: the coefficient composes at :root, the wrapper never re-declares). Number unit: coefficient.",
+        "CONSUMED — the PROVIDER axis (the reactive bridged provider, the provider-snapshot kernel law). The named rung stamps data-density on the group root and the scope block re-bases the lanes the joined buttons read (--jx-hit, --jx-text, --jx-inset): measured 28/11/8px at xs, 32/12/8 at sm, 40/13/12 at default, 48/15/16 at lg (hit/type/inline-padding) — the whole joined row re-tiers through one prop. The NUMBER lane is inert (the declaring-element law: the coefficient composes at :root, the wrapper never re-declares). Number unit: coefficient.",
     },
     {
       name: 'color',
@@ -750,6 +750,7 @@ ${close}
           <TokenTable tokens={[
             { name: '--jx-hit', default: '28 / 32 / 40 / 48px across xs / sm / default / lg', source: 'density', description: 'The joined buttons\' hit floor — the lane the named rung re-bases (measured; 2xs sits at 24px).' },
             { name: '--jx-text', default: '11 / 12 / 13 / 15px across xs / sm / default / lg', source: 'density', description: 'The joined buttons\' type voice — re-based with the hit lane.' },
+            { name: '--jx-inset', default: '8 / 8 / 12 / 16px across xs / sm / default / lg', source: 'density', description: 'The joined buttons\' inline padding (the old page\'s true row, restored) — the third re-based lane: paddingInline reads it (press-button.stylex.ts:60), re-based by the same rung scope at the 4px unit × coefficient 2/2/3/4.' },
             { name: '--shadow-xs', default: 'theme', source: 'structural', description: 'The cluster shadow (the raised physics) — a raw read that follows the theme\'s own re-declaration.' },
             { name: '--border', default: 'theme', source: 'structural', description: 'Joined button borders (via --jx-outline); the divider and seams paint no color.' },
           ]} />
