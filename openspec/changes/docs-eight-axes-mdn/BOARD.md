@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
 | marginalia | 23 | carousel (OWN) | CODE | in-flight |
-| vellum | 21 | descriptions (scribe's) | REVIEW (1st) | in-flight |
+| vellum | 22 | code-card (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
 ## DONE (17)
@@ -31,7 +31,7 @@
 - input-group: vellum 1st review **PASS** (§1-forwarding-≠-consumption separation verified in prose; density consumed+provided digit-exact with the r11 pin 28/28; theme mixed-by-emission-form var-chain on the root; chromeless 0-padding part confirmed; motion 150ms read past the LAW #14 gate; MINORs: arithmetic sentence in api summary + pre-logged usageLive warning for scribe's #2) → scribe 2nd QUEUED
 - image: quill fix LANDED (path (a): snippet dropped, the default frame's broken panel is the demo surface — data-density sm↔lg verified live, no-CLS holds; paths aligned + hand-file disclosure; cx predicate — page 0 diagnostics) → scribe 2nd QUEUED on the fixed tree
 - hero-section: quill disposition (iii) LANDED — MAJOR NOT REPRODUCED (live hydrated probe: the demo flips 1280↔600↔1280 with dark-accent ink; the chain is fully reactive via mediaTick $state; cross-confirmed with input-group's density flip); FALSE-NEGATIVE VECTOR: §9.1 makes SSR first paint the unconditional base — raw-bytes/pre-hydration reads always see light; the caption now documents base-paint + post-hydration engagement → marginalia 2nd ADJUDICATES the vellum-vs-quill disagreement (live hydrated probe, LAW #14/#15 discipline)
-- descriptions: coded Tier-2 (scribe 17 — density via the ruler ladder term 10/11/12/14 / value 11/12/13/15 / pad 8/8/12/16; theme = avatar frozen-pole twin; columns + container query measured @640px; EXTRA 14−8−2=4; the old page's live empty-source cell FIXED; two same-file distinct failures honestly attributed — flaky mount vs own dropped #install/#see-also ids, restored 5/5; PILOTS 3 blocks) → vellum+marginalia reviews QUEUED
+- descriptions: vellum 1st review **PASS** (ruler ladder digit-exact incl. injected-rung beats; frozen-pole twin via the runtime-alias census — no plain .dark redeclares any of the five; columns clamp source-pinned + container query measured; #install/#see-both restored per the incident record; MINOR: query caption says 40rem but the lg key is 64rem VIEWPORT_SCALE — discriminated at 800px) → marginalia 2nd QUEUED
 - card-grid: coded Tier-2 (vellum 19 — LAYOUT two-halves density: self inert on the fixed spatial gradient (--space-20 = --jx-unit×5, :root-only), tenants real through rung scopes 12/16/20; size = heading contrast case confirmed; theme bridge-only; motion = the family's own IO-armed rule, carriers unread; no rest spread → no synthesized row — served-count arithmetic; page ZERO diagnostics) → scribe+marginalia reviews QUEUED
 - carousel: marginalia CODE IN FLIGHT (task 23)
 

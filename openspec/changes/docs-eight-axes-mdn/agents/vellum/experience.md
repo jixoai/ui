@@ -620,3 +620,30 @@
   AXIS row in the universal section. When auditing EXTRA arithmetic on
   form families, expect both keys and check the served tables keep
   them separate.
+
+## Task 21 (descriptions REVIEW) — lessons
+- **The stylesheet-walk bug that zeroes every emission-form census**:
+  `if (r.cssRules) { walk(r.cssRules); continue; }` skips every
+  CSSStyleRule, because modern Chrome gives STYLE rules an (empty)
+  .cssRules list — truthy — so the walker descends into nothing and
+  never reads cssText. The correct shape: handle r.type === 1
+  (STYLE_RULE) by reading cssText (and its declarations) BEFORE
+  descending, and only recurse for group rules (media/layer/supports).
+  Every "tokenEmissions: []" scan I ran in tasks 17/20 was this bug
+  reading an empty walk, not a clean sheet — the empty review's
+  census-by-luck conclusion gets retroactive doubt, though its measured
+  polar verdicts stand.
+- **Injected-rung ladders beat on-page demo luck**: when a page's
+  DensityDemo only exposes two rungs, the full ladder is still
+  measurable by cloning the specimen into data-density wrappers
+  appended to body (ephemeral, no tree edit). Same for coefficient
+  wrappers: --jx-density-coefficient: 3 on a wrapper leaves the voices
+  unmoved — the declaring-element law measured by injection, no
+  family change.
+- **Query-caption boundary rem**: a query case's VALUES can be right
+  while its THRESHOLD sentence is wrong (lg key = 64rem, caption said
+  40rem). The discriminator is a mid-band viewport (here 800px — above
+  the stated boundary, below the true one): if the case hasn't
+  engaged, the caption's number is the finding. Assertion tuples must
+  name their lane (term/value/pad), or a true "unmoved" reads as a
+  FAIL against mislabeled expectations.
