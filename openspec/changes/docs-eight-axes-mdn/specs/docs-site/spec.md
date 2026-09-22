@@ -28,10 +28,10 @@ W3-era single uniform demo card as the page's axis documentation.
 
 ### Requirement: tiered refactor with two-review sign-off
 
-Each page's refactor tier (简单/优化/完全) is chosen by its coding agent
-against the baseline skill §3 rubric, executed within it, and signed off
-by TWO review agents per `research/assignment.json`; a tier-3 choice
-without recorded justification is a review veto.
+Each page's refactor tier (简单/优化/完全) SHALL be chosen by its coding
+agent against the baseline skill §3 rubric, executed within it, and
+signed off by TWO review agents per `research/assignment.json`; a tier-3
+choice without recorded justification is a review veto.
 
 #### Scenario: a page reaches done
 
