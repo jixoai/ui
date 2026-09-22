@@ -664,3 +664,32 @@
   track gap", "the arrow shadow") retire the falsified --jx-icon/
   --jx-hit rows while disclosing the retirement twice — the cleanest
   falsification handling of the batch.
+
+## Techniques (task 23 additions)
+- "Measured" sentences are per-probe falsifiable even when the
+  surrounding demo works: card-grid's query flip (default↔sm) was
+  REAL while its "measured tenant padding 12px ↔ 16px" was not — the
+  full-tree computed-style diff (walk every descendant at both
+  viewports, count movers) settles it in one probe. 0 movers = the
+  sentence goes.
+- Padding ladders have ARMS: the section-card header steps 12/12/16/20
+  on paddingInline while paddingBlock steps 8/8/12/12 — read the
+  shorthand, then name the arm the page's number refers to before
+  judging a claim true or false.
+- IO-armed entrances gate on honest scroll: window.scrollTo stepping
+  raced the IntersectionObserver (0 entered after a full loop);
+  scrollIntoView + settle armed it instantly. When an entrance reads
+  "never fired", try a USER-shaped scroll before blaming the family.
+- data-reveal wrappers hide far sections from IO too — a page-level
+  reveal system can starve a family's own observer during fast
+  programmatic scrolls.
+
+## Highlights (task 23)
+- (vellum, card-grid) The two-halves density split is the batch's
+  cleanest "self inert / tenants real" story: --jx-unit declared
+  :root-ONLY (single declaration grep) makes the spatial gradient
+  rung-invariant BY CONSTRUCTION, and the section-card header ladder
+  (12/12/16/20 inline) makes the tenant half digit-exact.
+- (vellum) The motion row is armed-by-IO with a reduced/no-IO
+  immediate-enter fallback and an nth-child ≤8 delay cap — the family's
+  own time axis, carriers unread, with the no-JS visibility law.
