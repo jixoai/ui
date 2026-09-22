@@ -1,7 +1,7 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| scribe | 14 | avatar (vellum's) | REVIEW (1st) | in-flight |
+| scribe | 15 | button-group (vellum's) | REVIEW (1st) | in-flight |
 | marginalia | 16 | avatar (vellum's) | REVIEW (2nd) | in-flight |
 | vellum | 13 | empty (quill's) | REVIEW (1st) | in-flight |
 | quill | 13 | hero-section (OWN) | CODE | in-flight |
@@ -27,7 +27,7 @@
 - button-group: coded Tier-2 (vellum task 12) — the PROVIDER family: four-voice theme split measured (outline slot flips, label alias frozen, seams contrast-ghost, cluster shadow follows); density re-bases JOINED buttons 28/32/40/48; W7 scroll start-closed verdict documented; PILOTS joined (axes canvas), 9/9 probes; zone/nesting/boundary hand mirrors disclosed as follow-up — reviewers marginalia+scribe QUEUED
 - heading: coded Tier-2 (quill task 12) — measurement-first overturned the brief: family reads ZERO carriers/channels; size consumes VIA THE INLINE STAMP (explicit size REPLACES the em ladder, auto restores); theme = partial pole via the ink seam (data-jx-ty-ink gate); 14−8=6 arithmetic; quill's ledger cleared (dock 14→21, theme own-default) — reviewers marginalia+vellum QUEUED
 - empty: coded Tier-2 (quill task 11-B) — the THIRD measured theme pole (frozen: .dark stamps, nothing flips — after checkbox full-flip and cascader ring-only); elevation nuance (art shadow is fixed --jx-shadow-2xs not the §7 pair); 13−8=5 arithmetic exact — reviewers marginalia+vellum QUEUED
-- avatar: coded Tier-2 (vellum task 9) — EXTRA arithmetic 17−8=9 exact, theme four-voices-frozen documented absence (W-next #1), query<number> flip 48↔40 — reviewers scribe+marginalia QUEUED
+- avatar: scribe 1st review **PASS** (six claims triple-layer re-derived; its 2 findings are PRE-EXISTING component-code svelte-check errors → drift ledger #6; radius-inertia probe self-corrected sm→md) → marginalia 2nd IN FLIGHT (double-blind parallel)
 - ⚠ DIST GATES DEFERRED: npm run build transiently RED in breadcrumb (scribe mid-edit, canvas demo not self-contained) — the post-breadcrumb integration build owns fresh dist + docs-universal + canvas-same-source solo for the combined state (chip micro-fix + date-picker + breadcrumb + hardening)
 ## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. (scribe's cascader NIT, ruled by orchestrator)
 

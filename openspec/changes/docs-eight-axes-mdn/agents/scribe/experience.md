@@ -399,3 +399,43 @@
   checks clean. Both logged for the orchestrator; per-page patches would
   fork the fleet idiom.
 
+
+## Techniques (task 14 additions)
+- First-review posture (no prior review to be independent OF): re-derive
+  every brief claim from three independent surfaces — source read, raw-SSR
+  byte parse, live computed probe — and let any disagreement between the
+  three, not the brief, decide the finding.
+- Specimen-index discipline in probes: avatar's named-steps panel renders
+  sm/md/lg siblings under one parent; `[data-jx-avatar]` index [0] is the
+  sm box (6px cut). Claims worded against the md baseline (8px) must
+  target index [1] — a passing inertness check on the wrong specimen
+  proves the wrong sentence. First radius run did exactly this; the
+  during=6px unmoved was TRUE but not THE claim.
+- The 17−8 arithmetic is best receipted from raw SSR bytes: parse every
+  <table>, read body-row first cells — family 9 (src…rest, size absent),
+  universal 8, and the page's OWN axes table also parses as an 8-row
+  4-col table; disambiguate by the heading context probe (byte offsets
+  vs nearest <h2>/<h4>), not by shape.
+- Frozen-pole receipt without a browser: the built CSS carries the whole
+  story — count the voice declarations (2 poles each), rg for
+  `.dark{…voice` (none), then ONE live probe to confirm nothing repaints
+  under the bridge. Single-evaluate, cross-instant.
+- svelte-check triage for review tasks: workspace baseline (1623 here)
+  dwarfs any single family; grep the log per-file, classify Error vs
+  Warn, then `git log -- <file>` for provenance — pre-existing family
+  errors from a batch commit are findings for the family owner, not
+  defects of the page under review.
+
+## Highlights (task 14)
+- (vellum, avatar) The size-not-curated comment is the badge lesson
+  stated as policy: "an override for a filtered row is dead text" —
+  the §13 adoption (family prop IS the axis) means the curation file
+  must stay EMPTY for that name, and SSR proves it (size absent from
+  the family table).
+- (vellum, avatar) The axes-section summary is a falsifiable claim
+  sheet: "the avatar is a leaf, its css reads none of their carriers,
+  each row carries the negative-grep receipt" — every clause was
+  independently checkable and all held.
+- (vellum, avatar) Play-state lab kept hand by the documented rejection
+  class (playground bind + {name}/{variant} shorthands) with the chip
+  FAQ precedent cited inline — the rejection itself is receipted.
