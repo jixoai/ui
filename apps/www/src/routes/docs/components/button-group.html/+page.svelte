@@ -326,7 +326,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="install" data-reveal="">
       <DocsInstall name="button-group" />
     </div>
 
@@ -782,7 +782,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="button-group" />
   </div>
 </div>

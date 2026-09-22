@@ -202,7 +202,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="empty" />
   </div>
 
@@ -356,7 +356,7 @@ ${close}
 
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'figure', value: 'empty root', description: 'Groups the no-data message.' }, { name: 'figcaption', value: 'title + description', description: 'Keeps the message discoverable.' }, { name: 'aria-hidden', value: 'illustration', description: 'Prevents decorative art from interrupting the message.' }]} /></SectionCard></div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="empty" />
   </div>
 </div>

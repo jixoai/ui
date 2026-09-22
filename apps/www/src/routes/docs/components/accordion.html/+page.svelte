@@ -333,7 +333,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="accordion" />
   </div>
 
@@ -571,7 +571,7 @@ ${close}
 
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The component adds zero ARIA of its own — the browser maps details/summary to the disclosure pattern, open state included. Focus-visible draws a 1px inset outline (--ring); the disclosure animation is killed under prefers-reduced-motion; the summary snippet must not contain interactive elements — they fight the summary's own click/keyboard contract. The summary's hit height is density-invariant: 11px padding-block at default, sm, and lg alike (measured) — density moves the text, not the target."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus to the summary line' }, { key: 'Enter / Space', action: 'Toggles the focused item open/closed (native summary behavior)' }]} aria={[{ name: 'details / summary', value: 'native semantics', description: 'The platform exposes name, role, and open state; no ARIA attributes are added or needed.' }]} /></SectionCard></div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="accordion" />
   </div>
 </div>

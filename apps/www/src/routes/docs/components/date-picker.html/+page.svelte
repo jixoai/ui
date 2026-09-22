@@ -355,7 +355,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="date-picker" />
   </div>
 
@@ -632,7 +632,7 @@ ${close}
 
   <!-- the skeleton's closing section: related components, derived from
        the docs reading chain (data, not a hand list) -->
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="date-picker" />
   </div>
 </div>

@@ -230,7 +230,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="install" data-reveal="">
       <DocsInstall name="color-picker" />
     </div>
 
@@ -594,7 +594,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="color-picker" />
   </div>
 </div>

@@ -410,7 +410,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="component-canvas" />
   </div>
 
@@ -721,7 +721,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="component-canvas" />
   </div>
   </div>

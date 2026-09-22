@@ -184,7 +184,7 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="install" data-reveal="">
       <DocsInstall name="blockquote" />
     </div>
 
@@ -437,7 +437,7 @@
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="blockquote" />
   </div>
 </div>

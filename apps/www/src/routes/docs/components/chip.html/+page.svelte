@@ -367,7 +367,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="install" data-reveal="">
       <DocsInstall name="chip" />
     </div>
 

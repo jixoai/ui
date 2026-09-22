@@ -243,7 +243,7 @@ ${close}
        capabilities/usage sections were already law-grade; the archetype
        gains install/overview/see-also + the measured axes layer; the
        theming section folds into axes) -->
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="native-scroll-area" />
   </div>
 
@@ -553,7 +553,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="native-scroll-area" />
   </div>
 </div>

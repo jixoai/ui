@@ -278,7 +278,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="breadcrumb" />
   </div>
 
@@ -660,7 +660,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="breadcrumb" />
   </div>
   </div>

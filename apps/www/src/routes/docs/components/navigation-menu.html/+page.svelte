@@ -300,7 +300,7 @@ ${close}
   <!-- install + overview (docs-eight-axes-mdn task 22; the theming
        section folds into the measured axes layer, the old types section
        into usage, the prose universal-props section into axes) -->
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="navigation-menu" />
   </div>
 
@@ -493,7 +493,7 @@ ${close}
           { name: 'aria-controls', value: 'panel id', description: 'Derived from the Item\'s one id; also the glide\'s trigger→panel resolution' },
           { name: 'aria-label', value: 'label prop', description: 'The nav landmark\'s accessible name (default "site")' },
           { name: 'aria-haspopup', value: '"true"', description: 'Every trigger; also the walk-scope selector — panel content and nested navs never leak into the bar\'s walk' },
-          { name: 'indicator', value: 'aria-hidden + tabindex -1', description: 'The sliding part is decoration: it adds no tab stop and no semantics (probe-asserted)' },
+          { name: 'indicator', value: 'aria-hidden; not focusable', description: 'The sliding part is a bare decorated span: aria-hidden, no tabindex attribute, therefore no tab stop and no semantics — the plain-span truth both reviewers measured' },
         ]}
       />
     </SectionCard>
@@ -634,7 +634,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="navigation-menu" />
   </div>
 </div>

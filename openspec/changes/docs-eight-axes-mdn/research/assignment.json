@@ -586,8 +586,9 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 22 tier-2 the image model; hand universal table 13 rows; matrix re-pinned 0→1 + scope-marked size"
+   "status": "done",
+   "notes": "task 22 tier-2 the image model; hand universal table 13 rows; matrix re-pinned 0→1 + scope-marked size",
+   "closure": "#28 — scribe 1st + marginalia 2nd PASS (both LOWs fixed at closure: tabindex row reworded to the plain-span truth; install/see-also ids) + the fleet id-anchor sweep (40 wrappers / 22 closed pages)"
   },
   {
    "page": "number-input",

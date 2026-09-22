@@ -234,7 +234,7 @@ const options = [
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="cascader" />
   </div>
 
@@ -426,7 +426,7 @@ const options = [
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="cascader" />
   </div>
   </div>

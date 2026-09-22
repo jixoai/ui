@@ -364,7 +364,7 @@ ${close}
   <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law; the sections between stay page-local. -->
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="checkbox" />
   </div>
 

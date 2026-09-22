@@ -255,7 +255,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="dropdown-menu" />
   </div>
 
@@ -457,7 +457,7 @@ ${close}
 
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The menu follows the ARIA menu keyboard contract while keeping light dismiss native."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between menu items and wrap at the ends.' }, { key: 'Home / End', action: 'Jump to the first or last enabled item.' }, { key: 'Enter / Space', action: 'Activate the focused item and close the menu.' }, { key: 'Escape', action: 'Close and restore focus to the trigger.' }]} aria={[{ name: 'role', value: 'menu / menuitem', description: 'Exposes the menu and its actionable items.' }, { name: 'data-walk-active', value: '(paint-only)', description: 'The keyboard walk’s highlight — a visual state attribute on the walked item; it never rewrites aria-current (a static aria-current="page" on a raw item is the author’s semantics and stays).' }]} /></SectionCard></div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="dropdown-menu" />
   </div>
 </div>
