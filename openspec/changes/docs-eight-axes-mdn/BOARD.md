@@ -1,11 +1,12 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| scribe | 12 | component-canvas (quill's) | REVIEW (2nd) | in-flight |
+| scribe | 13 | cascader (quill's, post-fold @89106bb6) | REVIEW (2nd) | in-flight |
 | marginalia | 15 | dropdown-menu (quill's) | REVIEW (2nd) | in-flight |
 | vellum | 11 | dropdown-menu (quill's) | REVIEW (1st) | in-flight |
 | quill | 12 | heading (OWN) | CODE | in-flight |
 ## DONE
+- ✅ **component-canvas** (owner quill) — tenth closed page (marginalia+scribe double PASS, numbers identical across reviewers; W7 bar 28-canvas honesty held; EXTRA doubled arithmetic 27−6−2+2=21; page svelte-check 7→0 — the rewrite PAID DOWN idiom debt; count-rule pinability NIT archived)
 - ✅ **checkbox** (owner scribe) — ninth closed page (quill+marginalia NEEDS-WORK both → consolidated fix → marginalia re-verify PASS 6/6; the carrier-strip ×3 probe number now cited as page text; 112/112 across four files)
 - ✅ **date-picker** (owner quill) — eighth closed page (vellum+marginalia double PASS, zero disagreements; the one-cell theme-split reproduced with wall-clock hue tracking — the −4 drift rides the raw token at every instant while the alias stays light-form; 17-row arithmetic, six zero-reader greps, composition import-grep; 3 wording items to quill's ledger: precision clause, floor-steps, axes-drawer imports)
 - ✅ **anchor** (owner scribe) — the campaign's FIRST fully-closed page: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS (quill 9/9 + 5/5 probe)

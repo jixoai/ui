@@ -316,6 +316,38 @@
   pin stops outer coefficients at the boundary — an outer ×3 wrapper
   moves a pin-less box 24→72px). "Explicit rung = exact rung" is the
   pin's job, not a restatement.
+## Techniques (mine, task 12 — component-canvas review)
+- STALE-ELEMENT-REFERENCE artifact (task 10's transition-frame cousin):
+  capturing an element handle BEFORE a Svelte state flip, then reading
+  computed style after, can read the PRE-flip node — the framework
+  re-created the element and my reference went stale ("stageTheme stayed
+  light" while exactly one [data-theme=dark] existed elsewhere in the
+  same root). Law: after a state flip, RE-QUERY (find the flipped element
+  by its new state, e.g. [data-theme="dark"]) and check ancestry
+  (root.contains) instead of trusting captured handles.
+- Counting-rule discipline for bar/hook numbers: "28 data-jx-canvas-axis
+  hits" is true ONLY for the VALUED attributes (data-jx-canvas-axis="<axis>"
+  = 7 menus x 4 canvases); the raw attribute string appears 195x (menus'
+  check-mark refs included). Pin the counting rule with the number or
+  the next reviewer re-litigates it.
+- Old-page tier audits: `git show <pre-commit>:<path> | wc -l` + grep the
+  dead toc ids + count resolveRawCode — three commands, objective tier
+  evidence (component-canvas: 284 lines, 4 dead ids, no archetype
+  sections -> tier 2 confirmed).
+- svelte-check delta can be a POSITIVE receipt: quill's page went 7
+  errors -> 0 (the fleet cx idiom included) — page reviews should note
+  when a refactor RETIRES idiom debt, not only when it adds some.
+
+## Highlights found in others' pages (task 12 additions)
+- (quill, component-canvas) The same-source LAW documented as a page
+  section ("the id is the extraction key") — teaching the platform
+  mechanism on the page of the component that implements it: the docs
+  page as the law's own reference manual.
+- (quill) The two-seat density/theme rows ("the PROP is the rung seat...
+  The AXIS lane is the supply seat") — when one name carries two
+  channels, name both seats in one cell with the law that separates
+  them; the reader never has to hold the ambiguity.
+
 ## Mistakes to avoid
 - `rg -rn` is the --replace trap AGAIN (AGENTS.md law): two commands this
   task silently rewrote matches with "n" before I caught it. `rg -n` only;
