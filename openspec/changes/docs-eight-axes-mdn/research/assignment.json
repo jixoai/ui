@@ -550,8 +550,9 @@
     "quill",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 31 tier-2; panel IN-PLACE (third DOM shape); radius panel-only live chain 0/12/8; glide ONE HOP measured; 3 open questions"
   },
   {
    "page": "mermaid",

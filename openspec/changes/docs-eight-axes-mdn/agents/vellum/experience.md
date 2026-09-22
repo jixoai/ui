@@ -916,3 +916,30 @@
   semantics + combination reading (each key its own kbd, + as literal text).
 - **TokenTable source is an enum**: 'variant grammar' (prose) fails the type;
   the honest enum value for a variant-grammar token is 'component'.
+
+## Task 31 — menubar (2026-09-22)
+
+- **The dispatch leads are hypotheses — the DOM answers them**: menubar's panel is
+  IN-PLACE (chain `SPAN[slot] > LI > UL#bar`), so nav-menu's promotion-away channel
+  (.jx-pop) and popconfirm's portal law simply don't apply; the family keeps its own
+  `.jx-menubar-panel` law. The DOM-shape probe settles carrier inheritance questions
+  in one shot.
+- **defineVars pins :root literals; only the createTheme tokenScope class
+  re-derives** (concrete instance of boot-time-snapshot ≠ alias-freeze): grep
+  tokenScope consumers FIRST — families that don't stamp it (menubar) have frozen
+  typed-atom voices under explicit dark while their legacy-var voices re-derive.
+  Measure the theme row PER VOICE (bg/border/ink/poses/open-pose separately); a
+  single "does it flip" question hides the split.
+- **Keyboard-contract claims must be walked key-by-key**: the menubar glide is ONE
+  HOP (after → focus lives in the next panel; the bar walker requires a
+  trigger-focused activeElement, so further arrows are no-ops). My first glide probe
+  pressed ArrowDown first and measured a false "glide broken" — and the hero text
+  implied chain-gliding. Probe posture determines truth; write the measured
+  contract, not the comment's aspiration.
+- **Query-base prose canary caught my own error**: I wrote "small — 28px/11px"
+  (the XS rung) before measuring; the small rung is 32px/12px. Measure the exact
+  specimen the prose describes, at BOTH sides of the viewport key (768px ±).
+- **TOC==DOM comparators**: toc hrefs carry '#', DOM ids don't — normalize before
+  comparing or you get a false FAIL (and verify chrome-exclusion on both sides).
+- **Playwright page.request.get(url)** replaces in-page fetch for SSR raw HTML
+  (about:blank fetch has no origin and fails).
