@@ -181,14 +181,14 @@ ${close}
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        "PARTIAL re-theme, split by the declaring-selector grep. FLIPS under the panel's .dark (raw tokens): the bezel (--popover/--border via jx-surface-body), the panel ink (--popover-foreground) and with it the walk highlight (color-mix over currentColor), the focus ring (--ring), the destructive hover pair. STAYS FROZEN (stylex :root aliases): the trigger chrome (--jx-background/--jx-border/--jx-foreground, hover --jx-muted) — the trigger keeps the page profile while its panel re-themes. light and system stamp nothing — tree inheritance.",
+        "PARTIAL re-theme, split by the declaring-selector grep. FLIPS under the panel's .dark (raw tokens): the panel ink (--popover-foreground) and with it the walk highlight (color-mix over currentColor), the focus ring (--ring), the destructive hover pair, the bezel SEAM (--border) — and the bezel FILL, though not through --popover: the own level2 stamp is unconditional, so .jx-surface-body's fill resolves the elevation ladder (--jx-elevation-level2-surface → --surface-container-low: light oklch(0.96), dark oklch(0.185); --popover is only the stamp-less fallback — the discriminator is the dark fill 0.185, not --popover's 0.3211), and the elevation shadow recipes re-declare under .dark as WHITE (hsl(0 0% 100% / .16)). STAYS FROZEN (stylex :root aliases): the trigger chrome (--jx-background/--jx-border/--jx-foreground, hover --jx-muted) — the trigger keeps the page profile while its panel re-themes. light and system stamp nothing — tree inheritance.",
     },
     {
       name: 'elevation',
       type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
       default: `'level2' · Own default, not ambient`,
       description:
-        "CONSUMED via the §7 pair — the panel's floating surface. The slot's OWN is level2 (3dp, M3's menu rung — the panel's historic z-feel; the census batch C mapping); an explicit level steps the theme's table (level4 = 8dp + surface-container-high) and the number lane snaps DOWN between rungs. The root stamps the composed --jx-elevation-surface/--jx-elevation-shadow pair onto the panel. Number unit: dp.",
+        "CONSUMED via the §7 pair — the panel's floating surface. The slot's OWN is level2 (3dp, M3's menu rung — the panel's historic z-feel; the census batch C mapping); an explicit level steps the theme's table (level4 = 8dp + surface-container-high) and the number lane snaps DOWN between rungs. The stamp is UNCONDITIONAL — the own default always lands, so the panel fill resolves the ladder (--jx-elevation-level2-surface → --surface-container-low; --popover is only the stamp-less fallback) and the shadow rides the level's recipe. The root stamps the composed --jx-elevation-surface/--jx-elevation-shadow pair onto the panel. Number unit: dp.",
     },
     {
       name: 'motion',
@@ -201,7 +201,9 @@ ${close}
 
   // the theme-split receipts (voice by voice, declaring-selector grep)
   const themeSplitTokens = [
-    { name: '--popover / --border', default: 'FLIPS under .dark', source: 'structural' as const, description: 'The panel bezel (jx-surface-body fill + seam) — raw reads, re-declared per scope.' },
+    { name: '--jx-elevation-level2-surface', default: 'FLIPS under .dark', source: 'structural' as const, description: 'The panel FILL through the always-on level2 stamp: .jx-surface-body resolves --jx-elevation-level2-surface → --surface-container-low (light oklch(0.96) · dark oklch(0.185)) — --popover is only the stamp-less fallback (dark --popover would be 0.3211).' },
+    { name: '--jx-elevation-level2/4-shadow', default: 'FLIPS: black → white recipes', source: 'structural' as const, description: 'The shadow recipes re-declare under .dark as WHITE (hsl(0 0% 100% / .16) — measured rgba(255,255,255,0.16) on the dark island); the light side is the black hsl pair.' },
+    { name: '--popover / --border', default: 'FLIPS under .dark', source: 'structural' as const, description: 'The panel bezel SEAM (--border; --popover rides the fill chain only as the stamp-less fallback) — raw reads, re-declared per scope.' },
     { name: '--popover-foreground', default: 'FLIPS under .dark', source: 'structural' as const, description: 'The panel ink (.jx-menu color) — the walk highlight (color-mix over currentColor) follows it.' },
     { name: '--ring', default: 'FLIPS under .dark', source: 'structural' as const, description: 'The item focus ring (the inset 1px law).' },
     { name: '--destructive / --destructive-foreground', default: 'FLIPS under .dark', source: 'structural' as const, description: 'The destructive item\'s hover/walk pair (raw reads in dropdown-menu.css).' },
@@ -282,9 +284,15 @@ ${close}
           a consumer's <code>aria-current</code>.
         </p>
         <p class={cx(rt.measurePara)}>
-          The family is a primitive other menus compose: the breadcrumb dropdown, the menubar
-          panels, the navigation menu, button-group overflow and the component-canvas dock's own
-          axis menus all mount it. The eight axes resolve on both ends — density rides an
+          The family is a primitive other menus compose — three real composers (import-grep
+          receipt): the breadcrumb dropdown (breadcrumb-dropdown.svelte), button-group's overflow
+          menu (button-group.svelte) and the component-canvas playground's axis menus
+          (canvas-playground.svelte) all mount it. Two siblings deliberately DO NOT: menubar and
+          navigation-menu duplicate the menu contract by hand — their headers say so
+          ("duplicated deliberately: registry items stay independent, no hidden coupling",
+          menubar.svelte; navigation-menu declares itself "an independent thin" navigation
+          contract where "actions belong to dropdown-menu") — registry items stay independent.
+          The eight axes resolve on both ends — density rides an
           inherit-then-provide provider (the anchor and the panel carry the rung; items resolve
           through the same contract), radius makes the menu the concentric anchor or consumes the
           broadcast protocol (吃也供, supply-and-consume), and the panel's elevation is the
@@ -393,7 +401,7 @@ ${close}
                 <DropdownMenu id="axes-r-md" triggerLabel="radius medium" radius="medium"><DropdownMenuItem>Open</DropdownMenuItem></DropdownMenu>
               </div>
               <div class={cx(rt.panel)}>
-                <span class={cx(rt.note11)}>elevation own level2 — 3dp, the menu rung</span>
+                <span class={cx(rt.note11)}>level2 · own — inspect the panel's --jx-elevation-effective: 3</span>
                 <DropdownMenu id="axes-e-own" triggerLabel="level2 · own"><DropdownMenuItem>Open</DropdownMenuItem></DropdownMenu>
               </div>
               <div class={cx(rt.panel)}>

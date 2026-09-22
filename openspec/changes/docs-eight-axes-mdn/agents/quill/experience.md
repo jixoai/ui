@@ -353,3 +353,30 @@
   docs-only; the docs-ambient carriers set and the terminal-patterns fixture
   supplied the composer receipt for free. Grep test/ FIRST is not ceremony —
   it redraws the boundary of what may be touched.
+
+## Techniques (mine, added 2026-09-22, task 14 — dropdown-menu post-review fix)
+- **ALWAYS-STAMPED OWN DEFAULTS DECIDE FILL ATTRIBUTION**: when a family's
+  Defaults slot carries an own default (dropdown-menu's elevation level2), the
+  carrier stamp is UNCONDITIONAL — so the consuming css's fallback chain
+  (`var(--jx-elevation-surface, …, var(--popover))`) never reaches its last
+  var. Attributing the paint to the fallback token (--popover) reads the chain
+  backwards. The check is one render of the resolve: if the own default
+  resolves without an explicit prop, the fallback is documentation, not paint.
+- **GREP RECEIPTS FOR PROSE COMPOSER CLAIMS NEED THE IMPORT PATH IN ALL ITS
+  SPELLINGS**: my task-10 composer grep pattern matched `$lib/ui/dropdown-menu`
+  and missed breadcrumb-dropdown's RELATIVE import ('../dropdown-menu/…') — so
+  a real composer was dropped and two non-composers padded the list (reviews
+  caught it). When a sentence asserts "all mount it", grep the COMPONENT NAME
+  against an import-shape-agnostic pattern (any 'dropdown-menu' occurrence in
+  an import line), then name files in the docs prose without line numbers
+  (lines go stale; the report keeps them).
+- **A CURL-CHECKABLE CAPTION POINTS AT THE STAMP, NOT THE LOOK**: "renders
+  identically to omitted" captions are unverifiable from the SSR bytes; point
+  the reader at the style-attr carrier instead ("inspect the panel's
+  --jx-elevation-effective: 3"). Own-default presence IS the checkable fact.
+- **The shadow recipes' theme flip is part of the elevation story, not the
+  color story**: the §7 pair re-declares per profile (black hsl at light,
+  WHITE hsl at dark — measured rgba(255,255,255,0.16)), so a family that
+  stamps an elevation recipe flips a voice even though it reads no "color"
+  token. Enumerate FLIPS by following the stamped vars to their declaring
+  blocks — not by grep for color-looking names.
