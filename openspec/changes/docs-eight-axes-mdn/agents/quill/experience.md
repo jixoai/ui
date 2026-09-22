@@ -641,3 +641,28 @@
   query({ md: 'lg' }, 'sm') widens to QueryResult<string> and reds
   svelte-check against DensityLane props — `as const` on BOTH the case
   and the base (the both-generics law's lightweight form).
+
+## Techniques (mine, added 2026-09-23, task 23 — review badge-indicator)
+- **REVIEW PROBES NEED NO COMPONENT MOUNTS — INJECT THE MECHANISM**: the
+  theme-split claim (typed alias freezes / raw token flips) is verifiable
+  without a served dark demo: inject a plain `.dark` div via page.evaluate,
+  hang two children reading var(--destructive) vs var(--jx-destructive),
+  read computed backgrounds. The served css IS the mechanism under test.
+  Same for viewport discipline: an explicit-rung claim receipts at two
+  viewport sizes (identical values prove scope-driven, not media-driven).
+- **THE BRIEF CAN MANGLE THE CLAIM — REVIEW THE SERVED TRUTH**: my task
+  text said "rest row served"; the page's own no-rest note, the author's
+  report, and my 14-row served-DOM enumeration all say NO rest row (the
+  −1 in 15−8−1 is class, the rest identity). File the correction against
+  the BRIEF with the enumeration receipt — the ledger must not inherit
+  the mangled phrasing, and the page must not be "fixed" toward it.
+- **A CLAIM'S MEASUREMENT MAY LIVE OFF-PAGE**: "measured 10px under an
+  18px mirror" (the size echo's riding half) has no served demo — verify
+  it by SOURCE (the carriers land on the wrap element only) + ANALOG
+  probes (the density wraps show the chip's atom winning inheritance).
+  That is review-sufficient; note the missing demo as a NIT, not a
+  defect — the page teaches the law, the probe scripts hold the numbers.
+- **IDLE/NEUTRAL TOKENS ARE THE CLEAN A/B FOR THEME CLAIMS**: the current
+  link's hue drifts per-panel (hue injection), so compare the IDLE ink or
+  a pure variable read across scopes; anything hue-bearing near an
+  injected scope is noise (the task 22 lesson, now the standing rule).
