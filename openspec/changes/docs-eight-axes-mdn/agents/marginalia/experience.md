@@ -387,6 +387,27 @@
   steps" is directionally true but the exact claim is the floor.
   Quote the min-heights; say "floor" if floor is what the law sets.
 
+## Task 14 (checkbox re-verify round, 2026-09-22) — learnings
+- **A co-stamp law's full lifecycle, observed**: task 8 discovery (the
+  pin is live at the declaring scope, ×3 = 24→72px) → task 12 banked →
+  task 14 the fix round quotes my probe number AT THE CLAIM SITE and
+  puts the wording in the rendered Default cell (respecting W-next #3's
+  dead-description ruling). The lesson: when a finding lands a probe
+  NUMBER, the fix can cite the number — reviewer-provided evidence
+  becomes page content, the strongest fix class.
+- **An id-less canvas can be the honest posture**: the form canvas stays
+  outside the same-source lane because its payload is page state
+  (F4-rejected for extraction) — with the rationale IN THE REVIEW
+  RECORD. Partial same-source coverage is acceptable when each gap is
+  either declared (chip's mirrors) or reasoned (checkbox's form canvas);
+  it was the UNdeclared drift that was the MAJOR.
+- **Count-check greps must model the compiled/runtime form**: my
+  "stage+drawer ×2" expectation for `cx(rt.col16)` failed because the
+  stage COMPILES the call into hashed classes — only the drawer's code
+  text carries the literal. The same discipline as the asymmetric
+  entity-encoding: model what the served artifact actually contains
+  (attribute markup compiles; code-view text encodes) before counting.
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation

@@ -2,10 +2,11 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 12 | component-canvas (quill's) | REVIEW (2nd) | in-flight |
-| marginalia | 14 | checkbox (scribe's fix @7848cfe2) | RE-VERIFY | in-flight |
+| marginalia | 15 | dropdown-menu (quill's) | REVIEW (2nd) | in-flight |
 | vellum | 11 | dropdown-menu (quill's) | REVIEW (1st) | in-flight |
 | quill | 12 | heading (OWN) | CODE | in-flight |
 ## DONE
+- ✅ **checkbox** (owner scribe) — ninth closed page (quill+marginalia NEEDS-WORK both → consolidated fix → marginalia re-verify PASS 6/6; the carrier-strip ×3 probe number now cited as page text; 112/112 across four files)
 - ✅ **date-picker** (owner quill) — eighth closed page (vellum+marginalia double PASS, zero disagreements; the one-cell theme-split reproduced with wall-clock hue tracking — the −4 drift rides the raw token at every instant while the alias stays light-form; 17-row arithmetic, six zero-reader greps, composition import-grep; 3 wording items to quill's ledger: precision clause, floor-steps, axes-drawer imports)
 - ✅ **anchor** (owner scribe) — the campaign's FIRST fully-closed page: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS (quill 9/9 + 5/5 probe)
 - ✅ **breadcrumb** (owner scribe) — seventh closed page (vellum+marginalia double-blind NEEDS-WORK → scribe consolidated fix incl. LAW #14 discovery → marginalia re-verify PASS 7/7 with the transition-frame discipline that overturned its own first reading; 72/72 solo)
