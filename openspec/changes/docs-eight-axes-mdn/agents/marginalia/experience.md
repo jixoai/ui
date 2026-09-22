@@ -131,6 +131,43 @@
   The consumption grep alone is not enough — check the winner of the
   cascade between the stamp and the family rule.
 
+## Task 5 (accordion fix round, 2026-09-22) — learnings
+- **The F4 rejection classes are a positive selection tool, not just errors.** A
+  canvas whose stage carries page-state ({exclusive}/{ghost} shorthand identifiers)
+  CANNOT take an id — that's the documented registry/density-2xs class. The honest
+  fix for vellum's FAQ-drawer drift was therefore two-sided: label the hand mirror
+  by its file name (`accordion-faq.svelte`) + regenerate its CONTENT from the
+  stage's copy, and say in a comment WHICH surface is which. Don't force an id onto
+  a state-bearing stage and don't leave the mirror pretending to be the other
+  surface.
+- **The theme-split grep is source-level, no dist needed**: one look per voice at
+  its declaring selector list — raw shadcn tokens re-declared under plain `.dark`
+  (jixoai.css:269 block) flip at a component `.dark`; `tokens.stylex.ts`'s
+  `stylex.defineVars` map (:207) is the frozen layer by construction (the ledger's
+  `:root, .xbpgcew` emission). My fix-round probe then confirmed vellum's B1 values
+  byte-for-byte in ONE evaluate (summary ink === card ground === oklch(1 0 0) — the
+  white-on-white receipt as a passing assertion).
+- **svelte-check delta attribution under a shared tree**: sibling tasks run
+  concurrently and move the workspace total (this round: my −1 cancelled by the
+  cascader task's +1). The honest ledger is the per-page by-file diff
+  (`grep "^/Users.*svelte:" log | sort | uniq -c` on both runs), plus git-status
+  attribution for the sibling's files. Page-local count is the machine-verifiable
+  contract; never quote the workspace total as your delta.
+- **Joining the same-source lane means joining the PILOTS**: ids + resolveRawCode
+  without a PILOTS entry leaves the drawers ungated — that's how badge (my task 4)
+  escaped the drift gate. Accordion joined this round (5 snapshots, `-u` once then
+  green); badge flagged for the orchestrator.
+- **Probe locator law for stylex pages**: `rt.panel`/`rt.mt20` are hashed in the
+  DOM — locate by text content + `.parentElement`, never by utility class name; and
+  code samples in SSR carry escaped `<` (`query&lt;{ sm: DensityLane }…`), so
+  drawer-parity checks must match the escaped form. Three false FAILs this round
+  were exactly these two; the page was clean.
+- **Discharged on accordion**: quill's query() drawer discipline (inline compound +
+  imports record — the two-sources debt DELETED, not deferred) and quill's
+  axes-summary honesty index ("The split, counted: …"). Still deferred: meta+docs
+  curation (accordion has no generated meta — extractor coverage is the
+  batch-close item).
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation

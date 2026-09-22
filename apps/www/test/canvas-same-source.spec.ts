@@ -50,6 +50,7 @@ const routePage = (rel: string): string =>
 const PILOTS = [
   'components/blockquote.html',
   'components/alert.html',
+  'components/accordion.html',
   'components/link.html',
   'components/prose.html',
   'components/list.html',
@@ -200,6 +201,134 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
           <div class={cx(rt.panel)}><Alert title="large rung" density="lg" dismiss="manual">The × affordance rides the lg hit lane.</Alert></div>
           <div class={cx(rt.panel)}><Alert title="2xs rung" density="2xs" dismiss="manual">The × affordance rides the 2xs hit lane.</Alert></div>
         </div>
+      </div>"
+    `);
+  });
+  it('accordion.html :: postures', async () => {
+    // the five axes canvases joined the same-source lane with the page's
+    // task-5 fix round (vellum M2: four hand mirrors already drifted at
+    // birth; the hand literals are gone — the stages are the one source).
+    // The FAQ canvas stays unextracted BY DESIGN: its stage carries the
+    // playground's page state ({exclusive}/{ghost} shorthand bindings —
+    // the F4 self-containment rejection class), so its drawer file is the
+    // labeled hand mirror (src/lib/ui/accordion-faq.svelte).
+    expect((await extractionFor('components/accordion.html')).canvases['postures']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridMd3)}>
+        <div class={cx(rt.panel)}>
+          <!-- default — the framed group -->
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>default — framed</p>
+          <Accordion>
+            <AccordionItem>
+              {#snippet summary()}framed{/snippet}
+              One collapsed 1px border around the set.
+            </AccordionItem>
+            <AccordionItem>
+              {#snippet summary()}seams{/snippet}
+              1px seams between items, not double borders.
+            </AccordionItem>
+          </Accordion>
+        </div>
+        <div class={cx(rt.panel)}>
+          <!-- ghost — antd Collapse ghost paint, frameless -->
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>ghost</p>
+          <Accordion ghost>
+            <AccordionItem>
+              {#snippet summary()}ghost{/snippet}
+              antd Collapse ghost mapping — frameless, hairline separators only.
+            </AccordionItem>
+          </Accordion>
+        </div>
+        <div class={cx(rt.panel)}>
+          <!-- bare item — without the group: a single styled details/summary -->
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>bare item</p>
+          <AccordionItem>
+            {#snippet summary()}one-off disclosure{/snippet}
+            Without the group: a single styled details/summary.
+          </AccordionItem>
+        </div>
+      </div>"
+    `);
+  });
+  it('accordion.html :: density', async () => {
+    expect((await extractionFor('components/accordion.html')).canvases['density']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col20, rt.wFull)}>
+        <DensityDemo>
+          <Accordion>
+            <AccordionItem>
+              {#snippet summary()}shipping{/snippet}
+              Orders leave the warehouse within 48h.
+            </AccordionItem>
+          </Accordion>
+        </DensityDemo>
+        <!-- explicit rungs — the documented vocabulary (aliases of sm/lg) -->
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}>
+            <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>density="large" — 15px summary</p>
+            <Accordion density="large">
+              <AccordionItem>
+                {#snippet summary()}large{/snippet}
+                The lg rung — 15px summary text.
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <div class={cx(rt.panel)}>
+            <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>density="small" — 12px summary</p>
+            <Accordion density="small">
+              <AccordionItem>
+                {#snippet summary()}small{/snippet}
+                The sm rung — 12px summary text.
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </div>
+      </div>"
+    `);
+  });
+  it('accordion.html :: theme', async () => {
+    expect((await extractionFor('components/accordion.html')).canvases['theme']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.wFull)}>
+        <Accordion theme="dark">
+          <AccordionItem>
+            {#snippet summary()}warranty{/snippet}
+            Two years against defects — the summary ink flips to the dark profile; the card
+            ground stays light.
+          </AccordionItem>
+          <AccordionItem>
+            {#snippet summary()}returns{/snippet}
+            30 days, no questions asked.
+          </AccordionItem>
+        </Accordion>
+      </div>"
+    `);
+  });
+  it('accordion.html :: concentric', async () => {
+    expect((await extractionFor('components/accordion.html')).canvases['concentric']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.wFull, rt.maxWXl)}>
+        <Accordion radius={20}>
+          <AccordionItem>
+            {#snippet summary()}concentric anchor{/snippet}
+            <Card radius="auto">
+              <div class={cx(rt.panel)}>the auto Card computes max(0px, 20px − its 0.875rem inset) = 6px — the radius var inherits the group root stamp through the plain cascade (native-details content is in flow; no portal boundary)</div>
+            </Card>
+          </AccordionItem>
+        </Accordion>
+      </div>"
+    `);
+  });
+  it('accordion.html :: query', async () => {
+    expect((await extractionFor('components/accordion.html')).canvases['query']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.wFull, rt.maxWXl)}>
+        <Accordion density={query<{ sm: DensityLane }, DensityLane>({ sm: 'default' }, 'small')}>
+          <AccordionItem>
+            {#snippet summary()}shipping{/snippet}
+            The compact rhythm below the 40rem viewport — the default rhythm above. Resize
+            the window and watch the summary step.
+          </AccordionItem>
+          <AccordionItem>
+            {#snippet summary()}returns{/snippet}
+            30 days, no questions asked.
+          </AccordionItem>
+        </Accordion>
       </div>"
     `);
   });
