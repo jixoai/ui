@@ -408,3 +408,30 @@
   grep). Composers are import edges; law kinship is prose. Name the edge when
   you mean the edge, and credit the law when you mean the law — composers
   lists that mix the two rot the way dropdown-menu's did.
+
+## Techniques (mine, added 2026-09-22, task 16 — inline-code tier 3 + heading cx fix)
+- **TIER IS DECIDED BY THE PAGE'S PIN DENSITY, NOT ITS GAPS**: inline-code
+  looked like a normal archetype completion until the pre-flight found its
+  variant row is invariant-locked IN THE PAGE'S OWN HAND TABLE
+  (axisRowsOf(pageSource) must find exactly one row with the canonical cell),
+  its table ordinals feed the frozen matrix multiset, and a spec extracts
+  registry paths from its source. Switching to the generated meta would have
+  deleted the pinned row and failed three ways. Read the pins BEFORE choosing
+  the tier — a canonical page's remaining gaps (Install/Overview/SeeAlso) can
+  be closed without touching a single pinned expression.
+- **AXISROWSOF COUNTS TABLE EXPRESSIONS BY SOURCE ORDER**: any new props={…}
+  array — even an innocent summary table — shifts every later tableIndex and
+  moves candidate keys against the frozen matrix. Archetype completion on a
+  matrix-pinned page means PROSE ONLY, or a same-change fixture update.
+- **THE CX PREDICATE IS A ONE-LINE FLEET SWEEP**: the avatar 2c185457 template
+  (.filter(Boolean) → the style-is type-guard) converts a standing
+  diagnostics page to zero with zero behavior change. Heading and inline-code
+  both landed this round (fleet 1623→1619); the remaining count is other
+  pages' standing idioms — same template applies wherever a page is touched.
+- **A MID-FLIGHT SIBLING CONVERSION SHOWS UP AS YOUR SPEC RED**: the working
+  tree can hold a half-landed meta conversion (page rewritten, matrix fixture
+  half-updated) — the frozen-matrix test then fails on THEIR route keys.
+  Attribution is mechanical: the failing assertions' keys name the route; run
+  git status/diff --stat, cite the in-flight files, and leave their files
+  alone. Report the red with the key list so the coordinator can see it
+  resolve at their integration.

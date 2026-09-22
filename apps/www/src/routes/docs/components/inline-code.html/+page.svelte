@@ -4,6 +4,8 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import InlineCode, { INLINE_LANGS, detectInlineLang } from '$lib/ui/inline-code/inline-code.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -211,7 +213,10 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter(
+        (style): style is string | { readonly [key: string]: string | object } =>
+          Boolean(style),
+      )
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -266,6 +271,55 @@ ${close}
           <span class="pill">fused default</span>
           <span class="pill">microlighter ranges</span>
           <span class="pill">zero markup</span>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div data-reveal="">
+      <DocsInstall name="inline-code" />
+    </div>
+
+    <!-- overview (docs-eight-axes-mdn task 16, tier 3: the page was
+         already canonical and invariant-pinned — this section completes
+         the archetype without touching the pinned tables) -->
+    <div id="overview" data-reveal="">
+      <SectionCard
+        eyebrow="overview"
+        title="Overview"
+        summary="A native code element in the variant grammar's fused/tonal/outline ladder — the chip the platform never shipped, with highlighting that paints zero markup."
+      >
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.measurePara)}>
+            InlineCode renders one native <code>&lt;code&gt;</code> — the element whose meaning
+            is "this is source code" — in the variant grammar's three-rung ladder: <strong>fused</strong>
+            (the default; the backdrop-fusion band — a transparent ground plus a backdrop
+            contrast filter, zero own color), <strong>tonal</strong> (the 12%/45% tint from
+            --jx-tonal), and <strong>outline</strong> (the structural 1px twin). Omitted, the
+            variant resolves through the ambient paint zone; the frozen recipes are pinned by
+            the family spec.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            Highlighting rides the engine seam — per-instance <code>backend</code> prop, else
+            the HIGHLIGHT_KEY context, else the stock microlighter RANGE engine: token ranges
+            over the same text node in the CSS.highlights registry, so the text stays copyable,
+            the frame never depends on the paint, and a page of chips costs one document scan.
+            <code>lang="auto"</code> runs the zero-download fingerprint heuristic (wrong at worst
+            in color); <code>lang="text"</code> stays plain forever; an explicit language is
+            trusted. The geometry is the density radius ladder --jx-chip-radius plus the padding
+            formula radius + fontSize × (lineHeight − 1) / 2, and the six text modifiers ride
+            the shared kernel — an absent prop emits nothing.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            Kinship, named precisely: code-card shares the ENGINE seam verbatim (the same
+            backend contract and HIGHLIGHT_KEY), and avatar-law simplicity shows in the
+            stateless display posture — but nothing composes this chip (grep receipt: only the
+            blueprint scenes mount it), and it composes nothing; long or dynamic code belongs to
+            CodeCard, and inside <code>&lt;pre&gt;</code> the jx-pure reset strips a bare code's
+            frame. The eight-axis surface resolves no-own on the chip (the carriers stamp and
+            supply; the merge law joins them with the modifier mirrors before the consumer
+            style) — the shared grammar lives on the
+            <a class="pill" href="/docs/universal-props.html">universal props</a> page.
+          </p>
         </div>
       </SectionCard>
     </div>
@@ -521,5 +575,9 @@ ${close}
   </div>
 
     <div id="api" data-reveal=""><SectionCard eyebrow="api" title="InlineCode props"><PropsTable universal props={[{ name: 'variant', type: "'fused' | 'tonal' | 'outline'", default: "'fused' · ambient zone", description: "The ladder paint (fused own, the backdrop-fusion band); omitted → the ambient paint zone, else the frozen own fused." }, { name: 'lang', type: 'string', default: "'auto'", description: "'auto' = fingerprint heuristic; an explicit id/alias skips detection; 'text'/'plain' stay plain." }, { name: 'backend', type: 'HighlightBackend', description: 'The engine seam: prop → HIGHLIGHT_KEY context → the stock microlighter range engine. A rejecting backend leaves the plain chip standing.' }, { name: 'lineHeight', type: 'number | string', description: 'The shared text-modifier kernel: number ⇒ the unitless ratio (leading-[1.5]); string ⇒ verbatim. Also feeds the padding calc; absent ⇒ the ambient line flows.' }, { name: 'weight', type: 'string', description: "A weight word or number — 'bold' → font-bold (named map); '450' → font-[450]." }, { name: 'italic', type: 'boolean', description: 'true ⇒ italic; absent stays ambient (never not-italic).' }, { name: 'tracking', type: 'string', description: "A letter-spacing word or length — 'wide' → tracking-wide; '-0.02em' → tracking-[-0.02em]." }, { name: 'family', type: 'string', description: 'A font-family value — verbatim [font-family:…] (spaces escape to underscores).' }, { name: 'fontSize', type: 'string', description: 'A CSS length — verbatim [font-size:…]; also feeds the padding calc. Never named size (the axis-word law).' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'class', type: 'string', description: 'Adds consumer classes; jx-hue-* intent utilities retune the tonal slot, and [--tok-token-…:…] injections land here.' }]} /><p class={cx(rt.mt16, rt.text125, rt.inkMuted)}>Every other attribute (title, data-*, aria-*) flows through to the native &lt;code&gt; element verbatim. Module exports: <InlineCode lang="text" variant="outline">INLINE_LANGS</InlineCode> (the detection candidates) and <InlineCode lang="text" variant="outline">detectInlineLang(code)</InlineCode> (the pure heuristic).</p></SectionCard></div>
+
+    <div data-reveal="">
+      <DocsSeeAlso name="inline-code" />
+    </div>
   </div>
 </div>
