@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | scribe | 17 | descriptions (OWN) | CODE | in-flight |
 | marginalia | 23 | carousel (OWN) | CODE | in-flight |
-| vellum | 19 | card-grid (OWN) | CODE | in-flight |
+| vellum | 20 | input-group (quill's) | REVIEW (1st) | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
 ## DONE (16)
@@ -31,7 +31,7 @@
 - image: marginalia 1st NEEDS-WORK (MAJOR: query demo stamp claim false-as-served — snippet branch has no broken panel; NIT: path mismatch + disclosure) → quill fix IN FLIGHT (task 18-B) → scribe 2nd on the fixed tree
 - hero-section: vellum 1st NEEDS-WORK (MAJOR: query theme demo never flips — engine correct, hero resolution path suspect; quill investigates page-wiring vs family-grade reactivity gap) → quill handling IN FLIGHT (task 18-A) → marginalia 2nd after
 - descriptions: scribe CODE IN FLIGHT (task 17)
-- card-grid: vellum CODE IN FLIGHT (task 19)
+- card-grid: coded Tier-2 (vellum 19 — LAYOUT two-halves density: self inert on the fixed spatial gradient (--space-20 = --jx-unit×5, :root-only), tenants real through rung scopes 12/16/20; size = heading contrast case confirmed; theme bridge-only; motion = the family's own IO-armed rule, carriers unread; no rest spread → no synthesized row — served-count arithmetic; page ZERO diagnostics) → scribe+marginalia reviews QUEUED
 - carousel: marginalia CODE IN FLIGHT (task 23)
 
 ## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. · toc/See-also: See also is chrome, OUT of the toc (anchor precedent).

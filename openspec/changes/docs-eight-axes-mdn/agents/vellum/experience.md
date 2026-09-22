@@ -574,3 +574,27 @@
   section unlisted was the review's MINOR). Same for test counts:
   rg -c "it(" undercounts nested suites — the runner's own count is
   the receipt (22, matching the dispatch exactly).
+
+## Task 19 (card-grid CODE) — lessons
+- **Layout families split density into two measured halves**: the
+  landlord's own rhythm rides the space ladder (--space-N =
+  calc(--jx-unit × N), --jx-unit anchored at :root) — inert at every
+  rung; the tenants read the per-rung kernel channels (--jx-inset/
+  --jx-stack/--jx-text) that the stamped rung scope DOES re-base.
+  "Supply-only" and "consumed" are simultaneously true on one element,
+  split by WHO paints: one probe measuring gap + tenant padding side
+  by side settles it. The dispatch's watch-item ("density may be
+  genuine here") was right and wrong at once — the two-half row is the
+  honest form.
+- **from-meta synthesizes `rest` only when the family spreads rest**:
+  card-grid's Props has no rest spread → no rest row → the arithmetic
+  is 12−8=4, not the +1 the synthesized-rest pattern suggests. Count
+  the SERVED rows before writing the arithmetic line (caught mid-write
+  by the served-table count, not by reading source).
+- **The IO-armed entrance must be read AFTER its own cascade**: mid-
+  cascade reads show opacity 0 / translateY 26px and look like a dead
+  entrance; scrollIntoView + 2s settle shows opacity 1 / transform
+  none. LAW #14 applies to JS-armed time cascades with per-index
+  delays, not just transitions — and a deterministic
+  scrollIntoView+setInterval-armed check beats a blind scroll-through
+  for distinguishing "dead" from "not yet".

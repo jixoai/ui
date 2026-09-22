@@ -1,3 +1,32 @@
+<!--
+  Docs page for card-grid (docs-eight-axes-mdn task 19, vellum
+  2026-09-22 — tier 2 over the docs-demo-standard page: the interactive
+  min/opt-out canvas, the subgrid-law section, the types trio, the a11y
+  and theming sections survive; the skeleton gains Overview + the
+  per-axis table + one real query() case, and the universal-props demo
+  folds into the axes section).
+
+  Order: hero → install → overview → usage → the demo canvas → the
+  subgrid law → types → accessibility → theming → the eight axes
+  (per-axis table + the forwarded-lanes demo + one query() case) → api
+  → see-also.
+
+  Mechanism rows are measurement-first (probed against the served
+  family): density is SUPPLY-ONLY ON SELF (the grid's own 20px gap is
+  inert at every rung — the space ladder hangs off the :root
+  --jx-unit, which no rung scope re-bases) and CONSUMED BY COMPOSITION
+  (the rung scope re-bases --jx-inset/--jx-stack/--jx-text for the
+  tenants — measured: a section-card header steps 12 / 16 / 20px
+  padding at xs–sm / default / lg). size stamps the §11 echo and
+  nothing follows (the heading-contrast case). theme is BRIDGE-ONLY:
+  the .dark class lands, the grid paints nothing theme-able, and the
+  tenants decide through their own emission forms (measured: Card
+  tenants hold their light paint — the typed-layer pole). shape,
+  radius, color, elevation, motion stamp-and-supply (grep receipts).
+  Motion: the entrance cascade is the family's OWN law (IO-armed,
+  70ms × index capped at 8, fill-mode backwards, reduced-motion kill,
+  html.js no-JS visibility) — deliberately NOT the §8 axis.
+-->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -15,8 +44,8 @@
   import { CARD_GRID_DOCS } from '$lib/ui/props-table/docs/card-grid.docs';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlayRange, PlayToggle, PlayHelp } from '$lib/playground';
-
-  // ToC outline: the closing law (the canvas above is the workbench).
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
 
   // Same-source law: the file tree shows the exact installed copy this site
   // consumes — ?raw imports the bytes, never a retyped duplicate.
@@ -83,7 +112,10 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter(
+        (style): style is string | { readonly [key: string]: string | object } =>
+          Boolean(style),
+      )
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -92,14 +124,120 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
             ).join(' '),
       )
       .join(' ');
-  // ---- the universal props demo (explicit-props W3-B) --------------------
-  const universalUsage = `<!-- the landlord forwards to the tenants -->
-<CardGrid density="small" size={14}>
+  // ---- the eight axes demos: code shown = code running -------------------
+  const axesUsage = `<!-- density: SUPPLY-ONLY on self (the 20px gap holds at
+     every rung — the space ladder hangs off the :root --jx-unit);
+     CONSUMED BY COMPOSITION (the rung scope re-bases the tenants'
+     --jx-inset/--jx-stack channels) -->
+<CardGrid density="small">
+  <Card title="tenant one">the guests re-base; the grid holds</Card>
+</CardGrid>
+
+<!-- size: the §11 echo stamps the root's font-size — the tenants'
+     own --text-* voices give it nothing to scale -->
+<CardGrid size={14}>…</CardGrid>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/card-grid-universal.svelte', content: axesUsage },
+  ];
+
+  // the ONE query() case: responsive density through the landlord —
+  // compact guests below 48rem, the default rung at 48rem+. The STRING
+  // lane needs BOTH generics (the §6 typing law; the heading page's
+  // number lane is the bare counterpart).
+  const responsiveDensity = query<{ md: DensityLane }, DensityLane>(
+    { md: 'default' },
+    'small',
+  );
+
+  const queryUsage = `<script lang="ts">
+  import CardGrid from '@ui/card-grid.svelte';
+  import Card from '@ui/card.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+  import type { DensityLane } from '@lib/defaults.svelte';
+${close}
+
+<!-- below 48rem the base (small) applies — the guests breathe tight;
+     at 48rem+ the md case wins and they step to the default rung -->
+<CardGrid density={query<{ md: DensityLane }, DensityLane>({ md: 'default' }, 'small')}>
   <Card title="tenant one">…</Card>
   <Card title="tenant two">…</Card>
 </CardGrid>`;
-  const universalFiles: TreeFile[] = [
-    { name: 'src/lib/ui/card-grid-universal.svelte', content: universalUsage },
+  const queryFiles: TreeFile[] = [{ name: 'card-grid-query-demo.svelte', content: queryUsage, kind: 'usage' }];
+
+  // ---- the per-axis table (§2.5) — measurement-first, receipts in the
+  // house form. The family is a LAYOUT LANDLORD: its own paint is one
+  // fixed 20px gap plus structural geometry; the axis story is the
+  // supply chain to the composed tenants.
+  const axisRows = [
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY, the stamp lands and nothing follows (the heading-contrast case) — the §11 echo stamps the root's font-size inline (measured: exactly 14px at size={14}), and every hero voice in the grid's own paint is structural: the columns template, the fixed 20px gap, the subgrid rows — none is em-of-parent. The tenants hold their own fixed --text-* voices; only consumer-authored em typography would scale. The §11 echo measured verbatim on the root style attr. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-shape-effective and --jx-radius-factor-effective; no family css reads them (grep receipt: zero readers, zero corner declarations in ui/card-grid/ — the grid draws no boxes; the tenants' corners are their own law). Number unit: none.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-radius-effective; no family css reads it (grep receipt: zero readers, zero border-radius in the family css). The concentric broadcast reaches the tenants through the §11 supply, and each tenant's own radius law answers. Number unit: px.",
+    },
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY ON SELF, CONSUMED BY COMPOSITION — measured both halves. ON SELF: the grid's own 20px gap is INERT at every rung (measured 20px at xs/sm/default/lg) — the space ladder hangs off --space-20 = calc(var(--jx-unit) × 5) and --jx-unit is declared at :root only, which no rung scope re-bases (the declaring-element law). ON THE TENANTS: the named rung stamps data-density on the section root — the scope block IS the tenants' home — and the re-based --jx-inset/--jx-stack/--jx-text channels step the composed cards: measured section-card header padding 12px (xs/sm) / 16px (default) / 20px (lg). The NUMBER lane is inert (the coefficient stamps, nothing re-declares). Number unit: coefficient.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-color-effective; no family css reads it (grep receipt: zero readers — the grid paints no hue; the transparent-ground + contrast-filter fusion belongs to inline-code, not here). Tenant hue is each card's own paint. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "BRIDGE-ONLY — measured: a resolved dark lands the .dark class on the section root, and the GRID'S OWN PAINT has nothing theme-able to move (transparent ground, one structural gap) — the section holds at every scope. The pole is the TENANTS', decided through their own emission forms: measured, a Card tenant under the grid's bridge holds its light paint (the typed-layer frozen pole); a raw-var tenant would flip through the same bridge. The grid supplies the island; the guests speak for themselves. light and system stamp nothing — tree inheritance. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-elevation-effective; no family css reads it (grep receipt: zero readers, zero box-shadow in the family css — the grid casts nothing; tenant shadows are tenant law). Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY ON THE AXIS — the carrier --jx-motion-effective is unread (grep receipt: zero readers). The entrance cascade is the family's OWN law, deliberately outside the axis: an internal IntersectionObserver arms .is-entered when the grid scrolls into view, then cards rise on the TIME axis with per-index delays (70ms × index, capped at the 8th child; 320/420ms opacity/transform legs; fill-mode backwards — plays at first paint, no hydration wait), html.js keeps no-JS and pre-hydration fully visible, and prefers-reduced-motion kills the cascade entirely. Animation, not transition-on-the-axis. Number unit: coefficient.",
+    },
+  ];
+
+  // the family's fixed paint (the fixed-paint TokenTable pattern —
+  // no source column: every row is the component's own constant or
+  // seam, and the facts live in the Default cells)
+  const paintTokens = [
+    { name: '--jx-grid-min', default: '320px (the min prop)', source: 'component' as const, description: 'The column collapse width — auto-fit minmax(min(100%, var(--jx-grid-min)), 1fr); consumer-tunable inline, the one var the family owns.' },
+    { name: '--jx-card-i', default: '0–7', source: 'component' as const, description: 'Per-child stagger index — nth-child 2…8 stamp it; the entrance delay is calc(var(--jx-card-i) × 70ms).' },
+    { name: 'the stagger step', default: '70ms (capped at the 8th child)', source: 'structural' as const, description: 'The entrance cascade\'s per-index delay; opacity 320ms ease-out, transform 420ms cubic-bezier(0.22, 1, 0.36, 1), fill-mode backwards.' },
+    { name: 'gap', default: '20px at every density rung (measured)', source: 'structural' as const, description: '--space-20 = calc(var(--jx-unit) × 5) and --jx-unit is :root-anchored — the landlord\'s own rhythm is density-inert; the tenants re-base instead.' },
+    { name: '--jx-gap / --jx-inset', default: 'rung scale (xs/sm 8 · default 12 · lg 16px)', source: 'density' as const, description: 'The kernel channels the TENANTS read — re-based inside the rung scope the grid stamps; the grid\'s own atoms read none of them.' },
+    { name: 'the lone-card cap', default: 'max-width: 46rem', source: 'structural' as const, description: 'auto-fit collapses empty tracks, so a single card would stretch banner-wide — the lone child caps at the editorial measure.' },
+    { name: 'the subgrid rows', default: 'auto 1fr (foot mode: auto 1fr auto)', source: 'structural' as const, description: 'The shared header/body(/foot) contract — every child spans and subgrids them; data-no-subgrid restores a child\'s own rows.' },
   ];
 
 </script>
@@ -108,16 +246,13 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
   <title>Card grid · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai card-grid component: a grid + subgrid layout that equalizes cards — every child spans two shared rows (header / body), so headers align to one height and bodies fill to the tallest. Columns are auto-fit minmax; the min prop controls the collapse width."
+    content="The jixoai card-grid component: a grid + subgrid layout that equalizes cards — every child spans two shared rows (header / body), so headers align to one height and bodies fill to the tallest. Columns are auto-fit minmax; the min prop controls the collapse width. An IO-armed entrance stagger, reduced-motion safe."
   />
 </svelte:head>
 
 <div
   class={cx(rt.shell)}
 >
-  <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
-       glass bar under the scaffold header (height 0, see toc.css) -->
-
   <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
@@ -125,12 +260,13 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
         tone="hero"
         eyebrow="registry:ui · Layout"
         title="card-grid — the subgrid equalizer"
-        summary="Shared header and body rows keep card tops aligned and bodies filled to the tallest: grid + subgrid, works with any two-block card."
+        summary="Shared header and body rows keep card tops aligned and bodies filled to the tallest: grid + subgrid, works with any two-block card. A layout LANDLORD: it stamps the universal lanes and forwards them to the tenants it hosts — its own paint stays structural."
       >
         <div class={cx(rt.wrap12)}>
           <span class="pill">subgrid rows</span>
           <span class="pill">any two-block card</span>
           <span class="pill">min prop</span>
+          <span class="pill">lanes forwarded to tenants</span>
         </div>
       </SectionCard>
     </div>
@@ -140,6 +276,40 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
          See Also is the page law; the sections between stay page-local. -->
     <div data-reveal="">
       <DocsInstall name="card-grid" />
+    </div>
+
+    <div id="overview" data-reveal="">
+      <SectionCard
+        eyebrow="overview"
+        title="Overview"
+        summary="A layout landlord: structural geometry on itself, the universal lanes forwarded to whoever it hosts."
+      >
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.measurePara)}>
+            CardGrid renders one auto-fit grid —
+            <code>repeat(auto-fit, minmax(min(100%, var(--jx-grid-min)), 1fr))</code> — plus the
+            subgrid equalization law: the grid defines two shared rows (header / body), every
+            direct child spans both and opts into <code>grid-template-rows: subgrid</code>, so
+            headers align to the tallest header and bodies fill to the tallest body at any column
+            count. The cards come from YOUR children snippet — the grid never asks what a child
+            is; any two-block card qualifies, and <code>data-no-subgrid</code> opts a child out.
+            A lone child is capped at the 46rem editorial measure instead of stretching
+            banner-wide.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            The eight axes resolve on the section as a landlord: the grid's OWN paint is one
+            fixed 20px gap plus structural geometry — density-inert by construction, because the
+            space ladder hangs off the :root-anchored <code>--jx-unit</code> that no rung scope
+            re-bases. What the axes move is the SUPPLY: the named density rung stamps the scope
+            the tenants live in, and their <code>--jx-inset</code>/<code>--jx-stack</code>
+            channels re-base (measured 12 / 16 / 20px tenant padding across the rungs). Kinship,
+            named precisely: <code>grid</code> and <code>stack</code> are the sibling layout
+            primitives riding the same fixed space ladder — layout families are
+            supply-only-on-self by construction. The grid is a LEAF that composes nothing and is
+            composed by nothing in the fleet (grep receipt: only the blueprint scenes mount it).
+          </p>
+        </div>
+      </SectionCard>
     </div>
 
     <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Feed it any two-block cards; the grid never asks what a child is — section-card qualifies unchanged."><CodeBlock code={usage} lang="svelte" meta="CardGrid usage" /></SectionCard></div>
@@ -279,27 +449,78 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
     </div>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Pure layout — no semantics added or removed; the entrance stagger respects reduced motion."><A11yTable keys={[{ key: '—', action: 'Not interactive — a layout container; children keep their own semantics' }]} aria={[{ name: '(none)', value: '—', description: 'The grid adds no roles or labels; DOM order is the reading order.' }, { name: 'prefers-reduced-motion', value: 'reduce', description: 'The internal entrance cascade is skipped — cards render fully visible.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Column geometry rides the inline --jx-grid-min token; the entrance stagger is a per-index delay."><div class={cx(rt.col20)}><DensityDemo><CardGrid min="220px" class={cx(rt.wFull)}><SectionCard eyebrow="card 01" title="Shared header" summary="Header row shared across the grid."><p class={cx(rt.body13)}>Body fills to the tallest row.</p></SectionCard><SectionCard eyebrow="card 02" title="Another header" summary="Second card in the density demo."><p class={cx(rt.body13)}>The gap and rows are fixed; density does not rescale the grid.</p></SectionCard></CardGrid></DensityDemo><TokenTable tokens={[{ name: '--jx-grid-min', default: '320px (min prop)', source: 'component', description: 'Column collapse width — auto-fit minmax floor.' }, { name: '--jx-card-i', default: '0–7', source: 'component', description: 'Per-child stagger index driving the entrance delay.' }, { name: 'stagger step', default: '70ms (capped at 8th child)', source: 'structural' }, { name: 'gap', default: '20px (gap-5)', source: 'structural' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="universal-props" data-reveal="">
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The landlord's own rhythm is density-inert — the 20px gap holds at every rung (the space ladder hangs off the :root --jx-unit); what density moves is the tenants, through the re-based inset/stack channels."><div class={cx(rt.col20)}><DensityDemo><CardGrid min="220px" class={cx(rt.wFull)}><SectionCard eyebrow="card 01" title="Shared header" summary="Header row shared across the grid."><p class={cx(rt.body13)}>Body fills to the tallest row.</p></SectionCard><SectionCard eyebrow="card 02" title="Another header" summary="Second card in the density demo."><p class={cx(rt.body13)}>The gap and rows are fixed; density does not rescale the grid.</p></SectionCard></CardGrid></DensityDemo><TokenTable tokens={[{ name: '--jx-grid-min', default: '320px (min prop)', source: 'component', description: 'Column collapse width — auto-fit minmax floor.' }, { name: '--jx-card-i', default: '0–7', source: 'component', description: 'Per-child stagger index driving the entrance delay.' }, { name: 'stagger step', default: '70ms (capped at 8th child)', source: 'structural' }, { name: 'gap', default: '20px at every rung (measured)', source: 'structural' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
+
+  <div id="axes" data-reveal="">
     <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
+      family="axes"
+      headerRegion="axes"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The landlord forwards — it stamps nothing itself; the tenant cards read the resolved lanes through the §11 broadcast."
+      title="The eight axes on card-grid"
+      summary="A FIRST-TIME all-no-own contract (census batch B): the landlord stamps every carrier and reads none — its own paint is one fixed gap plus structural geometry. The axis story is the SUPPLY CHAIN: the named density rung stamps the scope the tenants live in and their inset/stack channels re-base (measured 12 / 16 / 20px); size stamps the §11 echo nothing follows (the fixed-voice contrast case); theme is BRIDGE-ONLY (the .dark lands, the grid paints nothing, the tenants speak through their own emission forms). The carriers stamp the section root (the promoted root is self-carried), greppable in the raw SSR."
     >
-      <ComponentCanvas title="CardGrid · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.panel)}>
-        <CardGrid density="small" size={14}>
-          <Card title="tenant one"><p class={cx(rt.pb8, rt.textVar2)}>the grid supplied density small · size 14</p></Card>
-          <Card title="tenant two"><p class={cx(rt.pb8, rt.textVar2)}>every axis forwards the same way</p></Card>
-        </CardGrid>
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.note12, rt.inkMuted70)}>
+          Reading the table: Property is the axis, Type is the real carrier or consumption it
+          drives on THIS family, Default is the lane default — the named steps, number unit, and
+          consumption are in each description.
+        </p>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Deviations, cited: the adoption is the census batch B row (explicit-props W3-B —
+          openspec/changes/explicit-props/research/migration-census.md); the carriers set is
+          pinned by test/docs-ambient-vocabulary.spec.ts (card-grid in expectedCarriers). The
+          §1 collision rule: the root is a &lt;div&gt; — no native attribute names at stake; every
+          axis name is the family's own destructured lane. The density row's two halves are
+          measured, not inferred: gap inert at every rung, tenants stepping 12 / 16 / 20px.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={axesUsage} lang="svelte" meta="the eight axes on card-grid" />
         </div>
-      </ComponentCanvas>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas id="axes" title="card-grid · the supply chain" files={universalFiles} stage="fill">
+            <div class={cx(rt.col16, rt.wFull)}>
+              <CardGrid density="small" size={14}>
+                <Card title="tenant one"><p class={cx(rt.pb8, rt.textVar2)}>the grid supplied density small · size 14</p></Card>
+                <Card title="tenant two"><p class={cx(rt.pb8, rt.textVar2)}>every axis forwards the same way</p></Card>
+              </CardGrid>
+              <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+                Measured: the section's own 20px gap and structural geometry hold; the tenants'
+                inset/stack/type channels step to the small rung through the stamped scope —
+                the supply chain is the point.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="card-grid · query()" files={queryFiles}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+              <CardGrid density={responsiveDensity}>
+                <Card title="tenant one"><p class={cx(rt.pb8)}>the rung rides the viewport</p></Card>
+                <Card title="tenant two"><p class={cx(rt.pb8)}>compact below 48rem, roomy above</p></Card>
+              </CardGrid>
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 48rem the base applies — the small rung, tight
+                tenants; at 48rem and wider the md case wins — the default rung, roomy tenants
+                (measured tenant padding 12px ↔ 16px across the key). The theme lane is a STRING
+                lane: both generics are load-bearing. Resize across 48rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <TokenTable tokens={paintTokens} />
+        </div>
+      </div>
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Three props — the grid is layout only; everything else is the children's own contract."><PropsTable meta={cardGridMeta} docs={CARD_GRID_DOCS} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The table renders from the GENERATED meta + curation; the eight axis rows split into the shared section beneath. 12 meta rows − 8 ambient axes = 4 family rows (min, foot, class, children) — no rest row (the family spreads nothing: the children snippet and the two structural props are the whole surface); no EXTRA lane."><PropsTable meta={cardGridMeta} docs={CARD_GRID_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from
        the docs reading chain (data, not a hand list) -->
@@ -307,14 +528,3 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
     <DocsSeeAlso name="card-grid" />
   </div>
 </div>
-
-<style>
-  .jx-grid-hint {
-    color: var(--muted-foreground);
-    font-family: var(--font-nav);
-    font-size: 10px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-</style>
