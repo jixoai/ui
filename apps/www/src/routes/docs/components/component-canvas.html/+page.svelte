@@ -1,3 +1,18 @@
+<!--
+  Docs page for the component-canvas family (MDN archetype,
+  docs-eight-axes-mdn task 7, quill 2026-09-22; tier 2 over the W7-era
+  page — the recursion demo, schema-driven lanes demo, motion seat and
+  same-source law survive verbatim, the skeleton re-orders to the
+  archetype and gains the generated props table + the per-axis table).
+  Order: hero → install → overview → usage → the recursive workbench →
+  props (GENERATED meta + docs curation, extra lane rescuing the two
+  §13 seats) → the eight axes (per-axis table + the six-lane schema
+  demo + one real query() case) → same-source → accessibility →
+  see-also. Baseline skill: openspec/changes/docs-eight-axes-mdn/
+  skills/mdn-doc-style.md §2. Original ask: document the canvas family
+  AS IT SHIPS after W7 (the eight-axis playground bar) — measured from
+  source, not memory. The family itself is untouchable from here.
+-->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -7,9 +22,12 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
   import { registrySourceUrl } from '$lib/registry-source';
+  import { query } from '$lib/universal-props-query.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import componentCanvasSource from '$lib/ui/component-canvas/component-canvas.svelte?raw';
@@ -17,8 +35,6 @@
   // A literal closing-script tag inside a template literal would terminate
   // this component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
-
-  // ToC outline: the workbench + the closing law, in page order.
 
   // Playground: toggles the inner canvas's optional playground dock BODY
   // (absent snippet = the chrome-only dock chip; present = body + chevron).
@@ -79,7 +95,7 @@ ${close}
 
   const innerFiles = [{ name: 'src/lib/ui/press-button-usage.svelte', content: innerUsage }];
 
-  // Usage snippet for the Material3 usage section (static, drawer-free).
+  // Usage snippet for the usage section (static, drawer-free).
   const usageCode = `<script lang="ts">
   import ComponentCanvas from '@ui/component-canvas.svelte';
   import { registrySourceUrl } from '$lib/registry-source';
@@ -112,8 +128,8 @@ ${close}
             ).join(' '),
       )
       .join(' ');
-  // ---- the universal props demo (explicit-props W3-D5; W4 4.2 wires
-  // the per-axis CONTROLS) -------------------------------------------------
+  // ---- the six-lane schema demo (explicit-props W3-D5; W4 4.2 wires
+  // the per-axis CONTROLS; the W7 bar rides underneath) --------------------
   // The canvas's own generated meta (six axis lanes) lowers through
   // toJSONSchema — the axis props surface as axis-enum/axis-number/
   // query-editor rows in the dock. The page owns the lane state: the
@@ -126,6 +142,7 @@ ${close}
   // Flipping a control re-stamps the stage live: the carriers are the
   // W3-D5 surface, these controls only drive them.
   import { annotations as canvasAnnotations, meta as canvasMeta } from '$lib/meta/component-canvas.meta';
+  import { COMPONENT_CANVAS_DOCS as CANVAS_DOCS } from '$lib/ui/props-table/docs/component-canvas.docs';
   import { withAnnotations } from '$lib/schema/ir';
   import { toJSONSchema } from '$lib/schema/lower';
   import { axisLaneOf, axisStepsOf } from '$lib/schema/axis-controls.svelte';
@@ -185,14 +202,128 @@ ${close}
     }),
   );
 
-  const universalUsage = `<ComponentCanvas title="demo" files={files} size={18} radius={20}>
-  <!-- every axis needs a seat that consumes it: an em-keyed caption
-       (size), an anchor-supplying panel (shape/radius), a fill button
-       (color + elevation), a coefficient-keyed sweep (motion) -->
-  …the demo…
+  // the schema demo's drawer file — the REAL mechanism, not a mock
+  const axesUsage = `<script lang="ts">
+  import ComponentCanvas from '@ui/component-canvas.svelte';
+  import PressButton from '@ui/press-button.svelte';
+  import { meta, annotations } from '$lib/meta/component-canvas.meta';
+  import { withAnnotations } from '$lib/schema/ir';
+  import { toJSONSchema } from '$lib/schema/lower';
+${close}
+
+<!-- the family's own generated meta lowers to dock rows; the page
+     owns the lane state and drives the six explicit lane props -->
+<ComponentCanvas
+  title="component-canvas · the six explicit lanes"
+  files={files}
+  schema={toJSONSchema(withAnnotations(meta, annotations))}
+  bind:values
+  {size} {shape} {radius} {color} {elevation} {motion}
+>
+  <!-- seats: an em-keyed caption (size), anchor panels (radius), a
+       fill button (shape/color/elevation), a sweep bar (motion) -->
+  <div style={axisRestamp || undefined}>
+    <p style="font-size: 0.875em">size keys the root font-size — this caption rides em</p>
+    <PressButton variant="fill" {size} {shape} {radius} {color} {elevation} {motion}>
+      fill seat — color re-hues, elevation re-shadows
+    </PressButton>
+    <div data-cc-axis-motion-seat aria-hidden="true"><span data-cc-axis-motion-bar></span></div>
+  </div>
 </ComponentCanvas>`;
   const universalFiles: TreeFile[] = [
-    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+    { name: 'src/lib/ui/canvas-axes-demo.svelte', content: axesUsage },
+  ];
+
+  // ---- the ONE query() case: responsive size on a dedicated canvas -------
+  const queryUsage = `<script lang="ts">
+  import ComponentCanvas from '@ui/component-canvas.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+${close}
+
+<!-- the explicit size lane wraps query(): SSR paints the base (14px);
+     at the md viewport rung (≥48rem) the root font-size steps to 18px
+     and the em-keyed caption follows -->
+<ComponentCanvas title="responsive size" files={files} size={query({ md: 18 }, 14)}>
+  <p style="font-size: 0.875em">this caption rides em off the root font-size</p>
+</ComponentCanvas>`;
+  const queryFiles: TreeFile[] = [
+    { name: 'src/lib/ui/canvas-query-demo.svelte', content: queryUsage },
+  ];
+
+  // ---- the per-axis table (skill §2.5): mechanism names are the REAL
+  // carriers the family stamps (component-canvas.svelte barLanes →
+  // stampCarriersForLanes on the workbench section); consumption per
+  // the grep receipt: ZERO effective-carrier consumers in the family's
+  // own paint (component-canvas.css + surface/component-canvas.stylex.ts)
+  const axisRows = [
+    {
+      name: 'size',
+      type: '--jx-size-effective → root font-size',
+      default: 'auto',
+      description:
+        "Stamps the workbench section and re-bases its font-size. The chrome does not follow — the head title, description and labels read fixed kernel channels (--jx-text, --jx-text-small, --jx-text-label, --jx-text-micro) — but the STAGE inherits the root font-size, so em-keyed specimens move with it (the query() demo below). Seat pair: an explicit prop beats the bar for that axis (the bar is honestly inert there). Steps small · medium · large; a number is px; query() wraps any lane.",
+    },
+    {
+      name: 'shape',
+      type: '--jx-shape-effective · --jx-radius-factor-effective',
+      default: 'auto',
+      description:
+        "Both carriers stamp on the section; no canvas css reads them — the corner consumers are the stage's own (a press-button specimen's corner-shape rides the supply). Steps round · scoop · bevel · notch · square · squircle; no number lane.",
+    },
+    {
+      name: 'radius',
+      type: '--jx-radius-effective',
+      default: 'auto',
+      description:
+        'The carrier stamps; no canvas css reads it — the concentric consumers are elsewhere (card, press-button). The schema demo\'s anchor panels pin --jx-radius-effective + --jx-inset-effective so the auto seat\'s §3 expression computes live. Steps small · medium · large; a number is px.',
+    },
+    {
+      name: 'density',
+      type: "the stage's data-density rung · the bar's lane supply",
+      default: 'auto',
+      description:
+        "TWO SEATS, one name (the §13 no-rename law). The PROP is the rung seat: a page-owned 'xs' | 'sm' | 'default' | 'lg' bindable stamped as data-density on the STAGE element — the demo subtree's scope boundary; the ambient zone never rides the stage, and the prop's own default ('default', through the legacy slot) keeps a --jx-density-coefficient: 1 stamp on the workbench root (grep any canvas root). The AXIS lane is the supply seat: the dock bar's density menu speaks the universal grammar (auto/small/medium/large) into the same root resolution as the other six lanes. Separate channels since the bar retired the rung select (the W7 directive, 2026-09-21).",
+    },
+    {
+      name: 'color',
+      type: '--jx-color-effective',
+      default: 'auto',
+      description:
+        "The carrier stamps; no canvas css reads it. One caveat the schema demo makes visible: the stage's island scope (.dark/.jx-light + the token-scope stamp) re-declares this carrier per theme profile (the canvas-bug law), so a root color stamp cannot cross the island — the demo re-stamps the resolved lanes element-level below it. Steps primary · secondary · error · warn · success · info; a number is hue degrees; a raw string passes through verbatim.",
+    },
+    {
+      name: 'theme',
+      type: "the stage's data-theme + token-scope classes",
+      default: 'auto',
+      description:
+        "The §13-owned preview seat, not the universal ThemeLane: a page-owned 'light' | 'dark' bindable projects data-theme plus the theme sheet's dark/jx-light token-scope classes onto the STAGE element only — the docs chrome and sibling canvases never re-theme, and the stage anchors its own text ink. The bar's theme button flips it (aria-pressed carries state). The universal theme lane itself forwards ambient-only through inheritance (the census D-fold, W6-dossier-flagged beside code-card/mermaid).",
+    },
+    {
+      name: 'elevation',
+      type: '--jx-elevation-effective',
+      default: 'auto',
+      description:
+        'The carrier stamps; no canvas css reads it — the supply is ambient (the schema demo\'s fill seat re-shadows through press-button\'s §7 pair). Steps level-1 · level0 · level1 · level2 · level3 · level4 · level5; a number is exact dp.',
+    },
+    {
+      name: 'motion',
+      type: '--jx-motion-effective',
+      default: 'auto',
+      description:
+        'The carrier stamps; no canvas css reads it. The page owns the one rest-state consumer: the sweep seat below divides its period by the coefficient (expressive 1.5 speeds it, subtle 0.5 slows it; reduced motion freezes it into a width gauge). Steps reduced · subtle · normal · expressive; a number is a coefficient.',
+    },
+  ];
+
+  // the chrome's fixed voices: what the workbench paint actually reads
+  // (none of it is an axis carrier — the receipts behind the supply-only
+  // rows). surface/component-canvas.stylex.ts + component-canvas.css.
+  const fixedTokens = [
+    { name: '--jx-text', default: 'rung channel (13px at default)', source: 'structural' as const, description: 'The head title\'s voice — the ambient page rung\'s channel, not the canvas\'s size lane.' },
+    { name: '--jx-text-small', default: '12.5px', source: 'structural' as const, description: 'The description line.' },
+    { name: '--jx-text-label', default: '11px', source: 'structural' as const, description: 'The install badge, code toggle and dock labels.' },
+    { name: '--jx-text-micro', default: '10px', source: 'structural' as const, description: 'The file count and micro chrome.' },
+    { name: '--jx-hit', default: 'rung channel', source: 'structural' as const, description: 'The chrome band: header actions, install badge and source anchor ride calc(var(--jx-hit) + 2px).' },
+    { name: '--jx-press-shadow', default: 'per-element tuning', source: 'structural' as const, description: 'The press-channel poses: none on install/copy, shadow-2xs/xs on the source anchor and code toggle (component-canvas.css).' },
   ];
 
 </script>
@@ -255,10 +386,10 @@ ${close}
 <div
   class={cx(rt.shell)}
 >
-  <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
-       glass bar under the scaffold header (height 0, see toc.css) -->
-
+  <!-- ToC rail: the page sections ship as PAGE DATA (+page.ts); the
+       scaffold chrome owns the rail -->
   <div class={cx(rt.shellCol)}>
+
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -266,7 +397,7 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · Docs Tooling"
       title="component-canvas — the documentation workbench"
-      summary="One bordered surface per component: header (font-nav title, description, copy-command badge, Source anchor), a LIVE demo stage on the muted tint so components prove themselves on a differently-toned ground — and, floating over the stage's top-right corner, the playground dock: a collapsed-size EIGHT-AXIS bar (the theme cycle button plus one icon-button menu per axis — size · shape · radius · density · color · elevation · motion — riding one scrollable ButtonGroup) that ships on EVERY canvas, expanding into consumer-authored controls or schema-lowered rows inside one integrated ItemGroup, collapsible to its head chip and horizontally draggable. The bar's lanes are supplied to the stage as ambient — re-theming rides the page-owned bindable, the seven axes ride the universal supply — without touching the page. Below the stage, a collapsible code drawer: the file tree pane beside one code-card, stacking under the canvas's narrow tier. Every component page on this site is one canvas — this one renders the component inside itself."
+      summary="One bordered surface per component: a LIVE demo stage, the floating playground dock — the eight-axis bar on every canvas — and a collapsible code drawer. Every component page on this site is one canvas; this one renders the component inside itself."
     >
       <div class={cx(rt.wrap12)}>
         <span class="pill">LIVE stage · muted tint</span>
@@ -276,6 +407,63 @@ ${close}
         <span class="pill">tree drawer · container queries</span>
         <span class="pill">recursion · depth 2</span>
       </div>
+    </SectionCard>
+  </div>
+
+  <div data-reveal="">
+    <DocsInstall name="component-canvas" />
+  </div>
+
+  <!-- overview -->
+  <div id="overview" data-reveal="">
+    <SectionCard
+      eyebrow="overview"
+      title="Overview"
+      summary="Three regions and a platform-first law: the header, the stage, the dock, the drawer — every structural behavior is a platform feature composed into the workbench contract."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.measurePara)}>
+          ComponentCanvas is the documentation workbench: a header (font-nav title, description,
+          copy-command <code>install</code> badge, icon-only <code>sourceUrl</code> anchor), a LIVE
+          demo stage on the muted tint so components prove themselves on a differently-toned
+          ground, the floating playground dock over the stage's top-right corner, and a collapsible
+          code drawer pairing a file tree with one code-card. The page owns every byte of state
+          through the P1 protocol — <code>onreset</code>, <code>output</code>,
+          <code>resolveFileContent</code> are callbacks, never state pushed into the canvas.
+        </p>
+        <p class={cx(rt.measurePara)}>
+          Platform first: the stage and dock are Svelte 5 snippets (render seams, live by
+          construction), the drawer tiers and the dock's width switch on CSS container queries (the
+          host tier <code>@container/jx-canvas-host</code> at 48rem; the named demo container rides
+          the scrollport itself, so demo queries see the width the scrollbar actually leaves), and
+          the collapses are <code>grid-template-rows: 0fr→1fr</code> with <code>inert</code> keeping
+          closed content out of the tab order. The workbench adds the layer law (muted stage under
+          a surface-card dock), the outline law — the root carries <code>data-toc-skip</code> and
+          the title is a styled paragraph, so no canvas chrome joins a ToC — and deterministic
+          aria ids slug-derived from the title.
+        </p>
+        <p class={cx(rt.measurePara)}>
+          The dock ships on EVERY canvas: its head is the eight-axis bar (below), and a canvas
+          without a playground snippet, schema, or output stands as the bar alone — no chevron, no
+          body. Stage posture (<code>fill</code>/<code>center</code>/<code>start</code>) and the
+          scroll cap (<code>capped</code>/<code>grow</code>) are props; the id is also the
+          same-source extraction key (its own section below). This page's demo nests one simplified
+          canvas inside the stage — a canvas may showcase a canvas exactly one level down.
+        </p>
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- usage -->
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Children are the LIVE stage; files feed the drawer; the playground snippet is optional."
+    >
+      <CodeBlock code={usageCode} lang="svelte" meta="ComponentCanvas usage" />
     </SectionCard>
   </div>
 
@@ -329,9 +517,9 @@ ${close}
           </PlayHelp>
           <PlayHelp>
             The dock bar above is the EIGHT-AXIS bar: theme (the sun/moon cycle, page-owned
-            bindable) plus one menu per axis — size · shape · radius · density · color ·
-            elevation · motion, each `auto` by default. The bar's values are SUPPLIED, never
-            forced: this stage's deploy button and the inner canvas consume them as ambient
+            bindable) plus one menu per axis — size · shape · radius · density ·
+            color · elevation · motion, each `auto` by default. The bar's values are SUPPLIED,
+            never forced: this stage's deploy button and the inner canvas consume them as ambient
             lanes (flip size or color and watch them re-stamp), while the plain text around
             them ignores the lanes entirely — both are correct, the freedom is the specimen's.
           </PlayHelp>
@@ -340,37 +528,137 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <!-- the canvas law: what the platform gives, what the workbench adds -->
-  <div id="canvas-law" data-reveal="">
+  <!-- props: the GENERATED meta + docs curation -->
+  <div id="api" data-reveal="">
     <SectionCard
-      family="canvas-law"
-      headerRegion="canvas-law"
-      eyebrow="law"
-      title="Snippets, containment, collapse — platform first"
-      summary="The canvas adds almost no mechanism of its own: every structural behavior is a platform feature composed into the workbench contract, and the seams the page needs (state, reset, live source) are callbacks, never state pushed into the canvas."
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="Props"
+      summary="The table renders from the GENERATED meta; the six axis-lane rows split into the shared section beneath. theme and density are family seats sharing axis names (the §13 no-rename law) — the generated filter would drop them, so they render from the extra lane with their real unions (the chip precedent, self-documenting here)."
     >
-      <div class={cx(rt.grid760b)}>
-        <div class={cx(rt.ccnTint)}>
-          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>what the platform gives</h3>
-          <ul class={cx(rt.col8, rt.body13)}>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>Svelte 5 snippets — <code class={cx(rt.inkAccent)}>children</code> and <code class={cx(rt.inkAccent)}>playground</code> are real render seams, so the stage stays LIVE by construction</span></li>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>CSS container queries — the dock's <code class={cx(rt.inkAccent)}>clamp(240px, 30cqi, 300px)</code> width and the drawer's tree/code tiers switch on the canvas's own inline size, not the viewport</span></li>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span><code class={cx(rt.inkAccent)}>grid-template-rows: 0fr→1fr</code> + the <code class={cx(rt.inkAccent)}>inert</code> attribute — the drawer collapse and its tab-order removal</span></li>
-          </ul>
+      <PropsTable meta={canvasMeta} docs={CANVAS_DOCS} />
+    </SectionCard>
+  </div>
+
+  <!-- the eight axes -->
+  <div id="axes" data-reveal="">
+    <SectionCard
+      family="axes"
+      headerRegion="axes"
+      eyebrow="axes"
+      title="The eight axes on component-canvas"
+      summary="SIX axes join the workbench section as page-owned props (the W3-D5 surface): size · shape · radius · color · elevation · motion — each resolved under the consumer's explicit lane, stamped as §11 carriers joined into the root style attr, and supplied downward through the broadcast protocol (吃也供, supply-and-consume). The W7 eight-axis bar is the second seat: dock-owned lane state (all-auto seed) joined explicit ?? bar — a page-owned prop always wins, the bar is honestly inert there — and `auto` translates to no opinion, the ambient keeps flowing. Supply, never force: any stage specimen may consume or ignore the lanes. None of the six repaints the canvas's own chrome (the fixed-voice table below); the seats are the stage's specimens. theme and density are the §13-owned stage-preview seats documented in their rows."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.note12, rt.inkMuted70)}>
+          Reading the table: Property is the axis, Type is the real carrier or seat it drives on
+          THIS family, Default is the lane default — the named steps, number unit, and consumption
+          on this family are in each description.
+        </p>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Deviations, cited: the six-lane adoption is the census fold row — component-canvas
+          carries SIX lanes, theme LEFT OUT (the stage-preview bindable owns the name) and
+          density's universal lane absent at the fold while the legacy local
+          <code>densitySlot('default')</code> stayed (both under the §13 no-rename law,
+          W6-dossier-flagged beside code-card/mermaid;
+          openspec/changes/explicit-props/research/migration-census.md). The W7 bar — the Owner's
+          eight-axis directive (2026-09-21) — later gave the density AXIS its supply seat beside
+          the other six. No §13 renames; the two name-shadowing seats ride the generated table's
+          extra lane.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <TokenTable tokens={fixedTokens} />
         </div>
-        <div class={cx(rt.ccnTint)}>
-          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>what the workbench adds</h3>
-          <ul class={cx(rt.col8, rt.body13)}>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>the layer law: the stage's muted tint (42%) under the dock's surface-card ground — components prove themselves on a differently-toned ground while the floating controls sit on true background</span></li>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>the P1 playground protocol: <code class={cx(rt.inkAccent)}>onreset</code> / <code class={cx(rt.inkAccent)}>output</code> / <code class={cx(rt.inkAccent)}>resolveFileContent</code> — the page owns every byte of state, the canvas only calls back</span></li>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>deterministic aria ids slug-derived from the title (SSR/client agree), with the explicit <code class={cx(rt.inkAccent)}>id</code> prop as the documented collision escape</span></li>
-          </ul>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={axesUsage} lang="svelte" meta="the six lanes, driven" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas
+            title="component-canvas · the six explicit lanes"
+            stage="fill"
+            files={universalFiles}
+            schema={axisSchema}
+            bind:values={axisValues}
+            size={dSize}
+            shape={dShape}
+            radius={dRadius}
+            color={dColor}
+            elevation={dElevation}
+            motion={dMotion}
+          >
+            <!-- the W6-r3 specimen rework: every driven axis needs a seat
+                 that visibly CONSUMES it (the r1 frames were byte-identical
+                 for color/elevation/motion — honest evidence, poor
+                 pedagogy). Seats, one per axis:
+                 · size — the em-keyed captions (root font-size moves them)
+                 · shape/radius — the §3 anchor supply on each panel (auto
+                   children compute max(0px, 20−14) = 6px; squircle ×2 =
+                   12px superellipse — a corner to curve)
+                 · color — the fill button (its --jx-fill re-derives from
+                   --jx-color-effective on the family root, W6-r3)
+                 · elevation — the fill button's rest shadow (the §7 pair
+                   re-points --jx-press-shadow, W6-r3)
+                 · motion — the sweep bar below (duration ÷ the motion
+                   coefficient; expressive visibly speeds it)
+                 The wrapper carries the specimen-scope re-stamp (see the
+                 script note): the six lanes reach the seats element-level,
+                 past the island's carrier re-declaration. -->
+            <div class={cx(rt.col20)} style={axisRestamp || undefined}>
+            <div class={cx(rt.panel)} style="--jx-radius-effective: 20px; --jx-inset-effective: 0.875rem">
+              <p class={cx(rt.pb8, rt.textVar2)} style="font-size: 0.875em">
+                size keys the root font-size — this caption rides em, the parts follow
+              </p>
+              <div class={cx(rt.wrap12)}>
+                <PressButton variant="outline" radius="auto">radius auto — concentric off the anchor seat</PressButton>
+                <!-- the DRIVEN specimen (the pb-page pattern): the fill seat
+                     takes the six resolved lanes directly — family-root
+                     stamps cross no island, so color/elevation/radius/shape
+                     all repaint this button live -->
+                <PressButton
+                  variant="fill"
+                  size={dSize}
+                  shape={dShape}
+                  radius={dRadius}
+                  color={dColor}
+                  elevation={dElevation}
+                  motion={dMotion}
+                >fill seat — color re-hues, elevation re-shadows</PressButton>
+              </div>
+            </div>
+            <div class={cx(rt.panel)} style="--jx-radius-effective: 20px; --jx-inset-effective: 0.875rem">
+              <p class={cx(rt.pb8, rt.textVar2)} style="font-size: 0.875em">
+                motion keys the sweep — expressive halves the period, reduced freezes it
+              </p>
+              <div data-cc-axis-motion-seat="" aria-hidden="true">
+                <span data-cc-axis-motion-bar=""></span>
+              </div>
+            </div>
+            </div>
+          </ComponentCanvas>
+        </div>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas
+            title="component-canvas · responsive size"
+            stage="fill"
+            files={queryFiles}
+            size={query({ md: 18 }, 14)}
+          >
+            <div class={cx(rt.col20)}>
+              <p class={cx(rt.pb8, rt.textVar2)} style="font-size: 0.875em">
+                this caption rides em off the root font-size
+              </p>
+              <p class={cx(rt.mt4, rt.note12, rt.inkMuted70)}>
+                SSR paints the base (14px); at the md viewport rung (≥48rem) the root font-size
+                steps to 18px and the caption follows — resize across 48rem. The head, dock and
+                drawer chrome keep their fixed voices either way (the table's size row).
+              </p>
+            </div>
+          </ComponentCanvas>
         </div>
       </div>
     </SectionCard>
@@ -405,92 +693,36 @@ ${close}
       </div>
     </SectionCard>
   </div>
-  </div>
-</div>
 
-<div class={cx(rt.shellFlush)}>
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Canvas variants" summary="Stage posture and drawer shape: how the workbench adapts to the specimen it hosts.">
-    <div class={cx(rt.grid760c)}>
-      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>stage="fill"</span><p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>Default — children span the stage width; full-bleed demos.</p></div>
-      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>stage="center"</span><p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>Intrinsic specimens shrink and center — buttons, badges, single controls.</p></div>
-      <div class={cx(rt.panel)}><span class={cx(rt.eyebrowPrimary)}>stage="start"</span><p class={cx(rt.inkMuted, rt.mt8, rt.text13, rt.lead6)}>Intrinsic specimens, packed to the inline-start edge.</p></div>
-    </div>
-  </SectionCard></div>
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Children are the LIVE stage; files feed the drawer; the playground snippet is optional."><CodeBlock code={usageCode} lang="svelte" meta="ComponentCanvas usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The code drawer and the dock body are disclosures: aria-expanded/controls plus inert keeps collapsed content out of the tab order. The dock's drag is decorative and pointer-only — every function stays keyboard-reachable without it."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through header, dock chrome and body controls, then the open drawer' }, { key: 'Enter / Space', action: 'Toggles the code drawer and dock disclosures; triggers copy, theme, and reset buttons' }]} aria={[{ name: 'aria-expanded', value: 'boolean', description: 'On the drawer toggle and the dock collapse chevron; tracks the 0fr/1fr grid collapse' }, { name: 'aria-controls', value: '{id}-drawer / {id}-dock-body', description: 'Pairs each toggle with its collapsible region' }, { name: 'inert', value: 'when collapsed', description: 'Removes collapsed drawer and dock-body content from tab and screen-reader order' }, { name: 'aria-pressed', value: 'boolean', description: 'On the dock theme button — carries the light/dark state' }, { name: 'aria-label', value: 'string', description: 'On the source link, the stage ("{title} demo"), the dock ("Controls for {title}"), and copy buttons' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The canvas is chrome, not a density-scaled control: it sizes from its own type ramp and container queries, and carries the press shadow tokens for its buttons. The dock bar's theme button and density axis are the scoped re-theming surface — the theme button stamps data-theme (plus the theme sheet's dark/jx-light token-scope classes) on the stage element only; the seven menu axes resolve on the workbench root and reach the stage as AMBIENT lanes (carriers + the universal supply), which any specimen may consume or ignore — the retired rung select's data-density stamp stays with the page-owned bind:density."><div class={cx(rt.col24)}><p class={cx(rt.bodyMuted)}>flip the dock bar's theme button above to preview the stage in dark, or flip any of the seven axis menus (size · shape · radius · density · color · elevation · motion — auto / named steps) to supply that lane to every stage specimen as ambient: the consuming seats re-stamp live, the rest ignore it honestly — the docs chrome, the ToC, and every sibling canvas keep their seats either way. Theme state is page-owned through <code class={cx(rt.inkAccent)}>bind:theme</code>; the axis state is dock-owned per canvas instance; the dock itself is a bordered surface card on true background, so it reads on both stage themes.</p><TokenTable tokens={[{ name: '--jx-press-shadow', default: '0 1px 2px rgb(0 0 0 / 0.08)', source: 'component' }, { name: '--jx-press-shadow-hover', default: 'grown shadow', source: 'component' }, { name: '--jx-press-shadow-active', default: 'anchored press', source: 'component' }]} /></div></SectionCard></div>
-  <div id="universal-props" data-reveal="">
+  <!-- accessibility -->
+  <div id="accessibility" data-reveal="">
     <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="SIX of the eight axes join the workbench root as PAGE-OWNED props here (explicit-props W3-D5, W4-wired): size · shape · radius · color · elevation · motion — named steps, auto (inherit; stamps nothing), an exact number, or query(). The remaining two axes have homes of their own: theme is the stage-preview bindable (the light/dark projection), and density's axis lane is SUPPLIED by the dock bar's menu (the Owner's eight-axis directive — the lane rides the same root supply; the rung half stays with the page-owned bindable). This canvas's controls are the family's OWN generated meta lowered through toJSONSchema: each axis is one lane with an enum switch (auto + named steps + number/query() modes), an exact-number spinner and a query() source editor — flip one and the stage re-stamps live through the W3-D5 carriers. The DOCK BAR's own axis menus (on every canvas's head) join UNDER these explicit props: supply-not-force."
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="The code drawer and the dock body are disclosures: aria-expanded/controls plus inert keeps collapsed content out of the tab order. The dock's drag is decorative and pointer-only — every function stays keyboard-reachable without it."
     >
-      <ComponentCanvas
-        title="component-canvas · universal props"
-        stage="fill"
-        files={universalFiles}
-        schema={axisSchema}
-        bind:values={axisValues}
-        size={dSize}
-        shape={dShape}
-        radius={dRadius}
-        color={dColor}
-        elevation={dElevation}
-        motion={dMotion}
-      >
-        <!-- the W6-r3 specimen rework: every driven axis needs a seat
-             that visibly CONSUMES it (the r1 frames were byte-identical
-             for color/elevation/motion — honest evidence, poor
-             pedagogy). Seats, one per axis:
-             · size — the em-keyed captions (root font-size moves them)
-             · shape/radius — the §3 anchor supply on each panel (auto
-               children compute max(0px, 20−14) = 6px; squircle ×2 =
-               12px superellipse — a corner to curve)
-             · color — the fill button (its --jx-fill re-derives from
-               --jx-color-effective on the family root, W6-r3)
-             · elevation — the fill button's rest shadow (the §7 pair
-               re-points --jx-press-shadow, W6-r3)
-             · motion — the sweep bar below (duration ÷ the motion
-               coefficient; expressive visibly speeds it)
-             The wrapper carries the specimen-scope re-stamp (see the
-             script note): the six lanes reach the seats element-level,
-             past the island's carrier re-declaration. -->
-        <div class={cx(rt.col20)} style={axisRestamp || undefined}>
-        <div class={cx(rt.panel)} style="--jx-radius-effective: 20px; --jx-inset-effective: 0.875rem">
-          <p class={cx(rt.pb8, rt.textVar2)} style="font-size: 0.875em">
-            size keys the root font-size — this caption rides em, the parts follow
-          </p>
-          <div class={cx(rt.wrap12)}>
-            <PressButton variant="outline" radius="auto">radius auto — concentric off the anchor seat</PressButton>
-            <!-- the DRIVEN specimen (the pb-page pattern): the fill seat
-                 takes the six resolved lanes directly — family-root
-                 stamps cross no island, so color/elevation/radius/shape
-                 all repaint this button live -->
-            <PressButton
-              variant="fill"
-              size={dSize}
-              shape={dShape}
-              radius={dRadius}
-              color={dColor}
-              elevation={dElevation}
-              motion={dMotion}
-            >fill seat — color re-hues, elevation re-shadows</PressButton>
-          </div>
-        </div>
-        <div class={cx(rt.panel)} style="--jx-radius-effective: 20px; --jx-inset-effective: 0.875rem">
-          <p class={cx(rt.pb8, rt.textVar2)} style="font-size: 0.875em">
-            motion keys the sweep — expressive halves the period, reduced freezes it
-          </p>
-          <div data-cc-axis-motion-seat="" aria-hidden="true">
-            <span data-cc-axis-motion-bar=""></span>
-          </div>
-        </div>
-        </div>
-      </ComponentCanvas>
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus through header, dock chrome and body controls, then the open drawer' },
+          { key: 'Enter / Space', action: 'Toggles the code drawer and dock disclosures; triggers copy, theme, reset, and the axis menus' },
+          { key: '↑ / ↓', action: 'Moves through an open axis menu\'s items (auto + the named steps), Enter commits' },
+        ]}
+        aria={[
+          { name: 'aria-expanded', value: 'boolean', description: 'On the drawer toggle and the dock collapse chevron; tracks the 0fr/1fr grid collapse' },
+          { name: 'aria-controls', value: '{id}-drawer / {id}-dock-body', description: 'Pairs each toggle with its collapsible region' },
+          { name: 'inert', value: 'when collapsed', description: 'Removes collapsed drawer and dock-body content from tab and screen-reader order' },
+          { name: 'aria-pressed', value: 'boolean', description: 'On the dock theme button — carries the light/dark state' },
+          { name: 'aria-haspopup', value: 'menu', description: 'On the seven axis icon-buttons; each opens the family DropdownMenu with the current value check-marked (data-jx-canvas-axis-check)' },
+          { name: 'aria-label', value: 'string', description: 'On the source link, the stage ("{title} demo", stageLabel-overridable), the dock ("Controls for {title}"), and copy buttons' },
+        ]}
+      />
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the canvas Props interface; snippets are render seams, callbacks keep state page-owned."><PropsTable universal props={[{ name: 'title', type: 'string', default: '—', description: 'Component name shown in the header.', required: true }, { name: 'description', type: 'string', default: '—', description: 'One-line description under the title.' }, { name: 'sourceUrl', type: 'string', default: '—', description: 'GitHub source link (header right, icon-only external anchor). The value is page-side DERIVED from the registry path projection ($lib/registry-source) — never hand-written.' }, { name: 'install', type: 'string', default: '—', description: 'Registry item name — renders the header copy-command badge (npx jixoai-ui add <name>) with a clipboard flash.' }, { name: 'files', type: 'TreeFile[]', default: '—', description: 'Demo code files; flat list, names may carry paths. The drawer\'s tree pane splits their "/" paths into levels — one shape at every file count. Content comes from the page\'s ?raw imports.', required: true }, { name: 'children', type: 'Snippet', default: '—', description: 'LIVE demo area — the consumer renders the component instance.', required: true }, { name: 'stage', type: "'fill' | 'center' | 'start'", default: "'fill'", description: 'Stage posture: fill, center (intrinsic, centered), or start (intrinsic, left).' }, { name: 'scroll', type: "'capped' | 'grow'", default: "'capped'", description: 'Stage scroll posture: capped bounds the scroll layer at min(32rem, 60vh) with native auto-scroll; grow lifts the cap for full-composition demos whose own stacking is the presentation.' }, { name: 'theme', type: "'light' | 'dark'", default: "'light'", description: 'Stage preview theme — page-owned bindable, flipped by the dock bar\'s theme axis button. Projects data-theme + the theme sheet dark/jx-light scope onto the stage element only.' }, { name: 'density', type: 'Density', default: "'default'", description: 'Stage preview density — page-owned bindable, the REPO-STANDARD union (xs | sm | default | lg). Stamped as data-density on the stage element directly (the rung half of the axis); the dock bar\'s density AXIS (the universal small/medium/large grammar) rides the SUPPLIED lane instead — separate channels since the eight-axis bar retired the rung select (2026-09-21).' }, { name: 'playground', type: 'Snippet', default: '—', description: 'Consumer-authored controls, rendered inside the floating dock\'s body — an unauthored playground leaves the dock as its chrome chip (no chevron, no body); the stage is full-width either way. Takes precedence over schema rows (escape-hatch law).' }, { name: 'schema', type: 'CanvasSchema', default: '—', description: 'jsonSchema control mode: a LOWERED schema (toJSONSchema) whose control rows the DOCK renders inside its integrated ItemGroup.' }, { name: 'values', type: 'Record<string, unknown>', default: 'schema defaults', description: 'Schema-mode dock values — two-way; initialized from schema defaults when the page binds none.', bindable: true }, { name: 'onvalue', type: '(key: string, value: unknown) => void', default: '—', description: 'Schema-mode change seam: the page intercepts and owns value semantics for non-representable props (effect builders, …), writing back through bind:values.' }, { name: 'onreset', type: '() => void', default: '—', description: 'Page-owned reset: shows the dock body foot\'s reset button and calls back; absent, schema mode falls back to schema defaults.' }, { name: 'output', type: 'readonly PlayOutput[]', default: '—', description: 'Read-only state projection rows at the dock\'s foot — body-bearing on its own: an output-only canvas still gets a dock body.' }, { name: 'resolveFileContent', type: '(file: TreeFile) => string', default: '—', description: 'Code-drawer content override — lets usage files track live state.' }, { name: 'id', type: 'string', default: 'slug(title)', description: "Explicit aria-id override when two canvases would slug-collide — AND the canvas same-source extraction key: an id-carrying canvas's children are extracted by canvasPlugin into the page's virtual:jixoai-canvas module (resolveRawCode(id) composes the usage file + the Usage CodeBlock; no id = no extraction). See the same-source law above." }, { name: 'class', type: 'string', default: '—', description: 'Class passthrough to the root element.' }]} /></SectionCard></div>
+  <div data-reveal="">
+    <DocsSeeAlso name="component-canvas" />
+  </div>
+  </div>
 </div>

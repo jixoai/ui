@@ -176,3 +176,37 @@
 - **A build between edit and built-dist gates is part of the task**: verify:docs-universal /
   verify:docs read dist; editing the page without rebuilding would "gate" a stale page. Order
   held: edit → probe → build (sibling-build `pgrep` first) → gates → specs.
+
+## Techniques (mine, added 2026-09-22, component-canvas 7-component-canvas)
+- **Read the PIN SPEC before choosing the props migration shape**: the ambient-vocabulary
+  exemption pinned component-canvas#density BY ITS OLD LOCATION (the page's hand table). The
+  generated-table migration moved the row into the curation's extra lane, so the pin scanned
+  nothing (0 rows). Re-pinned with evidence: same ts-AST parser, same three facts, new target
+  file + an additive theme-twin assertion. Lesson: `grep the test/ dir for the page name BEFORE
+  the first edit` — pins are invisible in the page source but bind its rows.
+- **The EXTRA-lane rescue now RENDERS (post-6900340b), verify it anyway**: mainRows exempts
+  docs.extra by reference identity, but the receipt is still the served HTML — 'Stage preview
+  density' ×1 and `'default' · Own default, not ambient` ×1 in the SSR. A rescue that doesn't
+  render documents an absent prop, the exact drift the lane exists to kill.
+- **Two-seats axis rows need the SSR-greppable hook named in the row**: the canvas density row
+  says "grep any canvas root" for the `--jx-density-coefficient: 1` stamp (the prop's own default
+  through the legacy slot) while the rung attr rides the stage — the row teaches the reader WHERE
+  each half is visible.
+- **A meta page (the canvas documenting itself) keeps its special demos**: the recursion workbench
+  and the schema-driven six-lane demo ARE the documentation; tier 2 preserved them byte-honest and
+  spent the rewrite budget on the missing skeleton (per-axis table, generated props, overview,
+  install/see-also) instead of re-deriving tuned wiring.
+
+## Mistakes to avoid (component-canvas round)
+- **`data-axis-auto` renders as the STRING "true"**, not the bare-attribute empty string — a
+  probe expecting `attr === ''` false-negatives on a true page claim. Svelte data-* booleans
+  stringify; assert the value you can defend.
+- **The icon family stamps `--jx-size-effective` on every glyph** (data-jx-icon svg, size prop)
+  — hundreds of carrier stamps on a canvas-heavy page are ICONS, not canvas lanes. Identify the
+  ELEMENT before reading a grep count (the -effective grep alone screams false alarm).
+- **Shared-tree spec baselines drift**: canvas-same-source went 55→58 mid-task from siblings'
+  accordion/badge PILOT joins, not from my diff. Attribute per-file counts before claiming
+  regression or credit.
+- **A pins check belongs in the pre-flight, not the post-mortem**: one failed gate (409/410)
+  traced to a spec I never opened. The fix cost a re-pin round; a pre-flight `rg "<page-name>"
+  test/` would have cost thirty seconds.

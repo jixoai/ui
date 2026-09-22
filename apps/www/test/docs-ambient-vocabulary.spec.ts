@@ -390,16 +390,64 @@ describe('meta side — generated meta ambient fields on exact-key axis props', 
 
 // ── exemptions: the two rows outside the economy by design ───────────────
 describe('exemptions', () => {
-  // RE-PINNED (canvas-playground-dock, 2026-09-08): the canvas density
-  // prop speaks the REPO-STANDARD Density union (xs | sm | default | lg)
-  // since the Owner amendment — default 'default', the comfortable/compact
-  // pair is retired. Still page-owned, still marker-less.
+  // RE-PINNED (docs-eight-axes-mdn task 7, quill 2026-09-22): the canvas
+  // props table migrated to the GENERATED meta + docs curation, and the
+  // density PROP — a family seat sharing an axis name (the §13 no-rename
+  // law, the census D-fold) — renders from the curation's extra lane (the
+  // chip precedent; UNIVERSAL_AXIS_NAMES would silently drop it from the
+  // main table). The pin scans the curation file now. Same three facts,
+  // same intent: the rung bindable stays page-owned with its own default,
+  // no ambient marker inside the default cell, page-owned prose.
+  const CANVAS_DOCS_PATH = join(
+    WWW,
+    'src/lib/ui/props-table/docs/component-canvas.docs.ts',
+  );
+
+  const extraRowsOf = (source: string): Row[] => {
+    const sf = ts.createSourceFile('d.ts', source, ts.ScriptTarget.ESNext, true);
+    let arr: ts.ArrayLiteralExpression | null = null;
+    const findExtra = (n: ts.Node): void => {
+      if (arr) return;
+      if (
+        ts.isPropertyAssignment(n) &&
+        ts.isIdentifier(n.name) &&
+        n.name.text === 'extra' &&
+        ts.isArrayLiteralExpression(n.initializer)
+      ) {
+        arr = n.initializer;
+        return;
+      }
+      ts.forEachChild(n, findExtra);
+    };
+    findExtra(sf);
+    if (!arr) return [];
+    return (arr as ts.ArrayLiteralExpression).elements.map((el) => {
+      if (!ts.isObjectLiteralExpression(el)) return { raw: el.getText(sf) };
+      const row: Row = {};
+      for (const p of el.properties) {
+        if (!ts.isPropertyAssignment(p)) continue;
+        const key = p.name.getText(sf).replace(/^['"]|['"]$/g, '');
+        let v = p.initializer.getText(sf);
+        if ((v.startsWith("'") && v.endsWith("'")) || (v.startsWith('"') && v.endsWith('"'))) v = v.slice(1, -1);
+        row[key] = v;
+      }
+      return row;
+    });
+  };
+
   it('component-canvas#density stays page-owned (no marker, Density default, page-owned prose)', () => {
-    const rows = axisRowsOf(pageSource('component-canvas')).filter((c) => c.prop === 'density');
+    const rows = extraRowsOf(readFileSync(CANVAS_DOCS_PATH, 'utf8')).filter(
+      (r) => r.name === 'density',
+    );
     expect(rows.length).toBe(1);
-    expect(rows[0].row.default).toBe("'default'");
-    expect(rows[0].row.default).not.toContain('ambient');
-    expect(rows[0].row.description).toContain('page-owned bindable');
+    expect(rows[0].default).toBe("'default'");
+    expect(rows[0].default).not.toContain('ambient');
+    expect(rows[0].description).toContain('page-owned bindable');
+    // the extra lane carries BOTH §13 seats (the theme twin is the same
+    // rescue): the stage-preview bindable rides beside the rung
+    expect(
+      extraRowsOf(readFileSync(CANVAS_DOCS_PATH, 'utf8')).some((r) => r.name === 'theme'),
+    ).toBe(true);
   });
 
   it("inline-code#variant keeps its canonical definePaintSlot 'ambient zone' cell (never edited, never matrix-bound)", () => {
