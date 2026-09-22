@@ -38,7 +38,7 @@
   import NativeSelect from '#jixoai/native-select';
   import PressButton from '#jixoai/press-button';
   import Tabs, { TabsContent, TabsList, TabsTrigger } from '#jixoai/tabs';
-  import { ItemSegmented } from '#jixoai/list-item';
+  import { ItemGroup, ItemSegmented } from '#jixoai/list-item';
   import { CardFooter } from '#jixoai/card';
 
   import { persistStudioTheme, readStudioTheme, type StudioTheme } from './studio-theme.ts';
@@ -1124,8 +1124,11 @@
           </TabsContent>
           <TabsContent value="general">
             <p class="dsh-sub">general</p>
-            <div class="dsh-block">
-              <p class="dsh-block-title">appearance</p>
+            <!-- the settings-group idiom (Owner 2026-09-22「应该用
+                 list-item 组件」): the family's group frame owns the
+                 section — label + dividers + integrated control chrome,
+                 future rows (mcp, plugins) join as siblings -->
+            <ItemGroup mode="default" controlChrome="integrated" label="appearance">
               <ItemSegmented
                 label="theme"
                 description="the studio's token scope — dark is the default posture, the browser remembers the choice"
@@ -1133,7 +1136,7 @@
                 value={theme}
                 onValueChange={(option) => setTheme(option as StudioTheme)}
               />
-            </div>
+            </ItemGroup>
           </TabsContent>
         </div>
       </div>

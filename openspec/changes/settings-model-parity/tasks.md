@@ -85,4 +85,9 @@
       无尺寸 1fr 网格传导；.dsh-sidenav 与 .dsh-section 各自
       overflow-y:auto 独立滚动（导航列两节时休眠，为未来分区就绪）。
       探针 67/67 复绿（surface 高度锁定/导航钉住/滚动分离）
+- [x] T11b Owner 补充指令（2026-09-22「你在 general 这里应该用
+      list-item 组件」）：general 页从手写 dsh-block 换成 family 组合
+      ——ItemGroup（default 模式：组框 + label="appearance" +
+      integrated 控制铬）包 ItemSegmented theme 行；未来 mcp/plugins
+      行作为兄弟行加入。探针 67/67 复绿（选择器收窄 dialog 作用域）
 - [ ] T12 r6 提交推送 + 5199 重启 + 汇报（进行中）
