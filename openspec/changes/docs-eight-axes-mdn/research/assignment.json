@@ -131,7 +131,7 @@
     "quill"
    ],
    "tier": 2,
-   "status": "needs-work-1st"
+   "status": "fixed-awaiting-reverify"
   },
   {
    "page": "carousel",
@@ -300,8 +300,8 @@
     "quill",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded"
   },
   {
    "page": "float-button",

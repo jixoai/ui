@@ -738,3 +738,42 @@
 - **DensityDemo/DensityDemoDefaults dogfood**: the theming section already renders the
   family at four rungs — measure there before building custom rigs; the scope label text is
   the rig's rung key.
+
+## task 25 (FIX card-grid + CODE file-input)
+
+- **A falsified claim is best fixed by making it TRUE, not by weakening it**:
+  swapping the query demo's Card tenants for SectionCards turned the
+  not-reproducible "measured 12↔16px" into a live measurement (8px 12px ↔
+  12px 16px block/inline across 48rem) — the swap demonstrates more, and the
+  frozen-Card truth stays stated as the contrast. Rule: when a claim names the
+  wrong tenant, move the demo to the tenant that performs.
+- **Drift-lock pins update WITH their curation**: adding a curation override
+  (foot) breaks two pins — the legacy byte-for-byte row AND the override-field
+  matrix; both live in props-table-meta-drift.spec.ts and both change in the
+  same commit as the curation.
+- **The ambient matrix pins (route, tableIndex, prop, occurrence)**: inserting
+  a hand axes table ABOVE the contract table shifts tableIndex — the fixture
+  entry moves with it, with a dated note (the color-picker re-pin precedent).
+  Hand per-axis rows without ambient markers ("'auto'" alone) are NOT
+  candidates — no exemption entry needed for them.
+- **Synthetic DataTransfer drops work in Chromium**: construct
+  `new DataTransfer()`, `dt.items.add(new File(...))`, dispatch DragEvent
+  dragenter/dragover/drop — the full pipeline commits (Svelte handlers,
+  accept gate, rejection line, preview). The transient over-pose class does
+  NOT settle synchronously post-dispatch — don't assert it (or wait a
+  macrotask); the pipeline result is the receipt.
+- **The filechooser receipt**: playwright's `waitForEvent('filechooser')`
+  proves the trigger's click reaches the platform picker in headless — the
+  cleanest "ONE accessible control" receipt there is.
+- **Density-by-alias-seams** (--jx-file-* ← hit/icon/text/inset) is the
+  deepest consumption form in the fleet: every knob steps; the exception that
+  proves the rule is the zone title (typed --text-label, 11px fixed at every
+  rung — a label voice, deliberately density-deaf). Look for the fixed
+  exception when a family claims full-ladder adoption.
+- **Full-batch vitest runs can false-red load-sensitive specs** (hover-
+  stability, ~5.7s): isolated re-run GREEN + full-set re-run GREEN before
+  diagnosing anything — the banked contention law, again.
+- **docs-universal can self-heal between runs**: a mid-task 109/110 FAIL
+  (sibling's untracked +page.ts) cleared to 110/110 at gate time without any
+  action of mine — re-run attribution-guarded failures at the end before
+  reporting them as blockers.

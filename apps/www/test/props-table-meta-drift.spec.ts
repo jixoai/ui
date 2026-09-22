@@ -114,7 +114,7 @@ const LEGACY: Record<string, PropEntry[]> = {
   ],
   'card-grid': [
     { name: 'min', type: 'string', default: "'320px'", description: 'Minimum column width before the grid collapses a column (any CSS length).' },
-    { name: 'foot', type: 'boolean', default: 'false', description: '' },
+    { name: 'foot', type: 'boolean', default: 'false', description: "declares the third shared row — zone-trio cards' FEET align at the bottom; false = head/body only." },
     { name: 'children', type: 'Snippet', default: '—', description: 'The cards; each child spans the two shared rows.' },
     { name: 'class', type: 'string', default: "''", description: 'Forwarded to the grid container.' },
   ],
@@ -463,6 +463,7 @@ const OVERRIDE_FIELDS_IN_PLAY = {
   },
   'card-grid': {
     min: ['description'],
+    foot: ['description'],
     children: ['description'],
     class: ['description'],
   },

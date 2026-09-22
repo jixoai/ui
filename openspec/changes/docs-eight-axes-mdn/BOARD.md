@@ -2,7 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | marginalia | 28 | link (quill's) | REVIEW (2nd) | in-flight |
-| vellum | 25 | card-grid fix (A, OWN) + file-input (B, OWN) | FIX + CODE | in-flight |
+| vellum | 26 | native-scroll-area (quill's) | REVIEW (1st) | in-flight |
 | quill | 22 | navigation-menu (OWN) | CODE | in-flight |
 | scribe | 25 | code-card 2nd (+LOW ids) (quill's) | REVIEW (2nd) | in-flight |
 
@@ -12,12 +12,12 @@
 ## Pipeline (open work)
 - link: scribe 1st review **PASS** (em-voices live 11.1875px; frozen-pole pure-alias; corrected leaf claim verified — ONE edge markdown-node.svelte:64) → marginalia 2nd QUEUED
 - code-card: marginalia 1st review **PASS** (fourth theme pattern; the two-medium :where() receipt; no-query-seat judged SOUND; LOW: #install/#see-also ids ×2 rides the consolidation) → scribe 2nd IN FLIGHT
-- card-grid: scribe 1st review NEEDS-WORK-lite (the query demo's measured-tenant claim NOT reproducible — section-card truth shown on chrome-frozen Card tenants; MINOR: foot Description cell; NIT: dark specimen) → vellum fix IN FLIGHT (task 25-A) → marginalia 2nd after
+- card-grid: vellum fix LANDED (task 25-A: TENANT SWAP over rewording — SectionCard carries the claim, live-true 8/12→12/16→12/20 ladder measured; foot curation + drift pins synced; the theme-bridge canvas added with .dark-lands/grid-unmoved/tenants-own-voices) → marginalia 2nd QUEUED
 - combobox: coded Tier-2 (vellum 24 — two self-fixed MAJORs; FLOOR-ASYMMETRY class; ARIA end-to-end; two-time-bases demonstrator) → scribe+marginalia reviews QUEUED
 - native-scroll-area: coded Tier-2 + remediation (quill 21 — the universal table restored 9 rows; the LAST-WRITE write-then-verify incident archived; observer-consumed FIFTH theme mechanism) → vellum+scribe reviews QUEUED
 - descriptions: CLOSED #23 (the two one-liners landed empirically harder — flex-basis overrode width; the working fix rides the derived frameStyle; fold at the exact 640px line)
 - badge-indicator: coded Tier-2 (marginalia 27 — POSTURE-SPLIT size echo self-caught (standalone = root, mirror wins 18px / riding child, wrap takes it, chip 10px); the --destructive black/white raw-vs-typed cleanest contrast; composition measured (PressButton 40→48 under lg wrap); EXTRA 15−8−1=6; zero imports from badge/chip — kinship ≠ composition) → scribe+quill reviews QUEUED
-- file-input: vellum CODE IN FLIGHT (task 25-B)
+- file-input: coded Tier-2 (vellum 25-B — the FLEET'S DEEPEST density adoption via alias seams: zone 63/72/90/108 hit ×2.25, rows 28/40/48, thumbs 18/22/26, name 11/13/15, label 10/11/12/14, zone-title 11px fixed anomaly; theme: typed border+ground frozen / well sweep white-inset flips; drag/accept/ARIA end-to-end with synthetic DataTransfer + the REAL filechooser event; matrix re-pinned table[0]→table[1]) → scribe+marginalia reviews QUEUED
 - navigation-menu: quill CODE IN FLIGHT (task 22)
 
 ## RULINGS: a11y floor (24 = WCAG 2.5.8 AA minimum; 28 = fleet default exceeding) · toc/See-also: chrome, OUT of the toc · component fixes: three-strikes → fix now (EXTRA lane, hardening pins, structural arm precedents) · reviewer page-edits: flag-only, route through owner/orchestrator

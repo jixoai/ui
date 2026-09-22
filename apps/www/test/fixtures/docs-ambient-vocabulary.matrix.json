@@ -64,14 +64,15 @@
  {
   "route": "file-input",
   "batch": "A",
-  "tableIndex": 0,
+  "tableIndex": 1,
   "prop": "variant",
   "occurrence": 1,
   "bareDefault": "drop",
   "marker": "own",
   "defaultsFile": "registry/files/ui/file-input/file-input-defaults.svelte.ts",
   "slotExport": "fileInputVariantSlot",
-  "exactDescription": null
+  "exactDescription": null,
+  "note": "docs-eight-axes-mdn task 25 re-pin (vellum): the page moved to the MDN archetype — the measured axes table became call-site table[0] (hand rows, outside the ambient economy), so the contract hand table moved to table[1]; the variant own-'drop' row rides it unchanged (fileInputVariantSlot own argument untouched)."
  },
  {
   "route": "float-button",

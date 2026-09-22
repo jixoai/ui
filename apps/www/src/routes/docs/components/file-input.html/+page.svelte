@@ -2,6 +2,8 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import FileInput from '$lib/ui/file-input/file-input.svelte';
@@ -10,6 +12,8 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { PlayFields, PlayRow, PlaySegmented, PlayToggle, PlayHelp } from '$lib/playground';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import fileInputSource from '$lib/ui/file-input/file-input.svelte?raw';
@@ -17,8 +21,6 @@
   // A literal closing-script tag inside a code string would terminate this
   // component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
-
-  // ToC outline: the demo sections below, in page order.
 
   // ---- demo state ---------------------------------------------------------
   let demoFiles = $state<File[]>([]);
@@ -91,13 +93,20 @@
   multiple
   bind:files
 />`;
-  // ---- the universal props demo (explicit-props W3-A) --------------------
+
+  // ---- the eight axes demos: code shown = code running --------------------
   const universalUsage = `<FileInput label="px number" size={14} density="small" />
-<FileInput label="named steps" size="large" radius="medium" />`;
+<FileInput label="named steps" size="large" radius="medium" />
+<FileInput label="query()" density={query({ md: 'default' }, 'small')} multiple />`;
 
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/file-input-universal.svelte', content: universalUsage },
   ];
+
+  // the ONE query() case: responsive density through the alias seams —
+  // tight guests below 48rem, the default rung at 48rem+. The STRING
+  // lane pins BOTH generics (the §6 typing law).
+  const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'default' }, 'small');
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/file-input.svelte', content: fileInputSource },
@@ -116,7 +125,11 @@ ${close}
 <FileInput label="logs" variant="button" multiple maxFiles={5} bind:files={logs} />
 
 <!-- hint overrides the composed "accept: … · max: N" line -->
-<FileInput label="evidence" multiple hint="pdf only — 10 MB each" bind:files={evidence} />`;
+<FileInput label="evidence" multiple hint="pdf only — 10 MB each" bind:files={evidence} />
+
+<!-- capture rides the rest spread to the native input — the mobile
+     platform picker opens its camera face-to-face -->
+<FileInput label="photo" accept="image/*" capture="environment" />`;
 
   // ---- canvas-everywhere sweep (2026-09-08) --------------------------------
   // Usage mirrors for the SectionCard demos below — hand-authored to match
@@ -188,6 +201,67 @@ ${close}
   </div>
 </div>`;
 
+  // the measured per-axis rows (task 25 probe: /tmp/vellum-25-fi-probe.mjs
+  // output): every consumption claim carries its measurement or grep receipt.
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "LIVE THROUGH THE ALIAS SEAMS — the fleet's deepest adoption. The root aliases the closed control contract (--jx-file-h ← --jx-hit, --jx-file-thumb/--jx-file-icon ← --jx-icon, --jx-file-text ← --jx-text, --jx-file-zone-pad/--jx-file-zone-glyph ← --jx-inset/--jx-icon) and every knob follows. Measured across xs/sm/default/lg: the drop zone's min-height 63 / 72 / 90 / 108px (exactly hit × 2.25); the list rows 28 / 40 / 48px min-height; the thumb box 18 / 22 / 26px (icon + the 2px hairline pair); the file-name voice 11 / 13 / 15px; the scaffold label 10 / 11 / 12 / 14px. THE FIXED EXCEPTION, measured: the zone's uppercase title rides the typed --text-label step and stays 11px at every rung. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE §11 ECHO, NOTHING FOLLOWS — the stamp lands verbatim (measured root inline: --jx-size-effective: 14px; font-size: var(--jx-size-effective, 1rem); computed 14px / 18px at the two demo lanes), and every family voice is a var() channel or a typed px step: the knob aliases are px ladders, the zone title the typed 11px label, the hint the 10.5px micro seam. Nothing is em-of-parent. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps the carriers; zero readers in the family (grep receipt). The zone, the trigger and the list are squared by the family box law: borderRadius 0. Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-radius-effective; zero readers (grep receipt). borderRadius 0 on the zone, the trigger and the list — the square picker look the redesign kept. Number unit: px.',
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-color-effective; zero readers in the family (grep receipt). The ink is the typed token set (--jx-foreground/--jx-muted-foreground) plus the raw machines: the drag-over dash turns var(--primary), invalid surfaces var(--destructive). Number unit: hue degrees.',
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE BRIDGE + THE SPLIT — the .dark class lands on the field root and the answer depends on the emission form. TYPED POLE (frozen at :root): the zone's border AND ground — measured inside a .dark scope the border stays oklch(0 0 0) and the ground keeps its light pole, so the zone still reads light while the island is dark. RAW MACHINES (flip): the well sweep's resting/hover shadows (measured flipping to the white-inset dark well), the row hairline var(--border), the drag ink var(--primary), the focus ring, the remove/clear hover ink. A dropped zone in a dark scope keeps its light canvas — the honest drop-target look. light/system/auto ride tree inheritance. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero carrier reads (grep receipt). The shadows the family carries are two trigger laws, not the lane: the press seams (--jx-press-shadow / -hover / -active riding --shadow-2xs/xs/sm + the press pair, typed atoms) and the F-1 well sweep (raw var(--shadow-well) resting, -hover deepening — with the drag-over lift keeping its transient shadow). Number unit: dp.',
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'AXIS SUPPLY-ONLY, KERNELS LIVE — the carrier --jx-motion-effective is unread (grep receipt). The family’s motion rides the sheet kernels: var(--motion-150) ease-out transitions (the zone glyph/title ink crossfade to the primary drag ink, the remove × color+transform, the clear link), the press translate physics, and the prefers-reduced-motion kill over the whole set (its own selector repeated to match the :is() specificity). Number unit: coefficient.',
+    },
+  ];
+
   // the page's local join (the separator serialize law): plain
   // strings pass through whole; stylex objects contribute their
   // string members ($$css dropped).
@@ -195,7 +269,7 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -241,8 +315,80 @@ ${close}
     </SectionCard>
   </div>
 
+  <!-- the demo-standard skeleton: Install then Overview then Usage sit
+       ABOVE the demos — Intro → Install → Usage → Examples → API →
+       See Also is the page law (docs-eight-axes-mdn task 25) -->
+  <div data-reveal="">
+    <DocsInstall name="file-input" />
+  </div>
+
+  <div id="overview" data-reveal="">
+    <SectionCard
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="Ant's Upload anatomy over LOCAL-picker semantics: an acquisition trigger, an accept gate, and an honest selected-file list — no network, no status theater."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          Two trigger postures over one visually hidden native input: the default
+          <code class={cx(rt.inkAccent)}>drop</code> zone (dashed 1px — the dash is reserved for
+          drop targets and invalid shells, so the drag-over swap to
+          <code class={cx(rt.inkAccent)}>--primary</code> can never read as an error) and the compact
+          <code class={cx(rt.inkAccent)}>button</code> trigger. The zone's hint line is composed honestly from the
+          field's own contract (<code class={cx(rt.inkAccent)}>accept: image/* · max: 3 files · single file</code>) and a
+          <code class={cx(rt.inkAccent)}>hint</code> prop overrides it. The gate is the honesty kernel: the
+          platform picker filters by <code class={cx(rt.inkAccent)}>accept</code> itself, but DROPS bypass it — so drops
+          are re-checked, and violating files never enter the bound File[]; they surface through
+          the error line and the optional <code class={cx(rt.inkAccent)}>onreject</code> callback.
+          <code class={cx(rt.inkAccent)}>maxFiles</code> reports overflow without truncating the array.
+        </p>
+        <p class={cx(rt.para)}>
+          ONE accessible control: the visible trigger IS the picker for tabs and assistive tech —
+          the native input is clipped, <code class={cx(rt.inkAccent)}>tabindex="-1"</code>,
+          <code class={cx(rt.inkAccent)}>aria-hidden</code> (measured: Enter on the trigger reaches the platform
+          filechooser; the native input is absent from the tab order). Both postures are real
+          drop targets — an enter-depth counter defeats child-element flicker and
+          <code class={cx(rt.inkAccent)}>dataTransfer.types</code> is checked so only file drags arm the pose
+          (measured: an image and a .txt dropped together on an
+          <code class={cx(rt.inkAccent)}>accept="image/*"</code> zone bind the png and reject the txt).
+          Selected files render as ant-style rows in one bordered box — square thumb (a live
+          object-URL preview for images, revoked on remove, on unmount, AND on external splices of
+          the bound array; zero-dependency kind glyphs for everything else) | ellipsized name with
+          a title tooltip | size | remove × — with a remove-all tail on multi-file lists.
+        </p>
+        <p class={cx(rt.para)}>
+          The paint: density is this family's deepest axis — the root aliases the closed control
+          contract (<code class={cx(rt.inkAccent)}>--jx-file-*</code> seams over the hit/icon/text/inset ladders) and the
+          zone, rows, thumbs and voices all step with the rung (measured in the axis table).
+          Theme splits by emission form: the zone's typed border and ground freeze at the :root
+          pole while the well shadow, the drag ink and the row hairlines flip. The InputGroup
+          hardening law applies (min-width 0 on every flex child, max-width 100% shells,
+          ellipsized names) — 390px hosts survive unbroken filenames. Geometry is logical-property-only, so
+          <code class={cx(rt.inkAccent)}>dir="rtl"</code> mirrors the rows with zero branches. Kinship:
+          <code class={cx(rt.inkAccent)}>input</code> (the shell/label/error law),
+          <code class={cx(rt.inkAccent)}>input-group</code> (the hardening law),
+          <code class={cx(rt.inkAccent)}>press-button</code> (the press poses).
+        </p>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="usage" data-reveal="">
+    <SectionCard
+      family="usage"
+      headerRegion="usage"
+      eyebrow="usage"
+      title="Usage"
+      summary="Bind the File[] value; accept, maxFiles, and hint shape the zone's composed contract line. capture rides the rest spread to the platform picker."
+    >
+      <CodeBlock code={usage} lang="svelte" meta="FileInput usage" />
+    </SectionCard>
+  </div>
+
   <!-- live demo + playground -->
-  <div id="fi-demo" data-region="fi-demo" data-family="fi-demo" data-reveal="">
+  <div id="fi-demo" data-reveal="">
     <ComponentCanvas
       title="file-input"
       description="The full control, live: pick through the zone, drag files onto it, remove rows. The playground swaps the trigger posture (drop / button), multiple, and disabled — the usage file in the drawer tracks every toggle."
@@ -336,7 +482,6 @@ ${close}
           a snippet (<code class={cx(rt.inkAccent)}>{'{#snippet zone()}'}</code>) when a field needs
           its own illustration.
         </p>
-        <CodeBlock code={usage} lang="svelte" meta="FileInput usage" />
       </div>
     </SectionCard>
   </div>
@@ -348,7 +493,7 @@ ${close}
       headerRegion="fi-list"
       eyebrow="presentation"
       title="The file list — ant rows, local truth"
-      summary="Ant puts the selected files in a list under the trigger; so does this. One bordered box of hairline rows, each row [square thumb | name | size | remove ×]: the thumb is a live object-URL preview for images (revoked the instant the row is removed or the component unmounts) or a zero-dependency kind glyph for everything else — inline SVG for image/video/audio/pdf/doc, a font-nav </> for code. A “remove all” tail closes multi-file lists. There is no uploading/done/status theater: a local picker's rows are the truth, and the only statuses that exist are real (the error line's overflow/rejection reports)."
+      summary="Ant puts the selected files in a list under the trigger; so does this. One bordered box of hairline rows, each row [square thumb | name | size | remove ×]: the thumb is a live object-URL preview for images (revoked the instant the row is removed, the component unmounts, or the bound array is spliced externally) or a zero-dependency kind glyph for everything else — inline SVG for image/video/audio/pdf/doc, a font-nav </> for code. A “remove all” tail closes multi-file lists. There is no uploading/done/status theater: a local picker's rows are the truth, and the only statuses that exist are real (the error line's overflow/rejection reports)."
     >
       <div class={cx(rt.col20)}>
         <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap8)}>
@@ -446,14 +591,12 @@ ${close}
     </SectionCard>
   </div>
 
-  <!-- usage -->
-  
   </div>
 </div>
 
-<!-- Material3 standard sections (2026-08-26): types / usage / a11y /
-     theming / api appended after the demo sections, same wrapper law as
-     checkbox.html. -->
+<!-- Material3 standard sections (2026-08-26): types / a11y /
+     theming / axes / api appended after the demo sections, same wrapper
+     law as checkbox.html; Usage moved above the demos (task 25). -->
 <div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal="">
     <SectionCard
@@ -489,37 +632,27 @@ ${close}
       </ComponentCanvas>
     </SectionCard>
   </div>
-  <div id="usage" data-reveal="">
-    <SectionCard
-      family="usage"
-      headerRegion="usage"
-      eyebrow="usage"
-      title="Usage"
-      summary="Bind the File[] value; accept, maxFiles, and hint shape the zone's composed contract line."
-    >
-      <CodeBlock code={usage} lang="svelte" meta="FileInput usage" />
-    </SectionCard>
-  </div>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"
       headerRegion="accessibility"
       eyebrow="a11y"
       title="Accessibility"
-      summary="ONE accessible control: the visible trigger is the picker for tabs and assistive tech — the clipped native input drops out of the tab order and the a11y tree."
+      summary="ONE accessible control: the visible trigger is the picker for tabs and assistive tech — the clipped native input drops out of the tab order and the a11y tree (measured: the trigger click reaches the platform filechooser; the native input is tabindex -1 + aria-hidden)."
     >
       <A11yTable
         keys={[
           { key: 'Tab', action: 'Moves focus to the visible trigger button (the native input is aria-hidden, tabindex -1)' },
-          { key: 'Enter / Space', action: 'Opens the platform file picker' },
-          { key: 'drag files', action: 'Both variants are real drop targets; accept violations are gate-rejected' },
+          { key: 'Enter / Space', action: 'Opens the platform file picker (measured — the trigger click requests the filechooser)' },
+          { key: 'drag files', action: 'Both variants are real drop targets; accept violations are gate-rejected and never enter the value' },
           { key: '×', action: 'Removes one selected file; “remove all” clears a multi-file list' },
         ]}
         aria={[
           { name: 'aria-label', value: 'label / "choose file(s)"', description: 'On the trigger button — label[for] points at it too' },
-          { name: 'aria-describedby', value: '{id}-error', description: 'The error line: prop error, maxFiles overflow, or drop rejection' },
+          { name: 'aria-describedby', value: '{id}-error', description: 'The error line: prop error, maxFiles overflow, or drop rejection (measured wired after a rejected drop)' },
           { name: 'aria-label (×)', value: '"remove NAME"', description: 'On every list row remove button (type="button")' },
           { name: 'aria-label (list)', value: '"selected files"', description: 'On the selected-file list box' },
+          { name: 'input', value: 'type="file", aria-hidden, tabindex -1', description: 'The native element: accepts/multiple/disabled ride it; it owns no accessible role' },
         ]}
       />
     </SectionCard>
@@ -530,7 +663,7 @@ ${close}
       headerRegion="theming"
       eyebrow="theming"
       title="Density and tokens"
-      summary="Family-local size knobs alias the closed density contract; resize the scope and the zone, rows, and thumbs follow."
+      summary="Family-local size knobs alias the closed density contract; resize the scope and the zone, rows, thumbs and voices follow (measured 63 / 72 / 90 / 108px zone ladder). One fixed exception: the zone title stays the typed 11px label at every rung."
     >
       <div class={cx(rt.col24)}>
         <DensityDemo>
@@ -538,13 +671,14 @@ ${close}
         </DensityDemo>
         <TokenTable
           tokens={[
-            { name: '--jx-file-h', default: 'var(--jx-hit)', source: 'component' },
-            { name: '--jx-file-thumb', default: 'var(--jx-icon)', source: 'component' },
-            { name: '--jx-file-text', default: 'var(--jx-text)', source: 'component' },
-            { name: '--jx-file-zone-pad', default: 'var(--jx-inset)', source: 'component' },
-            { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
-            { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' },
-            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
+            { name: '--jx-file-h', default: 'var(--jx-hit) — 28 / 32 / 40 / 48px (measured)', source: 'density', description: 'The height knob: row min-heights ride it; the zone multiplies ×2.25 — 63 / 72 / 90 / 108px (measured).' },
+            { name: '--jx-file-thumb / --jx-file-icon', default: 'var(--jx-icon) — 16 / 18 / 20 / 24px (measured)', source: 'density', description: 'Thumb box = knob + 2px hairline (18 / 22 / 26px measured); the trigger glyph is 0.9× the icon knob.' },
+            { name: '--jx-file-text', default: 'var(--jx-text) — 11 / 12 / 13 / 15px (measured)', source: 'density', description: 'The file-name and size voices; the remove × rides --jx-text/--jx-leading directly.' },
+            { name: '--jx-file-zone-pad / --jx-file-zone-glyph', default: 'var(--jx-inset) / var(--jx-icon)', source: 'density', description: 'Zone padding and glyph knob.' },
+            { name: 'label voice', default: '10 / 11 / 12 / 14px (measured)', source: 'density', description: 'The .jx-label scaffold’s --jx-text-secondary.' },
+            { name: 'zone title', default: '11px FIXED at every rung (measured)', source: 'structural', description: 'The uppercase title rides the typed --text-label step — the one density-deaf voice, deliberately a label, not body copy.' },
+            { name: '--jx-press-shadow / -hover / -active', default: '--shadow-2xs/xs/sm + press pair', source: 'component', description: 'The press seams on the zone and trigger — press-button physics without importing it.' },
+            { name: 'well sweep', default: 'resting --shadow-well · hover -hover', source: 'structural', description: 'The F-1 fillable-surface law over both postures (raw sheet machines — the theme-flipping half).' },
           ]}
         />
       </div>
@@ -555,15 +689,26 @@ ${close}
       family="universal-props"
       headerRegion="universal-props"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+      title="The eight axes"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive values. MEASURED, not claimed: density is the fleet's deepest adoption (the --jx-file-* alias seams step every knob); size is the §11 echo with nothing following; the theme split freezes the zone's typed canvas while the well/drag machines flip; shape/radius/color/elevation are supply-only."
     >
-      <ComponentCanvas title="file-input · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}><FileInput label="size 14 · density small" size={14} density="small" name="univ-file-px" /></div>
-        <div class={cx(rt.panel)}><FileInput label="size large · radius medium" size="large" density="large" radius="medium" name="univ-file-named" /></div>
-        </div>
-      </ComponentCanvas>
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the density ladder, the size echo, the frozen-zone contrast and the gate
+          behavior were measured on this page's served DOM (probe, task 25); the supply-only rows
+          carry grep receipts over src/lib/ui/file-input/. The universal demo folds in below,
+          with a query() seat: the density lane rides the md viewport key (48rem) — base small
+          below, the default rung at 48rem and wider.
+        </p>
+        <ComponentCanvas title="file-input · universal props" stage="fill" files={universalFiles}>
+          <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}><FileInput label="size 14 · density small" size={14} density="small" multiple /></div>
+          <div class={cx(rt.panel)}><FileInput label="size large · radius medium" size="large" density="large" radius="medium" multiple /></div>
+          <div class={cx(rt.panel)}><FileInput label="density md→default (query)" density={query<{ md: DensityLane }, DensityLane>({ md: 'default' }, 'small')} multiple /></div>
+          </div>
+        </ComponentCanvas>
+      </div>
     </SectionCard>
   </div>
 
@@ -573,7 +718,7 @@ ${close}
       headerRegion="api"
       eyebrow="api"
       title="API"
-      summary="Props spread onto the visually hidden native input; the File[] value is the $bindable contract and FileItem adds component-managed identity + previews."
+      summary="22 meta rows − 8 ambient axes = 14 family rows; the table below serves the 11 contract rows (class forwards through cn to the root; the synthesized rest spread rides the native input — accept/multiple/disabled/capture are re-declared as props, everything else passes through). The File[] value is the $bindable contract; FileItem adds component-managed identity + previews."
     >
       <PropsTable
         universal
@@ -596,9 +741,15 @@ ${close}
         props={[
           { name: 'file', type: 'File', default: '—', description: 'The native File object, exactly as the platform handed it over.', required: true },
           { name: 'id', type: 'string', default: '—', description: 'Internal management id — stable across re-renders per File identity.', required: true },
-          { name: 'previewUrl', type: 'string', default: '—', description: 'Image preview object URL; revoked on remove / unmount.' },
+          { name: 'previewUrl', type: 'string', default: '—', description: 'Image preview object URL; revoked on remove / unmount / external splice.' },
         ]}
       />
     </SectionCard>
+  </div>
+
+  <!-- the skeleton's closing section: related components, derived from
+       the docs reading chain (data, not a hand list) -->
+  <div data-reveal="">
+    <DocsSeeAlso name="file-input" />
   </div>
 </div>

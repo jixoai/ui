@@ -18,6 +18,10 @@ export const CARD_GRID_DOCS: PropsDocs = {
     children: {
       description: 'The cards; each child spans the two shared rows.',
     },
+    foot: {
+      description:
+        "declares the third shared row — zone-trio cards' FEET align at the bottom; false = head/body only.",
+    },
     class: {
       description: 'Forwarded to the grid container.',
     },

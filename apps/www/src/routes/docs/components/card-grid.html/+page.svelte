@@ -128,9 +128,11 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
   const axesUsage = `<!-- density: SUPPLY-ONLY on self (the 20px gap holds at
      every rung — the space ladder hangs off the :root --jx-unit);
      CONSUMED BY COMPOSITION (the rung scope re-bases the tenants'
-     --jx-inset/--jx-stack channels) -->
+     --jx-inset/--jx-stack channels — visible on section-card tenants) -->
 <CardGrid density="small">
-  <Card title="tenant one">the guests re-base; the grid holds</Card>
+  <SectionCard eyebrow="tenant one" title="the guests re-base">
+    the grid holds; the tenant steps
+  </SectionCard>
 </CardGrid>
 
 <!-- size: the §11 echo stamps the root's font-size — the tenants'
@@ -151,16 +153,18 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
 
   const queryUsage = `<script lang="ts">
   import CardGrid from '@ui/card-grid.svelte';
-  import Card from '@ui/card.svelte';
+  import SectionCard from '@ui/section-card.svelte';
   import { query } from '@lib/universal-props-query.svelte';
   import type { DensityLane } from '@lib/defaults.svelte';
 ${close}
 
 <!-- below 48rem the base (small) applies — the guests breathe tight;
-     at 48rem+ the md case wins and they step to the default rung -->
+     at 48rem+ the md case wins and they step to the default rung.
+     The tenants are SECTION-CARDS: their header padding carries the
+     rung (measured 8px 12px ↔ 12px 16px block/inline across the key) -->
 <CardGrid density={query<{ md: DensityLane }, DensityLane>({ md: 'default' }, 'small')}>
-  <Card title="tenant one">…</Card>
-  <Card title="tenant two">…</Card>
+  <SectionCard eyebrow="tenant one" title="the rung rides the viewport">…</SectionCard>
+  <SectionCard eyebrow="tenant two" title="compact below, roomy above">…</SectionCard>
 </CardGrid>`;
   const queryFiles: TreeFile[] = [{ name: 'card-grid-query-demo.svelte', content: queryUsage, kind: 'usage' }];
 
@@ -195,7 +199,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
       default: `'auto'`,
       description:
-        "SUPPLY-ONLY ON SELF, CONSUMED BY COMPOSITION — measured both halves. ON SELF: the grid's own 20px gap is INERT at every rung (measured 20px at xs/sm/default/lg) — the space ladder hangs off --space-20 = calc(var(--jx-unit) × 5) and --jx-unit is declared at :root only, which no rung scope re-bases (the declaring-element law). ON THE TENANTS: the named rung stamps data-density on the section root — the scope block IS the tenants' home — and the re-based --jx-inset/--jx-stack/--jx-text channels step the composed cards: measured section-card header padding 12px (xs/sm) / 16px (default) / 20px (lg). The NUMBER lane is inert (the coefficient stamps, nothing re-declares). Number unit: coefficient.",
+        "SUPPLY-ONLY ON SELF, CONSUMED BY COMPOSITION — measured both halves. ON SELF: the grid's own 20px gap is INERT at every rung (measured 20px at xs/sm/default/lg) — the space ladder hangs off --space-20 = calc(var(--jx-unit) × 5) and --jx-unit is declared at :root only, which no rung scope re-bases (the declaring-element law). ON THE TENANTS: the named rung stamps data-density on the section root — the scope block IS the tenants' home — and the re-based --jx-inset/--jx-stack/--jx-text channels step the composed cards: measured SECTION-CARD header padding 8px 12px (xs) · 8px 12px (sm) · 12px 16px (default) · 12px 20px (lg), block/inline. Card tenants' chrome is frozen (the card family's own law) — the moving tenant on this page is the section-card. The NUMBER lane is inert (the coefficient stamps, nothing re-declares). Number unit: coefficient.",
     },
     {
       name: 'color',
@@ -457,7 +461,7 @@ ${close}
       headerRegion="axes"
       eyebrow="axes"
       title="The eight axes on card-grid"
-      summary="A FIRST-TIME all-no-own contract (census batch B): the landlord stamps every carrier and reads none — its own paint is one fixed gap plus structural geometry. The axis story is the SUPPLY CHAIN: the named density rung stamps the scope the tenants live in and their inset/stack channels re-base (measured 12 / 16 / 20px); size stamps the §11 echo nothing follows (the fixed-voice contrast case); theme is BRIDGE-ONLY (the .dark lands, the grid paints nothing, the tenants speak through their own emission forms). The carriers stamp the section root (the promoted root is self-carried), greppable in the raw SSR."
+      summary="A FIRST-TIME all-no-own contract (census batch B): the landlord stamps every carrier and reads none — its own paint is one fixed gap plus structural geometry. The axis story is the SUPPLY CHAIN: the named density rung stamps the scope the tenants live in and their inset/stack channels re-base (measured section-card header padding 8px 12px at xs/sm, 12px 16px at default, 12px 20px at lg — block/inline); size stamps the §11 echo nothing follows (the fixed-voice contrast case); theme is BRIDGE-ONLY (the .dark lands, the grid paints nothing, the tenants speak through their own emission forms). The carriers stamp the section root (the promoted root is self-carried), greppable in the raw SSR."
     >
       <div class={cx(rt.col20)}>
         <p class={cx(rt.note12, rt.inkMuted70)}>
@@ -472,7 +476,8 @@ ${close}
           pinned by test/docs-ambient-vocabulary.spec.ts (card-grid in expectedCarriers). The
           §1 collision rule: the root is a &lt;div&gt; — no native attribute names at stake; every
           axis name is the family's own destructured lane. The density row's two halves are
-          measured, not inferred: gap inert at every rung, tenants stepping 12 / 16 / 20px.
+          measured, not inferred: gap inert at every rung; the section-card tenant stepping
+          8px 12px → 12px 16px → 12px 20px (block/inline) across the rungs.
         </p>
         <div class={cx(rt.mt20)}>
           <CodeBlock code={axesUsage} lang="svelte" meta="the eight axes on card-grid" />
@@ -481,13 +486,38 @@ ${close}
           <ComponentCanvas id="axes" title="card-grid · the supply chain" files={universalFiles} stage="fill">
             <div class={cx(rt.col16, rt.wFull)}>
               <CardGrid density="small" size={14}>
-                <Card title="tenant one"><p class={cx(rt.pb8, rt.textVar2)}>the grid supplied density small · size 14</p></Card>
-                <Card title="tenant two"><p class={cx(rt.pb8, rt.textVar2)}>every axis forwards the same way</p></Card>
+                <SectionCard eyebrow="tenant one" title="the rung steps the guests">
+                  <p class={cx(rt.pb8, rt.textVar2)}>the grid supplied density small · size 14</p>
+                </SectionCard>
+                <SectionCard eyebrow="tenant two" title="every axis forwards the same way">
+                  <p class={cx(rt.pb8, rt.textVar2)}>header padding at the small rung: 8px 12px (measured)</p>
+                </SectionCard>
               </CardGrid>
               <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
-                Measured: the section's own 20px gap and structural geometry hold; the tenants'
-                inset/stack/type channels step to the small rung through the stamped scope —
-                the supply chain is the point.
+                Measured: the section's own 20px gap and structural geometry hold; the SECTION-CARD
+                tenants' header padding steps to the small rung (8px 12px block/inline) through the
+                stamped scope — the supply chain is the point. A Card tenant would hold still (its
+                chrome is frozen by its own law).
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="card-grid · theme bridge" files={universalFiles} stage="fill">
+            <div class={cx(rt.col16, rt.wFull)}>
+              <CardGrid theme="dark" min="220px">
+                <SectionCard eyebrow="tenant one" title="the bridge lands, the landlord holds">
+                  <p class={cx(rt.pb8, rt.textVar2)}>theme="dark" — .dark on the section root</p>
+                </SectionCard>
+                <SectionCard eyebrow="tenant two" title="the tenant speaks for itself">
+                  <p class={cx(rt.pb8, rt.textVar2)}>its own emission form decides what flips</p>
+                </SectionCard>
+              </CardGrid>
+              <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+                The bridge-only specimen: the resolved dark lands the .dark class on the grid's
+                root — and the GRID'S OWN PAINT has nothing to move (transparent ground, one
+                structural gap). What answers is each tenant, through its own emission form.
               </p>
             </div>
           </ComponentCanvas>
@@ -500,13 +530,18 @@ ${close}
           <ComponentCanvas title="card-grid · query()" files={queryFiles}>
             <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
               <CardGrid density={responsiveDensity}>
-                <Card title="tenant one"><p class={cx(rt.pb8)}>the rung rides the viewport</p></Card>
-                <Card title="tenant two"><p class={cx(rt.pb8)}>compact below 48rem, roomy above</p></Card>
+                <SectionCard eyebrow="tenant one" title="the rung rides the viewport">
+                  <p class={cx(rt.pb8)}>watch the header padding breathe</p>
+                </SectionCard>
+                <SectionCard eyebrow="tenant two" title="compact below 48rem, roomy above">
+                  <p class={cx(rt.pb8)}>measured 8px 12px ↔ 12px 16px (block/inline)</p>
+                </SectionCard>
               </CardGrid>
               <p class={cx(rt.para)}>
                 Media keys are min-width: below 48rem the base applies — the small rung, tight
                 tenants; at 48rem and wider the md case wins — the default rung, roomy tenants
-                (measured tenant padding 12px ↔ 16px across the key). The theme lane is a STRING
+                (measured section-card tenant header padding 8px 12px ↔ 12px 16px block/inline
+                across the key). The density lane is a STRING
                 lane: both generics are load-bearing. Resize across 48rem.
               </p>
             </div>
