@@ -30,10 +30,12 @@
   import { PlayFields, PlayRow, PlayToggle, PlaySegmented, PlayHelp } from '$lib/playground';
   import { query } from '$lib/universal-props-query.svelte';
   import type { DensityLane } from '$lib/defaults.svelte';
-  // The canvas same-source lane (typography-context-and-parts §7, the
-  // quill idiom): the axes drawer composes from THIS page's own canvas
-  // markup — resolveRawCode('axes') extracts the stage children at
-  // build time. One source, two surfaces.
+  // The canvas same-source lane (fix round 11): the states/query/bare
+  // canvases carry ids and compose their drawers from THIS PAGE's own
+  // stage markup via resolveRawCode — the hand-mirrored literals are
+  // gone. The form canvas keeps a hand file (its stage is interactive
+  // page state, not extractable), rewritten to run the stage's real
+  // atoms so the sample doesn't collapse.
   import { usageFile } from '$lib/canvas-usage';
   import { resolveRawCode } from 'virtual:jixoai-canvas/docs/components/checkbox.html/+page';
 
@@ -93,18 +95,14 @@
     { name: 'src/lib/ui/checkbox-usage.svelte', content: usage },
   ];
 
-  // ---- the selector, redrawn (the states matrix) --------------------------
-  const checkboxStatesDemo = `<script lang="ts">
-  import Checkbox from '@ui/checkbox.svelte';
-${close}
-
-<!-- the state matrix: one pseudo-element, six vertices in every state -->
-<Checkbox label="unchecked" name="demo_cb" />
-<Checkbox label="checked" name="demo_cb" checked />
-<Checkbox label="indeterminate" name="demo_cb" indeterminate />
-<Checkbox label="label left" name="demo_cb" labelSide="left" />
-<Checkbox label="disabled" name="demo_cb" disabled />
-<Checkbox label="error" name="demo_cb" error="consent is required" />`;
+  // ---- the selector, redrawn (the states matrix) — same-source ----------
+  const statesUsage = usageFile(
+    { Checkbox: '@ui/checkbox', CardGrid: '@ui/card-grid' },
+    resolveRawCode('states'),
+  );
+  const statesFiles: TreeFile[] = [
+    { name: 'checkbox-states-demo.svelte', content: statesUsage, kind: 'usage' },
+  ];
 
   // ---- form participation demo (from the family example form) ---------------
   // NativeHTML end to end: uncontrolled checkbox, native constraint
@@ -126,6 +124,23 @@ ${close}
   const checkboxFormDemo = `<script lang="ts">
   import Checkbox from '@ui/checkbox.svelte';
   import PressButton from '@ui/press-button.svelte';
+  import { rt } from '@lib/surface/routes.stylex';
+
+  // the page-local join (the separator serialize law) — the same idiom
+  // the docs stage runs; atoms over utility classes
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // uncontrolled fields, FormData read once at submit — the checked box
   // contributes its name/value pair, an unchecked one contributes nothing
@@ -142,24 +157,21 @@ ${close}
   }
 ${close}
 
-<form class="flex flex-col gap-4" aria-label="consent" onsubmit={onSubmit}>
+<form class={cx(rt.col16)} aria-label="consent" onsubmit={onSubmit}>
   <Checkbox label="I agree to the terminal printing my answers" name="consent" value="yes" required />
   <Checkbox label="join the newsletter" name="news" value="yes" />
-  <div class="flex flex-wrap items-center gap-3 pt-1">
+  <div class={cx(rt.wrapRow12, rt.pt4)}>
     <PressButton type="submit" variant="fill">sign up</PressButton>
-    <span class="text-muted-foreground text-[12.5px]">
+    <span class={cx(rt.inkMuted, rt.text125)}>
       required fields use native validation — try submitting empty
     </span>
   </div>
 </form>`;
 
   // ── the eight axes on checkbox — grouped runnable examples ──────────────
-  // The drawer's usage file composes from the stage markup in the axes
-  // canvas below (the same-source lane — the stage is THE source; the
-  // explanatory comments ride inside the stage children so both
-  // surfaces carry them). The query() case keeps its hand file: its
-  // drawer teaches the explicit call form while the stage carries the
-  // page's own const (a deliberate teaching difference, copy-checked).
+  // The drawers compose from the stage markup in the canvases below (the
+  // same-source lane — the stage is THE source; the explanatory comments
+  // ride inside the stage children so both surfaces carry them).
   const axesUsage = usageFile({ Checkbox: '@ui/checkbox' }, resolveRawCode('axes'));
 
   const axesFiles: TreeFile[] = [{ name: 'checkbox-axes-demo.svelte', content: axesUsage, kind: 'usage' }];
@@ -168,40 +180,25 @@ ${close}
   // (large: the 24px box under a 48px lane, touch-generous) applies
   // below the 40rem viewport; at ≥40rem the sm case wins and the row
   // steps down to the compact pointer lane (18px box, 32px lane). The
-  // explicit generics pin the cases AND the base to the lane (the
-  // one-generic form leaves B inferred undefined, and 'large' fails its
-  // assignment — the campaign's query() typing law)
-  const responsiveDensity = query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large');
-
-  const queryUsage = `<script lang="ts">
-  import Checkbox from '@ui/checkbox.svelte';
-  import { query } from '@lib/universal-props-query.svelte';
-  import type { DensityLane } from '@lib/defaults.svelte';
-${close}
-
-<Checkbox
-  label="responsive hit lane"
-  density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}
-/>`;
-  // Media keys are min-width: below 40rem the base applies — the large
-  // rung (touch); at 40rem and wider the sm case wins — the compact
-  // small rung (pointer). Resize the window.
+  // stage carries the explicit-generics call INLINE (the campaign's
+  // query() typing law — the one-generic form leaves B inferred
+  // undefined, and 'large' fails its assignment), so the composed
+  // drawer teaches the same form.
+  const queryUsage = usageFile(
+    {
+      Checkbox: '@ui/checkbox',
+      '{ query }': '@lib/universal-props-query.svelte',
+      'type { DensityLane }': '@lib/defaults.svelte',
+    },
+    resolveRawCode('query'),
+  );
 
   const queryFiles: TreeFile[] = [{ name: 'checkbox-query-demo.svelte', content: queryUsage, kind: 'usage' }];
 
-  // ---- the bare branch (the unstamped embedded lane) ----------------------
-  const checkboxBareDemo = `<script lang="ts">
-  import Checkbox from '@ui/checkbox.svelte';
-${close}
+  // ---- the bare branch (the unstamped embedded lane) — same-source -------
+  const bareUsage = usageFile({ Checkbox: '@ui/checkbox' }, resolveRawCode('bare'));
 
-<!-- bare: ONE input — no field wrapper, so no data-density scope, no
-     carrier style attr, no .dark class bridge. The explicit lanes are
-     inert here (the unstamped embedded lane); ambient tree scopes
-     still flow, because custom properties inherit. -->
-<Checkbox bare checked name="task-alpha" />
-<Checkbox bare checked density="lg" name="task-beta" />`;
-
-  const bareFiles: TreeFile[] = [{ name: 'checkbox-bare-demo.svelte', content: checkboxBareDemo, kind: 'usage' }];
+  const bareFiles: TreeFile[] = [{ name: 'checkbox-bare-demo.svelte', content: bareUsage, kind: 'usage' }];
 
   // ── the per-axis table (§2.5): what each axis drives on THIS family.
   // Mechanism names are the family's real carriers (checkbox.svelte
@@ -221,7 +218,7 @@ ${close}
       type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
       default: `'auto'`,
       description:
-        'Stamps --jx-shape-effective and --jx-radius-factor-effective, supplied downward. The box reads var(--corner-shape, bevel) — a site token the shape axis never bridges — and its border-radius is 0: the glyph is deliberately square. Supply-only on this family.',
+        'Stamps --jx-shape-effective and --jx-radius-factor-effective, supplied downward. The box reads var(--corner-shape, bevel) — an undeclared customization seam whose bevel fallback wins today; the shape axis never bridges it — and its border-radius is 0: the glyph is deliberately square. Supply-only on this family.',
     },
     {
       name: 'radius',
@@ -235,7 +232,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
       default: `'auto'`,
       description:
-        'The axis that repaints this control — through its NAMED lane. A named rung stamps the data-density scope on the field wrapper (small/medium/large alias sm/default/lg; xs and 2xs stay directly addressable), the scope block re-declares the channels AT the wrapper, and everything the family reads moves together: the box is var(--jx-icon) (the rung\'s line scale), the row\'s hit lane is var(--jx-hit) (an absolute floor term under the scale), the rhythm reads --jx-gap/--jx-text/--jx-line. The NUMBER lane is inert here: it stamps --jx-density-coefficient on the wrapper, but custom-property substitution runs at the DECLARING element — the channels are declared at :root and the rung scopes, never at this stamp — so nothing re-declares and nothing scales (measured: coefficient 1.5 leaves the 20px box, the lane, and the label byte-unmoved; the declaring-element law). auto stamps neither half — the ambient scope keeps flowing.',
+        'The axis that repaints this control — through its NAMED lane. A named rung stamps the data-density scope on the field wrapper (small/medium/large alias sm/default/lg; xs and 2xs stay directly addressable) AND co-stamps --jx-density-coefficient: 1 on the same root — an ACTIVE pin, not a formality: every channel composes base × coefficient inside the scope, so the pin stops any OUTER coefficient at the boundary and makes explicit rung = exact rung (an outer ×3 wrapper moves a pin-less box 24 → 72px; the pin holds the rung exact) — the scope block re-declares the channels AT the wrapper, and everything the family reads moves together: the box is var(--jx-icon) (the rung\'s line scale), the row\'s hit lane is var(--jx-hit) (an absolute floor term under the scale), the rhythm reads --jx-gap/--jx-text/--jx-line. The NUMBER lane is inert here: it stamps --jx-density-coefficient on the wrapper, but custom-property substitution runs at the DECLARING element — the channels are declared at :root and the rung scopes, never at this stamp — so nothing re-declares and nothing scales (measured: coefficient 1.5 leaves the 20px box, the lane, and the label byte-unmoved; the declaring-element law). auto stamps neither half — the ambient scope keeps flowing.',
     },
     {
       name: 'color',
@@ -437,8 +434,9 @@ ${close}
       summary="The state matrix: binary, tri-state, and validation states are all the native states, redrawn — one pseudo-element, six vertices in every state."
     >
       <ComponentCanvas
+        id="states"
         title="checkbox · states"
-        files={[{ name: 'checkbox-states-demo.svelte', content: checkboxStatesDemo, kind: 'usage' }]}
+        files={statesFiles}
         stage="fill"
       >
         <CardGrid min="200px">
@@ -547,9 +545,13 @@ ${close}
         </div>
 
         <div class={cx(rt.mt20)}>
-          <ComponentCanvas title="checkbox · query()" files={queryFiles}>
+          <ComponentCanvas id="query" title="checkbox · query()" files={queryFiles}>
             <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
-              <Checkbox label="responsive hit lane" name="axes-query" density={responsiveDensity} />
+              <Checkbox
+                label="responsive hit lane"
+                name="axes-query"
+                density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}
+              />
               <p class={cx(rt.para)}>
                 Media keys are min-width: below 40rem the base applies — the large rung, the
                 24px box under a 48px lane (touch); at 40rem and wider the sm case wins — the
@@ -562,8 +564,9 @@ ${close}
         <div class={cx(rt.mt20)}>
           <p class={cx(rt.para)}>
             The supply-only rows are documented absences, not gaps: the box is deliberately
-            square (border-radius: 0 — the glyph's design), its corner-shape reads the site's
-            <code>--corner-shape</code> token (a var the shape axis never bridges), the fill is the
+            square (border-radius: 0 — the glyph's design), its corner-shape reads
+            <code>var(--corner-shape, bevel)</code> — an undeclared customization seam whose bevel
+            fallback wins today; the axis never bridges it — the fill is the
             theme's raw <code>--primary</code>, and the control ships no shadow and no motion
             kernel — so size, shape, radius, color, elevation, and motion stamp their carriers
             and feed nested consumers without repainting this control. Checkbox is a batch A
@@ -581,7 +584,7 @@ ${close}
             { name: '--jx-hit', default: 'the lane\'s min-block-size — max(floor, content); 24 / 28 / 32 / 40 / 48px (2xs → lg, measured)', source: 'density', description: 'The hit row: the floor is absolute (28px; the 2xs scope lowers it to 24px — the WCAG 2.5.8 AA pointer-dense note), the content term scales per rung.' },
             { name: '--jx-gap', default: '8 / 8 / 8 / 12 / 16px (2xs → lg)', source: 'density', description: 'Input ↔ label gap.' },
             { name: '--jx-text / --jx-line', default: '10 / 11 / 12 / 13 / 15px · 14 / 16 / 18 / 20 / 24px (2xs → lg)', source: 'density', description: 'The label voice — font-size and line-height.' },
-            { name: '--jx-density-coefficient', default: '1 at :root', source: 'density', description: 'The number lane\'s carrier — stamped by the wrapper, inert on this family: the channels declare at :root and the rung scopes, so a wrapper-local coefficient re-declares nothing (the declaring-element law).' },
+            { name: '--jx-density-coefficient', default: '1 at :root; re-pinned to 1 by every named rung (an active pin inside the scope: it stops outer coefficients at the boundary)', source: 'density' },
             { name: 'border', default: '1px solid var(--border)', source: 'structural' },
             { name: 'glyph inset', default: '2px (the ::before)', source: 'structural' },
             { name: 'transition', default: '150ms ease-out; none under prefers-reduced-motion', source: 'structural' },
@@ -613,13 +616,15 @@ ${close}
           The stamps are the difference. In the demo below, <code>density=&quot;lg&quot;</code> on the bare
           input resolves the lane, supplies it to a context with no descendants, and paints
           nothing — the box is byte-identical to the plain bare input. The wrapped contrast cell
-          shows where the stamps live: its root carries <code>data-density</code> and the carrier
-          style. The paint law is the same either way — <code>.jx-html-checkbox</code> is one css-laws
-          vocabulary, and the indeterminate effect, the <code>checked</code> binding, and the rest
-          forwarding bind the same element in both branches.
+          passes the same <code>density=&quot;lg&quot;</code> and shows where the stamps land: its root
+          carries <code>data-density=&quot;lg&quot;</code> plus the carrier style, and the box steps up to
+          the lg rung. The paint law is the same either way — <code>.jx-html-checkbox</code> is one
+          css-laws vocabulary, and the indeterminate effect, the <code>checked</code> binding, and the
+          rest forwarding bind the same element in both branches.
         </p>
         <div class={cx(rt.mt20)}>
           <ComponentCanvas
+            id="bare"
             title="checkbox · bare"
             files={bareFiles}
             stage="fill"
@@ -634,8 +639,8 @@ ${close}
                 <Checkbox bare checked density="lg" name="bare-inert" />
               </div>
               <div class={cx(rt.panel)}>
-                <span class={cx(rt.eyebrowPrimary)}>wrapped — the stamps live here</span>
-                <Checkbox checked label="wrapped" name="wrapped-contrast" />
+                <span class={cx(rt.eyebrowPrimary)}>wrapped + density lg — the stamps live here</span>
+                <Checkbox checked label="wrapped" name="wrapped-contrast" density="lg" />
               </div>
             </div>
           </ComponentCanvas>

@@ -288,6 +288,34 @@
   the shape collision — a fix reviewed by its second consumer, not its
   first.
 
+## Techniques (mine, task 11 — checkbox fix round)
+- THE TOKEN TABLE NEVER RENDERS ITS `description` FIELD: the component
+  emits name/default/source only — every page's description texts
+  (alert's, badge's, mine) are invisible. My receipt grep caught it
+  ("re-pinned" 0 hits in SSR while the source line existed). Law: any
+  wording that must be SEEN goes in the default cell; file the dead
+  field as a component observation, don't fix component surfaces from
+  a docs task.
+- Drawer refactor wiring: when a hand demo const dies, grep the page
+  for the old name BEFORE serving — the states canvas kept a stale
+  `files={checkboxStatesDemo}` and 500'd. A curl after each structural
+  edit catches it in seconds.
+- "One mechanism both sides" for NON-extractable canvases (interactive
+  state — page consts like onSubmit/{#if result} are F4-rejected): the
+  honest fallback is a hand drawer that runs the stage's real atoms,
+  with cx defined locally + rt imported via the '@lib/...' lane.
+  Keep such canvases UN-id'd — an id claims same-source falsely.
+- LEGACY-row retirement pattern in the drift spec: when a curation
+  override dies because the row splits into the shared section, the
+  LEGACY row rides AXIS_ROWS (the select precedent) AND the
+  OVERRIDE_FIELDS matrix drops the entry — three files move as one
+  conscious snapshot edit (curation + LEGACY + matrix), all asserted
+  by the pinned tests.
+- Density co-stamp completeness: the named rung's coefficient=1 pin is
+  ACTIVE inside the scope (channels compose base × coefficient; the
+  pin stops outer coefficients at the boundary — an outer ×3 wrapper
+  moves a pin-less box 24→72px). "Explicit rung = exact rung" is the
+  pin's job, not a restatement.
 ## Mistakes to avoid
 - `rg -rn` is the --replace trap AGAIN (AGENTS.md law): two commands this
   task silently rewrote matches with "n" before I caught it. `rg -n` only;

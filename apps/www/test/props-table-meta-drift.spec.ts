@@ -107,7 +107,9 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'indeterminate', type: 'boolean', default: 'false', description: 'Sets the native indeterminate IDL state.' },
     { name: 'bare', type: 'boolean', default: 'false', description: 'Presentation-only single input — no wrapper/lane/label chrome (the markdown task-item unlock: a direct-child input keeps the container-level DOM-shape laws working).' },
     { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and an associated message.' },
-    { name: 'density', type: 'DensityLane | QueryResult<DensityLane>', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    // task 11 (docs-eight-axes-mdn): the density override retired — the
+    // row splits into the shared Universal section (the select
+    // precedent), so the LEGACY density row rides AXIS_ROWS with it
     { name: 'checked', type: 'boolean', default: '—', description: 'Bindable controlled checked state.', bindable: true },
   ],
   'card-grid': [
@@ -453,7 +455,6 @@ const OVERRIDE_FIELDS_IN_PLAY = {
     indeterminate: ['description'],
     bare: ['description'],
     error: ['description'],
-    density: ['description'],
     checked: ['bindable', 'description'],
     id: ['hide'],
     'data-density': ['hide'],

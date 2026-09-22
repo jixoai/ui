@@ -10,7 +10,11 @@
  * is the `$bindable()` seam; `density`'s effective default is
  * runtime-resolved — since 4.3 (context-defaults-economy) the IR's
  * ambient field carries it (the `ambient scope` Default-column
- * marker); the `inherited` display override retired.
+ * marker); the `inherited` display override retired. The `density`
+ * override itself retired at docs-eight-axes-mdn (task 11): the row
+ * splits into the shared Universal section, whose description comes
+ * from the schema — the curation text was unreachable (0 SSR matches);
+ * the drift spec's LEGACY row rode AXIS_ROWS with it.
  */
 import type { PropsDocs } from '../from-meta';
 
@@ -30,9 +34,6 @@ export const CHECKBOX_DOCS: PropsDocs = {
     },
     error: {
       description: 'Adds invalid state and an associated message.',
-    },
-    density: {
-      description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.',
     },
     checked: {
       description: 'Bindable controlled checked state.',

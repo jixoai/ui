@@ -487,6 +487,64 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
       </div>"
     `);
   });
+  it('checkbox.html :: states', async () => {
+    expect((await extractionFor('components/checkbox.html')).canvases['states']).toMatchInlineSnapshot(`
+      "<CardGrid min="200px">
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="unchecked" name="demo_cb" />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="checked" name="demo_cb" checked />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="indeterminate" name="demo_cb" indeterminate />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="label left" name="demo_cb" labelSide="left" />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="disabled" name="demo_cb" disabled />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="error" name="demo_cb" error="consent is required" />
+        </div>
+      </CardGrid>"
+    `);
+  });
+  it('checkbox.html :: query', async () => {
+    expect((await extractionFor('components/checkbox.html')).canvases['query']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+        <Checkbox
+          label="responsive hit lane"
+          name="axes-query"
+          density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}
+        />
+        <p class={cx(rt.para)}>
+          Media keys are min-width: below 40rem the base applies — the large rung, the
+          24px box under a 48px lane (touch); at 40rem and wider the sm case wins — the
+          compact 18px box in a 32px lane (pointer). Resize the window.
+        </p>
+      </div>"
+    `);
+  });
+  it('checkbox.html :: bare', async () => {
+    expect((await extractionFor('components/checkbox.html')).canvases['bare']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm3, rt.wFull)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>bare — one input</span>
+          <Checkbox bare checked name="bare-plain" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>bare + density lg — inert</span>
+          <Checkbox bare checked density="lg" name="bare-inert" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>wrapped + density lg — the stamps live here</span>
+          <Checkbox checked label="wrapped" name="wrapped-contrast" density="lg" />
+        </div>
+      </div>"
+    `);
+  });
   it('checkbox.html :: axes', async () => {
     expect((await extractionFor('components/checkbox.html')).canvases['axes']).toMatchInlineSnapshot(`
       "<div class={cx(rt.col16, rt.wFull)}>
