@@ -647,3 +647,32 @@
   engaged, the caption's number is the finding. Assertion tuples must
   name their lane (term/value/pad), or a true "unmoved" reads as a
   FAIL against mislabeled expectations.
+
+## Task 22 (code-card CODE) — lessons
+- **The theme-drop is the fourth theme pattern, and it is WRITTEN INTO
+  the resolve**: code-card strips the lane at the resolve boundary —
+  `stampCarriersForLanes({ ...d, theme: undefined })` + a broadcast
+  that omits theme — while the family css declares its own
+  `.dark .jx-code-card` / `.jx-light .jx-code-card` token
+  re-declarations (ancestry-adaptive own tokens, with an order-based
+  light re-flip). So a `theme="dark"` prop is a NO-OP by construction
+  and a dark TREE re-inks the card (measured: ground oklab 0.981 →
+  0.091, tok keyword re-derived dark, card carries no .dark class).
+  The audit question per family is now four-way: raw-flip /
+  typed-frozen / bridge-only / dropped-with-own-adaptation — and the
+  drop is verifiable by grepping the resolve call, not just the css.
+- **`condition && atom` call sites are a second cx-error class** beyond
+  the .filter(Boolean) idiom: `false` is not in the cx union. The
+  fleet-standard predicate handles undefined; the call-site ternary
+  (`cond ? atom : undefined`) handles false. Two fleet errors retired
+  by two ternaries — check both classes when a page claims zero
+  diagnostics.
+- **A page may rightly have NO query() seat**: a leaf surface that
+  hosts no components and reads no rung channels gives a responsive
+  lane nothing to re-base. State the absence + the probe receipt in
+  the axes deviations paragraph instead of shipping a demo that
+  demonstrates stillness (the hero-section query failure was the
+  dishonest version of the same page shape).
+- **DocsSeeAlso is data-driven and may render an empty section** if the
+  reading chain has no entries for the family — check
+  `data-doc-see-also` + the link count in SSR, don't just count ids.

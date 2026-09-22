@@ -8,6 +8,8 @@
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
   import type { HighlightBackend } from '$lib/highlight/backend';
@@ -633,7 +635,10 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter(
+        (style): style is string | { readonly [key: string]: string | object } =>
+          Boolean(style),
+      )
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -679,6 +684,49 @@ ${close}
         <span class="pill">on-demand grammars · themes</span>
         <span class="pill">zero-download jixoai theme</span>
         <span class="pill">scrollport pre · thin scrollbars</span>
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- archetype gaps (docs-eight-axes-mdn task 22, tier 2): install +
+       overview join here; the workbench/engines/auto sections below are
+       the pre-existing canon and stay untouched -->
+  <div data-reveal="">
+    <DocsInstall name="code-card" />
+  </div>
+
+  <div id="overview" data-reveal="">
+    <SectionCard
+      eyebrow="overview"
+      title="Overview"
+      summary="A readonly code surface that owns its highlight pipeline: six installable backends, on-demand grammars, and a token palette that rides the design tokens."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.measurePara)}>
+          CodeCard renders one figure — filename tab, header snippet, the scrollport pre, footer
+          snippet, copy control — around a runtime <code>code</code> string. Highlighting is the
+          ENGINE SEAM: a <code>backend</code> prop outranks the
+          <code>HIGHLIGHT_KEY</code> context, which outranks the stock shiki default — six
+          installable backends (shiki, prismjs, highlightJs, sugarHigh, treeSitter,
+          microLighter) over the same contract. Grammars and themes are lazy chunks fetched the
+          first time a card needs them; a page pays only for the engines it actually paints.
+        </p>
+        <p class={cx(rt.measurePara)}>
+          Unlike the inline-code chip's zero-markup range engine, shiki backends emit REAL spans
+          into the pre — the trade is markup for print survival and grammar depth. Kinship, named
+          precisely: inline-code shares the context KEY and the structural types (the same
+          <code>HIGHLIGHT_KEY</code> seam) but ships the microlighter range engine as its stock —
+          the two families never mount each other; the engine matrix is the shared surface.
+        </p>
+        <p class={cx(rt.measurePara)}>
+          The eight-axis surface is SEVEN lanes by law: the shiki <code>theme</code> literal owns
+          the theme name (the terminal bezel twins' §13 precedent), and the universal
+          <code>theme</code> lane is dropped at the source (never stamped, never broadcast) — the
+          card's own dark adaptation answers to tree ancestry instead, through the family's
+          declared <code>.dark</code>/<code>.jx-light</code> token re-declarations. Density is
+          inert on this fixed-voice surface; the carriers stamp and broadcast to nothing. Per-axis
+          below.
+        </p>
       </div>
     </SectionCard>
   </div>
@@ -844,14 +892,14 @@ ${close}
             </thead>
             <tbody>
               {#each engineMatrix as row (row.id)}
-                <tr class={cx(rt.bBorder, rt.alignTop, row.id === 'shiki' && rt.ccShikiRow)}>
+                <tr class={cx(rt.bBorder, rt.alignTop, row.id === 'shiki' ? rt.ccShikiRow : undefined)}>
                   <th scope="row" class={cx(rt.px12, rt.py10, rt.textLeft, rt.weightNormal)}>
                     <code class={cx(rt.inkAccent)}>{row.factory}</code>
                     {#if row.id === 'shiki'}<span class="pill {cx(rt.ml6)}">default</span>{/if}
                     <div class={cx(rt.note11, rt.mt4)}>{row.item}</div>
                   </th>
                   <td class={cx(rt.px12, rt.py10)}>
-                    <span class={cx(row.output === 'range' && rt.bold, row.output === 'range' && rt.inkPrimary)}>{row.output}</span>
+                    <span class={cx(row.output === 'range' ? rt.bold : undefined, row.output === 'range' ? rt.inkPrimary : undefined)}>{row.output}</span>
                   </td>
                   <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.size}</td>
                   <td class={cx(rt.px12, rt.py10, rt.lead5)}>{row.languages}</td>
@@ -1097,12 +1145,38 @@ ${close}
       title="Universal props"
       summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. SEVEN lanes — the shiki theme literal owns the theme name (the terminal bezel twins' precedent, §13 rules no rename; W6-dossier-flagged). The flat readonly surface carries no rung of its own."
     >
+      <div class={cx(rt.col20)}>
+        <PropsTable
+          props={[
+            { name: 'density', type: `'small' | 'medium' | 'large' | 'auto' | number (+ legacy spellings)`, default: `'auto'`, description: 'MEASURED INERT — the rung stamps data-density and the carriers broadcast, but this surface hosts no components and its own voices are fixed-scale: the 12.5px pre, the px paddings, the typed --jx-text-label head. A DensityDemo scope moves nothing (probe receipt). No tenant, no consumption — the quietest lane on the page.' },
+            { name: 'size', type: `'small' | 'medium' | 'large' | 'auto' | number`, default: `'auto'`, description: "THE §11 ECHO, NOTHING FOLLOWS — the stamp lands verbatim (--jx-size-effective: 18px; font-size: var(--jx-size-effective, 1rem) measured on the root) and the card's paint is px-anchored: the pre stays 12.5px, the head stays the typed label step. The heading-contrast case: a stamp with no em to scale. Number unit: px." },
+            { name: 'shape', type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`, default: `'auto'`, description: 'SUPPLY-ONLY — stamps --jx-shape-effective/--jx-radius-factor-effective; the bezel corners are the family radius law, not the axis (grep receipt: zero shape reads). Number unit: none.' },
+            { name: 'radius', type: `'small' | 'medium' | 'large' | 'auto' | number`, default: `'auto'`, description: 'SUPPLY-ONLY — stamps --jx-radius-effective; the shell corner is the family radius law (grep receipt: zero carrier reads). Number unit: px.' },
+            { name: 'color', type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`, default: `'auto'`, description: 'SUPPLY-ONLY — stamps --jx-color-effective; no family css reads it (grep receipt). Token hue rides the theme sheet (--primary/--accent/--success…); the copied state retunes through the jx-hue-success injection. Number unit: hue degrees.' },
+            { name: 'theme', type: `'light' | 'dark' | 'system' | 'auto'`, default: `'auto'`, description: 'DROPPED AT THE SOURCE (the §13 keep): stampCarriersForLanes receives theme: undefined and the lane is never broadcast — the shiki `theme` literal owns the theme name. What answers instead is ANCESTRY: the family declares its own .dark / .jx-light token re-declarations (the readonly tints + the tok palette dark formulas), so a dark TREE re-inks the card while the axis prop sits out (measured: a .dark wrapper flips the ground to the dark tint and re-derives the tok dark formulas; the card itself carries no .dark class). light/system/auto ride tree inheritance. No number lane.' },
+            { name: 'elevation', type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`, default: `'auto'`, description: 'SUPPLY-ONLY — the card floats on the readonly tints; no shadow in the family css (grep receipt: zero box-shadow, zero carrier reads). Number unit: dp.' },
+            { name: 'motion', type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`, default: `'auto'`, description: 'SUPPLY-ONLY ON THE AXIS — the carrier is unread (grep receipt). The family reads the motion KERNEL directly: the scroll-edge veils fade on var(--motion-150)/var(--motion-ease-out) and prefers-reduced-motion kills both the veils and the copy transition. Animation law: none (the card is static; the veils are scroll-state, not choreography). Number unit: coefficient.' },
+          ]}
+          title=""
+        />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Deviations, cited: the adoption is the census batch D row (explicit-props W3-D1 —
+          openspec/changes/explicit-props/research/migration-census.md); the theme drop is the §13
+          keep (the shiki theme literal), W6-dossier-flagged. No query() seat: this surface hosts
+          no components, so a responsive lane would re-base nothing — the density row's probe
+          receipt is the demonstration.
+        </p>
       <ComponentCanvas title="CodeCard · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.panel)}><CodeCard code="const size = 18" lang="ts" size={18} density="small" /></div>
 <div class={cx(rt.panel)}><CodeCard code="// named steps resolve via the alias ladder" lang="ts" size="medium" radius="large" /></div>
       </ComponentCanvas>
+      </div>
     </SectionCard>
   </div>
 
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Thirteen props; code is the only required one — everything else is composition."><PropsTable universal props={[{ name: 'code', type: 'string', default: '—', description: 'The sample (runtime prop; the backend escapes it into inert spans).', required: true }, { name: 'backend', type: 'HighlightBackend', default: 'context → shiki()', description: 'Highlight backend instance — shiki() | prismjs() | highlightJs() | sugarHigh() | treeSitter() | microLighter(); see the engine matrix.' }, { name: 'lang', type: 'string', default: "'ts'", description: "Language id; aliases (ts/sh/md/…) resolve in the active backend's table — or 'auto' (the AUTO_LANG sentinel, strict equality) to run the three-ring detection chain first; see lang=\"auto\"." }, { name: 'langDetector', type: 'LanguageDetector', default: '—', description: 'Detection ring ①: an explicit detector outranking context and backend (defaultLangDetector() / betlangDetector() from the highlight-lang-detector item, or any { id, detect } implementation).' }, { name: 'theme', type: 'string', default: "'jixoai'", description: 'Theme name in shiki vocabulary; each backend maps it into its own world.' }, { name: 'filename', type: 'string', default: "''", description: "Filename tab on the head's left; head renders when it or header exists. With lang='auto' it feeds the DLD's L1 tables verbatim (paths included — the detector takes the last segment)." }, { name: 'header', type: 'Snippet', default: '—', description: 'Head-right area; replaces the default lang label.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Footer-left content.' }, { name: 'copyable', type: 'boolean', default: 'true', description: "Copy control on the footer bar's right." }, { name: 'maxHeight', type: 'string', default: "''", description: 'CSS length capping the body; turns on vertical scrolling.' }, { name: 'fill', type: 'boolean', default: 'false', description: 'Stretch to the container height; the pre becomes the only scroll area.' }, { name: 'minHeight', type: 'string', default: "''", description: 'Floors the card height; pairs with fill so short samples open readable.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the figure.' }]} /></SectionCard></div>
+
+  <div data-reveal="">
+    <DocsSeeAlso name="code-card" />
+  </div>
 </div>
