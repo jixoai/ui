@@ -2,44 +2,39 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 17 | descriptions (OWN) | CODE | in-flight |
-| marginalia | 20 | button-group (vellum's) | REVIEW (2nd) | in-flight |
+| marginalia | 23 | carousel (OWN) | CODE | in-flight |
 | vellum | 19 | card-grid (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
-## DONE
-- ✅ **button-group** (owner vellum) — sixteenth closed page (scribe PASS + marginalia PASS with digit-exact convergence on all four voices/provider/radius/W7; the co-signed MINOR (--jx-inset third re-based lane + restored token row) landed WITH the closure by the orchestrator)
-- ✅ **avatar** (owner vellum) — fifteenth closed page (the SECOND-OVERTURN arc complete: scribe PASS → marginalia NEEDS-WORK (initials follow size; the §11 echo as defect) → vellum reword fix + cx predicate (page zero diagnostics) → marginalia re-verify PASS with every task-16 number reproduced live)
-- ✅ **heading** (owner quill) — fourteenth closed page (vellum double-passed as designated reviewer under re-verify-grade self-confirmation — 16/16 fresh probes, not re-read conclusions; the inline-stamp mechanism triple-verified; cx predicate MINOR carried to quill's micro-pass ledger)
-- ✅ **dropdown-menu** (owner quill) — thirteenth closed page (the OVERTURN arc complete: vellum PASS → marginalia NEEDS-WORK overturn → quill fix with root cause → marginalia re-verify PASS; three-and-only-three composers confirmed by independent shape-agnostic grep; fill-attribution + shadow-flip + caption all measured on the current tree)
-- ✅ **empty** (owner quill) — twelfth closed page (vellum+marginalia double PASS; the frozen pole re-derived at all three levels — grep/mechanism/probe, the runtime-stylesheet emission scan is the new standard; size-lane echo lands but every descendant self-sets → supply-only IN EFFECT, the post-avatar lesson applied; avatar divergence consolidation archived: the 1st measured boxes, not initials fonts — that's where the MAJOR lived)
-- ✅ **cascader** (owner quill) — eleventh closed page (the campaign's TIER-3 exemplar: marginalia+scribe double PASS, the fold verified byte-level — [Token, Default], 0 empty cells, ruler-constant distinction verbatim; the old page's consumption lie deleted; ring −4° invariant re-probed side-by-side)
-- ✅ **component-canvas** (owner quill) — tenth closed page (marginalia+scribe double PASS, numbers identical across reviewers; W7 bar 28-canvas honesty held; EXTRA doubled arithmetic 27−6−2+2=21; page svelte-check 7→0 — the rewrite PAID DOWN idiom debt; count-rule pinability NIT archived)
-- ✅ **checkbox** (owner scribe) — ninth closed page (quill+marginalia NEEDS-WORK both → consolidated fix → marginalia re-verify PASS 6/6; the carrier-strip ×3 probe number now cited as page text; 112/112 across four files)
-- ✅ **date-picker** (owner quill) — eighth closed page (vellum+marginalia double PASS, zero disagreements; the one-cell theme-split reproduced with wall-clock hue tracking — the −4 drift rides the raw token at every instant while the alias stays light-form; 17-row arithmetic, six zero-reader greps, composition import-grep; 3 wording items to quill's ledger: precision clause, floor-steps, axes-drawer imports)
-- ✅ **anchor** (owner scribe) — the campaign's FIRST fully-closed page: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS (quill 9/9 + 5/5 probe)
-- ✅ **breadcrumb** (owner scribe) — seventh closed page (vellum+marginalia double-blind NEEDS-WORK → scribe consolidated fix incl. LAW #14 discovery → marginalia re-verify PASS 7/7 with the transition-frame discipline that overturned its own first reading; 72/72 solo)
-- ✅ **blockquote** (owner quill) — second closed page (scribe re-verify 6/6 + 31/31 independent probe)
-- ✅ **alert** (owner vellum) — third closed page (THEME-SPLIT survived independent re-measure)
-- ✅ **accordion** (owner marginalia) — fourth closed page (vellum re-verify PASS 10/11 fixed + 11th correctly held as fleet debt; MINOR-A three-vs-five wording + NIT-B stale receipt folded to a future touch)
-- ✅ **badge** (owner marginalia) — fifth closed page (vellum 1st NEEDS-WORK → one-pass fix incl. the COMPONENT-LEVEL extra-lane rescue → scribe 2nd PASS both layers, 14/14 probe; hardening pins landed in the breadcrumb batch)
-- ✅ **chip** (owner quill) — sixth closed page (vellum 1st PASS + micro-fix → marginalia 2nd PASS; the dead extra lane resurrected at component level and spec-pinned)
-## Pipeline
-- breadcrumb: consolidated fix LANDED (scribe task 10: all 8 findings; LAW EVENT — marginalia's frozen you-are-here was a TRANSITION-FRAME artifact, .jx-menu-item 100ms transitions return the start frame on sync reads; menu DOES re-theme as the nav's DOM descendant, trail stylex ink frozen; theme row split by declaring layer AND level; 4 canvases same-source, PILOTS 69/69; hardening pins mutation-proven) → re-verify PASS — CLOSED
-- cascader: page-side fold LANDED (quill task 11-A: Source column dropped via the tokens.some guard, all facts into Default cells, ruler-constant distinction survives rendered; 6 rows 0 empty cells) + marginalia 1st PASS → scribe 2nd QUEUED (after its component-canvas review)
-- checkbox: consolidated fix LANDED (scribe task 11: all 7 — contrast cell density="lg" now visibly steps, form drawer rewritten to the stage's real atoms copy-paste-runnable, co-stamp story in-row incl. the 3× probe number, states/query/bare canvases id'd + PILOTS 1→4, unreachable density override retired with spec edits; two self-catches banked) → re-verify QUEUED (marginalia/quill)
-- component-canvas: marginalia 1st review **PASS** (all four extra duties TRUE on the current tree: W7 bar 28-canvas re-derivation with exact 0.875× em ratios, EXTRA arithmetic 27−6−2+2=21, re-pin honest 284/284, press-shadow literals fixed; NIT: theme extra row missing own-default marker — one-field fix to quill) → scribe 2nd QUEUED
-- date-picker: coded Tier-2 (quill task 9-B) — theme-split proven at a SINGLE element (--primary flips / --jx-primary frozen at the same day cell); 25−8+0=17 EXTRA arithmetic exact — vellum 1st review **PASS** (headline one-cell theme-split reproduced with LAW #14 discipline — 600ms settle + L/C double-read; W3 copy-paste replacement verified by six zero-reader greps; MINOR: trigger-vs-panel density clause; NIT: --jx-hit 'box steps' → 'floor steps' wording) → marginalia 2nd QUEUED
-- dropdown-menu: consolidated fix LANDED (quill task 14: all 4 — composer sentence → three real + the siblings-deliberately-don't quote; ROOT CAUSE: task-10 grep matched only $lib/ alias form and missed breadcrumb's RELATIVE import — import greps must be shape-agnostic; fill attribution via the unconditional level2 ladder with the 0.185-vs-0.3211 discriminator; shadow white-dark flip as themeSplitTokens row; e-own caption curl-checkable) → re-verify QUEUED (marginalia)
-- button-group: CLOSED — the --jx-inset fix landed with closure
-- inline-code: vellum 1st review **PASS** (pin-density tier-3 proven as process: integration diff = one line deleted (cx) + three sections added, zero table rows touched; three pins green; kinship greps TRUE shape-agnostic; fused/tonal/outline recipes measured exact; MINOR: toc omits #universal-props — one line, rides the flow) → scribe 2nd QUEUED
-- color-picker: coded Tier-2 (scribe task 16) — the brief hypothesis FALSIFIED by negative probe: color axis STAMPED never CONSUMED (zero carrier reads; the instrument is hue-neutral by design — family props comment is drift-class, flagged owner-fix); density via the RULER EQUATION (well floor max(hit, icon+2inset+2px) 34/36/46/58 measured); brand-hue wall-clock trap (prose cites L/C signature + drift only); matrix re-pinned per avatar precedent; PILOTS types+axes — reviewers marginalia+quill QUEUED
-- input-group: coded Tier-2 (quill task 17) — the THIRD W3 consumption-lie falsification, root cause named: §1 FORWARDING ≠ CONSUMPTION (native never sees the attribute = true; css reads = separate question, here zero); density CONSUMED + PROVIDED (shell 40→48, type 13→15; inherit-then-provide r11 contract pinned); theme MIXED BY EMISSION FORM across one bezel (seam raw flips / base alias frozen / well shadow white recipe); motion verbatim reads + reduced-motion kill — reviewers vellum+scribe QUEUED
-- image: marginalia 1st review NEEDS-WORK (MAJOR: the query demo's data-density claim false-as-served — the snippet branch renders consumer markup only, no broken panel, no stamp, measured null at both viewports; fix (a) drop the snippet — the default frame's broken panel carries data-density and flips as captioned — or (b) keep + reword to context-supply; NIT: /missing.png vs /definitely-missing.png + hand-file disclosure) → quill fix → scribe 2nd on the fixed tree
-- hero-section: vellum 1st review NEEDS-WORK (MAJOR: the query() theme demo NEVER flips as served — engine verified correct (evaluateQuery → dark, matchMedia matches), defect is in the hero resolution path/hydration reuse → quill investigates: page wiring fix OR reword + document the reactivity gap family-level; MINOR: cx predicate; all else mechanism-verified incl. the one-h1 carve-out as the lint's real mechanism) → marginalia 2nd QUEUED after quill's handling
-- heading: vellum 1st review **PASS** (inline-stamp mechanism verified at all three levels with LAW #15 gating; theme partial pole via the ink seam source-verified; 14−8=6 counting the synthesized rest row; MINOR cx predicate fleet debt + 2 NIT) → marginalia 2nd QUEUED
-- empty: vellum 1st review **PASS** (frozen pole proven by MECHANISM receipt — typed intermediate substitutes once at :root, scoped .dark never re-opens; grep alone insufficient; 8/8 frozen probe; composed-consumer negative twice with false-friends checked) → marginalia 2nd QUEUED; 1 MINOR (cx predicate, fleet debt) + 2 NIT
-- avatar: consolidated fix LANDED (vellum task 15: initials follow size reworded with the echo mechanism + both clip numbers cited to ledger #7; deviations paragraph split into carrier-vs-adoption; overflow claim ×0; cx predicate applied — page ZERO diagnostics, fleet 1623→1622) → re-verify QUEUED (marginalia)
-- ⚠ DIST GATES DEFERRED: npm run build transiently RED in breadcrumb (scribe mid-edit, canvas demo not self-contained) — the post-breadcrumb integration build owns fresh dist + docs-universal + canvas-same-source solo for the combined state (chip micro-fix + date-picker + breadcrumb + hardening)
-## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. (scribe's cascader NIT, ruled by orchestrator)
 
-## Law library (15): SSR ground truth · consumed-vs-supply · canvas-id swap · declaring-element · measurement-first · composed-consumer · resolved-record · query() both-args · grep-receipt · disagreement-probe · EXTRA-lane (REFINED 2026-09-23: the lane was dead-on-arrival at component level — props-table.svelte name-filtered docs.extra too; now exempt by reference identity, chip's rescue revived) · single-evaluate probes · TRANSITION-FRAME (100ms menu-item transitions return the start frame on sync reads — await > duration + light-regression) · PROBE-READINESS (element existence ≠ styled — gate probes on the family signature; unstyled reads return currentcolor lies) · THEME-SPLIT (REFINED: emission-form decides — raw var() strings flip at the consumer; defineVars intermediates substitute once at :root and freeze)
-## Ledgers: drift 5 · W-next 2 entries (semantic-ink gap + theme-split refinement)
+## DONE (16)
+- ✅ **anchor** (scribe) — 1st: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS
+- ✅ **blockquote** (quill) — 2nd (scribe re-verify 6/6 + 31/31 probe)
+- ✅ **alert** (vellum) — 3rd (THEME-SPLIT survived independent re-measure)
+- ✅ **accordion** (marginalia) — 4th (vellum re-verify PASS 10/11; 11th = fleet cx debt)
+- ✅ **badge** (marginalia) — 5th (component-level EXTRA-lane rescue; scribe 2nd PASS both layers)
+- ✅ **chip** (quill) — 6th (dead extra lane resurrected + spec-pinned)
+- ✅ **breadcrumb** (scribe) — 7th (LAW #14 TRANSITION-FRAME discovered; marginalia re-verify PASS 7/7)
+- ✅ **date-picker** (quill) — 8th (one-cell theme-split; wall-clock hue tracking; zero disagreements)
+- ✅ **checkbox** (scribe) — 9th (carrier-strip ×3 number now page text; 112/112)
+- ✅ **component-canvas** (quill) — 10th (EXTRA doubled 27−6−2+2=21; page svelte-check 7→0)
+- ✅ **cascader** (quill) — 11th (tier-3 exemplar; fold verified byte-level)
+- ✅ **empty** (quill) — 12th (frozen pole triple-level; runtime-stylesheet emission scan standard)
+- ✅ **dropdown-menu** (quill) — 13th (the OVERTURN arc complete; shape-agnostic import-grep law)
+- ✅ **heading** (quill) — 14th (inline-stamp mechanism; re-verify-grade self-confirmation 16/16)
+- ✅ **avatar** (vellum) — 15th (second overturn arc; initials-follow-size; page zero diagnostics)
+- ✅ **button-group** (vellum) — 16th (PROVIDER family; four voices digit-exact; --jx-inset fix landed with closure)
+
+## Pipeline (open work)
+- inline-code: vellum 1st PASS (pin-density tier-3 proven as integration diff; MINOR: toc omits #universal-props — rides the flow) → scribe 2nd QUEUED
+- color-picker: marginalia 1st PASS (stamped-never-consumed re-falsified; family props comment → drift #10; 27−3 chain head falsified, result 24−8−4=12 holds) → quill 2nd QUEUED (after its double-MAJOR package)
+- input-group: coded Tier-2 (quill 17 — §1 FORWARDING ≠ CONSUMPTION root cause; density consumed+provided r11; theme mixed by emission form across one bezel) → vellum+scribe reviews QUEUED
+- image: marginalia 1st NEEDS-WORK (MAJOR: query demo stamp claim false-as-served — snippet branch has no broken panel; NIT: path mismatch + disclosure) → quill fix IN FLIGHT (task 18-B) → scribe 2nd on the fixed tree
+- hero-section: vellum 1st NEEDS-WORK (MAJOR: query theme demo never flips — engine correct, hero resolution path suspect; quill investigates page-wiring vs family-grade reactivity gap) → quill handling IN FLIGHT (task 18-A) → marginalia 2nd after
+- descriptions: scribe CODE IN FLIGHT (task 17)
+- card-grid: vellum CODE IN FLIGHT (task 19)
+- carousel: marginalia CODE IN FLIGHT (task 23)
+
+## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. · toc/See-also: See also is chrome, OUT of the toc (anchor precedent).
+
+## Law library (15): SSR ground truth · consumed-vs-supply · canvas-id swap · declaring-element · measurement-first · composed-consumer · resolved-record · query() both-args · grep-receipt (SHAPE-AGNOSTIC: match module paths, not alias forms) · disagreement-probe · EXTRA-lane (reference-identity exemption; spec-pinned) · single-evaluate probes · TRANSITION-FRAME (await > duration + light-regression) · PROBE-READINESS (element existence ≠ styled) · THEME-SPLIT (three classes: declaring-selector / emission-form / stamp-declaration — raw var() flips at consumer; defineVars intermediates substitute once at :root and freeze)
+## Ledgers: drift 10 · W-next 4 (semantic-ink gap · theme-split refinement · TokenTable dead text column two-arm · dev CSSOM transient)
