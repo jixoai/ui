@@ -697,3 +697,35 @@
   listener. Probe platform-owned behavior through the platform (the
   cancel button, hidePopover()) or pin it at the spec level; don't
   report the synthetic silence as a defect.
+
+## Techniques (mine, added 2026-09-23, task 25 — review ghostty-term)
+- **"FROZEN" HAS TWO MECHANISMS — ALIAS-FREEZE AND BOOT-TIME-SNAPSHOT**:
+  the ghostty theme claim said "every painted voice is a TYPED token", but
+  the canvas shell resolves the RAW --terminal via getComputedStyle at
+  boot/repaint (no scope observer) — its "holding inside a dark scope" is
+  a boot-time snapshot, not the alias freeze; a component BOOTED inside
+  the dark scope would paint the dark pole. When a page claims frozen,
+  ask WHICH mechanism: (i) typed alias computed at :root (css, permanent),
+  (ii) one-time JS probe of a raw token (temporal — holds only until a
+  re-resolution trigger), (iii) no observer (scope flips after capture
+  move nothing). The measured claim can be true under all three while the
+  attribution differs — precision findings go to the attribution.
+- **CANVAS PIXELS ARE PROBE-READABLE — USE THEM**: a wasm/canvas
+  component's painted ground is not behind computed styles; the family's
+  own canvas accepts getImageData (same-origin, default context). Sample
+  a corner pixel before/after a scope mutation and the "what did the
+  terminal actually paint" question settles in one read — no screenshot
+  pipeline, no vision agent.
+- **THE INJECTED-ISLAND A/B FOR SCOPED-THEME CLAIMS, GENERALIZED**: move
+  the LIVE element into a .dark island (insertBefore + appendChild),
+  measure before/inside, remove. Reading the claimed variables at the
+  SAME element in both scopes isolates the css mechanism (rootBg held,
+  --terminal flipped) from the paint mechanism (canvas pixels) — one
+  evaluate, no component mounts, no state to restore beyond DOM
+  re-parenting.
+- **THE BIJECTION UNIVERSE IS tasks.md, NOT THE MATRIX**: a page outside
+  the frozen batch lists (popconfirm, and the remaining CODE stretch) can
+  carry axis-named hand rows without matrix coverage — the ambient spec
+  cannot see it. Check tasksUniverse membership BEFORE assuming a re-pin
+  or an exemption is owed; the exempt-with-note path only applies to
+  batch-listed pages.
