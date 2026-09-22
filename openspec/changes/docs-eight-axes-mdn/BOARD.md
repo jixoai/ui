@@ -2,7 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
-| marginalia | 25 | descriptions (scribe's) | REVIEW (2nd) | in-flight |
+| marginalia | 26 | code-card (vellum's) | REVIEW (1st) | in-flight |
 | vellum | 24 | combobox (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
@@ -36,7 +36,7 @@
 - input-group: CLOSED
 - image: CLOSED
 - hero-section: CLOSED — the third overturn form (reviewer MAJOR vs coder non-reproduction) resolved by instrument adjudication
-- descriptions: vellum 1st review **PASS** (ruler ladder digit-exact incl. injected-rung beats; frozen-pole twin via the runtime-alias census — no plain .dark redeclares any of the five; columns clamp source-pinned + container query measured; #install/#see-both restored per the incident record; MINOR: query caption says 40rem but the lg key is 64rem VIEWPORT_SCALE — discriminated at 800px) → marginalia 2nd QUEUED
+- descriptions: marginalia 2nd review NEEDS-WORK (MAJOR: the drag rig can't perform the fold — .desc-frame-rig lacks container-type: inline-size so @container hits the canvas column, never the frame; the LAW verified at 560px viewport, the RIG was broken; one-line fix + releases the min-content floor; MINOR co-signed: 40rem→64rem ×5; vellum's theme row TRUE — marginalia's own mid-review dd-flip was a wrong-element probe, self-resolved with the box-model-before-colors lesson) → closure-ready the moment the two one-liners land on scribe's flow
 - link: coded Tier-2 (quill 20 — size consumed through EM VOICES (stamped 14px anchor → 11.1875px glyph while the underline offset holds fixed 4px — consumption AND refusal in one element); theme frozen-pole pure-alias with the live −4° drift; the THIRD brief falsification: markdown-node maps prose links here (the promotion's point), leaf claim corrected in Overview; craft geometry measured (0.2em seam, −0.125em shift, external pair live)) → scribe+marginalia reviews QUEUED
 - code-card: coded Tier-2 gaps-only (vellum 22 — the FOURTH theme pattern: theme prop DROPPED AT SOURCE (constructive no-op) + ancestor-adaptive OWN tokens (.dark .jx-code-card re-declarations; ground 0.981→0.091 without the card carrying .dark) — spectrum now raw-flip/typed-frozen/bridge-only/dropped-own-adaptation; density the quietest lane (inert, no query seat with stated reasoning); shiki 68-span markup vs inline-code single-node measured; page ZERO diagnostics, fleet 1609) → scribe+marginalia reviews QUEUED
 - card-grid: coded Tier-2 (vellum 19 — LAYOUT two-halves density: self inert on the fixed spatial gradient (--space-20 = --jx-unit×5, :root-only), tenants real through rung scopes 12/16/20; size = heading contrast case confirmed; theme bridge-only; motion = the family's own IO-armed rule, carriers unread; no rest spread → no synthesized row — served-count arithmetic; page ZERO diagnostics) → scribe+marginalia reviews QUEUED

@@ -693,3 +693,11 @@
   CODE tasks; the frozen-pole-vs-follows verdict is decided by the
   emission-form grep (typed intermediate freezes, raw token follows) —
   one shadow token apart gave two families opposite theme verdicts.
+
+## Task 25 — descriptions 2nd review (2026-09-22)
+- **CSS-Nesting stylesheet-walk trap**: every CSSStyleRule exposes `.cssRules` (nested-rules list, usually empty), so a `if (r.cssRules) { walk(...); continue; }` census silently skips scanning EVERY style rule — census returned {} against a fully-painted page. Walk must recurse AND scan each rule's own cssText/style. Also: `document.styleSheets` excludes `adoptedStyleSheets` — walk both.
+- **Wrong-element border read**: the dd "flipped" black→white under .dark — but the dd has border-bottom-WIDTH 0; the real edge is the CELL div's `cellBordered` (frozen via --jx-border). The white was the universal `* { border-color: var(--border) }` canvas reset on a 0px border. Read the box model BEFORE reading colors: a 0px edge has no paint to falsify anything.
+- **Control-variable rule for clone stamps**: stamping coefficient 3 on a clone that KEPT data-density="default" measured 36/39/36 (named-rung × coefficient DOES scale) and nearly falsified the inertness claim. The real number-lane state (coefficient WITHOUT a rung attribute) is inert. Never mutate the control variable mid-experiment.
+- **Demo rigs need container-type**: a @container law fires against the nearest ancestor CONTAINER — a wrapper div with only `max-width` is invisible to it, and as a flex item its min-width:auto floor pins it to the content's min-content, so the "drag to fold" demo painted nothing while its output chip claimed the fold. When reviewing interactive demos, drive the REAL control (PlayRange setter + input event) and compare the chip against the paint.
+- **BOARD shorthand vs page anchors**: "#see-both" in the dispatch/BOARD was shorthand for the #install+#see-also restore; grep the SSR for the literal anchor before treating a BOARD phrase as a page claim.
+- **Custom-property freeze mechanism (pinned)**: var() inside a custom-property value substitutes at the DECLARING element's computed value; descendants inherit the resolved literal → typed aliases freeze under .dark islands; direct raw reads at the element flip. Census receipt: aliases at `:root,.xbpgcew` + the doubled stylex theme class only.
