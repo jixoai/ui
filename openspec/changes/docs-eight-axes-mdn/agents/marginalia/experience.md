@@ -260,6 +260,37 @@
   inert receipt meaningful, and what let me hand quill's 3b receipt a
   DOM-level half.
 
+## Task 9 (cascader review round, 2026-09-22) — learnings
+- **BANKED — the co-stamp law, now with a two-page receipt**: named-rung
+  wrappers stamp `data-density="…"` AND `--jx-density-coefficient: 1`,
+  and the pin is LOAD-BEARING — the coefficient is live at the rung's
+  declaring scope (checkbox probe: 3× on a real lg wrapper → box
+  24→72px). The number lane alone is inert only because no scope block
+  matches it. Cascader's density row carries the same omission as
+  checkbox's (the caption names the co-stamp; the row doesn't) — when
+  the cascader fix round lands, add the one-clause pin mention. Model
+  wording: "the rung's wrapper co-stamps the coefficient pinned at 1 —
+  the pin is what keeps the rung exact; the number lane alone, with no
+  rung scope, is the inert case."
+- **TokenTable is Token | Default | Source — `description` never
+  renders, and `structural` maps to an empty source label.** Every page
+  writing token descriptions into that field is writing unreachable
+  prose; all-structural tables (cascader's fixed-paint receipt table)
+  render a visibly blank column. Check the COMPONENT's render contract
+  before trusting a curation field — the type accepting a field is not
+  the component rendering it (the props-curation cousin of 策展覆盖≠渲染).
+- **Entity-encoding is asymmetric in SSR text**: `query&lt;{ … }` — the
+  opening `<` entity-encodes, the closing `>` stays raw. Byte-greps for
+  generic-including text must encode only what the serializer encodes;
+  my first grep demanded `&gt;` and false-FAILED a claim that was
+  served correctly (the inverse of the checkbox false-PASS: both
+  directions of grep sloppiness bite).
+- **The −4° hue drift is the invariant, not the absolute hue**: the
+  wall-clock brand-hue rotation means ring/fill hue readings differ per
+  instant (quill 142→138, me 190→186). Any probe asserting a drift
+  claims the DELTA inside one evaluate, never absolute values across
+  instants — third time this law paid (color axis, theme split, ring).
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation

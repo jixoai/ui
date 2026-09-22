@@ -3,7 +3,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 10 | props-table hardening test (A) + breadcrumb consolidated fix (B, OWN) | MICRO + FIX | in-flight |
-| marginalia | 9 | cascader (quill's) | REVIEW (1st) | in-flight |
+| marginalia | 10 | chip (quill's, post-micro-fix @9ed2a7d8) | REVIEW (2nd) | in-flight |
 | vellum | 9 | avatar (OWN) | CODE | in-flight |
 | quill | 10 | dropdown-menu (OWN) | CODE | in-flight |
 
@@ -17,7 +17,7 @@
 ## Pipeline
 - breadcrumb: BOTH reviews NEEDS-WORK in — double-blind convergence on the BLOCKER (full re-theme claim vs frozen trail ink; marginalia adds: menu ITEM ink frozen too; observation: you-are-here paint didn't flip under probe — deterministic probe before wording) → scribe consolidated fix IN FLIGHT · toc/See-also RULING: See also is chrome, stays OUT of the toc (anchor precedent, fleet convention; marginalia MINOR-2 closed by ruling)
 - chip: vellum 1st review **PASS** (1 MINOR: density ladder lg says 13px, kernel+measured truth 14px — fix "11/12/14px" at :294 + TokenTable :709; 2 NIT: axesUsage recheck on that fix, radius/color negative-grep receipt form; EXTRA-lane verifications ×3 hold, regression sweep clean, arithmetic proven) → marginalia 2nd QUEUED; MINOR+NIT to quill as micro-fix
-- cascader: coded Tier-3 full rewrite (quill task 6, integrated 6a325144) — reviewers scribe+marginalia QUEUED
+- cascader: marginalia 1st review **PASS** (tier-3 justification CONFIRMED AND STRENGTHENED — old-page audit caught a consumption lie the rewrite deleted; ring −4° delta invariant re-measured; MINOR: TokenTable dead text column → W-next #3, page-side fold owed by quill; 2 NIT: co-stamp coefficient in-row, separator default phrasing) → scribe 2nd QUEUED
 - checkbox: BOTH reviews NEEDS-WORK in, consolidation aligned (quill MAJOR: bare contrast cell unstamped at ambient; marginalia MAJOR: in-a-form drawer is a stale tailwind-era mirror — unregistered classes, pasted example collapses; NITs: co-stamp story + dead density curation + partial same-source + corner-shape wording; every measured centerpiece TRUE — number-lane inertness re-proven with carrier-strip posture, full-flip theme pole, 4-ladder × 5-rung grid) → scribe consolidated fix QUEUED (after task 10)
 - component-canvas: coded Tier-2 (quill task 7, integrated eb66056b) — EXTRA rescue DOUBLED (theme+density §13 seats), ambient-vocabulary pin re-pinned WITH evidence 288/288 — reviewers scribe+marginalia QUEUED
 - chip: micro-fix INTEGRATED (14px ladder ×2 spots, negative-grep receipt form on radius/color) → marginalia 2nd review UNLOCKED (after cascader)
