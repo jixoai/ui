@@ -512,3 +512,20 @@
   over-general. The fix names the lane predicate explicitly: a claim
   about a token's voice must carry its lane qualifier or it is false
   somewhere by construction.
+
+## Task 16 (heading 2nd review) — lessons
+- **Self-confirmation passes should re-run probes, not re-read
+  conclusions**: my own task-14 PASS re-verified in ~10 minutes because
+  the probe script survived in /tmp — LAW #15 gating + the 16 checks
+  re-executed byte-for-byte against the current tree. The value of a
+  2nd pass by the same reviewer is drift detection (did the tree move
+  under the findings?), not opinion revision.
+- **A carried finding must be re-stated with its current cost**: the cx
+  MINOR carried from task 14 with its exact line (122:28), its fleet
+  cost (1 of 1622), and its named fix (avatar's predicate) — plus the
+  dispatch's disposition (quill's next micro-pass, non-blocking). A
+  carried finding without a cost/fix/disposition line forces the next
+  reader to re-derive all three.
+- **git log -- <files> before re-verifying**: 54750f68 still being the
+  heading files' last commit proved nothing drifted under the findings
+  — the cheapest "did the tree move" receipt there is.

@@ -3,9 +3,10 @@
 |---|---|---|---|---|
 | scribe | 16 | color-picker (OWN) | CODE | in-flight |
 | marginalia | 19 | avatar (vellum's fix @2c185457) | RE-VERIFY | in-flight |
-| vellum | 16 | heading (quill's) | REVIEW (2nd) | in-flight |
+| vellum | 17 | hero-section (quill's) | REVIEW (1st) | in-flight |
 | quill | 15 | image (OWN) | CODE | in-flight |
 ## DONE
+- ✅ **heading** (owner quill) — fourteenth closed page (vellum double-passed as designated reviewer under re-verify-grade self-confirmation — 16/16 fresh probes, not re-read conclusions; the inline-stamp mechanism triple-verified; cx predicate MINOR carried to quill's micro-pass ledger)
 - ✅ **dropdown-menu** (owner quill) — thirteenth closed page (the OVERTURN arc complete: vellum PASS → marginalia NEEDS-WORK overturn → quill fix with root cause → marginalia re-verify PASS; three-and-only-three composers confirmed by independent shape-agnostic grep; fill-attribution + shadow-flip + caption all measured on the current tree)
 - ✅ **empty** (owner quill) — twelfth closed page (vellum+marginalia double PASS; the frozen pole re-derived at all three levels — grep/mechanism/probe, the runtime-stylesheet emission scan is the new standard; size-lane echo lands but every descendant self-sets → supply-only IN EFFECT, the post-avatar lesson applied; avatar divergence consolidation archived: the 1st measured boxes, not initials fonts — that's where the MAJOR lived)
 - ✅ **cascader** (owner quill) — eleventh closed page (the campaign's TIER-3 exemplar: marginalia+scribe double PASS, the fold verified byte-level — [Token, Default], 0 empty cells, ruler-constant distinction verbatim; the old page's consumption lie deleted; ring −4° invariant re-probed side-by-side)
