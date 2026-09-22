@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-21T21:57:13.169Z",
+  "generatedAt": "2026-09-22T00:16:02.832Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -124,8 +124,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "1102b5cdb61a52327d984a501c34a5e2cc1d4e3623614825eba2b5c471dcad65",
-          "mirrorSha": "1102b5cdb61a52327d984a501c34a5e2cc1d4e3623614825eba2b5c471dcad65"
+          "sourceSha": "e201e46279a41a4e2a70cb741920a8b8a2945ddb7c87db95c0bccb952890e9a0",
+          "mirrorSha": "e201e46279a41a4e2a70cb741920a8b8a2945ddb7c87db95c0bccb952890e9a0"
         }
       ]
     },
@@ -191,8 +191,8 @@
           "source": "registry/files/ui/press-button/press-button.svelte",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.svelte",
           "target": "@ui/press-button/press-button.svelte",
-          "sourceSha": "27f1dbf4ba5cb99944e2a1682c223cd437af26abb236715022e63a9bb116c860",
-          "mirrorSha": "27f1dbf4ba5cb99944e2a1682c223cd437af26abb236715022e63a9bb116c860"
+          "sourceSha": "d13176bdc97b19764d9f5aae5e02960a9adfd7d5d161d0a86a473c355c7b303b",
+          "mirrorSha": "d13176bdc97b19764d9f5aae5e02960a9adfd7d5d161d0a86a473c355c7b303b"
         },
         {
           "source": "registry/files/ui/press-button/index.ts",
@@ -205,8 +205,8 @@
           "source": "registry/files/ui/press-button/press-button.css",
           "mirror": "apps/www/src/lib/ui/press-button/press-button.css",
           "target": "@ui/press-button/press-button.css",
-          "sourceSha": "c007fe59167fcd865fabe54a20671cdc5a0bf0e4d521c58bf80b9bd492449087",
-          "mirrorSha": "c007fe59167fcd865fabe54a20671cdc5a0bf0e4d521c58bf80b9bd492449087"
+          "sourceSha": "40231b15e8767f9b032b7efea33099bc6071a8524d27380d34e315cf7f633bcb",
+          "mirrorSha": "40231b15e8767f9b032b7efea33099bc6071a8524d27380d34e315cf7f633bcb"
         },
         {
           "source": "registry/files/ui/press-button/ripple.svelte.ts",
@@ -219,8 +219,8 @@
           "source": "registry/files/ui/press-button/press-effect-runtime.ts",
           "mirror": "apps/www/src/lib/ui/press-button/press-effect-runtime.ts",
           "target": "@ui/press-button/press-effect-runtime.ts",
-          "sourceSha": "677c1c806e00b8cde6f175ecb47b6037513a1023bd646a868ad5c44efd26a8b5",
-          "mirrorSha": "677c1c806e00b8cde6f175ecb47b6037513a1023bd646a868ad5c44efd26a8b5"
+          "sourceSha": "00f2042602b32b0abe34bc4196780c6e8dfe8a00ee1e9e1ee4348234c30df86a",
+          "mirrorSha": "00f2042602b32b0abe34bc4196780c6e8dfe8a00ee1e9e1ee4348234c30df86a"
         },
         {
           "source": "registry/files/ui/press-button/press-button-defaults.svelte.ts",

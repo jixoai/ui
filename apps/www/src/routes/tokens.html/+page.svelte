@@ -109,9 +109,13 @@ playing.subscribe((v) => (isPlaying = v));
     { name: '--primary', value: 'oklch(0.6489 0.237 var(--brand-hue))' },
     { name: '--primary-foreground', value: 'oklch(0 0 0) / oklch(0 0 0)' },
     { name: '--primary-text', value: 'oklch(0.55 0.12 var(--brand-hue)) / var(--primary)' },
-    { name: '--secondary', value: 'oklch(0.968 0.211 109.7692)' },
+    // W6-r3: --secondary/--accent carry their own dark lift (L up, C
+    // down, hue nudged) — the sheet's own convention ("light / dark
+    // where they differ") applies; the single-value labels read as
+    // contradictions against the live swatch in dark
+    { name: '--secondary', value: 'oklch(0.968 0.211 109.7692) / oklch(0.9691 0.2005 109.6228)' },
     { name: '--secondary-foreground', value: 'oklch(0 0 0)' },
-    { name: '--accent', value: 'oklch(0.5635 0.2408 260.8178)' },
+    { name: '--accent', value: 'oklch(0.5635 0.2408 260.8178) / oklch(0.6755 0.1765 252.2592)' },
     { name: '--accent-foreground', value: 'oklch(1 0 0) / oklch(0 0 0)' },
   ];
 

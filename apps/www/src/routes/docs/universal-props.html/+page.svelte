@@ -256,14 +256,14 @@
           </div>
           <div class={cn(rt.panel)}>
             <Card title={'size query({ sm: \'large\' })'} size={mediaSize}>
-              <p class={cn(rt.pb8, rt.textVar2)}>below 40rem the base (auto) applies; at ≥40rem the root font-size steps to the large rung — resize the window and watch the WHOLE family follow</p>
+              <p class={cn(rt.pb8, rt.textVar2)}>below 40rem the base (auto) applies — radius too returns to the root 0px invariants (the square corners ARE the auto state); at ≥40rem the root font-size steps to the large rung — resize the window and watch the WHOLE family follow</p>
               <PressButton variant="fill">parts ride em</PressButton>
             </Card>
           </div>
         </div>
         <div class={cn(rt.mt20)}>
           <Card title="shape squircle · radius 20" shape="squircle" radius={20}>
-            <p class={cn(rt.pb8, rt.textVar2)}>the §14 factor doubles the resolved corner — and reverses to ×1 on degrade, the same var</p>
+            <p class={cn(rt.pb8, rt.textVar2)}>the §14 factor doubles the resolved corner — and reverses to ×1 on degrade, the same var.</p>
             <PressButton shape="squircle" radius={10}>squircle child</PressButton>
           </Card>
         </div>

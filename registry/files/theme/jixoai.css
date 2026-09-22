@@ -29,10 +29,23 @@
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource/share-tech-mono';
 
+/* the hue SOURCE (W6-r3 split): --brand-hue lives on :root ONLY. The
+   grouped token block below once re-declared it inside .jx-light too,
+   which froze every light island at this static value while the site's
+   hue runtime moved :root (the tokens page's canvas stage stayed
+   magenta at slider 200 — the W6-r1 vision round's self-contradiction
+   finding). Islands re-declare the theme-PROFILE tokens; the hue
+   source stays whatever :root carries — for REGISTRY CONSUMERS this
+   static 330 is the live one (jixoai-ui init --hue rewrites it); the
+   wall-clock rotation is ui.jixoai.com's site-local hue-runtime
+   script, never shipped to consumers. per-project values: unipty=165
+   幽绿, openspecui=27 */
+:root {
+  --brand-hue: 330;
+}
+
 :root,
 .jx-light {
-  --brand-hue: 330; /* the registry's own default (ui.jixoai.com pink) — for REGISTRY CONSUMERS this static value is the live one (jixoai-ui init --hue rewrites it); the wall-clock hue rotation is ui.jixoai.com's site-local hue-runtime script, never shipped to consumers. per-project values: unipty=165 幽绿, openspecui=27 */
-
   --background: oklch(1 0 0);
   --foreground: oklch(0 0 0);
   /* unlocked-light bezel (Owner, 2026-08-21): theme="light" surfaces get a
