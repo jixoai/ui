@@ -214,7 +214,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "coded"
+   "status": "done",
+   "closure": "#30 — vellum 1st (self-review exception, strictest independence) + scribe 2nd (first fully-independent eyes; third time base discharged both ways); zero findings; id anchors landed at closure"
   },
   {
    "page": "command",

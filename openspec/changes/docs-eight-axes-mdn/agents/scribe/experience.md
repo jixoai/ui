@@ -861,3 +861,44 @@
   three answers — inline mirror outruns the atom standalone (18px),
   the wrap absorbs it riding (chip 10px), and the chip stamped
   directly moves nothing. Posture, not the axis, decides the answer.
+
+## Techniques (task 29 additions — the injected-island law, hardened)
+- Injected `.dark` islands MUST WRAP IN PLACE at the field's own
+  position (insert the island before the element, move the element in).
+  A body-appended island SEVERS the stylex tokenScope/theme-class
+  ancestry: every `--jx-*` read goes guaranteed-invalid (transparent
+  backgrounds, currentColor fallback borders) — artifacts that
+  masquerade as a refutation of the frozen pole. My first two
+  contradiction reads were this artifact; the in-place craft
+  reproduced the claim exactly.
+- Read islands only on a SETTLED page: one dump ran mid-HMR-recompile
+  with the stylex theme chunk unloaded and every `--jx-*` getProperty
+  returned EMPTY. After a restart, wait for compile to fully settle
+  (6s) before the first read; if a read looks impossible (empty vars),
+  suspect the pipeline before the page.
+- Synthetic (untrusted) KeyboardEvent/InputEvent dispatches do NOT
+  reach Svelte 5's delegated handlers — focus opens nothing, filters
+  filter nothing. Interactive claims need REAL Playwright input:
+  locator.click/focus + page.keyboard. Static attributes (controls,
+  owns, multiselectable, chips) survive synthetic reads; behavior
+  does not.
+- emulateMedia({ colorScheme }) is the probe for media-keyed bases:
+  flip light→dark→light and read the computed property — a clean
+  three-point receipt that a class-scoped island cannot produce.
+- An empty file glob handed to vitest runs the WHOLE suite. Not fatal
+  — it doubles as a campaign-wide smoke — but attribute any reds
+  before quoting: contention flakes (pass solo) are the known class.
+
+## Highlights (task 29)
+- (combobox) The first fully-independent review of a self-reviewed
+  page reproduced EVERY number: the floor ladder digit-exact in both
+  directions (40/40/40/48), the two-time-bases pair verbatim (border
+  frozen oklch(0 0 0) while the well flips white-inset; raw
+  --terminal-foreground 1 0 0 vs typed 0 0 0), and the hovered row
+  landing the dark ground oklab(0.312 0 0) beside the active row's
+  light pole — one listbox, two time-bases, now measured by two
+  independent probes.
+- The third time base (colorScheme on prefers-color-scheme) is the
+  fleet's first MEDIA-keyed theme channel: emulateMedia flips it while
+  a .dark class does not — three channels, one shell, each proven by a
+  different probe shape.
