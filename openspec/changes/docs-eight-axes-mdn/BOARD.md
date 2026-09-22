@@ -6,7 +6,7 @@
 | vellum | 22 | code-card (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
-## DONE (17)
+## DONE (18)
 - ✅ **anchor** (scribe) — 1st: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS
 - ✅ **blockquote** (quill) — 2nd (scribe re-verify 6/6 + 31/31 probe)
 - ✅ **alert** (vellum) — 3rd (THEME-SPLIT survived independent re-measure)
@@ -22,6 +22,7 @@
 - ✅ **dropdown-menu** (quill) — 13th (the OVERTURN arc complete; shape-agnostic import-grep law)
 - ✅ **heading** (quill) — 14th (inline-stamp mechanism; re-verify-grade self-confirmation 16/16)
 - ✅ **avatar** (vellum) — 15th (second overturn arc; initials-follow-size; page zero diagnostics)
+- ✅ **image** (quill) — 18th (the snippet-vs-default MAJOR arc: marginalia found it, quill's path-(a) fix verified live by scribe — data-density sm↔lg on the default frame, no-CLS; frozen-pole purest case + leaf + carriers-bijection all held)
 - ✅ **inline-code** (quill) — 17th (pin-density tier-3 exemplar; double PASS; the co-signed toc row landed with closure)
 - ✅ **button-group** (vellum) — 16th (PROVIDER family; four voices digit-exact; --jx-inset fix landed with closure)
 
@@ -29,7 +30,7 @@
 - inline-code: CLOSED
 - color-picker: marginalia 1st PASS (stamped-never-consumed re-falsified; family props comment → drift #10; 27−3 chain head falsified, result 24−8−4=12 holds) → quill 2nd QUEUED (after its double-MAJOR package)
 - input-group: vellum 1st review **PASS** (§1-forwarding-≠-consumption separation verified in prose; density consumed+provided digit-exact with the r11 pin 28/28; theme mixed-by-emission-form var-chain on the root; chromeless 0-padding part confirmed; motion 150ms read past the LAW #14 gate; MINORs: arithmetic sentence in api summary + pre-logged usageLive warning for scribe's #2) → scribe 2nd QUEUED
-- image: quill fix LANDED (path (a): snippet dropped, the default frame's broken panel is the demo surface — data-density sm↔lg verified live, no-CLS holds; paths aligned + hand-file disclosure; cx predicate — page 0 diagnostics) → scribe 2nd QUEUED on the fixed tree
+- image: CLOSED
 - hero-section: quill disposition (iii) LANDED — MAJOR NOT REPRODUCED (live hydrated probe: the demo flips 1280↔600↔1280 with dark-accent ink; the chain is fully reactive via mediaTick $state; cross-confirmed with input-group's density flip); FALSE-NEGATIVE VECTOR: §9.1 makes SSR first paint the unconditional base — raw-bytes/pre-hydration reads always see light; the caption now documents base-paint + post-hydration engagement → marginalia 2nd ADJUDICATES the vellum-vs-quill disagreement (live hydrated probe, LAW #14/#15 discipline)
 - descriptions: vellum 1st review **PASS** (ruler ladder digit-exact incl. injected-rung beats; frozen-pole twin via the runtime-alias census — no plain .dark redeclares any of the five; columns clamp source-pinned + container query measured; #install/#see-both restored per the incident record; MINOR: query caption says 40rem but the lg key is 64rem VIEWPORT_SCALE — discriminated at 800px) → marginalia 2nd QUEUED
 - card-grid: coded Tier-2 (vellum 19 — LAYOUT two-halves density: self inert on the fixed spatial gradient (--space-20 = --jx-unit×5, :root-only), tenants real through rung scopes 12/16/20; size = heading contrast case confirmed; theme bridge-only; motion = the family's own IO-armed rule, carriers unread; no rest spread → no synthesized row — served-count arithmetic; page ZERO diagnostics) → scribe+marginalia reviews QUEUED

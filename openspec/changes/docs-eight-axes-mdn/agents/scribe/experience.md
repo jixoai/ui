@@ -569,3 +569,30 @@
 - (quill) Tier-3 honesty: the hand table survived BECAUSE it is
   triple-pinned, and the page says so — the tier decision itself is
   documented in the toc comment and the integration commit.
+
+## Techniques (task 19 additions)
+- Re-derive-on-fixed-tree means the DISPOSITION is untrusted until the
+  probes land: quill's numbers reproduced exactly, but only after three
+  probe rounds — the swap REPLACES the img (post-swap img reads go
+  undefined; pre-swap panel reads go null). The failure sequence IS
+  LAW #15's proof: scroll into view → poll for the broken panel → read.
+- Deterministic post-swap locators: the family's failure frame is
+  span[data-jx-image-broken] and its style attr embeds the width/height
+  literals — [style*="640px"] keys the exact demo panel without any
+  ancestor walk (ancestor walks kept catching the canvas stage's own
+  data-density="default").
+- ComponentCanvas stages carry their OWN data-density — any
+  [data-density] query near a canvas must exclude the stage element or
+  it reads the canvas, not the component.
+- Two failures in one spec file are two stories: attribute by reading
+  the assertion text, not the filename (the task-17 lesson, re-earned
+  on image's sweep planning).
+
+## Highlights (task 19)
+- (quill, image post-fix) The broken panel's style attr is the merge
+  law made visible in one line: --jx-density-coefficient: 1; width:
+  640px; height: 360px — named-rung carrier, coefficient reset, and the
+  consumer dims joined in source order.
+- (quill) Path (a) as a disposition pattern: when a slot suppresses the
+  family's own stamp, DROP the slot and demo the default frame — the
+  honest surface is the family's own.
