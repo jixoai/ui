@@ -6,11 +6,12 @@
  * the dogfood slot; design-studio design.md §6.4). The host file is
  * fixed-path by convention, so one shared entry serves every host.
  *
- * Document theme (#23, 2026-09-12): the studio chrome is dark, so the
- * document root carries the theme sheet's `.dark` token scope BEFORE
+ * Document theme (#23, 2026-09-12; posture-ized walkthrough r6
+ * 2026-09-21): the studio chrome resolves the PERSISTED theme posture
+ * (studio-theme.ts — default dark, the historical identity) BEFORE
  * mount — every dogfooded family component (tree-view rows, Items,
- * badges, chips, fields) then paints the dark token set against the
- * dark chrome. The r2 studio ran :root LIGHT tokens under a dark
+ * badges, chips, fields) then paints the resolved token set against
+ * the chrome. The r2 studio ran :root LIGHT tokens under a dark
  * chrome: family selected rows washed out light-gray, muted tree text
  * ~2:1, pure-black borders invisible (the "配色异常" root cause).
  *
@@ -23,7 +24,9 @@ import { mount } from 'svelte';
 import 'virtual:jixoai-design/css';
 import 'virtual:jixoai-icons.css';
 
-document.documentElement.classList.add('dark');
+import { applyStudioTheme, readStudioTheme, watchStudioSystemTheme } from '../../studio/studio-theme.ts';
+applyStudioTheme(readStudioTheme());
+watchStudioSystemTheme();
 // the app-shell clamp (#36, Owner 2026-09-12「整个页面横向纵向溢出」):
 // the studio is a full-bleed app surface — panels scroll INTERNALLY,
 // the document itself must never grow scrollbars on either axis

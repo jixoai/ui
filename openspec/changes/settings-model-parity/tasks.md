@@ -62,4 +62,27 @@
       www 副本同步、verify:icons fresh；删 sidenav 冗余标题。
       修复后 DOM 复证：导航/三钮 svg 真实渲染、凭据行唯一 eye、
       右缘对齐 1214；探针 59/59 复绿、build:studio 绿
-- [ ] T10 r5 提交推送 + 5199 重启 + 汇报（进行中）
+- [x] T11 Owner 走查 r6（四项，2026-09-21）：
+      ① Dialog 高度锁定——.dsh-dialog height:min(38rem,calc(100dvh-
+      2rem))，CardBody 自带滚动环承内容（registry flex 链传导）
+      ② 删 "mcp · plugins — soon" 注脚（markup + CSS + 注释清理）
+      ③ registry TabsList 新增 indicatorEdge prop（'start'|'end'，默认
+      'end' 零回归）：竖向 line 指示条/被动规则改逻辑边（geometry
+      经 isRtl 裁决 + host border-s/border-e；顺带修正 RTL 下 'end'
+      的物理侧）；studio 侧导航传 indicatorEdge="start"；www 镜像
+      字节同步 + mirror-manifest 刷新 + verify:mirror GREEN + www
+      tabs-indicator 套件 67/67
+      ④ general 分区 theme 切换：studio-theme.ts（dark|light|system
+      → html.dark 作用域 + localStorage，system 挂 matchMedia 监听）；
+      两条入口（静态/dev）bootstrap 从硬编码 add('dark') 改为
+      posture 解析（默认 dark 保持历史身份）；UI 用 ItemSegmented
+      探针 65/65（新增指示条 x=0 / 注脚删除 / 高度不变 / light 摘
+      html.dark / dark 恢复 / localStorage 落存）
+- [x] T11a Owner 架构裁决（同日，r6 走查中段）：「data-jx-card-cell
+      这里不该有 px；左侧导航栏不参与 DialogBody 的滚动，它是独立
+      滚动的，右侧的面板也是独立滚动的」——撤掉 cell 上的
+      height:100% 消费者尺寸声明，改为 zone（data-jx-card-body）的
+      无尺寸 1fr 网格传导；.dsh-sidenav 与 .dsh-section 各自
+      overflow-y:auto 独立滚动（导航列两节时休眠，为未来分区就绪）。
+      探针 67/67 复绿（surface 高度锁定/导航钉住/滚动分离）
+- [ ] T12 r6 提交推送 + 5199 重启 + 汇报（进行中）

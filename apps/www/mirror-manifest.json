@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-13T21:41:51.556Z",
+  "generatedAt": "2026-09-21T14:38:50.402Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1099,8 +1099,8 @@
           "source": "registry/files/lib/icon-set.gen.ts",
           "mirror": "apps/www/src/lib/icon-set.gen.ts",
           "target": "@lib/icon-set.gen.ts",
-          "sourceSha": "e691262d9821b89c374c52cf9bf1dd4062c15da1dccbb9358d4c3a45161e7f19",
-          "mirrorSha": "e691262d9821b89c374c52cf9bf1dd4062c15da1dccbb9358d4c3a45161e7f19"
+          "sourceSha": "1b0cf72436587f9049d499688407e4389d7afdbf1989e67eca4b968d2cefb6f7",
+          "mirrorSha": "1b0cf72436587f9049d499688407e4389d7afdbf1989e67eca4b968d2cefb6f7"
         }
       ]
     },
@@ -2091,8 +2091,8 @@
           "source": "registry/files/ui/tabs/tabs-list.svelte",
           "mirror": "apps/www/src/lib/ui/tabs/tabs-list.svelte",
           "target": "@ui/tabs/tabs-list.svelte",
-          "sourceSha": "4c08734239ca135a074bf88b4f3761556c8cf505c548c21c88830a7bbdfea87a",
-          "mirrorSha": "4c08734239ca135a074bf88b4f3761556c8cf505c548c21c88830a7bbdfea87a"
+          "sourceSha": "1fdb363da3d6143c8e4fe6ca796d1ae18c48d40148ec46faf8e6cd5737caaccf",
+          "mirrorSha": "1fdb363da3d6143c8e4fe6ca796d1ae18c48d40148ec46faf8e6cd5737caaccf"
         },
         {
           "source": "registry/files/ui/tabs/tabs-trigger.svelte",

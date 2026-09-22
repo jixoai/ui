@@ -9,8 +9,10 @@
 
   Structure (skill-creator-v2's SettingsDialog posture, registry-dressed):
   1. LEFT — a VERTICAL tabs nav (the registry Tabs family, TabsList
-     orientation="vertical"): "models" today, "general" scaffolded, MCP /
-     plugins are future rows. The section state is pure view state.
+     orientation="vertical" indicatorEdge="start" — walkthrough r6: the
+     line indicator rides the INLINE-START rail, the left-sidenav
+     posture): "models" + "general" today, MCP / plugins are future
+     rows. The section state is pure view state.
   2. MODELS SECTION — the route TAB STRIP (a nested horizontal TabsList:
      avatar + display label + amber dot + active badge per route, a fixed
      "+ new route" seat at the end), then the shared detail below:
@@ -36,8 +38,10 @@
   import NativeSelect from '#jixoai/native-select';
   import PressButton from '#jixoai/press-button';
   import Tabs, { TabsContent, TabsList, TabsTrigger } from '#jixoai/tabs';
+  import { ItemSegmented } from '#jixoai/list-item';
   import { CardFooter } from '#jixoai/card';
 
+  import { persistStudioTheme, readStudioTheme, type StudioTheme } from './studio-theme.ts';
   import SettingsModelCard from './settings-model-card.svelte';
   import {
     API_PROTOCOLS,
@@ -128,6 +132,13 @@
   /** the left nav's section (pure view state) and the route tab ('' =
    *  none — the new-route view / onboarding owns the detail) */
   let section = $state('models');
+  /** the general page's theme posture (walkthrough r6): state → the
+   *  document's .dark scope + localStorage, one write path */
+  let theme = $state<StudioTheme>(readStudioTheme());
+  function setTheme(next: StudioTheme): void {
+    theme = next;
+    persistStudioTheme(next);
+  }
   let selected = $state('');
   let newOpen = $state(false);
   let newMode = $state<'pick' | 'form'>('pick');
@@ -832,12 +843,15 @@
 </script>
 
 <!-- the r5 restructure (Owner 2026-09-21): a VERTICAL section nav on
-     the left (registry Tabs, orientation=vertical — "models" today,
-     "general" scaffolded, MCP/plugins are future rows) and the models
+     the left (registry Tabs, orientation=vertical + indicatorEdge=start
+     since walkthrough r6 — MCP/plugins are future rows) and the models
      SECTION as a tabbed page (the route strip + shared detail,
      skill-creator's ModelSettingsSection posture). Every interactive
      face stays a registry component; studio CSS keeps only layout
      geometry + status ink; user-visible copy names no kernel -->
+<!-- r6 (Owner 2026-09-21): LOCKED dialog height (CardBody is the scroll
+     ring), no filler notes in the nav, the general section carries the
+     theme posture (studio-theme.ts — .dark scope + localStorage) -->
 <Dialog title="settings" bind:open class="dsh-dialog">
   {#if loadError !== null}
     <p class="dsh-error" role="alert">settings failed: {loadError} <PressButton variant="link" onclick={() => void load()}>retry</PressButton></p>
@@ -848,13 +862,12 @@
       <div class="dsh-body">
         <!-- the left section nav (vertical tabs) -->
         <div class="dsh-sidenav">
-          <TabsList orientation="vertical" aria-label="settings sections">
+          <TabsList orientation="vertical" indicatorEdge="start" aria-label="settings sections">
             {#snippet iconModels()}<Icon name="boxes" size={14} />{/snippet}
             <TabsTrigger value="models" icon={iconModels}>models</TabsTrigger>
             {#snippet iconGeneral()}<Icon name="settings2" size={14} />{/snippet}
             <TabsTrigger value="general" icon={iconGeneral}>general</TabsTrigger>
           </TabsList>
-          <p class="dsh-sidenav-foot">mcp · plugins — soon</p>
         </div>
 
         <!-- the section pages -->
@@ -1111,9 +1124,15 @@
           </TabsContent>
           <TabsContent value="general">
             <p class="dsh-sub">general</p>
-            <div class="dsh-onboard">
-              <p class="dsh-onboard-title">nothing here yet</p>
-              <p class="dsh-muted">studio-wide general settings land in this section — planned neighbors: mcp, plugins.</p>
+            <div class="dsh-block">
+              <p class="dsh-block-title">appearance</p>
+              <ItemSegmented
+                label="theme"
+                description="the studio's token scope — dark is the default posture, the browser remembers the choice"
+                options={[{ value: 'dark' }, { value: 'light' }, { value: 'system' }]}
+                value={theme}
+                onValueChange={(option) => setTheme(option as StudioTheme)}
+              />
             </div>
           </TabsContent>
         </div>
@@ -1148,15 +1167,44 @@
      matches an element the component itself owns) */
   :global(.dsh-dialog) {
     width: min(50rem, 100%);
+    /* LOCKED height (walkthrough r6): section/route switches and form
+       growth must not re-size the surface. The fill relay below
+       conducts the definite height down (surface → card → the body
+       cell) so the GLASS fills the lock too — an element-height lock
+       alone leaves the surface content-shrunk (the r6 vision catch).
+       Responsive floor: the viewport keeps its 2rem breathing band */
+    height: min(38rem, calc(100dvh - 2rem));
+  }
+  /* the fill relay: the surface and the card are flex children that
+     must STRETCH (default main-axis sizing shrinks to content). The
+     CELL takes NO consumer size (Owner ruling 2026-09-21「data-jx-
+     card-cell 这里不该有 px」) — the ZONE's definite height conducts
+     instead: one size-free grid mode on the card body makes the cell
+     a 1fr row, and the percentage chain inside resolves from there */
+  :global(.dsh-dialog > [data-jx-dialog-surface]) {
+    flex: 1 1 auto;
+  }
+  :global(.dsh-dialog > [data-jx-dialog-surface] > [data-jx-card]) {
+    flex: 1 1 auto;
+  }
+  :global(.dsh-dialog [data-jx-card-body]) {
+    display: grid;
+    grid-template-rows: minmax(0, 1fr);
   }
   :global(.dsh-root) {
     display: block;
+    height: 100%;
   }
   .dsh-body {
     display: grid;
     grid-template-columns: 9.5rem 1fr;
+    /* the pinned-nav law (r6): the row is height-bounded and the
+       SECTION column is the only scroller — the sidenav never rides
+       a content scroll (one scroll authority, on the content side) */
+    grid-template-rows: minmax(0, 1fr);
     gap: 0 1rem;
     min-height: 0;
+    height: 100%;
   }
   /* the left section nav */
   .dsh-sidenav {
@@ -1166,15 +1214,16 @@
     border-right: 1px solid var(--border, #262320);
     padding-right: 0.75rem;
     gap: 0.5rem;
-  }
-  .dsh-sidenav-foot {
-    margin: auto 0 0;
-    font-size: 0.625rem;
-    color: var(--muted-foreground, #6f6759);
-    opacity: 0.7;
+    /* independent scroller (Owner ruling 2026-09-21「它是独立滚动的，
+       右侧的面板也是独立滚动的」): dormant at two sections, ready for
+       the future MCP/plugin rows — the nav never rides the body scroll */
+    overflow-y: auto;
+    min-height: 0;
   }
   .dsh-section {
     min-width: 0;
+    overflow-y: auto;
+    min-height: 0;
   }
   .dsh-sub {
     margin: 0 0 0.75rem;

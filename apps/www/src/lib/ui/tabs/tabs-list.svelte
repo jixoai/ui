@@ -147,6 +147,14 @@
     /** selection indicator: a built-in material, or a Snippet that owns
      *  the paint while the engine keeps owning the measured geometry */
     indicator?: TabsIndicatorMaterial | Snippet<[TabsIndicatorGeo]>;
+    /** which INLINE edge the vertical line indicator rides — 'end' (the
+     *  historical default) or 'start' (the left-rail/sidenav posture,
+     *  walkthrough-r6 2026-09-21). LOGICAL: the physical side flips with
+     *  the writing direction, and the passive host rule flips with it
+     *  (border-s/border-e — the pre-r6 border-r was physical-only, so a
+     *  rtl strip's 'end' now correctly paints inline-end/left). Horizontal
+     *  lists ignore it: their bar rides the block-end edge */
+    indicatorEdge?: 'start' | 'end';
     /** inline: natural sizes · grow: triggers share the strip · scroll: a
      *  declared overflow run · wrap: rows flow instead of scrolling */
     layout?: TabsLayout;
@@ -161,6 +169,7 @@
   let {
     orientation = 'horizontal',
     indicator = 'line',
+    indicatorEdge = 'end',
     layout = 'inline',
     scrollEffect = ramp(),
     class: className = '',
@@ -301,8 +310,13 @@
         orientation,
       };
     }
+    // vertical line (walkthrough-r6): the bar rides the INLINE edge
+    // indicatorEdge names — logical, resolved through the family's ONE
+    // rtl verdict (inline-start is the physical LEFT in ltr, RIGHT in
+    // rtl; 'end' mirrors it)
+    const atInlineStart = (indicatorEdge === 'start') !== isRtl(list);
     return {
-      x: layout === 'wrap' ? t.offsetLeft + t.offsetWidth - 2 : box.clientWidth - 2,
+      x: layout === 'wrap' ? (atInlineStart ? t.offsetLeft : t.offsetLeft + t.offsetWidth - 2) : atInlineStart ? 0 : box.clientWidth - 2,
       y: t.offsetTop,
       w: 2,
       h: t.offsetHeight,
@@ -353,6 +367,7 @@
     void material;
     void orientation;
     void layout;
+    void indicatorEdge;
     measure(quietNext);
     quietNext = false;
   });
@@ -575,7 +590,14 @@
     orientation === 'horizontal'
       ? 'jx-scroll-host jx-tabs-horizontal grid [grid-template-columns:minmax(0,1fr)]'
       : 'jx-tabs-vertical flex flex-col items-stretch [gap:var(--jx-gap)]',
-    material === 'line' && (orientation === 'vertical' ? 'border-r border-border' : 'border-b border-border'),
+    material === 'line' &&
+      (orientation === 'vertical'
+        ? // the passive rule rides the SAME logical edge as the bar
+          // (border-s/border-e — physical side flips with direction)
+          indicatorEdge === 'start'
+          ? 'border-s border-border'
+          : 'border-e border-border'
+        : 'border-b border-border'),
     orientation === 'vertical' && layout === 'wrap' && 'flex-wrap',
     className,
   )}

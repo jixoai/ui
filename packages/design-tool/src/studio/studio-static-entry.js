@@ -25,10 +25,16 @@
  */
 
 import { mountStudio } from './mount.ts';
+import { applyStudioTheme, readStudioTheme, watchStudioSystemTheme } from './studio-theme.ts';
 import './studio-static.css';
 import 'virtual:jixoai-icons.css';
 
-document.documentElement.classList.add('dark');
+// the #23 dark token scope, now a POSTURE instead of a hardcode
+// (walkthrough r6): the persisted preference (default dark — the
+// studio's historical identity) resolves BEFORE mount so every
+// dogfooded family component paints its token set on the first frame
+applyStudioTheme(readStudioTheme());
+watchStudioSystemTheme();
 document.documentElement.style.overflow = 'hidden';
 
 mountStudio(document.getElementById('studio-root'));
