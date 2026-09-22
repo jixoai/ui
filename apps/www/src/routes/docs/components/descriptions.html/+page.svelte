@@ -164,7 +164,10 @@
   function resetResponsive(): void {
     frameWidth = responsiveInitial.frameWidth;
   }
-  const frameStyle = $derived(`width: min(${frameWidth}px, 100%);`);
+  // the canvas stage arms its children flex: 1 1 100% — the basis would
+  // pin the rig at the stage width and eat any width declaration, so the
+  // rig rides FLEX-BASIS (the slider tracks the basis, the drag folds)
+  const frameStyle = $derived(`flex: 0 0 min(${frameWidth}px, 100%); width: min(${frameWidth}px, 100%);`);
 
   const responsiveUsage = `<!-- the container query is the component's own law
      (descriptions.css: @container (max-width: 640px) ⇒ one pair per row).
@@ -197,7 +200,7 @@
 </section>`;
 
   // ---- the ONE query() case: responsive density on the dl — the base
-  // (small) applies below the 40rem viewport; at ≥40rem the lg case wins
+  // (small) applies below the 64rem viewport; at ≥64rem the lg case wins
   // and the whole grid steps to the touch tier. BOTH generics are the
   // §6 typing law: with an explicit type-argument list TS disables
   // inference for the base parameter, so the single-arg form pins B to
@@ -631,10 +634,10 @@ ${close}
                 <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
               </Descriptions>
               <p class={cx(rt.para)}>
-                Media keys are min-width: below 40rem the base applies — the small rung, the
-                pointer-lane grid; at 40rem and wider the lg case wins and the grid steps to the
+                Media keys are min-width: below 64rem the base applies — the small rung, the
+                pointer-lane grid; at 64rem and wider the lg case wins and the grid steps to the
                 touch tier (12px/8px padding below, 15px/16px above — measured). Resize across
-                40rem.
+                64rem.
               </p>
             </div>
           </ComponentCanvas>
@@ -683,6 +686,10 @@ ${close}
      does the folding */
   .desc-frame-rig {
     max-width: 100%;
+    /* the rig IS the dl's query container: without inline-size containment
+       the grid's min-content floor pins the track count and the drag
+       never folds (marginalia's receipt — state chip vs painted tracks) */
+    container-type: inline-size;
   }
 
   /* the extra-slot card: consumer chrome around the dl */

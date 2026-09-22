@@ -693,3 +693,33 @@
 - (vellum) The motion row is armed-by-IO with a reduced/no-IO
   immediate-enter fallback and an nth-child ≤8 delay cap — the family's
   own time axis, carriers unread, with the no-JS visibility law.
+
+## Techniques (task 24 additions)
+- Svelte `style={derived}` OWNS the whole style attribute: probe-set
+  `el.style.flex`/`el.style.width` are silently overwritten on the next
+  re-render — when a fix must change inline style, it must ride the
+  derived string itself, not a probe-side mutation.
+- The flex min-content floor has a precise anatomy: a stage arming
+  children `flex: 1 1 100%` makes flex-basis override width entirely —
+  container queries (container-type: inline-size) do NOT release that
+  floor. The fix is `flex: 0 0 min(Wpx, 100%)`: the basis carries the
+  width, grow/shrink zeroed. Read computedFlexBasis before blaming
+  min-content.
+- grep -c counts LINES, not occurrences: a ×5 replacement can read 4
+  when two hits share a line. `grep -on pattern` gives the true
+  occurrence count (task 24: 203×2 + 637/638/640).
+- Boundary probes close caption claims exactly: set the viewport 1px
+  either side of the media key (1024 vs 1023 at 64rem) — a flip that
+  lands on the exact key proves both the mechanism and the number.
+
+## Highlights (task 24)
+- (link) The em-voices size story is the batch's subtlest consumption
+  proof: the atom declares NO font-size, so the stamped 14px flows
+  into two DIFFERENT voices — the 0.8em glyph scales (11.1875px live)
+  while the 4px underline offset holds its optical calibration fixed.
+  One stamp, two consumption laws, verified in one evaluate.
+- (link) The frozen-pole contrast is grep-visible AND probe-visible:
+  the atom reads `tokens['--jx-primary']` (frozen at :root) so dark
+  islands keep byte-identical ink, while the SAME element's `--primary`
+  chain recomputes live — co-resident specimens settle it without any
+  theme toggling.
