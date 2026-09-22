@@ -676,3 +676,28 @@
 - **DocsSeeAlso is data-driven and may render an empty section** if the
   reading chain has no entries for the family — check
   `data-doc-see-also` + the link count in SSR, don't just count ids.
+
+## Task 23 (carousel REVIEW) — lessons
+- **The one-token-apart contrast is the emission-form law's sharpest
+  demonstration**: carousel's arrow and button-group's cluster wear the
+  SAME sheet token (--shadow-xs) — but typed-intermediate emission
+  (--jx-shadow-xs declared at :root, consumed as var(--jx-shadow-xs))
+  freezes while the raw read re-substitutes at the consumer and flips.
+  Two probes on two pages, one law: the census (which selector declares
+  the token) predicts the probe (which way the shadow moves) every
+  time.
+- **Wall-clock hue rotates per READ, not per page load**: two
+  getComputedStyle reads seconds apart measured the same dot at hue 279
+  then 306 — any full-color equality assertion across time is a coin
+  flip. Polar (L/C) comparisons or same-frame sampling only; the chip
+  lesson now covers cross-READ comparisons too.
+- **scrollLeft honesty needs the track's own padding in the model**:
+  scrollTo(target.offsetLeft) on a padding-inline track lands at
+  offsetLeft − scroll-padding (measured 831 = slide 819 + gap 12, while
+  raw offsetLeft was 856). Assert the LANDING DELTA between consecutive
+  positions (= slide+gap), not equality with offsetLeft.
+- **Multiple same-family instances on one page**: the demo canvas
+  carousel shadows the query canvas carousel for naive
+  querySelector-first selectors — scope by the section's caption text
+  or enumerate all instances and filter by the attribute under test
+  (data-density presence, here).

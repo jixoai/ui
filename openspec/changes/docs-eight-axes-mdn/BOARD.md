@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
 | marginalia | 25 | descriptions (scribe's) | REVIEW (2nd) | in-flight |
-| vellum | 23 | carousel (marginalia's) | REVIEW (1st) | in-flight |
+| vellum | 24 | combobox (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
 ## DONE (21)
@@ -38,7 +38,7 @@
 - descriptions: vellum 1st review **PASS** (ruler ladder digit-exact incl. injected-rung beats; frozen-pole twin via the runtime-alias census — no plain .dark redeclares any of the five; columns clamp source-pinned + container query measured; #install/#see-both restored per the incident record; MINOR: query caption says 40rem but the lg key is 64rem VIEWPORT_SCALE — discriminated at 800px) → marginalia 2nd QUEUED
 - code-card: coded Tier-2 gaps-only (vellum 22 — the FOURTH theme pattern: theme prop DROPPED AT SOURCE (constructive no-op) + ancestor-adaptive OWN tokens (.dark .jx-code-card re-declarations; ground 0.981→0.091 without the card carrying .dark) — spectrum now raw-flip/typed-frozen/bridge-only/dropped-own-adaptation; density the quietest lane (inert, no query seat with stated reasoning); shiki 68-span markup vs inline-code single-node measured; page ZERO diagnostics, fleet 1609) → scribe+marginalia reviews QUEUED
 - card-grid: coded Tier-2 (vellum 19 — LAYOUT two-halves density: self inert on the fixed spatial gradient (--space-20 = --jx-unit×5, :root-only), tenants real through rung scopes 12/16/20; size = heading contrast case confirmed; theme bridge-only; motion = the family's own IO-armed rule, carriers unread; no rest spread → no synthesized row — served-count arithmetic; page ZERO diagnostics) → scribe+marginalia reviews QUEUED
-- carousel: coded Tier-2 (marginalia 23 — falsified density token rows retired (avatar precedent); the ONE-SHADOW-TOKEN-APART contrast (button-group raw --shadow-xs follows / carousel typed intermediate frozen); LAW #14 dots-honesty with 700ms settle; EXTRA 15−0−8=7 no-duplicate chain; tasksUniverse scope = no matrix re-pin needed) → vellum+scribe reviews QUEUED
+- carousel: vellum 1st review **PASS** (the same-token opposite-emission contrast verified as the page's sharpest; dots-honesty with track-padding-inclusive scrollLeft model 831=819+12; falsified rows ×0 in the table; frozen pole probed byte-identical; EXTRA 15−0−8=7; a11y complete incl. the no-aria-pressed boundary) → scribe 2nd QUEUED
 
 ## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. · toc/See-also: See also is chrome, OUT of the toc (anchor precedent).
 
