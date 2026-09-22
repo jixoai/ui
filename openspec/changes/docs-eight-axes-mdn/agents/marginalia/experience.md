@@ -652,3 +652,26 @@
   page prose was checked numeric-free the same way. The pairing of
   "prose claims no absolute hue" + "probe asserts signature+drift" is
   the reusable pattern for every --primary-flipping surface.
+
+## Task 23 — carousel CODE (2026-09-22)
+- **CODE tasks want the probes BEFORE and AFTER**: probing the served
+  family on the OLD page first fixed the axis story while it was still
+  cheap (the density token rows were falsifiable — --jx-icon/--jx-hit
+  documented, zero reads — and the theme story turned out FROZEN, the
+  opposite of button-group's raw-shadow FOLLOWS). The emission-form grep
+  + a clone probe decided it: typed intermediates freeze, raw tokens
+  follow — two families, one shadow token apart, opposite verdicts.
+- **The ambient matrix only covers the tasksUniverse** (the env-debt-
+  cleanup batches A/B): a page outside those 23 routes needs NO matrix
+  re-pin for its hand axes table — carousel's density/size rows are
+  invisible to candidateKeys. Check AXIS_PROPS ({density, variant, tone,
+  material, size}) AND tasksUniverse membership before hand-wringing
+  about pins.
+- **A transient 500 is a compile-in-progress; a persistent one is
+  real**: the first fetch after a big rewrite raced the compiler. The
+  second 500 was real (dropped PlayFields import) — svelte-check named
+  it in one run. Triage order: refetch → svelte-check → dev log.
+- **PILOTS -u flow**: add the route to PILOTS + two it-blocks with EMPTY
+  toMatchInlineSnapshot(), run vitest -u once (snapshots fill), then a
+  clean run to prove stability. The extractor keeps cx(rt.…)/inline
+  styles verbatim — static stages with rt atoms extract fine.

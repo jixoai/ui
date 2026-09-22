@@ -57,6 +57,7 @@ const PILOTS = [
   'components/breadcrumb.html',
   'components/checkbox.html',
   'components/color-picker.html',
+  'components/carousel.html',
   'components/descriptions.html',
   'components/link.html',
   'components/prose.html',
@@ -536,6 +537,60 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
         ladder, not the coefficient: 28 / 32 / 40 / 48px across xs / sm / default / lg.
       </p>"
     `);
+  });
+  it('carousel.html :: carousel-demo', async () => {
+    // the carousel page joined the same-source lane at its tier-2
+    // restructure (marginalia task 23): the lab + axes canvases are
+    // STATIC stages composed from resolveRawCode; the query() canvas
+    // embeds the responsive call (the documented rejection class).
+    expect((await extractionFor('components/carousel.html')).canvases['carousel-demo']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.wFull, rt.maxWXl)}>
+        <Carousel>
+          <figure class={cx(rt.panel)} style="display: flex; align-items: center; justify-content: center; gap: 1rem; min-height: 9rem; margin: 0;">
+            <span class={cx(rt.inkAccent)}>01</span> deploy
+          </figure>
+          <figure class={cx(rt.panel)} style="display: flex; align-items: center; justify-content: center; gap: 1rem; min-height: 9rem; margin: 0;">
+            <span class={cx(rt.inkAccent)}>02</span> audit
+          </figure>
+          <figure class={cx(rt.panel)} style="display: flex; align-items: center; justify-content: center; gap: 1rem; min-height: 9rem; margin: 0;">
+            <span class={cx(rt.inkAccent)}>03</span> ship
+          </figure>
+        </Carousel>
+      </div>"
+    `);
+  });
+  it('carousel.html :: axes', async () => {
+    expect((await extractionFor('components/carousel.html')).canvases['axes']).toMatchInlineSnapshot(`
+            "<div class={cx(rt.gridSm2, rt.wFull)}>
+              <div class={cx(rt.panel)} data-probe="row-default">
+                <span class={cx(rt.note11)}>density ambient — the chrome's fixed micro-geometry</span>
+                <Carousel label="density ambient row">
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">one</figure>
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">two</figure>
+                </Carousel>
+              </div>
+              <div class={cx(rt.panel)} data-probe="row-lg">
+                <span class={cx(rt.note11)}>density="lg" — the chrome unmoved; the supply flows to the slides</span>
+                <Carousel label="density lg row" density="lg">
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">one</figure>
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">two</figure>
+                </Carousel>
+              </div>
+              <div class={cx(rt.panel)} data-probe="row-dark">
+                <span class={cx(rt.note11)}>theme="dark" — .dark stamps; nothing flips (the frozen pole)</span>
+                <Carousel label="dark row" theme="dark">
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">one</figure>
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">two</figure>
+                </Carousel>
+              </div>
+            </div>
+            <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+              Measured: the lg rung's data-density lands on the root while arrows, dots and track
+              stay unmoved — the chrome rides fixed space steps, and the slides inherit the
+              re-based channels through the supply. The dark island flips nothing: every painted
+              voice is the stylex :root emission (byte-identical arrows and dots).
+            </p>"
+          `);
   });
   it('checkbox.html :: states', async () => {
     expect((await extractionFor('components/checkbox.html')).canvases['states']).toMatchInlineSnapshot(`
