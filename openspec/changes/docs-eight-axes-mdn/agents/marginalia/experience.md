@@ -628,3 +628,27 @@
 - **Fixed-paint TokenTable pattern**: rows with no source column (every
   fact in the Default cell) sidestep the W-next #3 structural-label gap —
   image's paintTokens are the model.
+
+## Task 22 — color-picker review (2026-09-22)
+- **Regex blind spots on generated meta — twice**: `[a-zA-Z][a-zA-Z0-9]*`
+  misses hyphenated keys ('data-density', 'aria-invalid') AND a naive
+  `{`-depth matcher truncates on braces inside strings. A string-aware
+  matcher plus a hyphen-inclusive key regex turned "21 entries, no
+  hidden" into "24 entries, the quoted trio present once" — which
+  falsified the recorded "27 meta − 3 citation dupes" head while
+  CONFIRMING its result (24 − 8 − 4 = 12). Arithmetic chains in review
+  notes must be re-derived from the artifact, not re-quoted; the result
+  being true does not make the intermediate counts real.
+- **Component roots nest**: color-picker's `.jx-field` class appears on
+  the stamped root AND inner wrappers — classify candidates by
+  `hasField` before reading, or getComputedStyle(null) crashes the
+  evaluate. Same family, two elements, two different claims: the well
+  floor + shadow live on the inner trigger span, the carrier stamp +
+  data-density on the outer root — read the css selectors to learn which
+  element owns which claim before probing.
+- **Wall-clock hue, handled end to end**: the caret flip was asserted as
+  the dark formula's L/C signature (0.7044/0.1872 — stable) + the −4°
+  drift (357→353 measured in one evaluate), never absolute hue. The
+  page prose was checked numeric-free the same way. The pairing of
+  "prose claims no absolute hue" + "probe asserts signature+drift" is
+  the reusable pattern for every --primary-flipping surface.
