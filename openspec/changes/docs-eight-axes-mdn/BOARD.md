@@ -6,7 +6,7 @@
 | vellum | 24 | combobox (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
-## DONE (21)
+## DONE (22)
 - ✅ **anchor** (scribe) — 1st: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS
 - ✅ **blockquote** (quill) — 2nd (scribe re-verify 6/6 + 31/31 probe)
 - ✅ **alert** (vellum) — 3rd (THEME-SPLIT survived independent re-measure)
@@ -22,6 +22,7 @@
 - ✅ **dropdown-menu** (quill) — 13th (the OVERTURN arc complete; shape-agnostic import-grep law)
 - ✅ **heading** (quill) — 14th (inline-stamp mechanism; re-verify-grade self-confirmation 16/16)
 - ✅ **avatar** (vellum) — 15th (second overturn arc; initials-follow-size; page zero diagnostics)
+- ✅ **carousel** (marginalia) — 22nd (double PASS full convergence; the same-token opposite-emission demonstrator; LAW #14 dots-honesty verified at two viewports; polar-assertion convergence on the brand-hue dot)
 - ✅ **input-group** (quill) — 21st (double PASS; the co-signed arithmetic sentence rode the closure; NEW MEDIUM: source:'structural' ×5 empty cells — the THIRD W-next #3 live instance → FIXED by scribe task 21: the structural arm landed (sourceLabel one-for-one with the union), the 5 cells render 'structural', render pin added; description-field arm stays in W-next)
 - ✅ **hero-section** (quill) — 20th (THE ADJUDICATION: vellum's MAJOR = NON-REPRODUCED probe-medium artifact — both instruments run by the adjudicator; LAW #16 FIRST-PAINT-BASE enters; emission-form split + one-h1 carve-out re-derived)
 - ✅ **color-picker** (scribe) — 19th (stamped-never-consumed triple-instrumented; the chain-head settled 24−8−4=12; quill's disclosed one-line STALE-COMMENT FLAG completes marginalia's MINOR — the page names the living family comment as the retired claim's last copy)
@@ -39,7 +40,7 @@
 - link: coded Tier-2 (quill 20 — size consumed through EM VOICES (stamped 14px anchor → 11.1875px glyph while the underline offset holds fixed 4px — consumption AND refusal in one element); theme frozen-pole pure-alias with the live −4° drift; the THIRD brief falsification: markdown-node maps prose links here (the promotion's point), leaf claim corrected in Overview; craft geometry measured (0.2em seam, −0.125em shift, external pair live)) → scribe+marginalia reviews QUEUED
 - code-card: coded Tier-2 gaps-only (vellum 22 — the FOURTH theme pattern: theme prop DROPPED AT SOURCE (constructive no-op) + ancestor-adaptive OWN tokens (.dark .jx-code-card re-declarations; ground 0.981→0.091 without the card carrying .dark) — spectrum now raw-flip/typed-frozen/bridge-only/dropped-own-adaptation; density the quietest lane (inert, no query seat with stated reasoning); shiki 68-span markup vs inline-code single-node measured; page ZERO diagnostics, fleet 1609) → scribe+marginalia reviews QUEUED
 - card-grid: coded Tier-2 (vellum 19 — LAYOUT two-halves density: self inert on the fixed spatial gradient (--space-20 = --jx-unit×5, :root-only), tenants real through rung scopes 12/16/20; size = heading contrast case confirmed; theme bridge-only; motion = the family's own IO-armed rule, carriers unread; no rest spread → no synthesized row — served-count arithmetic; page ZERO diagnostics) → scribe+marginalia reviews QUEUED
-- carousel: vellum 1st review **PASS** (the same-token opposite-emission contrast verified as the page's sharpest; dots-honesty with track-padding-inclusive scrollLeft model 831=819+12; falsified rows ×0 in the table; frozen pole probed byte-identical; EXTRA 15−0−8=7; a11y complete incl. the no-aria-pressed boundary) → scribe 2nd QUEUED
+- carousel: CLOSED
 
 ## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. · toc/See-also: See also is chrome, OUT of the toc (anchor precedent).
 

@@ -638,3 +638,29 @@
 - Badge's `source: 'theme'` was an OUT-OF-UNION page value — the page
   side of the same disease. When the union and the mapper disagree,
   sweep the pages for values living in NEITHER.
+
+## Techniques (task 22 additions)
+- Same-token/opposite-emission contrasts prove the two-layer system
+  better than any single-family probe: carousel's TYPED
+  tokens['--jx-shadow-xs'] arrow shadow is byte-identical under a dark
+  island while button-group's RAW var(--shadow-xs) flips black→white —
+  co-resident specimens + the emission census (typed intermediate vs
+  raw read) is the full receipt in one table row.
+- Keyed dot re-render vs stale capture: capturing the dot array BEFORE
+  a paging click then re-reading it after yields -1 for the moved
+  aria-current (Svelte updated the OLD node objects). Re-query inside
+  the after-read — the second LAW #14 corollary this week.
+- The scroll landing verifies as a MODEL (scrollLeft = slide + gap),
+  never as px: two reviewers at two viewports land 671 and 831 and both
+  are correct — a page that hardcodes either number would fail the
+  other's probe. Carousel's prose claims only the model.
+
+## Highlights (task 22)
+- (marginalia, carousel) The axes canvas is a three-panel physics demo:
+  ambient chrome, lg-stamped chrome (unmoved, stamp visible), dark
+  island (frozen) — every panel is a falsifiable claim with a
+  data-probe hook, and the caption states the measured outcome.
+- (marginalia) The token table's law-named rows ("the slide law", "the
+  track gap", "the arrow shadow") retire the falsified --jx-icon/
+  --jx-hit rows while disclosing the retirement twice — the cleanest
+  falsification handling of the batch.
