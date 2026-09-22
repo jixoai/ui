@@ -53,6 +53,7 @@ const PILOTS = [
   'components/accordion.html',
   'components/badge.html',
   'components/avatar.html',
+  'components/button-group.html',
   'components/breadcrumb.html',
   'components/checkbox.html',
   'components/link.html',
@@ -485,6 +486,53 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
           <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>theme dark · the bridge lands, nothing repaints — the documented absence (W-next #1)</p>
         </div>
       </div>"
+    `);
+  });
+  it('button-group.html :: axes', async () => {
+    // the button-group page joined the same-source lane at its tier-2
+    // restructure (vellum task 12): the axes canvas composes from
+    // resolveRawCode; the lab/scroll (page-state) and the query() canvas
+    // (the responsive query() embed) stay hand files (the rejection class).
+    expect((await extractionFor('components/button-group.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2, rt.wFull)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density default — the pointer-lane row (40px hits, 13px type)</span>
+          <ButtonGroup label="density default row">
+            <PressButton variant="outline">copy</PressButton>
+            <PressButton variant="outline">move</PressButton>
+            <PressButton variant="outline">delete</PressButton>
+          </ButtonGroup>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density="lg" — the touch tier steps the whole row (48px, 15px)</span>
+          <ButtonGroup label="density touch row" density="lg">
+            <PressButton variant="outline">copy</PressButton>
+            <PressButton variant="outline">move</PressButton>
+            <PressButton variant="outline">delete</PressButton>
+          </ButtonGroup>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>radius="medium" — the group anchors; the joined buttons compute R − seam</span>
+          <ButtonGroup label="radius row" radius="medium">
+            <PressButton variant="outline">copy</PressButton>
+            <PressButton variant="outline">move</PressButton>
+            <PressButton variant="outline">delete</PressButton>
+          </ButtonGroup>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>theme="dark" — the variant borders flip; the label ink stays frozen; the seams stay color-free; the cluster shadow follows the theme</span>
+          <ButtonGroup label="dark row" theme="dark">
+            <PressButton variant="outline">copy</PressButton>
+            <PressButton variant="outline">move</PressButton>
+            <PressButton variant="outline">delete</PressButton>
+          </ButtonGroup>
+        </div>
+      </div>
+      <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+        The number lane (a coefficient) stamps and re-bases nothing here — the declaring
+        element for every channel this family reads is outside the wrapper. Measure the hit
+        ladder, not the coefficient: 28 / 32 / 40 / 48px across xs / sm / default / lg.
+      </p>"
     `);
   });
   it('checkbox.html :: states', async () => {

@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | scribe | 14 | avatar (vellum's) | REVIEW (1st) | in-flight |
 | marginalia | 15 | dropdown-menu (quill's) | REVIEW (2nd) | in-flight |
-| vellum | 11 | dropdown-menu (quill's) | REVIEW (1st) | in-flight |
+| vellum | 13 | empty (quill's) | REVIEW (1st) | in-flight |
 | quill | 13 | hero-section (OWN) | CODE | in-flight |
 ## DONE
 - ✅ **cascader** (owner quill) — eleventh closed page (the campaign's TIER-3 exemplar: marginalia+scribe double PASS, the fold verified byte-level — [Token, Default], 0 empty cells, ruler-constant distinction verbatim; the old page's consumption lie deleted; ring −4° invariant re-probed side-by-side)
@@ -24,6 +24,7 @@
 - component-canvas: marginalia 1st review **PASS** (all four extra duties TRUE on the current tree: W7 bar 28-canvas re-derivation with exact 0.875× em ratios, EXTRA arithmetic 27−6−2+2=21, re-pin honest 284/284, press-shadow literals fixed; NIT: theme extra row missing own-default marker — one-field fix to quill) → scribe 2nd QUEUED
 - date-picker: coded Tier-2 (quill task 9-B) — theme-split proven at a SINGLE element (--primary flips / --jx-primary frozen at the same day cell); 25−8+0=17 EXTRA arithmetic exact — vellum 1st review **PASS** (headline one-cell theme-split reproduced with LAW #14 discipline — 600ms settle + L/C double-read; W3 copy-paste replacement verified by six zero-reader greps; MINOR: trigger-vs-panel density clause; NIT: --jx-hit 'box steps' → 'floor steps' wording) → marginalia 2nd QUEUED
 - dropdown-menu: vellum 1st review **PASS** (all four consumed axes reproduced incl. elevation three-leg pair 3/8dp and radius dual-form byte-level; theme-split within one widget under LAW #14 + the frozen/flipped popover twin pair; matrix re-pin honest 284/284 re-run; MINOR: dock count 14→21 stale; NIT: elevation own-default caption not curl-checkable) → marginalia 2nd QUEUED
+- button-group: coded Tier-2 (vellum task 12) — the PROVIDER family: four-voice theme split measured (outline slot flips, label alias frozen, seams contrast-ghost, cluster shadow follows); density re-bases JOINED buttons 28/32/40/48; W7 scroll start-closed verdict documented; PILOTS joined (axes canvas), 9/9 probes; zone/nesting/boundary hand mirrors disclosed as follow-up — reviewers marginalia+scribe QUEUED
 - heading: coded Tier-2 (quill task 12) — measurement-first overturned the brief: family reads ZERO carriers/channels; size consumes VIA THE INLINE STAMP (explicit size REPLACES the em ladder, auto restores); theme = partial pole via the ink seam (data-jx-ty-ink gate); 14−8=6 arithmetic; quill's ledger cleared (dock 14→21, theme own-default) — reviewers marginalia+vellum QUEUED
 - empty: coded Tier-2 (quill task 11-B) — the THIRD measured theme pole (frozen: .dark stamps, nothing flips — after checkbox full-flip and cascader ring-only); elevation nuance (art shadow is fixed --jx-shadow-2xs not the §7 pair); 13−8=5 arithmetic exact — reviewers marginalia+vellum QUEUED
 - avatar: coded Tier-2 (vellum task 9) — EXTRA arithmetic 17−8=9 exact, theme four-voices-frozen documented absence (W-next #1), query<number> flip 48↔40 — reviewers scribe+marginalia QUEUED

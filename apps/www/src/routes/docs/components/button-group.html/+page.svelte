@@ -1,26 +1,46 @@
 <!--
-  Docs page for the button-group family (OpenSpec
-  2026-08-30-expand-form-family F2, 2026-08-30).
+  Docs page for the button-group family (docs-eight-axes-mdn task 12,
+  vellum 2026-09-22 — tier 2 over the docs-demo-standard page: the lab,
+  the W7 scroll-overflow canvas, the variant-scope zone, the nested
+  clusters and the toggle-group boundary survive verbatim; the skeleton
+  re-orders to the archetype and gains Overview + the generated-props
+  lane stays HAND (the family has no meta yet — the accordion
+  precedent) + the per-axis table + one real query() case; the theming
+  DensityDemo folds into the axes demos).
 
-  docs-demo-standard skeleton: Intro → Install → live demo (canvas) →
-  Usage (the ONE h2) → Examples (ability-named canvases, incl. the
-  toggle-group BOUNDARY note) → Accessibility → API → See also.
-  Every canvas carries a playground pane (the structure lint), and
-  the demo copy never uses real headings (the data-doc-demo-content
-  scope).
+  Order: hero → install → overview → usage → the live lab → the W7
+  scroll overflow → variant-scope → nested clusters + boundary → API →
+  the eight axes (per-axis table + the four-class theme split + one
+  real query() case) → accessibility → see-also.
+
+  Mechanism rows are measurement-first (probed against the served
+  family): density is the provider axis (the named rung re-bases the
+  JOINED buttons — measured xs 28/11 · sm 32/12 · lg 48/15 · default
+  40/13); size/shape/radius/color stamp carriers the COMPOSED
+  press-buttons consume (size supply-only for the button anatomy —
+  measured: a 20px root font leaves the 13px button type unmoved;
+  shape/radius reach the corners through the ambient chain — measured:
+  a 16px carrier moves the corner; color re-points --jx-fill/--jx-tonal
+  through the [data-jx-press-button] keying); theme splits FOUR ways
+  (the slot-scoped --jx-outline border flips, the --jx-foreground alias
+  stays frozen, the seam ghost paints no color, the raw --shadow-xs
+  cluster shadow follows the theme — all measured); elevation and
+  motion are supply-only (negative-grep receipts).
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Icon from '$lib/ui/icon';
   import { PlayFields, PlayRow, PlaySegmented, PlayHelp } from '$lib/playground';
+  import type { PropEntry } from '$lib/ui/props-table/props-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import ButtonGroup, {
     progressBlur,
@@ -30,10 +50,22 @@
   } from '$lib/ui/button-group/button-group.svelte';
   import ButtonGroupDivider from '$lib/ui/button-group/button-group-divider.svelte';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import buttonGroupSource from '$lib/ui/button-group/button-group.svelte?raw';
   import buttonGroupDividerSource from '$lib/ui/button-group/button-group-divider.svelte?raw';
+
+  // The canvas same-source lane: the eight-axes canvas composes its usage
+  // file from THIS PAGE's own stage markup via resolveRawCode (one source,
+  // two surfaces). The lab/scroll/nesting/zone/boundary/query canvases
+  // stay hand files: the lab and scroll ride the playground's page state
+  // and the query() canvas embeds the responsive query() call — the
+  // extractor's documented rejection class (the avatar play-state lab
+  // precedent).
+  import { usageFile } from '$lib/canvas-usage';
+  import { resolveRawCode } from 'virtual:jixoai-canvas/docs/components/button-group.html/+page';
 
   // A literal closing-script tag inside the code string would terminate
   // this component's own script tag during the HTML-level scan — splice it.
@@ -158,7 +190,7 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -167,15 +199,102 @@ ${close}
             ).join(' '),
       )
       .join(' ');
-  // ---- the universal props demo (explicit-props W3-D5) --------------------
-  const universalUsage = `<ButtonGroup label="export actions" size={18}>
-  <PressButton variant="outline">copy</PressButton>
-  <PressButton variant="outline">move</PressButton>
-</ButtonGroup>`;
-  const universalFiles: TreeFile[] = [
-    { name: 'src/lib/ui/universal-props-demo.svelte', content: universalUsage },
+
+  // ---- the eight-axes canvas (per-axis demos, code shown = code running,
+  // composed from the extracted stage markup) ------------------------------
+  const axesUsage = usageFile(
+    {
+      ButtonGroup: '@ui/button-group/index',
+      PressButton: '@ui/press-button/press-button.svelte',
+    },
+    resolveRawCode('axes'),
+  );
+  const axesFiles: TreeFile[] = [
+    { name: 'src/lib/ui/button-group-axes.svelte', content: axesUsage, kind: 'usage' },
   ];
 
+  // the ONE query() case: responsive density on the joined row — the
+  // base (small: the pointer-lane row) applies below the 40rem viewport;
+  // at ≥40rem the lg case wins and the row steps to the touch tier.
+  // BOTH generics are the §6 typing law: with an explicit type-argument
+  // list TS disables inference for the base parameter, so the single-arg
+  // form pins B to undefined and ships a real svelte-check error.
+  const queryUsage = `<script lang="ts">
+  import ButtonGroup from '@ui/button-group/index';
+  import PressButton from '@ui/press-button/press-button.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+  import type { DensityLane } from '@lib/defaults.svelte';
+${close}
+
+<ButtonGroup label="responsive row" density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}>
+  <PressButton variant="outline">copy</PressButton>
+  <PressButton variant="outline">move</PressButton>
+  <PressButton variant="outline">delete</PressButton>
+</ButtonGroup>`;
+
+  // ---- the per-axis table (§2.5) — measurement-first, receipts in the
+  // house form. The family is a PROVIDER: the root stamps the carriers,
+  // the COMPOSED press-buttons are the consumers (their own anatomy
+  // rides the ambient chain), and the group's own chrome is one shadow
+  // plus color-free seams.
+  const axisRows: PropEntry[] = [
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: 'ambient scope',
+      description:
+        "SUPPLY-ONLY for the button anatomy — the root stamps --jx-size-effective and an inline font-size, and the joined buttons' type is density-channel-anchored (--jx-text), so the stamp reaches only unstyled flow under the group (measured: a 20px root font leaves the 13px button type unmoved). The §1 collision applies: the native size attribute is never received. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: 'ambient scope',
+      description:
+        "CONSUMED BY THE COMPOSED BUTTONS — the root stamps --jx-shape-effective and the joined press-buttons' corner-shape reads it through the ambient chain (press-button.css). The group's own chrome has no corners to re-shape: a joined row is a rectangular strip. Number unit: none.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: 'ambient scope',
+      description:
+        "CONSUMED BY THE COMPOSED BUTTONS — the §3 concentric anchor with the group as the supplying root: the carrier lands on the group and every joined button that resolves auto computes R − seam against it (measured: a stamped 16px carrier moves the button corner). The group's own strip has no corner of its own. Number unit: px.",
+    },
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number`,
+      default: 'ambient scope',
+      description:
+        "CONSUMED — the PROVIDER axis (the reactive bridged provider, the provider-snapshot kernel law). The named rung stamps data-density on the group root and the scope block re-bases the lanes the joined buttons read (--jx-hit, --jx-text): measured 28/11px at xs, 32/12 at sm, 40/13 at default, 48/15 at lg — the whole joined row re-tiers through one prop. The NUMBER lane is inert (the declaring-element law: the coefficient composes at :root, the wrapper never re-declares). Number unit: coefficient.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: 'ambient scope',
+      description:
+        "CONSUMED BY THE COMPOSED BUTTONS — the root stamps --jx-color-effective and the joined press-buttons' --jx-fill/--jx-tonal re-derive from it through the [data-jx-press-button] keying; the group's own chrome (seams, cluster shadow) reads none of it (grep receipt: zero carrier reads in ui/button-group/). Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: 'ambient scope',
+      description:
+        "PARTIAL re-theme — measured, FOUR voice classes. FLIPS: the joined buttons' variant borders (the theme-scoped --jx-outline slot re-declares in scope — measured black→white under the island). STAYS FROZEN: the buttons' label ink (the --jx-foreground stylex alias, substituted at :root). THEME-NEUTRAL: the seams (the contrast-ghost ink paints no color — the backdrop's own contrast is the paint). FOLLOWS THE THEME: the cluster shadow (raw --shadow-xs — the docs theme re-declares the offset per scope, black↔white measured). light and system stamp nothing — tree inheritance. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: 'ambient scope',
+      description:
+        "SUPPLY-ONLY — the cluster shadow is `raised`'s own physics (--shadow-xs on the root, the press law's rest pose), deliberately OUTSIDE this lane: the carrier stamps --jx-elevation-effective and nothing in the family css consumes it (grep receipt: zero readers; the shadow stays --shadow-xs regardless of the stamped level). Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: 'ambient scope',
+      description:
+        "SUPPLY-ONLY — stamps --jx-motion-effective; no family css reads it (grep receipt: zero readers). The scroll run's smooth travel and proximity snap are behavior, the scrollEffect ramps are builders — the axis has no family-local kernel to step. Number unit: coefficient.",
+    },
+  ];
 </script>
 
 <svelte:head>
@@ -207,15 +326,56 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
+    <div data-reveal="">
+      <DocsInstall name="button-group" />
+    </div>
+
+    <div id="overview" data-reveal="">
       <SectionCard
-        family="install"
-        headerRegion="install"
-        eyebrow="install"
-        title="Install"
-        summary="One registry item — the group, the divider and the variant scope ship together (the barrel exports all three, plus the Defaults object). Buttons come from press-button."
+        family="overview"
+        headerRegion="overview"
+        eyebrow="overview"
+        title="Overview"
+        summary="A layout container that paints almost nothing of its own: the join, the seams, and one cluster shadow — its eight axes land in the COMPOSED press-buttons through the ambient chain."
       >
-        <CodeBlock code={`npx jixoai-ui add button-group`} lang="sh" meta="install" />
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.measurePara)}>
+            The group owns the join: adjacent children collapse their borders into one hairline
+            seam (a −1px margin over a grid of content-sized tracks — the seam is geometry, never
+            a second border), <code>ButtonGroupDivider</code> is the announced boundary between
+            clusters, and the variant zone re-points the joined buttons' default paint
+            (<code>ButtonVariantScope</code> is the zone alone, layout-free). The cluster shadow is
+            the one takeover: the joined row is ONE control, so the ROOT casts the single convex
+            shadow while the subtree rides flat.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            The overflow policy handles the row outgrowing its inline space — wrap (measured rows),
+            collapse (the tail folds into a DropdownMenu behind a ⋯ trigger — the composed consumer:
+            menu entries click the hidden real buttons, which keep their listeners), or the W7
+            scroll run (the root becomes the scroller — hidden scrollbar, smooth, proximity snap —
+            and the scrollEffect chrome rides the stamped scroll verdict).
+          </p>
+          <p class={cx(rt.measurePara)}>
+            Because the group paints almost nothing itself, its eight axes land in the COMPOSED
+            press-buttons: density re-tiers the whole row through the provided scope, radius makes
+            the group the concentric anchor the buttons compute against, shape and color re-skin the
+            buttons' corners and hue through the ambient chain — while size, elevation and motion
+            stamp carriers nothing here reads (per-axis below, with receipts). The axis grammar
+            lives on the <a class="pill" href="/docs/universal-props.html">universal props</a> page.
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="usage" data-reveal="">
+      <SectionCard
+        family="usage"
+        headerRegion="usage"
+        eyebrow="usage"
+        title="Usage"
+        summary="Author the buttons in your tree — the group owns the join, the divider owns explicit boundaries. Name the group; the platform owns the rest."
+      >
+        <CodeBlock code={usage} lang="svelte" meta="Button group usage" />
       </SectionCard>
     </div>
 
@@ -321,18 +481,6 @@ ${close}
 </div>
 
 <div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
-  <div id="usage" data-reveal="">
-    <SectionCard
-      family="usage"
-      headerRegion="usage"
-      eyebrow="usage"
-      title="Usage"
-      summary="Author the buttons in your tree — the group owns the join, the divider owns explicit boundaries. Name the group; the platform owns the rest."
-    >
-      <CodeBlock code={usage} lang="svelte" meta="Button group usage" />
-    </SectionCard>
-  </div>
-
   <div id="variant-scope" data-reveal="">
     <SectionCard
       family="variant-scope"
@@ -370,7 +518,7 @@ ${close}
               code={`<script lang="ts">
   import PressButton from '@ui/press-button/press-button.svelte';
   import { ButtonVariantScope } from '@ui/button-group/index';
-</script>
+\${close}
 
 <!-- the zone, layout-free — nothing renders but the buttons. Every
      PressButton / IconButton inside that passes no variant adopts
@@ -481,6 +629,135 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="api" data-reveal="">
+    <SectionCard
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Two parts: the container owns orientation/justify, the overflow policy and the seam; the divider owns explicit boundaries. The eight universal axis props resolve on the group root (the provider) — their per-family story is the axes table below."
+    >
+      <PropsTable
+        props={[
+          { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'The join axis; carries the valued data-jx-btngroup hook.' },
+          { name: 'justify', type: "'start' | 'center' | 'end'", default: "'start'", description: 'Cluster placement on the main axis.' },
+          { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
+          { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: 'ambient zone', description: 'The GROUP rung adopted by every child button that passes none of its own (explicit always wins; no rung is minted — context selects). Omitted → the enclosing scope’s variant (inherit-then-provide, r14-10); link is not a zone value — it stays reachable only through PressButton’s own explicit prop.' },
+          { name: 'raised', type: 'boolean', default: 'ambient zone ?? true', description: 'The CLUSTER shadow (2026-09-04): the root carries the joined row’s ONE convex shadow — --shadow-xs, the press law’s rest pose alone (no hover growth, no active engrave; the root never presses). Explicit ?? the enclosing texture zone (a flat card/dialog foot carries through) ?? the top-level convex default; a NESTED group defaults OFF (one member of the outer cluster — one control, one shadow). false removes the root shadow and nothing else; the inner buttons’ flat default stands regardless (an explicit raised on a child still wins).' },
+          { name: 'separator', type: 'boolean', default: 'ghost ⇒ true', description: 'The seam policy: a 1px contrast-ghost separator in every collapsed seam slot. DEFAULT on when the group’s EFFECTIVE variant (own prop, else the inherited scope) is ghost — the borderless row has no other seam.' },
+          { name: 'leadingSeam', type: 'boolean', default: 'false', description: 'The cluster’s opening bracket (r14-13): paint the seam in the leading slot too — the first button’s own flush ::before, never a sibling element a parent gap could detach. Only paints under an active seam policy (the dialog footer’s actions region is the canonical consumer).' },
+          { name: 'overflow', type: "'wrap' | 'collapse' | 'scroll'", default: "'wrap'", description: 'The overflow policy when the joined row outgrows its inline space: wrap breaks measured rows (per-item grid cells, row leads reset the seam); collapse folds the tail into a DropdownMenu behind the ⋯ trigger; scroll (2026-09-04) rides a scroll run — the root becomes the scroller (hidden scrollbar, smooth, proximity snap), the line never breaks, and NO measurement runs (the chevrons/veil key on the JS-stamped scroll-state instead). Scroll’s effect chrome is the horizontal contract — a vertical group declaring scroll gets the bare block-axis scroller.' },
+          { name: 'scrollEffect', type: 'ramp() | shadow() | progressBlur()', default: 'ramp()', description: 'The edge treatment while overflow=scroll scrolls (the tabs scrollEffect convention; inert elsewhere), axis-aware: a vertical scroll group rides the same chrome against its block edges. ramp({ opacity, blur, translate, distance, radius }) is the ONE member-ramp builder — every toggle defaults ON, a toggle off never pays its property; shadow/progressBlur veil the edges from the non-scrolling host — shadow is the separator ink law’s contrast ghost (no color channel), progressBlur mounts the ProgressiveBlur ladder (inline axis; vertical substitutes shadow). width overrides the band.' },
+          { name: 'density', type: 'DensityLane | QueryResult<DensityLane>', default: 'ambient scope', description: 'Density tier, provided to the subtree so joined buttons adopt it: explicit ?? the ambient scope (no opinion stamps nothing).' },
+          { name: 'role', type: 'string', default: "'group'", description: 'The group role — a labeled toolbar is the consumer’s explicit override.' },
+          { name: 'class', type: 'string', default: "''", description: 'Merged into the root (cn()).' },
+          { name: 'children', type: 'Snippet', default: 'required', description: 'The joined controls — authored in your tree.', required: true },
+          { name: '...rest', type: 'HTMLAttributes', default: '—', description: 'aria-labelledby, data-*, handlers — land on the root verbatim.' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="axes" data-reveal="">
+    <SectionCard
+      family="axes"
+      headerRegion="axes"
+      eyebrow="axes"
+      title="The eight axes on button-group"
+      summary="The group is a PROVIDER: the root stamps every carrier and the COMPOSED press-buttons are the consumers (their own anatomy rides the ambient chain — press-button.css reads shape/radius/color; the hit/text lanes ride density). The group's own chrome is one shadow plus color-free seams. Measured: density re-tiers the whole row through one prop; the theme split runs four voice classes (slot borders flip, alias ink frozen, seam ghost color-free, raw shadow follows the theme); size, elevation and motion stamp carriers nothing here reads. Census: batch A (migration-census.md)."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Deviations, cited: the adoption is the census batch A row (explicit-props W3-D5 — the
+          first-time no-own surface, the provider duties riding the reshaped reads;
+          openspec/changes/explicit-props/research/migration-census.md). The §1 collision rule: the
+          root extends HTMLAttributes Omit&lt;'color'&gt;, the native elements never receive an
+          axis name. The elevation carve-out is the cluster-shadow law: `raised` owns the root's
+          shadow, the elevation lane supplies and nothing consumes.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={axesUsage} lang="svelte" meta="the eight axes on button-group" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas id="axes" title="button-group · the provider lanes" files={axesFiles} stage="fill">
+            <div class={cx(rt.gridSm2, rt.wFull)}>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>density default — the pointer-lane row (40px hits, 13px type)</span>
+                <ButtonGroup label="density default row">
+                  <PressButton variant="outline">copy</PressButton>
+                  <PressButton variant="outline">move</PressButton>
+                  <PressButton variant="outline">delete</PressButton>
+                </ButtonGroup>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>density="lg" — the touch tier steps the whole row (48px, 15px)</span>
+                <ButtonGroup label="density touch row" density="lg">
+                  <PressButton variant="outline">copy</PressButton>
+                  <PressButton variant="outline">move</PressButton>
+                  <PressButton variant="outline">delete</PressButton>
+                </ButtonGroup>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>radius="medium" — the group anchors; the joined buttons compute R − seam</span>
+                <ButtonGroup label="radius row" radius="medium">
+                  <PressButton variant="outline">copy</PressButton>
+                  <PressButton variant="outline">move</PressButton>
+                  <PressButton variant="outline">delete</PressButton>
+                </ButtonGroup>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>theme="dark" — the variant borders flip; the label ink stays frozen; the seams stay color-free; the cluster shadow follows the theme</span>
+                <ButtonGroup label="dark row" theme="dark">
+                  <PressButton variant="outline">copy</PressButton>
+                  <PressButton variant="outline">move</PressButton>
+                  <PressButton variant="outline">delete</PressButton>
+                </ButtonGroup>
+              </div>
+            </div>
+            <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+              The number lane (a coefficient) stamps and re-bases nothing here — the declaring
+              element for every channel this family reads is outside the wrapper. Measure the hit
+              ladder, not the coefficient: 28 / 32 / 40 / 48px across xs / sm / default / lg.
+            </p>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="button-group · query()" files={[{ name: 'button-group-query-demo.svelte', content: queryUsage, kind: 'usage' }]}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+              <ButtonGroup
+                label="responsive row"
+                density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}
+              >
+                <PressButton variant="outline">copy</PressButton>
+                <PressButton variant="outline">move</PressButton>
+                <PressButton variant="outline">delete</PressButton>
+              </ButtonGroup>
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 40rem the base applies — the small rung, the
+                pointer-lane row; at 40rem and wider the lg case wins and the row steps to the touch
+                tier (32px hits below, 48px above — measured). Resize across 40rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <TokenTable tokens={[
+            { name: '--jx-hit', default: '28 / 32 / 40 / 48px across xs / sm / default / lg', source: 'density', description: 'The joined buttons\' hit floor — the lane the named rung re-bases (measured; 2xs sits at 24px).' },
+            { name: '--jx-text', default: '11 / 12 / 13 / 15px across xs / sm / default / lg', source: 'density', description: 'The joined buttons\' type voice — re-based with the hit lane.' },
+            { name: '--shadow-xs', default: 'theme', source: 'structural', description: 'The cluster shadow (the raised physics) — a raw read that follows the theme\'s own re-declaration.' },
+            { name: '--border', default: 'theme', source: 'structural', description: 'Joined button borders (via --jx-outline); the divider and seams paint no color.' },
+          ]} />
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"
@@ -504,101 +781,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="universal-props" data-reveal="">
-    <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query(). The group is a LAYOUT container that paints no bezel: the root stamps the carriers (font-size flows to the joined buttons through inheritance) and the wrapped press-buttons stamp their own roots through the ambient chain. Density rides the reactive bridged provider (the provider-snapshot kernel law)."
-    >
-      <ComponentCanvas title="button-group · universal props" stage="fill" files={universalFiles}>
-<ButtonGroup label="axes joined" size={18}>
-        <PressButton variant="outline">copy</PressButton>
-        <PressButton variant="outline">move</PressButton>
-        <PressButton variant="outline">delete</PressButton>
-      </ButtonGroup>
-      <ButtonGroup label="named steps" size="medium" radius="large">
-        <PressButton variant="outline">copy</PressButton>
-        <PressButton variant="outline">move</PressButton>
-      </ButtonGroup>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
-
-  <div id="api" data-reveal="">
-    <SectionCard
-      family="api"
-      headerRegion="api"
-      eyebrow="api"
-      title="API"
-      summary="Two parts: the container owns orientation/justify and the seam; the divider owns explicit boundaries."
-    >
-      <PropsTable
-        props={[
-          { name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'The join axis; carries the valued data-jx-btngroup hook.' },
-          { name: 'justify', type: "'start' | 'center' | 'end'", default: "'start'", description: 'Cluster placement on the main axis.' },
-          { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
-          { name: 'variant', type: "'fill' | 'tonal' | 'outline' | 'ghost'", default: 'ambient zone', description: 'The GROUP rung adopted by every child button that passes none of its own (explicit always wins; no rung is minted — context selects). Omitted → the enclosing scope’s variant (inherit-then-provide, r14-10); link is not a zone value — it stays reachable only through PressButton’s own explicit prop.' },
-          { name: 'raised', type: 'boolean', default: 'ambient zone ?? true', description: 'The CLUSTER shadow (2026-09-04): the root carries the joined row’s ONE convex shadow — --shadow-xs, the press law’s rest pose alone (no hover growth, no active engrave; the root never presses). Explicit ?? the enclosing texture zone (a flat card/dialog foot carries through) ?? the top-level convex default; a NESTED group defaults OFF (one member of the outer cluster — one control, one shadow). false removes the root shadow and nothing else; the inner buttons’ flat default stands regardless (an explicit raised on a child still wins).' },
-          { name: 'separator', type: 'boolean', default: 'ghost ⇒ true', description: 'The seam policy: a 1px contrast-ghost separator in every collapsed seam slot. DEFAULT on when the group’s EFFECTIVE variant (own prop, else the inherited scope) is ghost — the borderless row has no other seam.' },
-          { name: 'leadingSeam', type: 'boolean', default: 'false', description: 'The cluster’s opening bracket (r14-13): paint the seam in the leading slot too — the first button’s own flush ::before, never a sibling element a parent gap could detach. Only paints under an active seam policy (the dialog footer’s actions region is the canonical consumer).' },
-          { name: 'overflow', type: "'wrap' | 'collapse' | 'scroll'", default: "'wrap'", description: 'The overflow policy when the joined row outgrows its inline space: wrap breaks measured rows (per-item grid cells, row leads reset the seam); collapse folds the tail into a DropdownMenu behind the ⋯ trigger; scroll (2026-09-04) rides a scroll run — the root becomes the scroller (hidden scrollbar, smooth, proximity snap), the line never breaks, and NO measurement runs (the chevrons/veil key on the JS-stamped scroll-state instead). Scroll’s effect chrome is the horizontal contract — a vertical group declaring scroll gets the bare block-axis scroller.' },
-          { name: 'scrollEffect', type: 'ramp() | shadow() | progressBlur()', default: 'ramp()', description: 'The edge treatment while overflow=scroll scrolls (the tabs scrollEffect convention; inert elsewhere), axis-aware: a vertical scroll group rides the same chrome against its block edges. ramp({ opacity, blur, translate, distance, radius }) is the ONE member-ramp builder — every toggle defaults ON, a toggle off never pays its property; shadow/progressBlur veil the edges from the non-scrolling host — shadow is the separator ink law’s contrast ghost (no color channel), progressBlur mounts the ProgressiveBlur ladder (inline axis; vertical substitutes shadow). width overrides the band.' },
-          { name: 'density', type: 'Density', default: 'ambient scope', description: 'Density tier, provided to the subtree so joined buttons adopt it: explicit ?? the ambient scope (no opinion stamps nothing).' },
-          { name: 'role', type: 'string', default: "'group'", description: 'The group role — a labeled toolbar is the consumer’s explicit override.' },
-          { name: 'class', type: 'string', default: "''", description: 'Merged into the root (cn()).' },
-          { name: 'children', type: 'Snippet', default: 'required', description: 'The joined controls — authored in your tree.', required: true },
-          { name: '...rest', type: 'HTMLAttributes', default: '—', description: 'aria-labelledby, data-*, handlers — land on the root verbatim.' },
-        ]}
-      />
-    </SectionCard>
-  </div>
-
-  <div id="theming" data-reveal="">
-    <SectionCard
-      family="theming"
-      headerRegion="theming"
-      eyebrow="theming"
-      title="Density and tokens"
-      summary="The group paints ONE thing — the cluster shadow (--shadow-xs on the root; raised={false}, a flat enclosing zone or a nested position removes it) — and the seams read var(--border); the joined buttons ride the density ruler through the provided context."
-    >
-      <div class={cx(rt.flex, rt.col, rt.gap20)}>
-        <DensityDemo>
-          <ButtonGroup label="density">
-            <PressButton variant="outline">one</PressButton>
-            <PressButton variant="outline">two</PressButton>
-            <ButtonGroupDivider />
-            <PressButton variant="outline">three</PressButton>
-          </ButtonGroup>
-        </DensityDemo>
-        <TokenTable
-          tokens={[
-            { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
-            { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
-            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
-            { name: '--border', default: 'theme', source: 'joined button borders (via --jx-outline); the divider and seams paint no color' },
-          ]}
-        />
-      </div>
-    </SectionCard>
-  </div>
-
-  <div id="see-also" data-reveal="">
-    <SectionCard
-      family="see-also"
-      headerRegion="see-also"
-      eyebrow="see also"
-      title="See also"
-      summary="The families around the joined container."
-    >
-      <div class={cx(rt.wrap12)}>
-        <a class="pill" href="/docs/components/press-button.html">press-button — the joined buttons</a>
-        <a class="pill" href="/docs/context-defaults.html">context &amp; defaults — the ambient economy</a>
-        <a class="pill" href="/docs/components/toggle-group.html">toggle-group — the SELECTION law</a>
-        <a class="pill" href="/docs/components/toggle.html">toggle — one standalone pressed state</a>
-        <a class="pill" href="/docs/components/input-group.html">input-group — the joined field shell</a>
-      </div>
-    </SectionCard>
+  <div data-reveal="">
+    <DocsSeeAlso name="button-group" />
   </div>
 </div>

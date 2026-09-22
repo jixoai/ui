@@ -358,6 +358,33 @@
   not in the composition chain" = grep the family's imports for X's
   module path (attribute/keyword matches like `:popover-open` don't
   count) — one grep, a named receipt in the report.
+- (dropdown-menu review, task 11)
+  **The component `id` lands on the PANEL in promoted-root families** (the
+  portal law — "the promoted root is self-carried"): the page-authored id
+  is the popover panel's id, and the TRIGGER is `[popovertarget="<id>"]`.
+  Clicking `#<id>` times out on a hidden panel. Read the page's own words
+  ("the carriers stamp the PANEL") and wire locators to the portal law.
+  **Closed popovers still resolve computed styles** — min-block-size,
+  surface vars, even box-shadow recipes read fine on a
+  `display:none` panel; only PAINT (the visible bezel) needs the open
+  state. Measure the closed panel for stamps, open it only for paint.
+  **The elevation §7 pair resolves to VALUES, not var names**: the
+  matrix-expressible receipt (`level2-surface`) is the theme table's
+  spelling, but computed style yields the COMPOSED forms (`--jx-
+  elevation-effective: 3`, surface `oklch(0.96 0 0)`, the 3dp shadow
+  recipe) — assert the composed values' DIFFERENCE (own vs explicit),
+  which is the claim, not the var spelling.
+  **Re-pin audits read the diff, then re-run the number**: quill's t0
+  orphan removals + t2 exemption matched the checker's construction
+  (meta tables hold index slots; the per-axis table is mechanism, not
+  ambient), and the named replacement gates (verify:meta + the universal
+  manifest) both exist — "every removed pin's fact has a named new gate"
+  is checkable in one package.json grep.
+  **Dock-instance counts drift as canvases join**: "14 instances in SSR"
+  became 21 when the query canvas's dock landed. Instance-count receipts
+  should name their slicer (which docks, which axes) or carry the
+  arithmetic (docks × axes) so a later canvas updates the number instead
+  of silently falsifying it.
 
 ## Upgrade commitments (from the breadcrumb review)
 - Alert's density row gets the landed-where clause pattern (and any future
@@ -370,3 +397,39 @@
 - MY OWN alert theme demo re-probe (already committed) now has the
   breadcrumb receipt as precedent: partial re-theme, both halves named,
   composed-consumer voices checked per voice.
+
+## Task 12 (button-group CODE) — lessons
+- **The raw `</script>` inside an inline template literal is a
+  svelte-check parse-signature error class, not a svelte error**: the
+  svelte compiler compiled the page fine (COMPILE OK), but svelte2tsx
+  produced "Cannot find name 'script'" + "'>' expected" at the page's
+  own `<script lang="ts">` line + "Cannot find module" for EVERY import
+  — ~15 errors that all pointed at the wrong lines. The actual culprit
+  was ONE literal `</script>` in an inline `code={\`...\`}` template
+  500 lines below. Diagnose by: (1) compile with the svelte compiler
+  directly — if OK, the failure is svelte2tsx's scan; (2) grep the page
+  for `</script` — every in-string occurrence must ride the `${close}`
+  splice. The signature is distinctive: errors at the script tag +
+  cannot-find-module for all imports = scan corruption, not real
+  diagnostics.
+- **A page joins the canvas same-source gate the moment it authors one
+  id-bearing canvas + one resolveRawCode call** — the per-pilot gate
+  demands `called.length > 0`, so "joining PILOTS" is a three-part edit:
+  PILOTS entry + `usageFile(imports, resolveRawCode('axes'))` + the
+  pinned inline snapshot (pin with `vitest -u -t <name>`, then review
+  the literal, then run the whole spec clean). Static-child canvases
+  (only component tags + cx(rt.*)) extract fine; anything with bind: or
+  page-state shorthand stays hand (the rejection class — say so in a
+  page comment or the next reviewer re-litigates it).
+- **Measure the served page, not the meta**: button-group has no meta
+  file, so the whole axis story came from DOM probes — and the probe
+  itself needed three iterations (chrome `[role=group]` false hits →
+  gate on the family hook `display: inline-grid`; readiness gate
+  passing on a chrome decoration → gate on the family signature, not
+  box-shadow; density anchor comparing xs-context vs sm — read the
+  rung ladder as data, don't force it through a wrong baseline).
+- **Kill the wrapper, not just the listener**: `npm exec vite` left
+  wrapper 502 → child 538; killing only 538 leaves the wrapper to
+  respawn or linger. Kill both PIDs, then `lsof` rc=1 as the receipt.
+  (pgrep "5242" matches unrelated apps' `--shared-files` buffer-size
+  flags — verify by command name, not substring.)
