@@ -206,7 +206,53 @@ the DECLARATION in the style attr + a non-empty computed recipe — never
 the computed value of an unregistered custom property (it substitutes
 vars).
 
-## The one-off prop mappings (design §13)
+## W6 — the acceptance wave's vision receipts (r1 judged → r3 fixed → r2 re-judging)
+
+The four-judge r1 verdicts: concept page + overlays READY; the flagship
+dogfoods NEEDS-FIX with a clean attribution — size/density/radius
+painted visibly while color/elevation/shape stamped carriers and
+painted nothing (the flip pipeline works; the gap was consumption at
+the driven specimen). r3 (0d43f95e + 513392c6 + c6cd11ee) fixed all 19
+findings with per-axis pixel-delta receipts (every flip now measurably
+changes its stage). Contract-level records, census-binding:
+
+- **THE :root-SUBSTITUTION LAW (the color-consumption gap)**:
+  `--jx-fill`/`--jx-tonal` are substituted at `:root`, so a
+  family-root `--jx-color-effective` stamp never reached them. Fix:
+  press-button.css re-derives its primary-derived slots from
+  `--jx-color-effective` ON THE FAMILY ROOT (computed fill
+  `oklch(0.6489 0.237 H) → oklch(0.6 0.2 25)`); `--jx-outline`
+  DELIBERATELY keeps `--border` (re-pointing would repaint every
+  outline button); unlayered `jx-hue-*`/`jx-pair-*` utilities still
+  outrank the axis (call-site injection > axis default — the §0
+  precedence, now pixel-proven).
+- **The elevationPairOf extension (the toast precedent generalized)**:
+  an explicit elevation lane composes the level pair into the root
+  style with `--jx-press-shadow: var(--jx-elevation-shadow,
+  var(--shadow-xs))` — ghost/flat still win by source order; without a
+  lane the rest stays byte-identical (press-button's own elevation =
+  none per the batch A/B census rows, so no own was owed).
+- **The shimmer face law**: a fill-rung host paints its OWN face
+  `var(--jx-fill)` (the live token) — never the scope `--background`
+  under an ink label (the dark-stage invisible-label bug).
+- **The hue-source law**: `--brand-hue` lives on `:root` ONLY — island
+  scopes (`.jx-light`) must not re-pin it (the tokens stage froze at
+  the static magenta while the runtime moved).
+- **KNOWN EDGE, W-next protocol pass (dossier)**: island scopes
+  (`.jx-light`/`.dark`) RE-DECLARE `--jx-color-effective`, shadowing
+  ancestor stamps; the cc specimen wrapper re-stamps element-level
+  past the island. The clean fix is a supply/effective two-var split —
+  flagged in-page + in the manifest, NOT silently worked around.
+- **The intended-verdict ledger** (r3's manifest.triage, cited): the
+  sheet's page-level demo follows the page theme while island demos
+  stay light (all three are theme no-own — the island law); select's
+  dark bottom glow IS the §7 level2 white-alpha shadow recipe; the
+  dark-stage dock's mid-gray is page-theme chrome (~4.6:1, legible);
+  radius softening the shadow taper is §14 geometry.
+- Harness laws: tall elements need viewport-fit capture (below-fold
+  halves paint blank otherwise); per-axis pixel-delta assertions are
+  now part of the receipt discipline (AXIS-NOT-VISIBLE is a failure
+  class, not a judgment call).
 
 ## W3 CLOSE — the fleet completeness receipt (D4's sweep, orchestrator-verified)
 
@@ -253,6 +299,8 @@ surface · siteOnly · context-only (icon-button, scroll-run,
 pattern-hero-set) · engine-wrapper (scroll-virtual) · rootless-lib
 (glass; color-utils sits OUTSIDE the dir inventory) — single-class,
 no double-count (the sweep's 116 was icon-button counted twice).
+
+## The one-off prop mappings (design §13)
 
 | family | today | action |
 |---|---|---|
