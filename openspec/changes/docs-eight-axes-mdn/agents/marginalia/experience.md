@@ -746,3 +746,10 @@
 - **Provenance narration belongs in ONE seat**: the falsification story appeared in both a row description and a section summary — consolidate to the section-level note; rows teach mechanisms.
 - **Canary greps need context**: the falsified template text legitimately survives as a REFUTATION QUOTE — a hit is a finding only when it is not inside an explicit refutation.
 - **`.jx-error` scaffold concatenates "!" into the message** ("!code expired", "!1 dropped file rejected") — fleet-level scaffold fix, two family receipts now.
+
+## Task 33 — popconfirm 1st review (2026-09-23)
+- **data-reveal pages hide their rig until scrolled**: [data-probe] panels were absent from the DOM entirely (not just invisible) — a scroll-reveal pass over every [data-reveal] section before ANY selector work is mandatory on these pages. The symptom is "no trigger" everywhere, which reads like a page defect but is probe neglect.
+- **Anchor overlay-family probes by the popovertarget VALUE** (the panel id), not guessed wrapper names — the trigger button and the promoted panel both carry the id, making the open/close loop target-exact even inside anonymous stylex wrappers.
+- **The surface fill paints on the inner `.jx-surface-body`**, not the `[popover]` element (which stays transparent for the UA sheet) — and the shadow rides a sibling `.jx-surface-shadow` layer. Read the painted element, not the container.
+- **The claimed-prop clobber signature**: a component that OWNS an attribute as a prop (popovertarget on PressButton) drops imperative setAttribute values on every re-render, while non-claimed siblings (aria-controls) survive. The fix class: pass the value through the owner's first-class prop — never fight the reconciliation.
+- **Dark-surface alpha receipts**: the popconfirm dark surface is 0.185 at the SAME 0.72 alpha as light — a paraphrased "77%" didn't reproduce; quote the computed string verbatim.

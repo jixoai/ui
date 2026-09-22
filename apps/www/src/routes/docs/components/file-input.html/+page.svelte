@@ -318,7 +318,7 @@ ${close}
   <!-- the demo-standard skeleton: Install then Overview then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law (docs-eight-axes-mdn task 25) -->
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="file-input" />
   </div>
 
@@ -718,7 +718,7 @@ ${close}
       headerRegion="api"
       eyebrow="api"
       title="API"
-      summary="22 meta rows − 8 ambient axes = 14 family rows; the table below serves the 11 contract rows (class forwards through cn to the root; the synthesized rest spread rides the native input — accept/multiple/disabled/capture are re-declared as props, everything else passes through). The File[] value is the $bindable contract; FileItem adds component-managed identity + previews."
+      summary="22 meta rows − 8 ambient axes = 14 family rows; the table below serves the 12 contract rows (class forwards through cn to the root; the synthesized rest spread rides the native input — accept/multiple/disabled/capture are re-declared as props, everything else passes through). The File[] value is the $bindable contract; FileItem adds component-managed identity + previews."
     >
       <PropsTable
         universal
@@ -730,6 +730,7 @@ ${close}
           { name: 'maxFiles', type: 'number', default: '—', description: 'Overflow limit — renders an error, never truncates the array.' },
           { name: 'hint', type: 'string', default: 'composed', description: 'Secondary zone hint; defaults to a composed "accept: … · max: N" line.' },
           { name: 'label', type: 'string', default: '—', description: 'Field label rendered as label[for] above the trigger.' },
+          { name: 'id', type: 'string', default: 'auto', description: 'The wiring knob: label[for] and the error line\u2019s id (and the trigger\u2019s aria-describedby) hang off it — auto-generated when omitted.' },
           { name: 'error', type: 'string', default: '—', description: 'Error text: dashed destructive surfaces + the describedby line.' },
           { name: 'disabled', type: 'boolean', default: 'false', description: 'Freezes the trigger, drops, and per-row removal.' },
           { name: 'onreject', type: '(rejected: File[]) => void', default: '—', description: 'Fires with files a DROP brought in that violated accept.' },
@@ -749,7 +750,7 @@ ${close}
 
   <!-- the skeleton's closing section: related components, derived from
        the docs reading chain (data, not a hand list) -->
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="file-input" />
   </div>
 </div>
