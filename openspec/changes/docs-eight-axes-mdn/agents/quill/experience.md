@@ -760,3 +760,30 @@
   and source calc structure (thumb box = knob + 2px). Where no element is
   served (rows need bound files), the token-digits + source-structure
   pair is an honest verification — say which depth each claim got.
+
+## Techniques (mine, added 2026-09-23, task 27 — review kbd)
+- **"FROZEN vs FLIPS" IS DECLARATION COVERAGE, NOT VALUE SHAPE**: both
+  --jx-primary (frozen) and --jx-tonal (re-deriving) STORE var(--primary)
+  streams — the deciding variable is where the alias is DECLARED. An alias
+  re-declared at every theme scope (jixoai.css's :root/.jx-light/.dark
+  block: --jx-fill/--jx-tonal/--jx-outline) re-runs substitution per scope
+  and RE-DERIVES; an alias declared once at :root (the stylex theme
+  emission, tokens.stylex) freezes the ambient pole. The taxonomy cut is
+  typed-REDECLARED vs typed-ROOT-ONCE — vellum's literal-vs-stream naming
+  had the right instinct and the wrong variable; my refinement rides the
+  review as the adjudicated form.
+- **THE CORRECTION MUST BE AUDITED EVERYWHERE THE FALSIFIED CLAIM LIVED**:
+  a falsified-caption fix landed in the axes row + overview + workbench
+  description while the SAME sentence survived verbatim in the demo's
+  PlayHelp and (milder) in a section summary. Grep the page for the
+  falsified CLAIM'S VOCABULARY (inherits / reading its size from), not
+  just the exact string — the stale claim survives in paraphrase. The
+  correction surfaces and the stale surfaces are different components of
+  the same page; write-then-verify must enumerate ALL of them.
+- **A DEAD CONST IS THE RESIDUE OF AN ABANDONED MECHANISM — READ IT AS
+  DOCUMENTATION**: kbd's unused apiDensityRow const records exactly why
+  the inline literal stays (the AST scanner reads object literals only, so
+  a hoisted reference is invisible to the matrix pin while the universal
+  fold eats the served row). The pin is satisfied at SOURCE level while
+  the SERVED table diverges — matrix pins and served truth live at
+  different layers; the api summary must describe the served layer.

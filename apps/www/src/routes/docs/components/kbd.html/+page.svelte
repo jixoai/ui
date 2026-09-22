@@ -188,17 +188,6 @@ ${close}
     { name: 'kbd-query-demo.svelte', content: queryUsage, kind: 'usage' },
   ];
 
-  // ── the API table's EXTRA lane (task 30): the density row carries an
-  // axis NAME with the family's ambient-scope contract — docs.extra (same
-  // object reference) exempts it from the universal fold. ──
-  const apiDensityRow = {
-    name: 'density',
-    type: 'Density',
-    default: 'ambient scope',
-    description:
-      'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows. The channels it drives are measured in the axes table (10/12/14px voice, 8/12/16px padding at xs/default/lg).',
-  };
-
 </script>
 
 <svelte:head>
@@ -297,8 +286,9 @@ ${close}
         {#snippet playground()}
           <PlayFields>
             <PlayHelp>
-              any kbd attribute passes through (title, data-*); the chip inherits font-size from
-              context — it shrinks in table cells and grows in heroes. Static glyph, so the
+              any kbd attribute passes through (title, data-*); the chip carries its OWN
+              density-kernel voice (--jx-text-secondary) — 12px in the 13.5px prose context and
+              the 13px menu button alike, so the context never resizes it. Static glyph, so the
               playground stays a reading pane.
             </PlayHelp>
           </PlayFields>
@@ -312,7 +302,7 @@ ${close}
         headerRegion="shortcut-rows"
         eyebrow="demo"
         title="Shortcut rows"
-        summary="The glyph's natural habitats: menu items that hint their accelerator, tables of bindings, and prose. Every instance below is the same component reading its size from the context."
+        summary="The glyph's natural habitats: menu items that hint their accelerator, tables of bindings, and prose. Every instance below is the same component voicing its own density-kernel tone — the context does not resize it (the falsified-inheritance note in the axes table is the receipt)."
       >
         <ComponentCanvas title="kbd · shortcut rows" stage="fill" files={shortcutRowsFiles}>
           <div class={cx(rt.col24)}>
@@ -364,7 +354,7 @@ ${close}
     <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Keyboard glyphs" summary="Kbd is a native semantic element; compose one key or a chord from several instances."><div class={cx(rt.col12)}><div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap8)}><Kbd>⌘</Kbd><span>+</span><Kbd>K</Kbd><span class={cx(rt.inkMuted)}>or</span><Kbd>Shift</Kbd><Kbd>?</Kbd></div><div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap8, rt.text125)}><span class={cx(rt.kbW14, rt.flexNone, rt.inkMuted)}>tonal</span><Kbd>⌘</Kbd><Kbd>K</Kbd><span class={cx(rt.kbW14, rt.flexNone, rt.inkMuted)}>outline</span><Kbd variant="outline">Shift</Kbd><Kbd variant="outline">?</Kbd><span class={cx(rt.kbW14, rt.flexNone, rt.inkMuted)}>fill</span><Kbd variant="fill">Enter</Kbd></div></div></SectionCard></div>
     <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage" summary="The platform gives the semantics: <kbd> means keyboard input to assistive tech with zero ARIA. We add only the ladder paint — 1px border, the engrave inset, mono — and nothing else."><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Kbd>K</Kbd></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-tonal', default: 'var(--primary)', source: 'component' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-      <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Kbd props" summary="The generated meta carries 13 props (12 named + the synthesized rest); the hand table serves the 3 consumer rows — density’s row text is the frozen ambient-scope vocabulary (pinned by the ambient matrix, task 30); the family-specific density MEASUREMENTS live in the axes table."><PropsTable universal props={[{ name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows. The channels it drives are measured in the axes table (10/12/14px voice, 8/12/16px padding at xs/default/lg).' }, { name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal' · Own default, not ambient", description: 'Paint-ladder rung; tonal (primary) is the default. Own default, not ambient (the glyph is outside the paint zone’s frozen availability table). Semantic hue injects via jx-hue-* classes, never as a variant name.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
+      <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Kbd props" summary="The generated meta carries 13 props (12 named + the synthesized rest); the hand table's density row folds into the shared universal section beneath (its text is the frozen ambient-scope vocabulary, pinned by the ambient matrix, task 30) — variant and class render here; the family-specific density MEASUREMENTS live in the axes table."><PropsTable universal props={[{ name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows. The channels it drives are measured in the axes table (10/12/14px voice, 8/12/16px padding at xs/default/lg).' }, { name: 'variant', type: "'fill' | 'tonal' | 'outline'", default: "'tonal' · Own default, not ambient", description: 'Paint-ladder rung; tonal (primary) is the default. Own default, not ambient (the glyph is outside the paint zone’s frozen availability table). Semantic hue injects via jx-hue-* classes, never as a variant name.' }, { name: 'class', type: 'string', description: 'Adds consumer classes.' }]} /></SectionCard></div>
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
