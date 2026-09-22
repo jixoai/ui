@@ -2,11 +2,11 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
-| marginalia | 24 | hero-section (quill's, adjudication) | REVIEW (2nd) | in-flight |
+| marginalia | 25 | descriptions (scribe's) | REVIEW (2nd) | in-flight |
 | vellum | 22 | code-card (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
-## DONE (19)
+## DONE (20)
 - ✅ **anchor** (scribe) — 1st: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS
 - ✅ **blockquote** (quill) — 2nd (scribe re-verify 6/6 + 31/31 probe)
 - ✅ **alert** (vellum) — 3rd (THEME-SPLIT survived independent re-measure)
@@ -22,6 +22,7 @@
 - ✅ **dropdown-menu** (quill) — 13th (the OVERTURN arc complete; shape-agnostic import-grep law)
 - ✅ **heading** (quill) — 14th (inline-stamp mechanism; re-verify-grade self-confirmation 16/16)
 - ✅ **avatar** (vellum) — 15th (second overturn arc; initials-follow-size; page zero diagnostics)
+- ✅ **hero-section** (quill) — 20th (THE ADJUDICATION: vellum's MAJOR = NON-REPRODUCED probe-medium artifact — both instruments run by the adjudicator; LAW #16 FIRST-PAINT-BASE enters; emission-form split + one-h1 carve-out re-derived)
 - ✅ **color-picker** (scribe) — 19th (stamped-never-consumed triple-instrumented; the chain-head settled 24−8−4=12; quill's disclosed one-line STALE-COMMENT FLAG completes marginalia's MINOR — the page names the living family comment as the retired claim's last copy)
 - ✅ **image** (quill) — 18th (the snippet-vs-default MAJOR arc: marginalia found it, quill's path-(a) fix verified live by scribe — data-density sm↔lg on the default frame, no-CLS; frozen-pole purest case + leaf + carriers-bijection all held)
 - ✅ **inline-code** (quill) — 17th (pin-density tier-3 exemplar; double PASS; the co-signed toc row landed with closure)
@@ -32,12 +33,12 @@
 - color-picker: marginalia 1st PASS (stamped-never-consumed re-falsified; family props comment → drift #10; 27−3 chain head falsified, result 24−8−4=12 holds) → quill 2nd QUEUED (after its double-MAJOR package)
 - input-group: vellum 1st review **PASS** (§1-forwarding-≠-consumption separation verified in prose; density consumed+provided digit-exact with the r11 pin 28/28; theme mixed-by-emission-form var-chain on the root; chromeless 0-padding part confirmed; motion 150ms read past the LAW #14 gate; MINORs: arithmetic sentence in api summary + pre-logged usageLive warning for scribe's #2) → scribe 2nd QUEUED
 - image: CLOSED
-- hero-section: quill disposition (iii) LANDED — MAJOR NOT REPRODUCED (live hydrated probe: the demo flips 1280↔600↔1280 with dark-accent ink; the chain is fully reactive via mediaTick $state; cross-confirmed with input-group's density flip); FALSE-NEGATIVE VECTOR: §9.1 makes SSR first paint the unconditional base — raw-bytes/pre-hydration reads always see light; the caption now documents base-paint + post-hydration engagement → marginalia 2nd ADJUDICATES the vellum-vs-quill disagreement (live hydrated probe, LAW #14/#15 discipline)
+- hero-section: CLOSED — the third overturn form (reviewer MAJOR vs coder non-reproduction) resolved by instrument adjudication
 - descriptions: vellum 1st review **PASS** (ruler ladder digit-exact incl. injected-rung beats; frozen-pole twin via the runtime-alias census — no plain .dark redeclares any of the five; columns clamp source-pinned + container query measured; #install/#see-both restored per the incident record; MINOR: query caption says 40rem but the lg key is 64rem VIEWPORT_SCALE — discriminated at 800px) → marginalia 2nd QUEUED
 - card-grid: coded Tier-2 (vellum 19 — LAYOUT two-halves density: self inert on the fixed spatial gradient (--space-20 = --jx-unit×5, :root-only), tenants real through rung scopes 12/16/20; size = heading contrast case confirmed; theme bridge-only; motion = the family's own IO-armed rule, carriers unread; no rest spread → no synthesized row — served-count arithmetic; page ZERO diagnostics) → scribe+marginalia reviews QUEUED
 - carousel: coded Tier-2 (marginalia 23 — falsified density token rows retired (avatar precedent); the ONE-SHADOW-TOKEN-APART contrast (button-group raw --shadow-xs follows / carousel typed intermediate frozen); LAW #14 dots-honesty with 700ms settle; EXTRA 15−0−8=7 no-duplicate chain; tasksUniverse scope = no matrix re-pin needed) → vellum+scribe reviews QUEUED
 
 ## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. · toc/See-also: See also is chrome, OUT of the toc (anchor precedent).
 
-## Law library (15): SSR ground truth · consumed-vs-supply · canvas-id swap · declaring-element · measurement-first · composed-consumer · resolved-record · query() both-args · grep-receipt (SHAPE-AGNOSTIC: match module paths, not alias forms) · disagreement-probe · EXTRA-lane (reference-identity exemption; spec-pinned) · single-evaluate probes · TRANSITION-FRAME (await > duration + light-regression) · PROBE-READINESS (element existence ≠ styled) · THEME-SPLIT (three classes: declaring-selector / emission-form / stamp-declaration — raw var() flips at consumer; defineVars intermediates substitute once at :root and freeze)
+## Law library (16): SSR ground truth · consumed-vs-supply · canvas-id swap · declaring-element · measurement-first · composed-consumer · resolved-record · query() both-args · grep-receipt (SHAPE-AGNOSTIC: match module paths, not alias forms) · disagreement-probe · EXTRA-lane (reference-identity exemption; spec-pinned) · single-evaluate probes · TRANSITION-FRAME (await > duration + light-regression) · PROBE-READINESS (element existence ≠ styled) · FIRST-PAINT-BASE (§9.1: query demos serve the unconditional base in raw SSR — hydrated probes are the ONLY valid instrument for flip claims; name your medium in every probe report) · THEME-SPLIT (three classes: declaring-selector / emission-form / stamp-declaration — raw var() flips at consumer; defineVars intermediates substitute once at :root and freeze)
 ## Ledgers: drift 10 · W-next 4 (semantic-ink gap · theme-split refinement · TokenTable dead text column two-arm · dev CSSOM transient)

@@ -675,3 +675,21 @@
   toMatchInlineSnapshot(), run vitest -u once (snapshots fill), then a
   clean run to prove stability. The extractor keeps cx(rt.…)/inline
   styles verbatim — static stages with rt atoms extract fine.
+
+## Task 24 — hero-section ADJUDICATION (2026-09-22)
+- **PROBE MEDIUM IS PART OF THE CLAIM**: the same page, two instruments,
+  opposite verdicts — raw SSR showed the §9.1 unconditional light base
+  (no .dark anywhere in the section tag), the hydrated probe flipped
+  both directions (dark 0.7044 0.1872 ↔ light 0.55 0.12, tracking
+  matchMedia). vellum's MAJOR was a true observation from a blind
+  instrument. LAW #16: flip claims require hydrated probes; every probe
+  report names its medium. An adjudicator runs BOTH instruments before
+  ruling — the disagreement itself was the diagnosis.
+- **The wall-clock hue showed up inside a single adjudication**: the
+  caret/accent hue read 27 → 56 → 57 across three reads two resize-cycles
+  apart — absolute hue never survives even one probe session. L/C
+  signatures + class state + drift only, every time.
+- **Carousel authored (task 23, same session)**: probe-before/after on
+  CODE tasks; the frozen-pole-vs-follows verdict is decided by the
+  emission-form grep (typed intermediate freezes, raw token follows) —
+  one shadow token apart gave two families opposite theme verdicts.
