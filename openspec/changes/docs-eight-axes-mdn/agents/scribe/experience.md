@@ -831,3 +831,33 @@
   frozen at :root) against the raw underneath 0.3211 → 0.8452, with
   the panel flipping 0.96 → 0.185. Two channels, opposite answers,
   one element tree apart.
+
+## Techniques (task 28 additions)
+- Enumerate SERVED rows by name before any rest-row/EXTRA claim: the
+  badge-indicator api section serves exactly 14 rows (6 family + 8
+  universal), no class row, no rest row — "meta 15 − 1 IS class" only
+  reproduces as an enumeration, never as an arithmetic quote.
+- The typed-alias freeze has a one-line mechanism: a stylex token
+  declared `'--jx-destructive': 'var(--destructive)'` substitutes at
+  its DECLARING element (:root), so descendants inherit the computed
+  token and a scoped .dark re-declaration of the RAW token never
+  re-enters the chain. The injected-island probe (move-measure-restore
+  around a div.dark) shows flip and freeze in six lines of output.
+- Explicit-rung demos are scope-driven, not media-driven: receipt them
+  at TWO far-apart viewports (900 and 1280) to prove viewport
+  independence directly — one viewport proves nothing about the scope
+  channel.
+- One non-reproducing read (a 16px that two fresh dumps refute) is
+  recorded as a transient, never averaged in: settled truth needs
+  independent re-reads, and the report says which read failed and why
+  that does not shake the claim.
+
+## Highlights (task 28)
+- (badge-indicator) The frozen-pole pair is the campaign's cleanest
+  raw-vs-typed receipt: raw --destructive oklch(0) → oklch(1) across
+  the island while typed --jx-destructive and the chip's black/white
+  paint do not move — the declaring-element law in six numbers.
+- The posture-split size echo completes the §11 grammar: same stamp,
+  three answers — inline mirror outruns the atom standalone (18px),
+  the wrap absorbs it riding (chip 10px), and the chip stamped
+  directly moves nothing. Posture, not the axis, decides the answer.

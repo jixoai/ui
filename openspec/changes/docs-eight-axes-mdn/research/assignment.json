@@ -71,7 +71,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "coded"
+   "status": "done",
+   "closure": "#29 — quill 1st + scribe 2nd PASS (zero findings requiring fixes; chrome positive exemplar); EXTRA corrected form byte-for-byte across both reviewers"
   },
   {
    "page": "blockquote",
