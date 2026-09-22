@@ -2,10 +2,11 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 16 | color-picker (OWN) | CODE | in-flight |
-| marginalia | 18 | dropdown-menu (quill's fix @3a2fb138) | RE-VERIFY | in-flight |
+| marginalia | 19 | avatar (vellum's fix @2c185457) | RE-VERIFY | in-flight |
 | vellum | 16 | heading (quill's) | REVIEW (2nd) | in-flight |
 | quill | 15 | image (OWN) | CODE | in-flight |
 ## DONE
+- ✅ **dropdown-menu** (owner quill) — thirteenth closed page (the OVERTURN arc complete: vellum PASS → marginalia NEEDS-WORK overturn → quill fix with root cause → marginalia re-verify PASS; three-and-only-three composers confirmed by independent shape-agnostic grep; fill-attribution + shadow-flip + caption all measured on the current tree)
 - ✅ **empty** (owner quill) — twelfth closed page (vellum+marginalia double PASS; the frozen pole re-derived at all three levels — grep/mechanism/probe, the runtime-stylesheet emission scan is the new standard; size-lane echo lands but every descendant self-sets → supply-only IN EFFECT, the post-avatar lesson applied; avatar divergence consolidation archived: the 1st measured boxes, not initials fonts — that's where the MAJOR lived)
 - ✅ **cascader** (owner quill) — eleventh closed page (the campaign's TIER-3 exemplar: marginalia+scribe double PASS, the fold verified byte-level — [Token, Default], 0 empty cells, ruler-constant distinction verbatim; the old page's consumption lie deleted; ring −4° invariant re-probed side-by-side)
 - ✅ **component-canvas** (owner quill) — tenth closed page (marginalia+scribe double PASS, numbers identical across reviewers; W7 bar 28-canvas honesty held; EXTRA doubled arithmetic 27−6−2+2=21; page svelte-check 7→0 — the rewrite PAID DOWN idiom debt; count-rule pinability NIT archived)

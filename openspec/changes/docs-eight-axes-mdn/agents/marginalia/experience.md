@@ -542,3 +542,21 @@
   had no font-size of its own. "Does the echo change anything visible?"
   is a per-family question; the answer is in the descendant atoms, not
   the stamp.
+
+## Task 18 — dropdown-menu re-verify (2026-09-22)
+- **Filter-pattern self-exclusion**: `grep … | grep -v "dropdown-menu/"` to
+  exclude the family's own dir also excluded every HIT (the import string
+  itself contains `dropdown-menu/`) — a sweep that silently returned zero
+  and looked like "no importers". Rule: exclusion patterns must never
+  share substrings with the sought pattern; scope by directory instead.
+- **Anchor-name inventory BEFORE probing**: pulling every
+  `anchor-name: --jx-menu-*` from the SSR first (`-t-dark`, not the
+  guessed `-theme-dark`) turned the dark-island probe from a miss into a
+  one-shot. Guessing name shapes from page prose is the residual failure
+  mode; the SSR is the name registry.
+- **Quoting discipline for pages that quote source headers**: quill's fix
+  quotes menubar/navigation-menu headers — every quoted fragment
+  ("duplicated deliberately…", "an independent thin coordinator",
+  "actions belong to dropdown-menu") was grep-verified real before the
+  re-verify PASS. A fabricated quote would have been a new MAJOR on the
+  fix commit itself.
