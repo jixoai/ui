@@ -291,6 +291,27 @@
   claims the DELTA inside one evaluate, never absolute values across
   instants — third time this law paid (color axis, theme split, ring).
 
+## Task 10 (chip review round, 2026-09-22) — learnings
+- **A micro-fix review re-runs the RECEIPTS, not the whole audit.** The
+  chip round: verify the corrected ladder in served bytes (new string
+  present, old string ×0), re-run the negative greps the new receipt
+  rows cite, re-parse the regression surface (the 12-row EXTRA-lane
+  table), and live-measure only the numbers the fix touched plus the
+  flip probes. Full re-derivation of unchanged claims would burn the
+  budget without adding information — the prior review's PASS stands
+  unless the fix's blast radius touches it.
+- **Run the cited grep before accepting a receipt-form row.** The
+  radius/color rows now SAY "grep receipt: zero readers" — the form is
+  only honest if the grep reproduces; mine did (0 hits, all four
+  carriers). A receipt claim is itself a claim: re-derive it, cheaply.
+- **Read the prior reviewer's adjudications with their evidence, not
+  just their findings.** I flagged chip's bare `query({ md: 16 }, 14)`
+  as a consistency deviation; vellum had already adjudicated it
+  compliant with a type-check receipt (the §6 ruling governs explicit
+  lists; both params infer here). The consolidation deferred to the
+  better evidence — a NIT that a prior receipt disproves should die,
+  not survive as style disagreement.
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation
