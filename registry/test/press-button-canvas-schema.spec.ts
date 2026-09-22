@@ -40,9 +40,12 @@ describe('pilot page schema playground', () => {
     expect(container.querySelector('[data-jx-canvas-axis-query]')).toBeNull();
     expect(container.querySelector('[data-jx-canvas-toggle]')).not.toBeNull();
     // no hand-written kit selects remain (the canvas-everywhere sweep,
-    // 2026-09-08, mounts the dock chrome on every canvas — each carries
-    // the head's density select; the body's rows pane carries ONLY
-    // schema-lowered selects — the W4 axis enums, never kit ones)
+    // 2026-09-08, mounts the dock chrome on every canvas; the body's
+    // rows pane carries ONLY schema-lowered selects — the W4 axis
+    // enums, never kit ones. RE-PINNED 2026-09-21, the Owner's
+    // eight-axis bar: the dock head's density SELECT retired — the
+    // head speaks the axis grammar through icon-button menus now, so
+    // the only <select>s left on the page are the seven axis enums)
     const rowSelects = [...container.querySelectorAll('[data-jx-canvas-dock-scroll] select')];
     expect(rowSelects.length).toBe(7);
     expect(
@@ -51,14 +54,14 @@ describe('pilot page schema playground', () => {
     ).toBe(true);
     const selects = [...container.querySelectorAll('select')];
     // W3-B (explicit-props): the universal-props demo canvas joined —
-    // four canvases, four density selects; W4 4.1 adds the seven axis
-    // enum selects inside the schema canvas's dock body
-    expect(selects.length).toBe(11);
+    // four canvases; W4 4.1 put the seven axis enum selects inside the
+    // schema canvas's dock body, and the eight-axis bar (2026-09-21)
+    // retired the four head density selects — 11 → 7, all enums
+    expect(selects.length).toBe(7);
     expect(
-      selects.filter((s) => s.getAttribute('aria-label') === 'Density').length,
-      'chrome density selects — one per canvas',
-    ).toBe(4);
-    expect(container.querySelector('select')!.getAttribute('aria-label')).toBe('Density');
+      selects.every((s) => s.hasAttribute('data-jx-canvas-axis-select')),
+      'every select on the page is an axis enum — the head run carries none',
+    ).toBe(true);
 
     // flip variant → the driven instance restamps data-jx-press-button
     // (grindstone #17-3: the segmented rows ride ItemSegmented — the

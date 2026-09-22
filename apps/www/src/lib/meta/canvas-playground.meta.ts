@@ -15,10 +15,9 @@ export const meta = defineComponentMeta(
           "dark"
         ]
       },
-      "density": {
+      "axes": {
         "kind": "opaque",
-        "typeText": "Density",
-        "ambient": "scope"
+        "typeText": "CanvasAxisLanes"
       },
       "playground": {
         "kind": "snippet",
@@ -54,12 +53,14 @@ export const meta = defineComponentMeta(
       }
     },
     "hooks": [
+      "data-jx-canvas-axis",
+      "data-jx-canvas-axis-check",
       "data-jx-canvas-axis-number",
       "data-jx-canvas-axis-query",
       "data-jx-canvas-axis-select",
       "data-jx-canvas-control",
-      "data-jx-canvas-density-select",
       "data-jx-canvas-dock",
+      "data-jx-canvas-dock-axes",
       "data-jx-canvas-dock-clip",
       "data-jx-canvas-dock-foot",
       "data-jx-canvas-dock-grip",

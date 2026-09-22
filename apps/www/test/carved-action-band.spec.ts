@@ -231,29 +231,17 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
     const toggle = container.querySelector<HTMLButtonElement>('[data-jx-canvas-dock-toggle]')!;
     expect(toggle.getAttribute('aria-expanded')).toBe('true');
     expect(toggle.getAttribute('aria-controls')).toBeTruthy();
-    // the one non-press cell: a borderless select stretched to the band
-    const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-density-select]')!;
-    expect(select.className).toContain(cx(canvasStyles.dockDensity));
-    // the border/bg utilities RETIRED (r13): bare chrome paints the
-    // frame away itself, and the lane drivers scope to the chrome
-    // rhythm (r14) — consumers never touch the lane's internals
-    expect(select.getAttribute('data-chrome')).toBe('bare');
-    // W1: the --jx-icon/--jx-inset kernel channels cannot ride atoms —
-    // they live in component-canvas.css keyed on the density lane
-    const canvasCss = readFileSync(
-      resolve(here, '../src/lib/ui/component-canvas/component-canvas.css'),
-      'utf8',
-    );
-    expect(canvasCss).toMatch(
-      /:where\(\.jx-canvas-dock-density\)\s*\{[^}]*--jx-icon:\s*0\.875rem;[^}]*--jx-inset:\s*0\.5rem;/s,
-    );
-    // THE TOOLBAR SEAMS (Owner r7 — the ask all along): vertical solid
-    // Separators between the chrome cells (grip|theme|select), the
-    // band's own height, the same ink as the rims
+    // THE TOOLBAR SEAMS (Owner r7 — the ask all along): the vertical
+    // whisper Separators frame the scrollable axis run, and the run's
+    // OWN inter-control seams ride the ButtonGroup's ghost separator
+    // policy (the same ink law, the family's carrier — the carved
+    // band comment's "the select↔toggle boundary" generalizes to the
+    // run↔toggle boundary under the eight-axis bar, 2026-09-21)
     const seams = head.querySelectorAll('[data-jx-separator][data-orientation="vertical"]');
-    expect(seams.length).toBe(4); // grip|theme, theme|select, the left
-    // cluster's trailing edge, and the toggle group's left edge — the
-    // breathing gap is BRACKETED by two whisper lines (Owner r11)
+    expect(seams.length).toBe(3); // grip|run, the left cluster's
+    // trailing edge, and the toggle group's left edge — the breathing
+    // gap stays BRACKETED by two whisper lines (Owner r11); the run's
+    // INNER seams are the group's own [data-jx-btngroup-sep] elements
     for (const seam of seams) {
       // THE GHOST (Owner r9: "这种分割线本身只是一个视觉辅助"): the
       // default fused ink, zero color tokens — no variant, no class
@@ -262,13 +250,29 @@ describe('canvas dock — the non-footer bar uses the same band', () => {
       expect(seam.getAttribute('aria-hidden')).toBe('true');
       expect(seam.className).not.toContain('color-mix');
     }
-    // the hand chrome recipe is gone from the source (borders, the
-    // +2px size scale, the shadow-suppression customs)
+    // the eight-axis bar (the Owner directive 2026-09-21): the retired
+    // non-press select cell is GONE — every control in the band is a
+    // zone ghost IconButton (the theme cycle + the seven menu
+    // triggers), the joined run rides the family's ButtonGroup at the
+    // compact xs rung (the smaller bar), and the source's hand-chrome
+    // recipe stays retired
+    expect(head.querySelector('select')).toBeNull();
+    expect(head.querySelectorAll('[data-jx-canvas-axis]').length).toBe(7);
+    expect(head.querySelector('[data-jx-canvas-dock-axes]')).not.toBeNull();
+    expect(head.querySelector('[data-jx-canvas-theme-toggle]')!.getAttribute('data-density')).toBe('xs');
+    // W1 residue law: the retired dockDensity atom + its css channel
+    // overrides are gone with the select (nothing keys on them)
     const src = readFileSync(
       resolve(here, '../src/lib/ui/component-canvas/canvas-playground.svelte'),
       'utf8',
     );
     expect(src).not.toContain('size-[calc(var(--jx-hit)+2px)]');
     expect(src).not.toContain('[--jx-press-shadow:none]');
+    expect(src).not.toContain('jx-canvas-dock-density');
+    const canvasCss = readFileSync(
+      resolve(here, '../src/lib/ui/component-canvas/component-canvas.css'),
+      'utf8',
+    );
+    expect(canvasCss).not.toMatch(/jx-canvas-dock-density\s*\{/);
   });
 });

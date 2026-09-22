@@ -12,6 +12,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import PressButton from '$lib/ui/press-button/press-button.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { Density } from '$lib/density.svelte';
   import { PlayFields, PlayRow, PlaySelect, playOutputs, playState } from '$lib/playground';
@@ -60,6 +61,11 @@
     resolveFileContent={resolveUsage}
   >
     <p data-testid="stage-demo" data-theme={theme} data-density={density}>demo</p>
+    <!-- the eight-axis bar's SUPPLY SEAT (2026-09-21): a lane-consuming
+         specimen — the press-button resolves the AMBIENT density/size
+         lanes the dock bar supplies and stamps its own rung/carriers;
+         the plain p above keeps the page-owned bindable projection -->
+    <PressButton variant="outline" data-testid="density-seat">density seat</PressButton>
     {#snippet playground()}
       <PlayFields>
         <PlayRow label="variant">

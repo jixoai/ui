@@ -284,16 +284,10 @@ export const canvasStyles = stylex.create({
     overflowWrap: 'anywhere',
   },
 
-  // ── the dock's density select (bare chrome; its --jx-icon/--jx-inset
-  // channel overrides + hover ink ride component-canvas.css) ──
-  dockDensity: {
-    height: '100%',
-    cursor: 'pointer',
-    alignSelf: 'stretch',
-    fontFamily: tokens['--jx-font-nav'],
-    fontSize: tokens['--jx-text-micro'],
-    letterSpacing: tokens['--jx-track-wide'],
-    textTransform: 'uppercase',
-    color: tokens['--jx-muted-foreground'],
-  },
+  // ── the dock's eight-axis bar (2026-09-21, the Owner directive) ──
+  // The retired density select's dockDensity atom is GONE with the
+  // select: the seven menu axes ride the family's own DropdownMenu
+  // and the joined run rides ButtonGroup's own atoms — the bar adds
+  // ZERO chrome atoms of its own (the smaller bar is density xs +
+  // 11px glyphs, both carried by the family laws, not this sheet)
 });

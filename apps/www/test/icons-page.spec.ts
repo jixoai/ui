@@ -417,8 +417,12 @@ describe('/docs/icons.html — the prefix compiler (scanned names + as aliases)'
     const grid = container.querySelector('[data-named-icon-grid]');
     const items = grid?.querySelectorAll('li') ?? [];
     expect(items.length).toBe(ICON_NAMES.length);
-    expect(ICON_NAMES.length).toBe(49); // 39 built-ins (gripVertical, 2026-09-08) + 8 scanned canonicals (4 + the timeline git-activity family's lucide:git-*, 2026-09-16 r2) + 1 alias + 1 equivalence key
-    for (const name of ['md:copy_all', 'copy2', 'md:home', 'ph:atom', 'rx:system:add-line', 'lucide:check', 'lucide:git-fork', 'lucide:git-merge', 'lucide:git-pull-request', 'lucide:git-compare-arrows']) {
+    // RE-PINNED (the Owner's eight-axis bar directive, 2026-09-21):
+    // 49 → 54 — the dock head's seven axis controls dogfood five more
+    // lucide canonicals (shapes · squircle · rows3 · layers · gauge,
+    // the scanner's own findings from the canvas-playground markup)
+    expect(ICON_NAMES.length).toBe(54); // 39 built-ins (gripVertical, 2026-09-08) + 13 scanned canonicals (4 + the timeline git-activity family's lucide:git-*, 2026-09-16 r2 + the eight-axis bar's five, 2026-09-21) + 1 alias + 1 equivalence key
+    for (const name of ['md:copy_all', 'copy2', 'md:home', 'ph:atom', 'rx:system:add-line', 'lucide:check', 'lucide:git-fork', 'lucide:git-merge', 'lucide:git-pull-request', 'lucide:git-compare-arrows', 'lucide:shapes', 'lucide:squircle', 'lucide:rows3', 'lucide:layers', 'lucide:gauge']) {
       expect(ICON_NAMES, 'the scanned set rides the artifact').toContain(name);
     }
     // adjacency law: the alias sits next to its ref

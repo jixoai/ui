@@ -740,19 +740,31 @@ async function pressButton(page) {
   await selectAxis(page, slug, 'motion', 'auto');
   await page.emulateMedia({ reducedMotion: 'reduce' });
 
-  // the dock-head density select (the stage scope) — real select interaction
-  const densitySelect = canvas.locator('[data-jx-canvas-density-select] select, select[data-jx-canvas-density-select]');
-  if (await densitySelect.count()) {
-    const stageDensityDelta = await flip(() => densitySelect.first().selectOption('xs'));
+  // the dock-head DENSITY AXIS (re-pinned 2026-09-21, the Owner's
+  // eight-axis bar directive: the legacy xs/sm/default/lg rung select
+  // RETIRED — the control is the axis grammar's icon-button + menu,
+  // entries auto/small/medium/large, and the lane rides the canvas
+  // root's SUPPLY: the stage specimens consume it as AMBIENT and
+  // re-densify through their own rungs) — real menu interaction:
+  // click the trigger, click the item
+  const densityAxis = canvas.locator('[data-jx-canvas-axis="density"]').first();
+  if (await densityAxis.count()) {
+    // the OPEN panel owns the click (every canvas renders a closed
+    // panel in the DOM — :popover-open scopes to the live one)
+    const openItem = (value) =>
+      page.locator(`[popover]:popover-open [data-axis-value="${value}"]`).first();
+    const stageDensityDelta = await flip(() =>
+      densityAxis.click().then(() => openItem('small').click()),
+    );
     await capture(page, {
-      id: 'pb-stage-density-xs', page: 'press-button', route, phase: 'settled', theme: 'light',
-      interaction: 'the dock-head density select flipped to xs — the STAGE scope re-densifies',
+      id: 'pb-stage-density-small', page: 'press-button', route, phase: 'settled', theme: 'light',
+      interaction: 'the dock-head density axis flipped to small — the SUPPLIED lane re-densifies the stage specimens (the stage rung itself stays page-owned)',
       axisDelta: stageDensityDelta,
       target: { kind: 'element', locator: canvas },
     });
-    await densitySelect.first().selectOption('default');
+    await densityAxis.click().then(() => openItem('auto').click());
   } else {
-    finding(route, 'dock-head density select not found by [data-jx-canvas-density-select]');
+    finding(route, 'dock-head density axis not found by [data-jx-canvas-axis="density"]');
   }
 
   // reset (real click) → everything back to schema defaults. The W6-r3

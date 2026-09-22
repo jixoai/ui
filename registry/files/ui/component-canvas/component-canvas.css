@@ -308,8 +308,10 @@
 /* focus rings: the site's contained-ring law at canvas scale. The
    adapter-rendered leaf controls (toggle/select/text/slider, and since
    grindstone #17-3 segmented/stepper too) own their focus paint; only
-   the canvas-authored chrome + the dock head's chrome cluster
-   (chevron, theme button, density select) ride this block */
+   the canvas-authored chrome + the dock head's axis bar (chevron,
+   theme button, the axis menu triggers) ride this block — the axis
+   hooks are DATA ATTRIBUTES (the jx data-hook pattern, invisible to
+   the class-identity census) */
 :where(.jx-canvas-reset:focus-visible),
 :where(.jx-canvas-copy-usage:focus-visible),
 :where(.jx-canvas-code-toggle:focus-visible),
@@ -317,7 +319,7 @@
 :where(.jx-canvas-install:focus-visible),
 :where(.jx-canvas-dock-toggle:focus-visible),
 :where(.jx-canvas-dock-theme:focus-visible),
-:where(.jx-canvas-dock-density:focus-visible) {
+:where([data-jx-canvas-axis]:focus-visible) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
@@ -379,9 +381,6 @@
 :where(.jx-canvas-copy-usage:hover) {
   color: var(--primary);
 }
-:where(.jx-canvas-dock-density:hover) {
-  color: var(--foreground);
-}
 
 /* the transitions the utilities carried */
 :where(.jx-canvas-chevron) {
@@ -407,9 +406,37 @@
 }
 
 /* the dock's density select: the bare-chrome channel overrides
-   (--jx-icon/--jx-inset are kernel channels — atoms cannot author
-   custom properties) */
-:where(.jx-canvas-dock-density) {
-  --jx-icon: 0.875rem;
-  --jx-inset: 0.5rem;
+   (--) RETIRED with the select itself (the eight-axis bar, the Owner
+   directive 2026-09-21 — the legacy xs/sm/default/lg rung select
+   gave way to the axis grammar's density menu; the rung aliases stay
+   legal underneath, the channel overrides have no carrier left) */
+
+/* ── the eight-axis bar (the Owner directive, 2026-09-21) ──
+   The head's scrollable ButtonGroup owns its own gestures: the head
+   row is otherwise touch-action none (the horizontal drag must not
+   hand the gesture to native scrolling), but the RUN re-enables the
+   horizontal pan — the long bar scrolls, it never drags the dock
+   (onHeadPointerDown returns early inside the scroll host, this rule
+   carries the touch half) */
+:where([data-jx-canvas-dock-head] [data-jx-scroll-run]) {
+  touch-action: pan-x;
+}
+
+/* a SET axis reads at full ink: the ghost zone quiets every trigger,
+   an axis carrying a non-`auto` lane (data-axis-auto absent) is the
+   one state the bar has — the foreground ink whispers it (a visual
+   aid, zero tokens) */
+:where([data-jx-canvas-axis]:not([data-axis-auto])) {
+  color: var(--foreground);
+}
+
+/* the axis menu item's check lane: the slot is ALWAYS rendered (the
+   reserved width keeps every label aligned); the glyph paints only on
+   the current value — `auto` (the default) is itself a checkable
+   value, the bar's reset rung */
+:where([data-jx-canvas-axis-check]) {
+  visibility: hidden;
+}
+:where([data-jx-canvas-axis-check][data-on]) {
+  visibility: visible;
 }

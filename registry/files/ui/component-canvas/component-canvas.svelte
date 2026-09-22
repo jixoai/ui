@@ -54,21 +54,30 @@
     header title is a STYLED PARAGRAPH (`p[data-jx-canvas-title]`),
     never a real heading — the page's own outline stays page-owned
     (the h2 leak, audit root cause). No canvas heading joins a ToC.
-  - STAGE CHROME (unified-chrome ruling, Owner amendment 2026-09-08):
-    the theme/density toggle-groups MOVED from the header into the DOCK
-    HEAD — one icon button flips `bind:theme` light↔dark (sun/moon,
-    aria-pressed carries state), a compact native select drives
-    `bind:density` with the REPO-STANDARD Density vocabulary
-    (xs/sm/default/lg) stamped onto the STAGE element DIRECTLY as
-    `data-density` (the comfortable/compact mapping is dead), plus
-    `data-theme` and the theme sheet's own `dark` / `jx-light`
-    token-scope classes — scoped to the STAGE only; the docs chrome
-    and sibling canvases never re-theme. State is composition-first:
-    the page owns it through the bindables; the dock only renders
-    controls and the stage carries the scoping attributes. The stage
-    anchors `text-foreground` itself: the scope classes redefine
-    TOKENS only, so inherit-based text must re-anchor or it keeps the
-    page's resolved color (the white-on-light-stage leak, 2026-09-01).
+  - STAGE CHROME (the EIGHT-AXIS BAR, the Owner's post-acceptance
+    directive 2026-09-21 — the successor of the unified-chrome ruling
+    of 2026-09-08): the dock head speaks the AXIS GRAMMAR — one
+    icon-button per axis: theme (the sun/moon cycle flipping
+    `bind:theme`, aria-pressed carrying state) plus SEVEN menu axes
+    (size · shape · radius · density · color · elevation · motion —
+    icon-button + the family's DropdownMenu, `auto` + the named
+    steps, a check glyph on the current value, `auto` the default
+    that stamps nothing), the eight riding ONE scrollable ButtonGroup
+    at density xs (the smaller bar). The bar's lanes are DOCK-OWNED
+    (`axes` state, bound up into this root) and SUPPLIED here —
+    resolved UNDER the consumer's explicit lane props, carriers
+    stamped + lanes provided on the workbench root — never forced:
+    any stage component receives them as AMBIENT and may consume or
+    ignore them. The stage still carries `data-theme` and
+    `data-density` (the page-owned bindable's rung) plus the theme
+    sheet's own `dark` / `jx-light` token-scope classes — scoped to
+    the STAGE only; the docs chrome and sibling canvases never
+    re-theme. State is composition-first: the page owns theme/density
+    through the bindables; the dock only renders controls and the
+    stage carries the scoping attributes. The stage anchors
+    `text-foreground` itself: the scope classes redefine TOKENS only,
+    so inherit-based text must re-anchor or it keeps the page's
+    resolved color (the white-on-light-stage leak, 2026-09-01).
     Static under reduced motion by construction (no transition rides
     the re-theme).
   - DRAWER SHAPE: the tree pane ALWAYS — one shape for every file count
@@ -114,7 +123,10 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
-  import CanvasPlayground from './canvas-playground.svelte';
+  import CanvasPlayground, {
+    CANVAS_AXIS_LANES,
+    type CanvasAxisLanes,
+  } from './canvas-playground.svelte';
   import { controlsFor, schemaDefaultsOf } from './canvas-schema.svelte';
   import type { CanvasSchema, PlayOutput } from './canvas-schema.svelte';
   import type { Density } from '$lib/density.svelte';
@@ -227,16 +239,18 @@
      * Stage preview theme — PAGE-OWNED (bindable). Projects
      * `data-theme` + the theme sheet's `dark`/`jx-light` token-scope
      * class onto the STAGE element only; the docs chrome and sibling
-     * canvases never re-theme. The dock head's icon button flips it
-     * (the unified chrome, 2026-09-08).
+     * canvases never re-theme. The dock bar's theme icon button flips
+     * it (the eight-axis bar's theme axis, 2026-09-21).
      */
     theme?: 'light' | 'dark';
     /**
      * Stage density — PAGE-OWNED (bindable), the REPO-STANDARD Density
-     * union (xs | sm | default | lg in the dock's select). Stamped as
-     * `data-density` on the STAGE element DIRECTLY — the old
-     * comfortable/compact mapping died with the header toggle-groups
-     * (Owner amendment, 2026-09-08).
+     * union (xs | sm | default | lg). Stamped as `data-density` on the
+     * STAGE element DIRECTLY — the rung half of the axis. The legacy
+     * dock-head select RETIRED with the eight-axis bar (2026-09-21):
+     * the bar's DENSITY AXIS speaks the universal grammar
+     * (auto/small/medium/large) and rides the SUPPLIED lane to stage
+     * components instead — this bindable keeps the page-owned rung.
      */
     density?: Density;
     /** Playground dock — consumer-authored interactive controls. */
@@ -437,23 +451,68 @@
   // destructure default — the ambient zone never rides the stage
   const dDensity = $derived(ComponentCanvasDefaults.resolve({ density }).density);
 
-  // ── the W3-D5 six-axis surface (the hole round): the workbench
-  // <section> root resolves ONE no-own record for size · shape ·
-  // radius · color · elevation · motion, stamps the §10 carriers
-  // (JOINing the consumer style attr — the merge law), supplies
-  // downward and anchors query() after the anchor state declaration.
-  // `theme` + `density` are DELIBERATELY ABSENT: the stage-preview
-  // bindables own those prop names (the §13 no-rename law — no rename
-  // without an Owner ruling; the collision recorded, W6
-  // dossier-flagged beside code-card/mermaid); the universal lanes
-  // forward ambient-only through inheritance. The stage's own
-  // data-theme/data-density stamps (the scoped re-theming surface)
-  // stay exactly as they were — this surface never touches them
-  const d = $derived(
-    ComponentCanvasDefaults.resolve({ size, shape, radius, color, elevation, motion }),
-  );
+  // ── THE EIGHT-AXIS BAR'S SUPPLY (the Owner directive, 2026-09-21:
+  //    「这些都是相对过时的，改成我们 8 轴…不过 DomCanvas 是否要遵守
+  //    使用这些控件提供的值是它的自由」) ────────────────────────────────
+  // The dock head's bar owns the seven non-theme lanes in DOCK state
+  // (`axes`, all-`auto` seed, bound down through CanvasPlayground);
+  // THIS root joins them UNDER the consumer's explicit lane props
+  // (explicit ?? bar — a page-owned seat always wins, the bar is
+  // inert there, honestly) and resolves + stamps + supplies on the
+  // workbench <section>: any stage component receives the lanes as
+  // AMBIENT and may consume or ignore them — SUPPLY, never force.
+  // `auto` translates to NO OPINION (undefined at the resolve
+  // boundary), so the ambient zone keeps flowing through an unflipped
+  // axis; a flipped one carries its named step verbatim.
+  let axes = $state<CanvasAxisLanes>({ ...CANVAS_AXIS_LANES });
+  const laneOf = <T,>(lane: T): Exclude<T, 'auto'> | undefined =>
+    lane === 'auto' ? undefined : (lane as Exclude<T, 'auto'>);
+  // GETTER-FIELDED, not a plain literal: provideUniversalLanes closes
+  // over the record it is handed, and a value-object would snapshot
+  // the bar's state at mount — the getters keep every consumer's
+  // $derived re-resolving in the same frame a menu item flips (the
+  // provideDensity bridge's own reactive law; the E4 literal-parse
+  // never sees this file — it has no reactive density bridge, so
+  // density riding the getters is lawful, the provider-snapshot law
+  // satisfied trivially)
+  const barLanes = {
+    get size() {
+      return size ?? laneOf(axes.size);
+    },
+    get shape() {
+      return shape ?? laneOf(axes.shape);
+    },
+    get radius() {
+      return radius ?? laneOf(axes.radius);
+    },
+    get density() {
+      return laneOf(axes.density);
+    },
+    get color() {
+      return color ?? laneOf(axes.color);
+    },
+    get elevation() {
+      return elevation ?? laneOf(axes.elevation);
+    },
+    get motion() {
+      return motion ?? laneOf(axes.motion);
+    },
+  };
+
+  // ── the W3-D5 six-axis surface (the hole round), now bar-fed: the
+  // workbench <section> root resolves ONE no-own record for size ·
+  // shape · radius · color · elevation · motion (+ the bar's density
+  // axis lane — the stage-preview BINDABLE still owns that PROP name,
+  // the §13 no-rename law; the universal density lane rides the supply
+  // below, its rung half staying with the stage's own data-density
+  // stamp), stamps the §10 carriers (JOINing the consumer style attr —
+  // the merge law), supplies downward and anchors query() after the
+  // anchor state declaration. The stage's own data-theme/data-density
+  // stamps (the scoped re-theming surface) stay exactly as they were —
+  // this surface never touches them
+  const d = $derived(ComponentCanvasDefaults.resolve({ ...barLanes }));
   const carriers = $derived(stampCarriersForLanes(d));
-  provideUniversalLanes({ size, shape, radius, color, elevation, motion });
+  provideUniversalLanes(barLanes);
   let uniRoot = $state<HTMLElement | null>(null);
   provideQueryAnchor(() => uniRoot ?? null);
   const rootStyle = $derived(
@@ -642,7 +701,7 @@ let codeOpen = $state(false);
       <CanvasPlayground
         {title}
         bind:theme
-        bind:density
+        bind:axes
         {playground}
         rows={schema ? rows : undefined}
         schemaDefaults={schema ? defaults : undefined}
@@ -653,9 +712,9 @@ let codeOpen = $state(false);
       />
     {:else}
       <!-- chrome-only dock (the unified-chrome ruling, 2026-09-08): the
-           head row [grip, theme, size] ships on EVERY canvas — without
-           body content there is no chevron and no expansion -->
-      <CanvasPlayground {title} bind:theme bind:density />
+           eight-axis bar ships on EVERY canvas — without body content
+           there is no chevron and no expansion -->
+      <CanvasPlayground {title} bind:theme bind:axes />
     {/if}
   </div>
 

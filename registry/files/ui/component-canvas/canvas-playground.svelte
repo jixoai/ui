@@ -1,7 +1,10 @@
 <!--
   jixoai canvas playground dock (registry/files/ui/component-canvas/
   canvas-playground.svelte — canvas-playground-dock, 2026-09-08; head
-  standardized to the unified chrome the same day, Owner amendment).
+  standardized to the unified chrome the same day, Owner amendment;
+  THE EIGHT-AXIS BAR 2026-09-21, the Owner's post-acceptance directive:
+  「把这八轴的控制，挂到 playground 这个 bar 上…每一个对应一个
+  icon-button（有些基于 menu 能力来提供替代 select）」).
 
   The floating, collapsible, horizontally draggable controls panel that
   replaced the canvas's permanent Playground aside lane (the Owner
@@ -9,21 +12,39 @@
   scroll layer's sibling, never scrolling with stage content), mounting
   EXPANDED and collapsing to its head chip on toggle. The canvas passes
   everything through — the dock never reads context itself. The dock
-  mounts on EVERY canvas: the head is the UNIFIED CHROME STANDARD
-  (Owner ruling, mid-flight amendment) — [drag grip, theme icon button,
-  density select, chevron?] — the chrome row every demo ships; without
+  mounts on EVERY canvas: the head is the EIGHT-AXIS BAR (the Owner
+  directive) — [drag grip, the eight axis controls in one scrollable
+  ButtonGroup, chevron?] — the chrome row every demo ships; without
   body content (no playground snippet, no schema, no output) there is
   no chevron and no expansion, the chrome row stands alone.
 
-  - HEAD: [grip icon (decorative, aria-hidden — the drag affordance),
-    ONE icon button flipping theme light↔dark (sun/moon swap,
-    aria-pressed carries state), a compact native select with the
-    REPO-STANDARD Density vocabulary xs/sm/default/lg stamped onto the
-    stage DIRECTLY (data-density, no mapping), and — only when the dock
-    HAS a body — the collapse chevron (aria-expanded + aria-controls;
-    collapsed points →, expanded points ↓]. The reset moved OUT of the
-    head (exactly four elements, no fifth): the icon-only reset rides
-    the body's foot row next to the output dl.
+  - HEAD, THE EIGHT AXES (one control per axis, the Owner's wording):
+    · theme — the EXISTING icon-button (sun/moon cycle, aria-pressed
+      carrying state) driving the PAGE-OWNED stage bindable — its
+      freedom-to-consume IS the Owner's law (「是否遵守是它的自由」);
+      no system step (the bindable's type stays 'light'|'dark').
+    · size · shape · radius · density · color · elevation · motion —
+      one icon-button + DropdownMenu EACH (the family's own menu, the
+      popover law respected), entries `auto` + the axis grammar's
+      NAMED STEPS (the UNIVERSAL vocabulary — the legacy xs/sm/
+      default/lg select RETIRED with this bar; the rung aliases stay
+      legal underneath, the dock just speaks the axis grammar now;
+      2xs stays reachable through the demo pages' own inspectors).
+      Every item shows a check glyph for the current value; `auto`
+      is the default and stamps NOTHING (the supply-not-force law).
+    · THE RUN: the eight controls ride ONE ButtonGroup with
+      overflow="scroll" (the family's own scroll capability — the
+      Owner: 「bar 可能会很长，所以可以考虑使用 ButtonGroup 的可
+      滚动性来提供支持」), so the long bar SCROLLS horizontally
+      instead of wrapping; under the head's ghost zone the group's
+      separator policy paints the whisper seams BETWEEN the cells
+      (the seamed-toolbar idiom, r7-r11, carried by the family's own
+      law now). The run owns its own gestures — a pan inside it
+      never arms the dock drag (see onHeadPointerDown).
+    · THE SIZE (the Owner: 「这个 bar 的尺寸可以缩小一些」): the
+      joined row rides density xs (the dock foot's own compact
+      chrome scale) and the head's glyphs step 12→11 — the band one
+      notch down, coherently, the whisper seams and legibility kept.
   - POSE: a grid-area 1/1 sibling of the scroll layer inside the
     stage-row's ONE-CELL GRID HOST (the Owner stacking law — grid
     supplies stacking, position is for transient ink), z-index above,
@@ -36,14 +57,18 @@
   - DRAG: the head ROW is the grab bar. Disambiguation design: pointer
     down anywhere on the head ARMS a possible drag; setPointerCapture
     fires only once the pointer crosses the 4px threshold — so a plain
-    tap never captures and the head's buttons/select keep their native
+    tap never captures and the head's buttons keep their native
     behavior — and after a real drag one capture-phase click swallow on
     the head makes the drag click-proof (<4px = click, ≥4px =
-    reposition, never both). Position is transient per canvas instance;
-    the clamp keeps the box inside the host stage-row (measured at drag
-    start; the PURE clampDockX in the module script carries the math —
-    the toast-swipe precedent). touch-action none + grab/grabbing
-    cursors on the head; drag is decorative and pointer-only — every
+    reposition, never both). ONE carve since the eight-axis bar: a
+    pointer down inside the ButtonGroup's scroll host returns early —
+    the pannable run owns its gesture, the drag surface is the head
+    AROUND it (grip, gaps, bands). Position is transient per canvas
+    instance; the clamp keeps the box inside the host stage-row
+    (measured at drag start; the PURE clampDockX in the module script
+    carries the math — the toast-swipe precedent). touch-action none +
+    grab/grabbing cursors on the head, pan-x re-enabled on the run
+    (component-canvas.css); drag is decorative and pointer-only — every
     function stays keyboard-reachable without it.
   - COMPOSITION (the Owner's core ask): the expanded body is ONE
     <ItemGroup mode="plain" controlChrome="integrated" density="sm"> —
@@ -70,19 +95,66 @@
     if (min > max) return max;
     return Math.min(Math.max(proposed, min), max);
   }
+
+  /**
+   * THE EIGHT-AXIS BAR's lane record (the Owner directive, 2026-09-21):
+   * the SEVEN non-theme axes the dock's head controls speak — each one
+   * `auto` (the default — stamps nothing, the ambient keeps flowing)
+   * or a NAMED STEP of the axis grammar (the universal vocabulary; the
+   * legacy rung spellings stay legal UNDERNEATH — the dock speaks the
+   * grammar, the aliases resolve in the lanes' own normalization).
+   * These literal unions are SUBSETS of the universal Lane types, so
+   * the record feeds `laneOf` → resolve/stamp/provide without a cast.
+   * The state is DOCK-OWNED (never a page prop): the canvas binds it,
+   * resolves it UNDER the consumer's explicit lanes and supplies it on
+   * its workbench root — SUPPLY, never force (any stage component
+   * receives the lanes as AMBIENT and may consume or ignore them).
+   */
+  export interface CanvasAxisLanes {
+    readonly size: 'auto' | 'small' | 'medium' | 'large';
+    readonly shape: 'auto' | 'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle';
+    readonly radius: 'auto' | 'small' | 'medium' | 'large';
+    readonly density: 'auto' | 'small' | 'medium' | 'large';
+    readonly color: 'auto' | 'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info';
+    readonly elevation:
+      | 'auto'
+      | 'level-1'
+      | 'level0'
+      | 'level1'
+      | 'level2'
+      | 'level3'
+      | 'level4'
+      | 'level5';
+    readonly motion: 'auto' | 'reduced' | 'subtle' | 'normal' | 'expressive';
+  }
+
+  /** the seven non-theme axis names, §0 order */
+  export type CanvasAxisName = keyof CanvasAxisLanes;
+
+  /** the all-`auto` seed — read-only by construction (writers REASSIGN,
+   *  never mutate: `axes = { ...axes, [axis]: value }`) */
+  export const CANVAS_AXIS_LANES: Readonly<CanvasAxisLanes> = Object.freeze({
+    size: 'auto',
+    shape: 'auto',
+    radius: 'auto',
+    density: 'auto',
+    color: 'auto',
+    elevation: 'auto',
+    motion: 'auto',
+  });
 </script>
 
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { ItemGroup, ItemToggle, ItemSelect, ItemInput, ItemSegmented, ItemStepper } from '$lib/ui/list-item';
-  import type { Density } from '$lib/density.svelte';
-  import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
   import { parseQuerySource } from '$lib/universal-props-query.svelte';
   import Icon from '$lib/ui/icon';
+  import ButtonGroup, { ramp } from '$lib/ui/button-group';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
+  import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
+  import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import CardFooter from '$lib/ui/card/card-footer.svelte';
   import Separator from '$lib/ui/separator/separator.svelte';
-  import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import { cn } from '$lib/utils';
   import { canvasStyles } from '$lib/surface/component-canvas.stylex';
@@ -96,8 +168,15 @@
     title: string;
     /** Stage preview theme — PAGE-OWNED (bindable chain through the canvas). */
     theme?: 'light' | 'dark';
-    /** Stage density — PAGE-OWNED; the REPO-STANDARD Density union. */
-    density?: Density;
+    /**
+     * The eight-axis bar's lane record — DOCK-OWNED axis grammar state
+     * (all-`auto` seed; the theme axis rides its own button above).
+     * The canvas binds this, resolves the seven lanes UNDER its
+     * consumer's explicit props and supplies them on the workbench
+     * root — SUPPLY, never force (the Owner directive: whether a
+     * stage component obeys is its own freedom).
+     */
+    axes?: CanvasAxisLanes;
     /** Consumer-authored controls (escape-hatch precedence over rows). */
     playground?: Snippet;
     /** Schema-lowered rows (the kernel's controlsFor output). */
@@ -118,7 +197,7 @@
   let {
     title,
     theme = $bindable('light'),
-    density = $bindable('default'),
+    axes = $bindable({ ...CANVAS_AXIS_LANES }),
     playground,
     rows,
     schemaDefaults,
@@ -145,10 +224,51 @@
       )
       .join(' ');
 
-  // the single read point (A3): the destructure default keeps the
-  // explicit lane permanently hot — the ambient zone never rides the
-  // stage (the stage-boundary posture, see the Defaults header)
-  const dDensity = $derived(ComponentCanvasDefaults.resolve({ density }).density);
+  // ---- the eight-axis bar (the Owner directive, 2026-09-21) ---------
+  // One axis = ONE icon-button; the seven non-theme axes open the
+  // family's own DropdownMenu carrying `auto` + the named steps. The
+  // glyphs are the SCANNED library vocabulary (the artifact's chunk
+  // law: every name below is a literal the scanner collects from THIS
+  // markup — dynamic composition would pack nothing).
+  const AXIS_CONTROLS: {
+    readonly [K in CanvasAxisName]: {
+      readonly axis: K;
+      readonly label: string;
+      readonly values: readonly CanvasAxisLanes[K][];
+    };
+  } = {
+    size: { axis: 'size', label: 'Size', values: ['auto', 'small', 'medium', 'large'] },
+    shape: {
+      axis: 'shape',
+      label: 'Shape',
+      values: ['auto', 'round', 'scoop', 'bevel', 'notch', 'square', 'squircle'],
+    },
+    radius: { axis: 'radius', label: 'Radius', values: ['auto', 'small', 'medium', 'large'] },
+    density: { axis: 'density', label: 'Density', values: ['auto', 'small', 'medium', 'large'] },
+    color: {
+      axis: 'color',
+      label: 'Color',
+      values: ['auto', 'primary', 'secondary', 'error', 'warn', 'success', 'info'],
+    },
+    elevation: {
+      axis: 'elevation',
+      label: 'Elevation',
+      values: ['auto', 'level-1', 'level0', 'level1', 'level2', 'level3', 'level4', 'level5'],
+    },
+    motion: {
+      axis: 'motion',
+      label: 'Motion',
+      values: ['auto', 'reduced', 'subtle', 'normal', 'expressive'],
+    },
+  };
+
+  /** one axis flips (a menu item click): the record REASSIGNS, never
+   *  mutates — the bound canvas root re-resolves in the same frame */
+  function setAxis<K extends CanvasAxisName>(axis: K, value: CanvasAxisLanes[K]): void {
+    const next = { ...axes };
+    next[axis] = value;
+    axes = next;
+  }
 
   // deterministic aria wiring, derived from the title the same way the
   // canvas derives its ids (server and client agree; the canvas-level
@@ -309,6 +429,15 @@
 
   function onHeadPointerDown(event: PointerEvent): void {
     if (event.pointerType === 'mouse' && event.button !== 0) return;
+    // THE EIGHT-AXIS RUN OWNS ITS GESTURES (the Owner directive's
+    // scrollable bar): a pointer down inside the ButtonGroup's scroll
+    // host (the run + its veil layer + chevron chips) never arms the
+    // dock drag — the bar pans itself (touch-action pan-x re-enabled
+    // on the run in component-canvas.css); the drag surface is the
+    // head AROUND it: the grip, the breathing gaps, the bands
+    if (event.target instanceof Element && event.target.closest('[data-jx-btngroup-host]')) {
+      return;
+    }
     armedPointerId = event.pointerId;
     dragStartClientX = event.clientX;
     dragBaseX = dockX;
@@ -367,15 +496,83 @@
   <Icon name="rotateCcw" size={12} />
 {/snippet}
 {#snippet themeGlyph()}
-  <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={12} />
+  <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={11} />
 {/snippet}
 {#snippet chevronGlyph()}
   <span
     class={cn('jx-canvas-chevron', cx(stackStyles.baseInline), !open ? cx(canvasStyles.chevronRight) : '')}
     aria-hidden="true"
   >
-    <Icon name="chevronDown" size={12} />
+    <Icon name="chevronDown" size={11} />
   </span>
+{/snippet}
+<!-- THE SEVEN GLYPHS — LITERAL names only (the artifact's chunk law:
+     the scanner collects exactly these from this markup; a composed
+     dynamic name would pack nothing and render the reserved box).
+     Semantics: type = the §1 root font-size; shapes = corner geometry;
+     squircle = corner magnitude; rows-3 = the §4 spacing rhythm;
+     palette = the §5 hue axis; layers = the §7 stacked planes; gauge
+     = the §8 intensity dial -->
+{#snippet sizeGlyph()}
+  <Icon name="type" size={11} />
+{/snippet}
+{#snippet shapeGlyph()}
+  <Icon name="lucide:shapes" size={11} />
+{/snippet}
+{#snippet radiusGlyph()}
+  <Icon name="lucide:squircle" size={11} />
+{/snippet}
+{#snippet densityGlyph()}
+  <Icon name="lucide:rows3" size={11} />
+{/snippet}
+{#snippet colorGlyph()}
+  <Icon name="palette" size={11} />
+{/snippet}
+{#snippet elevationGlyph()}
+  <Icon name="lucide:layers" size={11} />
+{/snippet}
+{#snippet motionGlyph()}
+  <Icon name="lucide:gauge" size={11} />
+{/snippet}
+<!-- ONE SHARED FACE for the seven menu axes (the generic keeps the
+     axis↔values pair correlated for setAxis's keyed write): an
+     icon-only ghost IconButton carrying the native popovertarget
+     invoker (the platform path, the ButtonGroup overflow trigger's
+     own idiom), the family's DropdownMenu with `auto` + the named
+     steps, and a check glyph on the current value — `auto` (the
+     default) stamps NOTHING -->
+{#snippet axisControl<K extends CanvasAxisName>(
+  ax: { readonly axis: K; readonly label: string; readonly values: readonly CanvasAxisLanes[K][] },
+  glyph: Snippet,
+)}
+  {@const axisMenuId = `jx-canvas-${dockId}-axis-${ax.axis}`}
+  <DropdownMenu id={axisMenuId} placement="bottom-end">
+    {#snippet trigger()}
+      <IconButton
+        icon={glyph}
+        text={ax.label}
+        iconOnly
+        tip={false}
+        title={ax.label}
+        aria-haspopup="menu"
+        popovertarget={axisMenuId}
+        data-jx-canvas-axis={ax.axis}
+        data-axis-auto={axes[ax.axis] === 'auto' || undefined}
+      />
+    {/snippet}
+    {#each ax.values as value (value)}
+      <DropdownMenuItem
+        data-axis-value={value}
+        data-axis-current={axes[ax.axis] === value || undefined}
+        onclick={() => setAxis(ax.axis, value)}
+      >
+        <span data-jx-canvas-axis-check data-on={axes[ax.axis] === value || undefined} aria-hidden="true">
+          <Icon name="check" size={12} />
+        </span>
+        <span>{value}</span>
+      </DropdownMenuItem>
+    {/each}
+  </DropdownMenu>
 {/snippet}
 
 <aside
@@ -407,60 +604,68 @@
     onclickcapture={onHeadClickCapture}
   >
     <ButtonVariantScope variant="ghost" raised={false}>
-      <!-- the chrome cluster: [grip, theme, size] — the standard row on
-           EVERY canvas demo (Owner amendment 2026-09-08) -->
+      <!-- THE EIGHT-AXIS CLUSTER: [grip, the scrollable axis run] — the
+           standard row on EVERY canvas demo (the Owner directive
+           2026-09-21 replaces the retired theme+select pair) -->
       <div class={cx(stackStyles.base, stackStyles.alignStretch)}>
         <span
           class={cx(canvasStyles.grip)}
           aria-hidden="true"
           data-jx-canvas-dock-grip
         >
-          <Icon name="gripVertical" size={12} />
+          <Icon name="gripVertical" size={11} />
         </span>
         <!-- THE TOOLBAR SEAMS (Owner r7, the actual ask all along: "icon、
              button、select 之间的分割线"): vertical Separator instances
-             between the chrome cells — the palette-toolbar idiom, the
-             band's own height (self-stretch).
-             THE GHOST, THE OWNER'S RULING (r9: "这种分割线本身只是一个
-             视觉辅助" — a visual aid should whisper, not paint): the
-             seams ride the default fused ink, zero color tokens —
-             on this uniform near-white acrylic the subtraction shifts
-             only a few 255ths (measured r8: no pixel below 235), a
-             whisper; the Owner accepted the subtlety as the point -->
+             frame the scrollable run — the run's OWN whisper seams
+             (between the eight controls) ride the ButtonGroup's ghost
+             separator policy, the same ink law, the family's carrier.
+             THE GHOST (Owner r9: "这种分割线本身只是一个视觉辅助" — a
+             visual aid should whisper, not paint): the seams ride the
+             default fused ink, zero color tokens — on this uniform
+             near-white acrylic the subtraction shifts only a few
+             255ths (measured r8: no pixel below 235), a whisper; the
+             Owner accepted the subtlety as the point -->
         <Separator orientation="vertical" aria-hidden="true" />
-        <IconButton
-          icon={themeGlyph}
-          text="Toggle theme"
-          iconOnly
-          tip={false}
-          title="Toggle theme"
-          aria-pressed={theme === 'dark'}
-          data-jx-canvas-theme-toggle
-          onclick={() => (theme = theme === 'dark' ? 'light' : 'dark')}
-          class="jx-canvas-dock-theme"
-        />
-        <Separator orientation="vertical" aria-hidden="true" />
-        <!-- the size toggle: the FAMILY'S NativeSelect at bare chrome
-             (Owner r12: the hand-rolled raw <select> retired — our own
-             component's chevron and control-lane insets are the
-             designed ones), carrying the REPO-STANDARD Density
-             vocabulary, stamped onto the stage DIRECTLY (no
-             comfortable/compact mapping — the amendment); the one
-             non-press cell — borderless ghost chrome riding the band -->
-        <NativeSelect
-          chrome="bare"
-          data-jx-canvas-density-select
-          class={cn('jx-canvas-dock-density', cx(canvasStyles.dockDensity))}
-          aria-label="Density"
-          title="Density"
-          value={dDensity}
-          onchange={(event) => (density = event.currentTarget.value as Density)}
+        <!-- THE AXIS RUN (the Owner: 「这个 bar 可能会很长，所以可以考
+             虑使用 ButtonGroup 的可滚动性来提供支持」): the EIGHT axis
+             controls — the theme cycle button + the seven menu axes —
+             ride ONE ButtonGroup at overflow="scroll" (the family's
+             own scroll capability: the root becomes the scroll run,
+             hidden scrollbar, proximity snap, ramped edges), so the
+             long bar SCROLLS horizontally instead of wrapping. THE
+             SIZE (「这个 bar 的尺寸可以缩小一些」): density xs — the
+             dock foot's own compact chrome scale — one notch down,
+             coherently (glyphs 12→11 with it, the seams and the
+             legibility kept). Under the head's ghost zone the group
+             inherits ghost: the borderless row's seams ARE the
+             policy's own -->
+        <ButtonGroup
+          label="Stage axes"
+          overflow="scroll"
+          scrollEffect={ramp({ blur: false })}
+          density="xs"
+          data-jx-canvas-dock-axes
         >
-          <option value="xs">xs</option>
-          <option value="sm">sm</option>
-          <option value="default">default</option>
-          <option value="lg">lg</option>
-        </NativeSelect>
+          <IconButton
+            icon={themeGlyph}
+            text="Toggle theme"
+            iconOnly
+            tip={false}
+            title="Toggle theme"
+            aria-pressed={theme === 'dark'}
+            data-jx-canvas-theme-toggle
+            onclick={() => (theme = theme === 'dark' ? 'light' : 'dark')}
+            class="jx-canvas-dock-theme"
+          />
+          {@render axisControl(AXIS_CONTROLS.size, sizeGlyph)}
+          {@render axisControl(AXIS_CONTROLS.shape, shapeGlyph)}
+          {@render axisControl(AXIS_CONTROLS.radius, radiusGlyph)}
+          {@render axisControl(AXIS_CONTROLS.density, densityGlyph)}
+          {@render axisControl(AXIS_CONTROLS.color, colorGlyph)}
+          {@render axisControl(AXIS_CONTROLS.elevation, elevationGlyph)}
+          {@render axisControl(AXIS_CONTROLS.motion, motionGlyph)}
+        </ButtonGroup>
         <!-- the breathing gap is BRACKETED (Owner r11): a seam closes
              the left cluster too — the elastic space sits BETWEEN two
              whisper lines, the whole bar one seamed toolbar -->
@@ -469,9 +674,10 @@
       {#if hasBody}
         <!-- the collapse chevron: only when the dock HAS a body — its
              own right-hand group with a seam hugging its left edge
-             (Owner r10: the select↔toggle boundary is a cell boundary
+             (Owner r10: the run↔toggle boundary is a cell boundary
              like any other; the elastic breathing sits between the
-             select and THIS group's seam) -->
+             run and THIS group's seam). density xs joins the bar's
+             compact scale -->
         <div class={cx(stackStyles.base, stackStyles.alignStretch)}>
           <Separator orientation="vertical" aria-hidden="true" />
           <IconButton
@@ -480,6 +686,7 @@
             iconOnly
             tip={false}
             title="Playground"
+            density="xs"
             aria-expanded={open}
             aria-controls={bodyId}
             data-jx-canvas-dock-toggle

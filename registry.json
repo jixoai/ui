@@ -1857,6 +1857,7 @@
         "@jixoai/button-group",
         "@jixoai/card",
         "@jixoai/icon-button",
+        "@jixoai/dropdown-menu",
         "@jixoai/code-card",
         "@jixoai/tree-view",
         "@jixoai/shiki",
@@ -1868,7 +1869,6 @@
         "@jixoai/defaults",
         "@jixoai/universal-props",
         "@jixoai/separator",
-        "@jixoai/native-select",
         "@jixoai/stack",
         "@jixoai/grid"
       ],
