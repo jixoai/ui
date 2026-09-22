@@ -701,3 +701,40 @@
   querySelector-first selectors — scope by the section's caption text
   or enumerate all instances and filter by the attribute under test
   (data-density presence, here).
+
+## task 24 (CODE combobox)
+
+- **query() is a CASES-RECORD call, and string lanes pin BOTH generics at the call site**:
+  the engine is `query<T extends RawQueryCases, B>(cases: T, base?: B)` — the fleet form for
+  string lanes is `query<{ lg: DensityLane }, DensityLane>({ lg: 'large' })` (accordion/
+  alert/anchor/card-grid… all pin the pair); a bare `query('lg','large')` fails to compile
+  twice over (wrong arity AND `QueryResult<string|number>` vs the lane type).
+- **Braces inside a Svelte ATTRIBUTE string are interpolation**: `summary="... ride {...rest}
+  ..."` parses `{...rest}` as a spread expression → js_parse_error at that column. Prose in
+  attributes must be brace-free (write "the rest spread") or interpolate a constant.
+- **The page-local cx needs the banked predicate even when copied verbatim**: the old page's
+  `.filter(Boolean).map(...)` carried 2 latent svelte-check errors (Object.entries over the
+  un-narrowed union); the rewrite's `(style): style is string | { readonly [key: string]:
+  string | object } => Boolean(style)` fixed them and TOOK THE FLEET DOWN (1606→1604).
+  Copying "known-green" page code is not a receipt — page-scoped svelte-check before and
+  after is.
+- **DensityDemo ambient leaves the family attr null**: under the scope boxes the rung tokens
+  cascade from the ANCESTOR [data-density] element — the family's own data-density attr only
+  appears with an explicit lane (a query-resolved `large` stamps `lg` after aliasing).
+  Document the mechanism as two-channel (CSS scope vs attr), never assume the attr.
+- **The floor-asymmetry verdict class**: when a lane scales an inner lane but the shell's
+  min-size is stylex-fixed, the honest row is "grow live / shrink dead" with both numbers —
+  combobox: lane 26/30/38/46px vs shell floor fixed 40px.
+- **docs-universal sibling attribution**: an UNTRACKED `+page.ts` (quill's native-scroll-area,
+  in flight) makes the manifest count pages 110 vs markers 109 with the missing marker named
+  — read the named page + git status before diagnosing your own edit; my page's marker rode
+  in the 110.
+- **The probe harness lives in /tmp and gets cleaned**: rebuild recipe (task 24 working):
+  playwright-core via `createRequire('<repo>/node_modules/')`, `chromium.launch({ channel:
+  'chrome', headless: true })`, route paths are LITERAL `.html` (combobox.html), and stylex
+  classes are hashes — select by `.jx-field`/`.jx-label`/data-attrs, never `rt.panel`.
+  Wait: initial goto + ~1s hydration settle; LAW #15 gate on the family signature (shell
+  border+shadow read) before any density read.
+- **DensityDemo/DensityDemoDefaults dogfood**: the theming section already renders the
+  family at four rungs — measure there before building custom rigs; the scope label text is
+  the rig's rung key.

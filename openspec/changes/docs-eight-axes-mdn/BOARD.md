@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
 | marginalia | 27 | badge-indicator (OWN) | CODE | in-flight |
-| vellum | 24 | combobox (OWN) | CODE | in-flight |
+| vellum | 25 | card-grid fix (A, OWN) + file-input (B, OWN) | FIX + CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
 ## DONE (22)
