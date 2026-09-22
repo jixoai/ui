@@ -251,7 +251,7 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "needs-work-2nd"
+   "status": "done"
   },
   {
    "page": "dialog",
@@ -481,7 +481,7 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "coded"
+   "status": "pass-1st"
   },
   {
    "page": "list",
@@ -560,8 +560,8 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded"
   },
   {
    "page": "native-select",

@@ -551,3 +551,53 @@
   of 14px computes to 11.1875px used width in Chromium, not the nominal
   11.2 — assert |computed − nominal| ≤ 0.1px or the probe red is a rounding
   artifact wearing a failure costume.
+
+## Techniques (mine, added 2026-09-22, task 21 — native-scroll-area)
+- **THE FOURTH THEME MECHANISM: THE LANE'S STAMP AS A SCOPE THE FAMILY'S OWN
+  OBSERVER CONSUMES**: native-scroll-area's theme lane doesn't drive css
+  substitution at all — its .dark stamp on the outer root IS a stage scope,
+  and the family's scheme observer (a MutationObserver over the ancestor
+  chain) resolves it into data-scheme on the viewport so the PLATFORM bar
+  re-schemes live. Consumption by family STATE. The three css-side patterns
+  (declaring-selector, emission-form mixed, pure-alias frozen) all still
+  apply where css reads exist (the focus ring is the family's one raw read);
+  the probe asserts both layers: data-scheme/color-scheme for the observer,
+  the ring for the css.
+- **THE DECLARATION LAW IS MEASURABLE INSIDE YOUR OWN DEMO**: the first
+  caption claimed the content "inherits the stamp" — my own demo rows
+  (a 12px utility) falsified it live. Declared voices beat inheritance; the
+  stamp reaches only unstyled flow. Fix the caption to the measured truth
+  and the demo teaches TWO laws (the inheritance reach AND the declaration
+  precedence) instead of one convenient fiction. When your demo fixtures
+  carry their own styling, the fixture is part of the claim.
+- **KINSHIP BY KIT, NOT BY IMPORT**: native-scroll-area shares the
+  scroll-area-kit core with the hand-drawn sibling — zero component imports
+  either direction. Composer greps answer "who mounts it"; kit greps answer
+  "who shares my vocabulary". The button-group overflow hypothesis was the
+  second kind of false positive: a shared WORD (overflow) over a different
+  system (wrap/collapse layout, r13). Grep the mechanism, not the term.
+- **WRITE-THEN-VERIFY APPLIES TO THE LAST WRITE (the integration-block
+  incident)**: my gates ran green on page state N, then the theming-fold
+  python splice (state N+1, the final write) deleted the adjacent API
+  section — the page's only `universal` marker — and I reported N's green
+  as final. The coordinator's integration run redded 109/110. Two fixed
+  habits: (1) the gate suite re-runs after EVERY write, especially the
+  last; (2) a deletion-based splice asserts the section inventory that
+  must SURVIVE (id= census before/after), not only the seams it meant to
+  move — the fold's end-anchor over-ran one section past its target.
+- **THE 110-GATE READS BUILT dist BYTES — A STALE DIST MIMICS YOUR
+  REGRESSION**: post-restore, docs-universal STILL redded with my page's
+  name because a sibling's in-flight parse error broke the build, so the
+  gate re-read the pre-restore dist. Attribution rule for gate RED on a
+  shared tree: check the gate's INPUT FRESHNESS (build exit code) before
+  accepting the named page as the culprit — and never repair the sibling
+  file; poll until it clears, then build fresh. Symmetrically: a green
+  gate on a stale dist proves nothing about your last write either.
+- **SPECS-SOLO NUMBERS ARE A MOVING TARGET ON A SHARED WORKTREE — KEYS,
+  NOT COUNTS**: my 6-file run went 211 → 470 tests between runs (sibling
+  conversions added suites) and returned 2 failures, both keyed
+  `file-input|1|variant|1` — a sibling's in-flight page edits caught by
+  the frozen matrix. The reportable unit is the failing-KEY set (mine:
+  empty), plus the mtime/git-status proof the failing files are not in
+  your diff scope. A raw "468/470" without key attribution reads as your
+  failure; with attribution it reads as the tree's.
