@@ -466,3 +466,28 @@
 - **Sibling ports exist**: teardown = kill MY wrapper+child, lsof MY
   port; a vite on the NEXT port (5244) belonged to a sibling started
   earlier — verify by command + port, leave it alone.
+
+## Task 14 (heading REVIEW) — lessons
+- **The refined THEME-SPLIT law now has a THIRD emission form**: beside
+  raw reads (flip) and the typed-token :root intermediates (frozen),
+  the §11 size stamp emits var + DECLARATION together inline
+  ('--jx-size-effective: Npx' AND 'font-size: var(--jx-size-effective,
+  1rem)') — inline style beats any class rung, so an explicit lane
+  REPLACES the class ladder while auto restores it. "Consumes via the
+  stamp" is a distinct consumption class from "consumes via css":
+  grep-for-readers finds ZERO css readers and the axis still repaints.
+  A per-axis review must therefore check the STAMP path (SSR style
+  attr) before declaring supply-only from a zero-readers grep.
+- **meta row arithmetic counts the SYNTHESIZED rest row**: the meta
+  file held 13 keys but the served table renders 14 (from-meta adds
+  `rest` when not hidden) — "14 − 8 = 6" is true AS SERVED. Arithmetic
+  receipts come from the served tables, not the source file (the
+  rest-hide override changes the count).
+- **query() typing pedagogy**: the NUMBER lane goes bare
+  (query({ md: 18 }, 14) — inference works); it's the STRING lanes
+  that need both generics named. A page that teaches both directions
+  in one canvas beats two pages (the §6 law demonstrated, not just
+  cited).
+- **Signature gates differ per family**: empty's signature was padding;
+  heading's is fontWeight 700 — pick the one property only the
+  family's own atom sets, not a value the ambient sheet could share.
