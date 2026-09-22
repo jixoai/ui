@@ -254,6 +254,26 @@ changes its stage). Contract-level records, census-binding:
   now part of the receipt discipline (AXIS-NOT-VISIBLE is a failure
   class, not a judgment call).
 
+## W6 CLOSE — the vision loop's final verdicts (r5 a02579d6 + r6)
+
+All four groups READY at the final judging pass. The last two MEDIUMs
+were harness-side, fixed with dual receipts: the d2xs `#scale` ladder
+is an `overflow-x` scroller BY DESIGN (r3's probe had measured the
+wrong ancestor — triage corrected) → the BOTH-HALVES capture law
+(resting + scrolled-right frames; DOM receipts `hitAllInFrame`/
+`hitAllUnclipped` 30/30 + a frame-delta proving scrolled content); the
+sheet mid-open pin moved from wall-clock to PROGRESS-FRACTION seeking
+(the panel animation sought back until ≥60px of transform remains;
+84.5px receipted) — **the freeze-point law: pin by progress fraction,
+never by wall time (easing makes 40% of time ≈ 96% of distance)**.
+The squircle ×2 r4 note resolved as a measurement-model artifact (the
+§2 equal-corner law predicts exactly the observed ordering; the chain
+consumes the factor verbatim — orchestrator-verified). Remaining
+dossier notes: the LG row's IMAGE cell ellipsis ("48…", page-level
+truncate styling, both themes); the r1 historical /tmp captures were
+accidentally overwritten by an unscoped r5 invocation (superseded
+round, already consumed by judging; no repo impact — reported).
+
 ## W3 CLOSE — the fleet completeness receipt (D4's sweep, orchestrator-verified)
 
 LANDED D5 (f3a82dce; probe-w3d5-spot 11/11 — accordion radius 20 →

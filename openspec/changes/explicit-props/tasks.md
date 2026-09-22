@@ -268,9 +268,12 @@ before the next batch opens; a batch is the rollback unit)
 
 ## W6 — acceptance (multi-round, release-ready NOT released)
 
-- [ ] 6.1 vision walkthrough rounds (light+dark, pinned phases, the splash-fan
+- [x] 6.1 vision walkthrough rounds (light+dark, pinned phases, the splash-fan
       capture discipline) — dogfood pages: tokens, canvas, dialog/sheet,
-      press-button, a native family, density demo
+      press-button, a native family, density demo — LANDED: six rounds
+      (r1 capture 65 → four-judge r2 → r3 19-fix → r4 re-judge → r5 harness
+      close-out → r6 final confirm); ALL GROUPS READY; the loop's laws and
+      receipts live in the census's W6 sections
 - [ ] 6.2 Codex review loop over the working tree (score + blockers; iterate)
 - [ ] 6.3 Owner walkthrough dossier (dev server, the eight axes live)
 - [ ] 6.4 RELEASE-READY state: all green, nothing pushed past the branch;
