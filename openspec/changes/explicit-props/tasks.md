@@ -248,7 +248,7 @@ before the next batch opens; a batch is the rollback unit)
       ffc9c4e1-dropped tailwind vite resolved from the design-tool tree;
       STYLEX ~26: dev-name pins re-keyed through shared source per the
       compile-lane contract; print-gate/tree-view/list-item/docs-ambient/
-     	blueprints each root-caused with citations; two real docs bugs fixed
+      blueprints each root-caused with citations; two real docs bugs fixed
       en route — avatar's stale size row, heading's unwrapped demo h3s);
       both ledgers closed (shadcn-add 24/24 — the closure list re-pinned to
       the one-seam density import; budgets 4/4 — B-source 41682→46304 dated
@@ -274,7 +274,23 @@ before the next batch opens; a batch is the rollback unit)
       (r1 capture 65 → four-judge r2 → r3 19-fix → r4 re-judge → r5 harness
       close-out → r6 final confirm); ALL GROUPS READY; the loop's laws and
       receipts live in the census's W6 sections
-- [ ] 6.2 Codex review loop over the working tree (score + blockers; iterate)
-- [ ] 6.3 Owner walkthrough dossier (dev server, the eight axes live)
-- [ ] 6.4 RELEASE-READY state: all green, nothing pushed past the branch;
-      publish waits for the Owner's word
+- [x] 6.2 Codex review loop over the working tree (score + blockers;
+      iterate) — LANDED: the final review (exec track, 810K-token
+      source-level audit) ruled **NO-GO 7.6/10** with one real P1 (the
+      W5 docs-ambient blanket replaceAll = input weakening) + a P2
+      wording drift → both fixed in 4f1cd484 (the auditable RENAME
+      LEDGER: premise-assert + single mapping + downstream
+      PARSE-VIOLATION hard-fail; the census reword) → the focused
+      re-review verified closure line-by-line, ran the thought
+      experiment (a regenerated archive THROWS, never silently passes),
+      re-ran the gates itself → **GO, 9.4/10** — released to the
+      Owner's visual acceptance. (Channel record: the herdr TUI track's
+      tool channel died mid-wave — the node outage the Owner's fix
+      recovered; the review completed via the codex exec track.)
+- [x] 6.3 Owner walkthrough dossier (dev server, the eight axes live) —
+      LANDED bb4bebf7 + the final-status update: research/owner-dossier.md
+- [x] 6.4 RELEASE-READY state: all green, nothing pushed past the branch;
+      publish waits for the Owner's word — LANDED: verify-all GREEN
+      (re-run post-fixes, incl. the registry/test twin sync), suite
+      3170/3170, every gate green, Codex final GO 9.4/10. **Nothing
+      pushed — the publish word is the Owner's.**
