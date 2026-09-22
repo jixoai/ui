@@ -498,3 +498,31 @@
   the load reading — and build failures get route-level attribution from the
   prerender log (a single carousel 500 with zero errors on your pages is the
   sibling's in-flight state, cited by their diff stat).
+
+## Techniques (mine, added 2026-09-22, task 19 — color-picker 2nd review)
+- **REVIEW RE-DERIVATION IS CHEAP AND DECISIVE WITH THREE INSTRUMENTS**: the
+  grep (zero -effective readers), the computed-var read on the live element
+  (the root's style attr byte-exact; --primary's calc(H − 4) visible in
+  getPropertyValue), and the rung-stamp sweep (set data-density, read the
+  ruler, unset). All three fit one probe file; every marginalia receipt
+  re-derived in a single run — the review's authority is the independent
+  instrument, not the trust.
+- **THE −N IN AN EXTRA-ARITHMETIC ACCOUNT HAS TO BE NAMED IN CODE**: the
+  color-picker account settled as 24 meta − 8 axes − 4 = 12, where the 4 is
+  the curation's hide:true set (id/data-density/class/rest — the checkbox
+  heritage precedent). Scribe's "27−3" was a transient intermediate meta plus
+  a smaller hide set. The settlement instrument: parse the COMMITTED meta
+  (count + duplicate check), parse the SSR rows (what actually renders), and
+  only then read the reports. The archive keeps both numbers; the ledger
+  keeps the one the committed meta supports.
+- **A PAGE-SIDE FLAG MUST NAME THE LIVING COPY OF THE STALE CLAIM**: "the old
+  claim retires" is incomplete when the stale sentence survives somewhere
+  readable — name the file and the block (color-picker.svelte's size/color
+  interface comments) so a grepper holding the stale claim finds the
+  correction at the flag, not a dead end. Family-mirrored comments get
+  flagged page-side, never edited tree-side (the mirror law outranks the
+  tidy-up).
+- **--testTimeout IS THE SOLO-RUN HYGIENE UNDER SIBLING LOAD**: load 28-59
+  makes 5s render-smoke timeouts meaningless; the solo re-run passes at 30s.
+  Record the timeout bump in the gate ledger — an unexplained timeout bump
+  reads as a regression and costs the coordinator a round.

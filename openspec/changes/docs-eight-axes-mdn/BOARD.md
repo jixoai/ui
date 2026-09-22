@@ -6,7 +6,7 @@
 | vellum | 22 | code-card (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
-## DONE (18)
+## DONE (19)
 - ✅ **anchor** (scribe) — 1st: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS
 - ✅ **blockquote** (quill) — 2nd (scribe re-verify 6/6 + 31/31 probe)
 - ✅ **alert** (vellum) — 3rd (THEME-SPLIT survived independent re-measure)
@@ -22,6 +22,7 @@
 - ✅ **dropdown-menu** (quill) — 13th (the OVERTURN arc complete; shape-agnostic import-grep law)
 - ✅ **heading** (quill) — 14th (inline-stamp mechanism; re-verify-grade self-confirmation 16/16)
 - ✅ **avatar** (vellum) — 15th (second overturn arc; initials-follow-size; page zero diagnostics)
+- ✅ **color-picker** (scribe) — 19th (stamped-never-consumed triple-instrumented; the chain-head settled 24−8−4=12; quill's disclosed one-line STALE-COMMENT FLAG completes marginalia's MINOR — the page names the living family comment as the retired claim's last copy)
 - ✅ **image** (quill) — 18th (the snippet-vs-default MAJOR arc: marginalia found it, quill's path-(a) fix verified live by scribe — data-density sm↔lg on the default frame, no-CLS; frozen-pole purest case + leaf + carriers-bijection all held)
 - ✅ **inline-code** (quill) — 17th (pin-density tier-3 exemplar; double PASS; the co-signed toc row landed with closure)
 - ✅ **button-group** (vellum) — 16th (PROVIDER family; four voices digit-exact; --jx-inset fix landed with closure)

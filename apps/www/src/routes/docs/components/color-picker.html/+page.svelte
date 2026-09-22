@@ -22,7 +22,12 @@
   (declaring-element law). size/color are the §11 stamps with ZERO
   family readers (grep receipt: zero carrier reads in ui/color-picker/)
   — the old page's "CONSUMES size and color" claim was falsified by
-  probe and retires. Theme splits measured: the raw-token voices flip
+  probe and retires. STALE-COMMENT FLAG (drift #10, family-out-of-scope):
+  the family's own props comments still read "CONSUMED by the family"
+  for size and color (color-picker.svelte, the size/color interface
+  block — registry-mirrored) — those comments are the retired claim's
+  last living copy; THIS page's rows are the corrected statement. Theme
+  splits measured: the raw-token voices flip
   under the island (caret --primary, swatch border --border, well
   shadow --shadow-well, focus ring --ring, panel --terminal), the
   trigger chrome atoms stay frozen (the stylex alias substitution at
