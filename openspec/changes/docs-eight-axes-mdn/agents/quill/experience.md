@@ -210,3 +210,20 @@
 - **A pins check belongs in the pre-flight, not the post-mortem**: one failed gate (409/410)
   traced to a spec I never opened. The fix cost a re-pin round; a pre-flight `rg "<page-name>"
   test/` would have cost thirty seconds.
+
+## Review craft (added 2026-09-22, checkbox 8-review)
+- **The contrast cell is a claim too**: scribe's bare section promised "the wrapped cell's root
+  carries data-density and the carrier style" — but the cell passed no lane, so ambient auto
+  stamped neither half and the served bytes showed a bare `<div class="jx-field">`. Demo
+  contradicting prose is the same disease as a false axis row; SSR-grep the DEMO cells, not just
+  the prose's subject.
+- **Re-deriving an inertness claim needs the positive control in the same probe**: stamping
+  `--jx-density-coefficient: 1.5` on the wrapper (the component's exact declaration) proved
+  nothing moved — but only the lg panel moving to 24px proved the measurement COULD detect
+  movement. Inert + positive control + the grep that explains why (the coefficient composes at
+  the declaring scopes) = a closed loop.
+- **`--corner-shape` taught me to grep the DECLARATION, not just the read**: a page can truthfully
+  say "reads var(--x, fallback)" and still lie by implication — "the site's token" when no site
+  declares --x. `grep var(--x` finds consumers; `grep -- "--x:"` finds whether the token exists.
+- **Svelte data-* booleans stringify** (`data-axis-auto="true"`) — learned in task 7, re-used
+  here when asserting attribute presence in probe expectations.

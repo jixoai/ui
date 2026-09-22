@@ -280,6 +280,32 @@
   failed on checkbox's stale PLACEHOLDER snapshot (scribe's in-flight task)
   while all five accordion snapshots passed — attribute out-of-scope
   failures to their BOARD owner before counting a gate red or green.
+- (chip review, task 8)
+  **Readiness gates must assert the SUBSYSTEM under test.** My chip probe
+  waited on the base atom's font-size (≠16px) — necessary but NOT
+  sufficient: the dev CSSOM injects stylex chunks per-chunk, so the variant
+  atoms landed a beat later and every ground read transparent ("fill chip
+  unpainted", "supply-only violated"). The hue chip DID read tint, which
+  made the race look like a mechanism difference. Wait on the paint being
+  judged: `backgroundColor !== transparent` on a variant-painted chip.
+  **Wall-clock hue AND alpha drift can fake carrier flow.** The primary
+  token rotates hue and breathes alpha (0.74↔1.0) — a before/after pair
+  read 0.089→0.12 alpha + hue drift inside one evaluate and looked like
+  `--jx-color-effective` flowing into the tonal ground. Drift-immune
+  form: inject an EXTREME carrier (oklch(0.9 0.4 200)) on a clone, keep a
+  no-carrier twin in the same tick, assert Δ-hue(cloneYes, cloneNo) ≈ 0 —
+  chip's color supply-only proved at Δ0.0°.
+  **Provenance-by-content-identity**: to prove a rendered row comes from
+  the extra lane, don't trust the machinery — parse the raw SSR cells and
+  match them to the lane's exact type/default/description, AND confirm the
+  competing source's signature (the meta's opaque `ChipShape`) appears
+  NOWHERE. Row arithmetic (meta props − axis-named − hidden + extras)
+  catches silent drops before the eyes do.
+  **Kernel arithmetic beats probe trust**: the lg label dispute (13 vs 14)
+  settled by deriving `--jx-density-secondary-text-lg = max(0.625rem,
+  text-lg − unit/4) = 14px` from the sheet — a measured number that
+  contradicts a page claim should be re-derived from the kernel before it
+  is filed, and the derivation cited in the finding.
 
 ## Upgrade commitments (from the breadcrumb review)
 - Alert's density row gets the landed-where clause pattern (and any future
