@@ -435,3 +435,33 @@
   git status/diff --stat, cite the in-flight files, and leave their files
   alone. Report the red with the key list so the coordinator can see it
   resolve at their integration.
+
+## Techniques (mine, added 2026-09-22, task 17 — input-group)
+- **THE §1 FORWARDING RULE IS NOT AXIS CONSUMPTION**: the W3-era summary
+  "consumes size and color: the native element never receives them" merged
+  two unrelated halves — the collision rule (the native element never sees
+  the attributes: a FORWARDING fact) and consumption (a css-READ fact). Every
+  consumption claim must cite the var read (file:line), not the attribute
+  omission. The greps here disproved size AND color consumption on a page
+  that had taught the claim for weeks.
+- **COMPOSER FAMILIES SPLIT THE AXIS STORY IN TWO: on-self vs through-the-
+  subtree**: input-group's density is CONSUMED (its own atoms read the
+  re-based channels) AND PROVIDED (inherit-then-provide, the r11
+  eager-capture contract) — while size/color/elevation are supply-only on
+  self yet real through the composed children. The per-axis table's unit of
+  measurement is the FAMILY, not the root element: "zero readers" needs the
+  qualifier "and here is who feels the supply" (the addon children) or it
+  reads as an absence.
+- **THE EMISSION-FORM SPLIT CAN LAND ON ONE BEZEL**: input-group's dark
+  island flips the addon SEAM and the well shadow (raw css reads) while the
+  base bezel and ground freeze (defineVars aliases) — a visible
+  two-regime boundary across a single 1px joint. The probe asserts each side
+  with its own direction (seam MUST differ, bezel MUST be equal) — an
+  inverted expectation on a frozen voice reads as a pass/fail bug, not a
+  discovery. Write frozen-voice assertions as equality-with-receipt
+  (the var chain), never as difference.
+- **RENDER-SMOKE TIMING JITTER IS A BEFORE-STATE FACT TO CLEAR SOLO**: the
+  form-family smoke timed out at 5.9s in the parallel before-run and passed
+  3/3 solo seconds later. Attributing a jitter red to the sibling (or to
+  yourself) without the solo re-run wastes a round; the before/after ledger
+  should record "cleared solo" as the baseline entry.

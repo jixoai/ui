@@ -13,17 +13,20 @@
   import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { PlayFields, PlayRow, PlayText, PlayToggle, PlayHelp } from '$lib/playground';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import InputGroup from '$lib/ui/input-group/input-group.svelte';
   import InputGroupAddon from '$lib/ui/input-group/input-group-addon.svelte';
   import InputGroupInput from '$lib/ui/input-group/input-group-input.svelte';
+  import { meta as inputGroupMeta } from '$lib/meta/input-group.meta';
+  import { INPUT_GROUP_DOCS } from '$lib/ui/props-table/docs/input-group.docs';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import inputGroupSource from '$lib/ui/input-group/input-group.svelte?raw';
@@ -56,14 +59,122 @@
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
-  // ---- the universal props demo (explicit-props W3-A) --------------------
-  const universalUsage = `<InputGroup label="px number" size={14} density="small">
+  // ---- the eight axes demos: code shown = code running -------------------
+  const axesUsage = `<!-- density: CONSUMED + PROVIDED — the shell atoms read the
+     rung-re-based channels, and the resolved tier is provided to the
+     subtree (the r11 inherit-then-provide contract) -->
+<InputGroup label="endpoint" density="lg">
   <InputGroupAddon>https://</InputGroupAddon>
-  <InputGroupInput placeholder="jixoai.com" />
+  <InputGroupInput name="host" placeholder="status.jixoai.com" />
+</InputGroup>
+
+<!-- theme: the emission-form split — the addon seams, focus ring,
+     disabled border and well shadow (raw css reads) flip under a
+     dark island; the ground and base bezel (defineVars aliases,
+     resolved at the stylex :root scope) hold the page profile -->
+<InputGroup label="endpoint" theme="dark">
+  <InputGroupAddon>https://</InputGroupAddon>
+  <InputGroupInput name="host" placeholder="status.jixoai.com" />
+</InputGroup>`;
+  const axesFiles: TreeFile[] = [
+    { name: 'src/lib/ui/input-group-axes.svelte', content: axesUsage, kind: 'usage' },
+  ];
+
+  // the ONE query() case: responsive density on the shell's rhythm —
+  // the base (large) applies below the 48rem viewport; at 48rem+ the
+  // md case wins and the shell compacts. The string lane needs both
+  // generics (the campaign's typing law).
+  const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'small' }, 'large');
+
+  const queryUsage = `<script lang="ts">
+  import { InputGroup, InputGroupAddon, InputGroupInput } from '@ui/input-group/index';
+  import { query } from '@lib/universal-props-query.svelte';
+  import type { DensityLane } from '@lib/defaults.svelte';
+${close}
+
+<InputGroup label="responsive group" density={query<{ md: DensityLane }, DensityLane>({ md: 'small' }, 'large')}>
+  <InputGroupAddon>https://</InputGroupAddon>
+  <InputGroupInput name="host" placeholder="status.jixoai.com" />
 </InputGroup>`;
 
-  const universalFiles: TreeFile[] = [
-    { name: 'src/lib/ui/input-group-universal.svelte', content: universalUsage },
+  const queryFiles: TreeFile[] = [{ name: 'input-group-query-demo.svelte', content: queryUsage, kind: 'usage' }];
+
+  // ---- the per-axis table (§2.5). Grep receipts: zero -effective
+  // readers in ui/input-group/ (the supply rows); the density row names
+  // the family's own atom reads. The W3-era "consumes size and color"
+  // claim is corrected here: that was the §1 forwarding rule, not
+  // consumption.
+  const axisRows = [
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-size-effective; no family css reads it (grep receipt: zero readers in ui/input-group/ — the W3-era 'consumes size' claim was the §1 forwarding rule mistaken for consumption). The shell sizes from the density channels, not the size axis; the stamp supplies composed addon children. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-shape-effective and --jx-radius-factor-effective; no family css reads them (grep receipt: zero corner-shape declarations — the shell's corner comes from the consumed Tier-2 control-lane vocabulary, not the axis). Number unit: none.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-radius-effective; no family css reads it (grep receipt: zero readers — no concentric chain lives in the shell). Number unit: px.",
+    },
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'ambient scope'`,
+      description:
+        "CONSUMED + PROVIDED — the composer's lane. The named rung stamps data-density on the root and the scope re-bases the channels the shell atoms read: --jx-hit (the lane's min height), --jx-inset (the addon lane's padding; the input part is chromeless), --jx-text (type), --jx-gap (the addon gap) — measured below. AND the resolved tier is PROVIDED to the subtree: inherit-then-provide (the r11 eager-capture contract, spec-pinned) — addon children adopt the group's opinion. Number/query lanes carry no legacy rung (the coefficient rides the carriers). Number unit: coefficient.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-color-effective; no family css reads it (grep receipt: zero readers — the W3-era 'consumes color' claim was the §1 forwarding rule). The shell's state voices are the raw theme tokens (--ring focus, --muted disabled); hue that paints comes from the theme or the jx-hue-* injection. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE MIXED POLE — the split follows the emission form (measured below). FLIP (raw css reads in the state machines): the addon seams (--border), the focus ring tint + outline (--ring), the disabled border (--muted), and the well shadow pair (--shadow-well / --shadow-well-hover). FROZEN (stylex defineVars aliases, resolved at the :root scope): the shell ground (--jx-background), the base bezel (--jx-border on --jx-hairline) and the addon ink (--jx-muted-foreground) — one bezel, two regimes on either side. light and system stamp nothing — tree inheritance.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-elevation-effective; no family css reads it (grep receipt: zero readers). The shell's rest/hover shadow is the input family's WELL tier recipe (--shadow-well pair) — a fixed recipe, not the §7 consumption pair. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-motion-effective; no family css reads it. The shell's transition reads the kernel presets verbatim (--motion-150 / --motion-ease-out) with the prefers-reduced-motion kill (input-group.css) — the axis has no family-local kernel to step. Number unit: coefficient.",
+    },
+  ];
+
+  // the consumption channels + the fixed/raw voices (mixed TokenTable:
+  // the density rows carry the density source; the rest are structural)
+  const axisTokens = [
+    { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' as const, description: 'The lane\'s min-block-size — the shell breathes with the rung.' },
+    { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' as const, description: 'The addon lane\'s inline padding — the input part stays chromeless.' },
+    { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' as const, description: 'The shell\'s type voice.' },
+    { name: '--jx-gap', default: 'rung gap', source: 'density' as const, description: 'The addon-to-field gap.' },
+    { name: '--shadow-well / -hover', default: 'the input family\'s well tier', source: 'structural' as const, description: 'The shell\'s rest/hover shadow — raw css reads that flip per theme; a fixed recipe, not the §7 elevation pair.' },
+    { name: '--ring / --muted', default: 'raw theme tokens', source: 'structural' as const, description: 'The focus tint + outline and the disabled border — the css state machines\' raw voices (flip under .dark).' },
+    { name: '--border seams', default: 'raw theme token', source: 'structural' as const, description: 'One hairline per addon, facing the lane — flips under .dark while the stylex base bezel freezes.' },
+    { name: '--jx-background / --jx-border / --jx-muted-foreground', default: 'defineVars aliases (frozen)', source: 'structural' as const, description: 'The shell ground, base bezel and addon ink — resolved at the stylex :root scope, so a scoped .dark cannot re-substitute them.' },
+    { name: '--jx-hairline', default: '1px', source: 'structural' as const, description: 'The bezel weight (typed token).' },
   ];
 
   const canvasFiles: TreeFile[] = [
@@ -117,7 +228,10 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter(
+        (style): style is string | { readonly [key: string]: string | object } =>
+          Boolean(style),
+      )
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -165,6 +279,51 @@ ${close}
         summary="One registry item — the group, the addon and the input parts ship together (the barrel exports all three)."
       >
         <CodeBlock code={`npx jixoai-ui add input-group`} lang="sh" meta="install" />
+      </SectionCard>
+    </div>
+
+    <!-- overview (docs-eight-axes-mdn task 17, tier 2: the skeleton was
+         complete; this section + the measured per-axis table replace the
+         W3-era universal summary whose "consumes size and color" claim
+         the greps disproved) -->
+    <div id="overview" data-reveal="">
+      <SectionCard
+        eyebrow="overview"
+        title="Overview"
+        summary="Composition parts over the input's shared shell law: addons compose BESIDE the field, the group owns the one bezel and the name, and ONE disabled rule propagates."
+      >
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.measurePara)}>
+            Three parts compose the joined field: <code>InputGroupAddon</code> lanes (text, an
+            icon glyph, a PressButton, a whole NativeSelect) beside a chromeless
+            <code>InputGroupInput</code> — the real <code>&lt;input&gt;</code>, keep-alive for
+            typing, parsing, FormData and <code>label[for]</code>. The group root owns ONE 1px
+            bezel carrying the input family's shell states (the well shadow, hover intensity,
+            the inset focus ring, the invalid dash), each addon owns exactly one hairline seam
+            facing the lane, and the input stays chromeless — no double borders by construction.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            Two contracts are pinned by the family spec. The name: the root is a
+            <code>role=group</code> landmark named by <code>label</code> (an explicit rest
+            aria-label wins; aria-labelledby flows through). Disabled: ONE propagation rule —
+            disabling the root renders the lane native-disabled while every addon goes inert
+            (the platform's containment), and the input's own <code>disabled</code> stays
+            per-part beside it. The house value law is avatar-plain: bound ⇒ controlled, absent
+            ⇒ purely uncontrolled; FormData and form.reset() keep native behavior.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            The eight axes resolve on the group root as a composer: density is the one CONSUMED
+            axis (the shell atoms read the rung-re-based channels) AND the provider — the
+            resolved tier is inherit-then-provide to the subtree (the r11 eager-capture
+            contract, spec-pinned), so addon children adopt it. The other seven stamp-and-supply
+            (grep receipt: zero effective-carrier readers in ui/input-group/ — the W3-era
+            "consumes size and color" was the §1 collision rule mistaken for consumption).
+            Theme splits by emission form: the css state machines read raw tokens and flip
+            under a dark island; the stylex base freezes. Per-axis below; the shared grammar
+            lives on the
+            <a class="pill" href="/docs/universal-props.html">universal props</a> page.
+          </p>
+        </div>
       </SectionCard>
     </div>
 
@@ -330,30 +489,99 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="universal-props" data-reveal="">
+  <div id="axes" data-reveal="">
     <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
+      family="axes"
+      headerRegion="axes"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+      title="The eight axes on input-group"
+      summary="A composer's surface (census batch A, the input family's shared shell law): density is the one CONSUMED axis — the shell atoms read the rung-re-based channels — and simultaneously the PROVIDER (inherit-then-provide to the subtree, the r11 eager-capture contract). The other seven stamp-and-supply with zero family readers (grep receipt; the W3-era 'consumes size and color' claim was the §1 collision rule mistaken for consumption — corrected here). Theme splits by emission form: the css state machines' raw tokens flip under a dark island while the stylex base freezes. The carriers stamp the group root, greppable in the raw SSR."
     >
-      <ComponentCanvas title="input-group · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}>
-          <InputGroup label="size 14 · density small" size={14} density="small">
-            <InputGroupAddon>https://</InputGroupAddon>
-            <InputGroupInput name="univ-igroup-px" placeholder="jixoai.com" />
-          </InputGroup>
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.note12, rt.inkMuted70)}>
+          Reading the table: Property is the axis, Type is the real carrier or consumption it
+          drives on THIS family, Default is the lane default — the named steps, number unit, and
+          consumption are in each description.
+        </p>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Deviations, cited: the adoption is the census batch A row (the input family —
+          openspec/changes/explicit-props/research/migration-census.md). The §1 collision rule:
+          the native input never receives size or color ATTRIBUTES — that forwarding rule was
+          the W3 summary's whole truth; axis CONSUMPTION is a css-read question, and the greps
+          answer it: zero readers. The provider lane is pinned by
+          test/defaults-form-families.spec.ts (the r11 eager-capture contract).
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={axesUsage} lang="svelte" meta="the eight axes on input-group" />
         </div>
-        <div class={cx(rt.panel)}>
-          <InputGroup label="size large · radius medium" size="large" density="large" radius="medium">
-            <InputGroupAddon>https://</InputGroupAddon>
-            <InputGroupInput name="univ-igroup-named" placeholder="jixoai.com" />
-          </InputGroup>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas id="axes" title="input-group · the consumed lane and the emission-form split" files={axesFiles} stage="fill">
+            <div class={cx(rt.gridSm2, rt.wFull)}>
+              <div class={cx(rt.panel)} data-probe="ig-density-default">
+                <span class={cx(rt.note11)}>density auto — the ambient rung</span>
+                <InputGroup label="density default">
+                  <InputGroupAddon>https://</InputGroupAddon>
+                  <InputGroupInput name="ig-den-default" placeholder="jixoai.com" />
+                </InputGroup>
+              </div>
+              <div class={cx(rt.panel)} data-probe="ig-density-lg">
+                <span class={cx(rt.note11)}>density="lg" — the shell breathes (hit, inset, text, gap)</span>
+                <InputGroup label="density lg" density="lg">
+                  <InputGroupAddon>https://</InputGroupAddon>
+                  <InputGroupInput name="ig-den-lg" placeholder="jixoai.com" />
+                </InputGroup>
+              </div>
+              <div class={cx(rt.panel)} data-probe="ig-theme-light">
+                <span class={cx(rt.note11)}>light — the ambient profile</span>
+                <InputGroup label="light group">
+                  <InputGroupAddon>https://</InputGroupAddon>
+                  <InputGroupInput name="ig-th-light" placeholder="jixoai.com" />
+                </InputGroup>
+              </div>
+              <div class={cx(rt.panel)} data-probe="ig-theme-dark">
+                <span class={cx(rt.note11)}>theme="dark" — the state machines and seams flip; the stylex base freezes</span>
+                <InputGroup label="dark group" theme="dark">
+                  <InputGroupAddon>https://</InputGroupAddon>
+                  <InputGroupInput name="ig-th-dark" placeholder="jixoai.com" />
+                </InputGroup>
+              </div>
+            </div>
+            <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+              The density pair is the consumed lane, measured: the lg rung's scope re-bases
+              --jx-hit/--jx-inset/--jx-text/--jx-gap and the shell atoms read them — the group
+              grows in height, padding and type. The theme pair is the emission-form split,
+              measured: the addon SEAM and the well shadow (raw css reads) follow the island
+              while the shell's base bezel and ground (defineVars aliases resolved at the stylex
+              :root scope) hold the page profile — the same substitution-site law heading's lead
+              and image's panel proved, now on both sides of one bezel.
+            </p>
+          </ComponentCanvas>
         </div>
+
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
         </div>
-      </ComponentCanvas>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="input-group · query()" files={queryFiles}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+              <InputGroup label="responsive group" density={responsiveDensity}>
+                <InputGroupAddon>https://</InputGroupAddon>
+                <InputGroupInput name="ig-query" placeholder="jixoai.com" />
+              </InputGroup>
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 48rem the base applies — the large rung, the
+                touch-size shell; at 48rem and wider the md case wins and the group compacts.
+                The string lane takes both generics. Resize across 48rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <TokenTable tokens={axisTokens} />
+        </div>
+      </div>
     </SectionCard>
   </div>
 
@@ -366,18 +594,7 @@ ${close}
       summary="Three parts, one context: the root owns the disable propagation and the name; the addon owns a lane; the input owns the field."
     >
       <div class={cx(rt.col24)}>
-        <PropsTable
-          universal
-          props={[
-            { name: 'label', type: 'string', default: '—', description: 'Accessible group name (aria-label); an explicit rest aria-label wins.' },
-            { name: 'disabled', type: 'boolean', default: 'false', description: 'THE propagation rule: native disabled on the lane + inert on every addon.' },
-            { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; the resolved tier is PROVIDED to the subtree so addon children adopt it (inherit-then-provide).' },
-            { name: 'role', type: 'string', default: "'group'", description: 'The group landmark — override only when you own the semantics.' },
-            { name: 'class', type: 'string', default: "''", description: 'Merged into the root shell (cn()).' },
-            { name: 'children', type: 'Snippet', default: 'required', description: 'Addon + input parts, authored in your tree.', required: true },
-            { name: '...rest', type: 'HTMLAttributes', default: '—', description: 'aria-labelledby, data-*, event handlers — land on the root verbatim.' },
-          ]}
-        />
+        <PropsTable meta={inputGroupMeta} docs={INPUT_GROUP_DOCS} />
         <PropsTable
           props={[
             { name: 'align (InputGroupAddon)', type: "'inline-start' | 'inline-end'", default: "'inline-start'", description: 'Which lane the addon sits in; the hairline seam always faces the input.' },
@@ -385,34 +602,6 @@ ${close}
             { name: 'value (InputGroupInput)', type: 'string | number', default: '—', description: 'Bound ⇒ controlled, absent ⇒ purely uncontrolled (FormData / form.reset untouched).', bindable: true },
             { name: 'disabled (InputGroupInput)', type: 'boolean', default: 'false', description: 'Per-part lane disable — addons keep working beside it.' },
             { name: '...rest (InputGroupInput)', type: 'HTMLInputAttributes', default: '—', description: 'name, placeholder, type, required — every native input attribute.' },
-          ]}
-        />
-      </div>
-    </SectionCard>
-  </div>
-
-  <div id="theming" data-reveal="">
-    <SectionCard
-      family="theming"
-      headerRegion="theming"
-      eyebrow="theming"
-      title="Density and tokens"
-      summary="The shell, the addon lanes and the field all size from the shared density ruler; the seams read var(--border)."
-    >
-      <div class={cx(rt.col20)}>
-        <DensityDemo>
-          <InputGroup label="density">
-            <InputGroupAddon>https://</InputGroupAddon>
-            <InputGroupInput name="density-demo" placeholder="jixoai.com" />
-          </InputGroup>
-        </DensityDemo>
-        <TokenTable
-          tokens={[
-            { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' },
-            { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' },
-            { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' },
-            { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' },
-            { name: '--border', default: 'theme', source: 'seams + shell' },
           ]}
         />
       </div>
