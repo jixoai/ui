@@ -306,6 +306,35 @@
   text-lg − unit/4) = 14px` from the sheet — a measured number that
   contradicts a page claim should be re-derived from the kernel before it
   is filed, and the derivation cited in the finding.
+- (avatar CODE task, task 9)
+  **The ambient-vocabulary matrix pins the page SOURCE, not the curation**
+  (my grep-first law caught the pins but I initially misread their shape):
+  AXIS_PROPS tracks only density/variant/tone/material/size; the checker
+  parses only INLINE `props={[...]}` array literals (an identifier
+  `props={axisRows}` is invisible — the meta table holds an index slot so
+  later tables keep their identity). For a matrix-governed route: inline
+  the axes table, default cells 'ambient scope' (the only truthful
+  expressible cell for a no-own axis), re-pin matrix entries at the new
+  tableIndex with an evidence note, and expect reviewer questions on the
+  one-cell convention divergence from the fleet's "'auto'" axes tables —
+  the route's frozen governance wins.
+  **Dev CSSOM injection is transiently WRONG about theme tokens**: mid-
+  injection the dev pipeline inlined raw token chains (a .dark island
+  flipped a --jx-* border) and later stabilized to the built frozen
+  semantics. A dark-island theme probe can PASS and FAIL on the same page
+  in the same server session depending on injection state. Theme claims:
+  cite the dist emission as the receipt, measure live only after a settle
+  gap, and double-read across a gap before believing either direction.
+  **Replaced-element clamp gotcha**: an <img>-rooted component inside a
+  narrow flex host measures clamped (max-width:100% preflight) — the md
+  avatar read 19.2px until I re-located to a wide context. Box-ladder
+  probes must assert their measuring context is wide enough, or read the
+  atom's own width var resolution instead of the laid-out box.
+  **Build isolation without stashing siblings**: a tree-wide build failure
+  with commingled in-flight work is isolable by backing out ONLY my files
+  (cp to /tmp, git checkout -- mine, mv untracked mine, build, restore) —
+  a same-shape failure without my files proves pre-existence in one 15s
+  build, no stash, no sibling files touched.
 
 ## Upgrade commitments (from the breadcrumb review)
 - Alert's density row gets the landed-where clause pattern (and any future

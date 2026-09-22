@@ -52,6 +52,7 @@ const PILOTS = [
   'components/alert.html',
   'components/accordion.html',
   'components/badge.html',
+  'components/avatar.html',
   'components/checkbox.html',
   'components/link.html',
   'components/prose.html',
@@ -377,6 +378,110 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
           <Badge density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}>
             responsive — the lg base below 40rem, the sm rung at 40rem and wider
           </Badge>
+        </div>
+      </div>"
+    `);
+  });
+  it('avatar.html :: silhouettes', async () => {
+    // the avatar page joined the same-source lane at birth (vellum task 9):
+    // the silhouettes / fallback / axes canvases compose from resolveRawCode;
+    // the play-state lab stays a hand file (the page-state rejection class).
+    expect((await extractionFor('components/avatar.html')).canvases['silhouettes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16)}>
+        <div class={cx(rt.wrapRow16)}>
+          <Avatar name="张伟" variant="bevel" size="lg" alt="" />
+          <Avatar name="JX AoI" variant="bevel" size="md" alt="" />
+          <Avatar name="JX AoI" variant="bevel" size="sm" alt="" />
+          <code class={cx(rt.inkAccent, rt.text115, rt.lead5)}>corner-shape: bevel + var(--radius) × 0.75 / 1 / 1.25 (6·8·10px)</code>
+        </div>
+        <div class={cx(rt.wrapRow16)}>
+          <Avatar name="张伟" variant="rounded" size="lg" alt="" />
+          <Avatar name="JX AoI" variant="rounded" size="md" alt="" />
+          <Avatar name="JX AoI" variant="rounded" size="sm" alt="" />
+          <code class={cx(rt.inkAccent, rt.text115, rt.lead5)}>corner-shape: round + border-radius: 50%</code>
+        </div>
+        <div class={cx(rt.wrapRow16)}>
+          <Avatar name="张伟" variant="squircle" size="lg" alt="" />
+          <Avatar name="JX AoI" variant="squircle" size="md" alt="" />
+          <Avatar name="JX AoI" variant="squircle" size="sm" alt="" />
+          <code class={cx(rt.inkAccent, rt.text115, rt.lead5)}>corner-shape: squircle + border-radius: 50%</code>
+        </div>
+      </div>"
+    `);
+  });
+  it('avatar.html :: fallback', async () => {
+    expect((await extractionFor('components/avatar.html')).canvases['fallback']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>the initials algorithm</p>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" alt="" />
+            <Avatar name="Gaubee" alt="" />
+            <Avatar name="张伟" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>AL · GA · 张伟 — first+last initials, two code points of one word, CJK-safe</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>sm halves the block</p>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" size="sm" alt="" />
+            <Avatar name="张伟" size="sm" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>one code point — two full-width glyphs cannot fit 24px, and a badge must never wrap</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>image + tooltip</p>
+          <div class={cx(rt.rowC12)}>
+            <Avatar src="/icon.svg" name="JX AoI" size="lg" />
+            <span class={cx(rt.noteSmall)}>hover or focus — the full name rides the default tooltip</span>
+          </div>
+        </div>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>decorative: alt=&quot;&quot;</p>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="JX AoI" alt="" />
+            <span class={cx(rt.noteSmall)}>beside a visible name — the fallback block goes aria-hidden, no label</span>
+          </div>
+        </div>
+      </div>"
+    `);
+  });
+  it('avatar.html :: axes', async () => {
+    expect((await extractionFor('components/avatar.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" size="small" alt="" />
+            <Avatar name="Ada Lovelace" size="medium" alt="" />
+            <Avatar name="Ada Lovelace" size="large" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>named steps · 24 / 32 / 40px (measured)</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" size="sm" alt="" />
+            <Avatar name="Ada Lovelace" size="md" alt="" />
+            <Avatar name="Ada Lovelace" size="lg" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>legacy aliases · sm/md/lg → small/medium/large, the same boxes</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" size={48} alt="" />
+            <Avatar name="Ada Lovelace" size={28} alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>number lane · the box edge in px verbatim (48 / 28)</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Avatar name="Ada Lovelace" size={query<{ lg: number }, number>({ lg: 48 }, 40)} alt="" />
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>query() · 40px below the lg rung, 48px at ≥64rem — resize the window</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" alt="" />
+            <Avatar name="Ada Lovelace" theme="dark" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>theme dark · the bridge lands, nothing repaints — the documented absence (W-next #1)</p>
         </div>
       </div>"
     `);
