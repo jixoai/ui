@@ -7,3 +7,4 @@ fixed in one cleanup batch AFTER the campaign (family files are out of doc scope
 1. blockquote `ruleSize` doc-comment says own `1`; code owns `4` (quill, task 1).
 2. blockquote `blockquote.stylex.ts` header calls `--jx-space-14` MISSING; it exists (quill, task 1).
 3. accordion `accordion-defaults.svelte.ts` (+ `size` prop comment) claims "a number moves summary + body"; the family CSS reads rem vars — size paints nothing there (marginalia, task 1).
+4. alert family comment claims "size moves title/body"; the atoms are rem-anchored — only the root font-size moves (vellum, task 1: live-measured, source-read wrong).
