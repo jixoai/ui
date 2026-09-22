@@ -17,6 +17,22 @@
 - One SSR curl + a marker checklist (universal ×1, install, see-also, the
   CLI copy line) doubles as the dev-smoke AND the skeleton lint preview
   before any build (1-anchor).
+- The consumed-vs-supply split grows a THIRD state when the family composes
+  consumers: stamped-on-the-root-but-landed-in-a-composed-part (breadcrumb:
+  density → the dropdown menu's `--jx-hit`/`--jx-line` items; shape/radius →
+  the menu panel's concentric calc). Name WHERE the supply lands and make
+  the demo say "open the node" — the trail looking unchanged IS the truth
+  being documented (2-breadcrumb).
+- A kernel comment describes the RAW prop; the family root stamps the
+  RESOLVED record. `densityRungOf`'s "query() never carries a rung" is true
+  of the raw lane, false of `densityRungOf(d.density)` after
+  `BreadcrumbDefaults.resolve` unwraps the base at SSR — curl the page and
+  write the caption from the markup, not from the comment (2-breadcrumb).
+- svelte-check IS reachable: `npx svelte-check --workspace apps/www` from
+  the REPO ROOT (4.7.6). The full run is noise (1646 pre-existing errors in
+  fixtures/mirrors) — capture `--output machine` to a file and grep your
+  page's path for the true scoped delta. It catches real idiom debt the
+  dev-server smoke cannot (2-breadcrumb).
 
 ## Highlights found in others' pages
 - (none yet)
@@ -31,5 +47,12 @@
   against the CSS source before preserving them into the new page.
 
 ## Upgrades applied back to my pages
-- (none yet — batch continues)
+- (from 2-breadcrumb, candidate for the anchor page at batch close): the cx
+  idiom's `.filter(Boolean)` does not narrow — a type predicate
+  (`.filter((s): s is NonNullable<typeof s> => Boolean(s))`) silences the
+  svelte-check `Object.entries` error that anchor carries at line 66; and
+  the runtime `query` needs the schema's `const` type parameter
+  (kernel one-word fix, campaign-wide) before `density={query({…})}` type
+  checks clean. Both logged for the orchestrator; per-page patches would
+  fork the fleet idiom.
 
