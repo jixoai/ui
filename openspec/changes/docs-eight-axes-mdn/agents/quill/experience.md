@@ -380,3 +380,31 @@
   stamps an elevation recipe flips a voice even though it reads no "color"
   token. Enumerate FLIPS by following the stamped vars to their declaring
   blocks — not by grep for color-looking names.
+
+## Techniques (mine, added 2026-09-22, task 15 — image)
+- **A MISSING META CAN BE A PINNED TRUTH, NOT AN OVERSIGHT**: image had no
+  image.meta.ts, and generating one would have failed the ambient-vocabulary
+  carriers bijection ('image' is not in expectedCarriers — the set IS the
+  fleet's vocabulary decision). Before running a generator, check whether the
+  artifact's absence is load-bearing in a spec. The docs page kept the hand
+  table + `universal` directive (the marker the universal gate counts); the
+  meta + set-expansion is recorded as one fleet follow-up that must land
+  TOGETHER.
+- **THE FROZEN POLE'S PUREST FORM IS ALL-ALIAS**: image's broken panel reads
+  only defineVars aliases (--jx-muted/--jx-muted-foreground/--jx-border), so
+  unlike hero (raw-var accent flips + alias lead freezes) NOTHING flips —
+  the theme split's third shape: declaring-selector (empty: zero raw reads),
+  emission-form-mixed (hero), emission-form-pure (image). The var-chain
+  receipt is the same instrument every time: the raw sheet var flips on the
+  element, the alias doesn't, and the face stays byte-identical.
+- **LAZY MEDIA BREAKS FAILURE-STATE PROBES**: loading="lazy" images outside
+  the viewport never load, so onerror never fires and the failure swap never
+  renders — a probe that measures a failure posture must scroll the subjects
+  into view and waitForFunction the swap. Corollary: SSR shows every demo as
+  the loading root; failure markup exists only client-side, so "raw-bytes"
+  receipts for failure states come from the live DOM, not the SSR payload.
+- **"ON X'S PROVEN LAWS" IS A LAW KINSHIP, NOT A COMPOSITION**: the image
+  header credits avatar, but no import exists either direction (shape-agnostic
+  grep). Composers are import edges; law kinship is prose. Name the edge when
+  you mean the edge, and credit the law when you mean the law — composers
+  lists that mix the two rot the way dropdown-menu's did.
