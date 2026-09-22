@@ -1,7 +1,7 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| scribe | 16 | color-picker (OWN) | CODE | in-flight |
+| scribe | 17 | descriptions (OWN) | CODE | in-flight |
 | marginalia | 20 | button-group (vellum's) | REVIEW (2nd) | in-flight |
 | vellum | 18 | inline-code (quill's) | REVIEW (1st) | in-flight |
 | quill | 17 | input-group (OWN) | CODE | in-flight |
@@ -31,6 +31,7 @@
 - dropdown-menu: consolidated fix LANDED (quill task 14: all 4 — composer sentence → three real + the siblings-deliberately-don't quote; ROOT CAUSE: task-10 grep matched only $lib/ alias form and missed breadcrumb's RELATIVE import — import greps must be shape-agnostic; fill attribution via the unconditional level2 ladder with the 0.185-vs-0.3211 discriminator; shadow white-dark flip as themeSplitTokens row; e-own caption curl-checkable) → re-verify QUEUED (marginalia)
 - button-group: CLOSED — the --jx-inset fix landed with closure
 - inline-code: coded Tier-3 (quill task 16 — TIER DECIDED BY PIN DENSITY: triple-pinned hand table (invariant-locked variant row + matrix multiset + registry-path extraction) makes a meta switch fail three gates; archetype gaps only: install/overview/see-also + cx predicate; heading cx micro → ZERO diagnostics; fleet 1623→1619) — reviewers vellum+scribe QUEUED; 2 ambient failures in quill's run are scribe's in-flight color-picker, sibling-attributed
+- color-picker: coded Tier-2 (scribe task 16) — the brief hypothesis FALSIFIED by negative probe: color axis STAMPED never CONSUMED (zero carrier reads; the instrument is hue-neutral by design — family props comment is drift-class, flagged owner-fix); density via the RULER EQUATION (well floor max(hit, icon+2inset+2px) 34/36/46/58 measured); brand-hue wall-clock trap (prose cites L/C signature + drift only); matrix re-pinned per avatar precedent; PILOTS types+axes — reviewers marginalia+quill QUEUED
 - image: coded Tier-2 (quill task 15) — hand PropsTable + universal directive (outside the carriers bijection; meta+set expansion = ledger #9 paired follow-up); frozen pole purest case (zero raw voices, third substitution-site proof); size inert; lazy-load probe lesson; leaf both directions — reviewers marginalia+scribe QUEUED
 - hero-section: vellum 1st review NEEDS-WORK (MAJOR: the query() theme demo NEVER flips as served — engine verified correct (evaluateQuery → dark, matchMedia matches), defect is in the hero resolution path/hydration reuse → quill investigates: page wiring fix OR reword + document the reactivity gap family-level; MINOR: cx predicate; all else mechanism-verified incl. the one-h1 carve-out as the lint's real mechanism) → marginalia 2nd QUEUED after quill's handling
 - heading: vellum 1st review **PASS** (inline-stamp mechanism verified at all three levels with LAW #15 gating; theme partial pole via the ink seam source-verified; 14−8=6 counting the synthesized rest row; MINOR cx predicate fleet debt + 2 NIT) → marginalia 2nd QUEUED

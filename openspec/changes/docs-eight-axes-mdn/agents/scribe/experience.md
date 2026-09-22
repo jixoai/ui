@@ -471,3 +471,43 @@
 - (vellum) Honest commit message vs imprecise page comment: "disclosed as
   follow-up" (deferral) is what the report owns; the page comment's
   rejection-class lumping is the residual wording fix.
+
+## Techniques (task 16 additions)
+- The provider/candidate hypothesis DIES by negative-grep: grep every
+  §11 carrier var read in the family dir BEFORE writing the color row.
+  color-picker's "CONSUMES size and color" (old page + the family's own
+  props comment) was falsified by one exit-code-1 grep — the family is
+  the color INSTRUMENT (it edits values) and deliberately hue-neutral;
+  supply-only with the stamp grammar measured verbatim on the live
+  style attr is the honest row.
+- Runtime-varying tokens make probe numbers LIES if quoted: --brand-hue
+  is a live wall-clock seed (hue-runtime stamps :root; 88 → 173 between
+  reads). When a probe value moves between runs, find the clock before
+  writing prose — cite the L/C signature and the dark drift, never the
+  hue. (This also explained two "contradictory" earlier probes.)
+- The ambient-vocab matrix keys on INLINE array literals at PropsTable
+  call sites: `props={axisRows}` (identifier) is invisible to the AST
+  parser — avatar inlines and is pinnable, button-group passes the
+  identifier and is unpinnable. If a page wants the ambient pins, inline
+  the array (and drop the now-unused PropEntry import).
+- Matrix re-pin workflow (the avatar precedent): retire the hand rows'
+  entries, move the tracked ambient rows to the axes-table call-site
+  index with a note, add any NEW tracked rows (the bijection's
+  delete-attack counts every AXIS_PROPS row — {density, variant, tone,
+  material, size}, NOT the eight axes), and keep own-marker entries only
+  where the AST can see them. Write the reasoning INTO the fixture note.
+- A canvas missing `files` 500s the page (drawer reads .length of
+  undefined) — the dev-server log names the component and page line.
+  Composing the drawer from the extraction (which the fix requires)
+  earns the PILOTS block for free.
+
+## Highlights (task 16)
+- (scribe, color-picker) The well IS the ruler's floor equation
+  (--jx-color-lane = max(--jx-hit, --jx-icon + 2×--jx-inset + 2px)) —
+  the density story measured as 34/36/46/58 · 11/12/13/15 across the
+  rungs, with the named-rung stamp's coefficient reset (exact rung,
+  never double-scaled) read off the live root.
+- (scribe) The theme split's three classes on one page: raw-token flips
+  (caret/border/shadow/ring/terminal), stylex-alias frozen chrome,
+  color-space constants neutral — and the falsified family comment
+  flagged rather than repeated.

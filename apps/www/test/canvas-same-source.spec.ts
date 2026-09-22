@@ -56,6 +56,7 @@ const PILOTS = [
   'components/button-group.html',
   'components/breadcrumb.html',
   'components/checkbox.html',
+  'components/color-picker.html',
   'components/link.html',
   'components/prose.html',
   'components/list.html',
@@ -609,6 +610,48 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
           <div class={cx(rt.panel)}><Checkbox label="2xs rung — the floor lowers to 24px" name="axes-d-2xs" density="2xs" /></div>
         </div>
       </div>"
+    `);
+  });
+  it('color-picker.html :: types', async () => {
+    // the color-picker page joined the same-source lane at its tier-2
+    // restructure (scribe task 16): the TYPES canvas is a static stage
+    // (no page state — the lab/catalogue/error demos stay hand mirrors,
+    // the bind:value rejection class)
+    expect((await extractionFor('components/color-picker.html')).canvases['types']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.cpGridSm)}>
+        <div class={cx(rt.panel)}><ColorPicker label="hex" value="#007924" format="hex" /></div>
+        <div class={cx(rt.panel)}><ColorPicker label="hsl" value="hsl(145 100% 24%)" format="hsl" /></div>
+        <div class={cx(rt.panel)}><ColorPicker label="oklch" value="oklch(0.6489 0.237 145)" format="oklch" showValue={false} /></div>
+      </div>"
+    `);
+  });
+  it('color-picker.html :: axes', async () => {
+    expect((await extractionFor('components/color-picker.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2, rt.wFull)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density default — the ruler's floor equation (46px well, 13px type)</span>
+          <ColorPicker label="density default well" value="#007924" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density="lg" — the touch tier steps the whole lane (58px, 15px)</span>
+          <ColorPicker label="density lg well" value="#007924" density="lg" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>theme="dark" — the caret, swatch border and well shadow flip; the trigger chrome stays frozen</span>
+          <ColorPicker label="dark well" value="#007924" theme="dark" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>color="error" — stamped, unread: the instrument stays hue-neutral (the lane paints nothing semantic)</span>
+          <ColorPicker label="color carrier well" value="#007924" color="error" />
+        </div>
+      </div>
+      <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+        The number lanes stamp and re-base nothing here — the declaring element for every
+        channel the family reads is the ambient scope (:root), the wrapper never re-declares
+        (the declaring-element law). Measure the well floor, not the coefficient:
+        34 / 36 / 46 / 58px across xs / sm / default / lg — the ruler equation
+        max(--jx-hit, --jx-icon + 2×--jx-inset + 2px).
+      </p>"
     `);
   });
   it('breadcrumb.html :: demo', async () => {
