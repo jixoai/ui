@@ -277,3 +277,22 @@
 - **A primitive page demonstrates its own composer for free**: the canvas dock mounts 14
   dropdown-menu instances at density xs on the very page — the SSR grep of their panel stamps is
   a composed-consumer receipt that costs nothing.
+
+## Techniques (mine, added 2026-09-22, task 11 — cascader fold + empty)
+- **TokenTable has two dead lanes for structural rows — feed the Default cell**: `sourceLabel`
+  maps only density/component/color ('structural' → '') and `description` never renders. The
+  badge-ladder fold: drop the `source` field (the `tokens.some(t => t.source)` guard then removes
+  the whole empty column) and write each fact into the Default cell. Merge rows that share a
+  fact family (--space-6/--space-10; the label pair) — fewer rows, zero dead cells.
+- **The theme axis has THREE measured poles now**: checkbox full-flip (raw reads), cascader
+  ring-only (one raw voice), empty full-frozen (zero raw reads — the .dark stamps and nothing
+  changes). The frozen pole's receipt is the byte-identity probe: light and dark figures
+  identical on bg/border/color/size while `.dark` stamps only one of them. A documented absence
+  with a grep + a measurement beats an invented flip.
+- **A leaf family's composed-consumer receipt is NEGATIVE twice**: no component mounts it (grep
+  the tree) AND its own composition is consumer-side (the snippets). Say both; the reader stops
+  hunting for a composition chain that doesn't exist.
+- **Rewrite checklists need the helper inventory**: dropping a page's script section silently
+  dropped its `cx` helper while the markup kept calling it — 30 svelte-check errors caught
+  pre-gate. When a rewrite preserves markup idioms, inventory the script-level helpers the
+  markup depends on before deleting anything.

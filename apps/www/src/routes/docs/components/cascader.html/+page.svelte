@@ -189,15 +189,16 @@ const options = [
   ];
 
   // the fixed paint: the constants the shells actually read (the receipts
-  // behind the supply-only rows). None is rung- or axis-scoped.
+  // behind the supply-only rows). None is rung- or axis-scoped. The facts
+  // ride the Default cells (the badge ladder model) — TokenTable renders
+  // neither a description column nor a label for source:'structural'.
   const fixedTokens = [
-    { name: '--jx-unit', default: '0.25rem (4px)', source: 'structural' as const, description: 'The ruler unit — the select\'s block padding is calc(var(--jx-unit) × 1.75), fixed at every density rung.' },
-    { name: '--space-6', default: 'calc(var(--jx-unit) × 1.5)', source: 'structural' as const, description: 'The group column gap and the chain\'s wrapping gap.' },
-    { name: '--space-10', default: 'calc(var(--jx-unit) × 2.5)', source: 'structural' as const, description: 'The select\'s inline padding.' },
-    { name: '--jx-text-base', default: '0.8125rem (13px)', source: 'structural' as const, description: 'The select\'s mono body voice — the ruler\'s T_base constant, NOT the density channel --jx-text; no rung rescales it.' },
-    { name: '--text-label-lg', default: '0.75rem (12px)', source: 'structural' as const, description: 'The label\'s uppercase eyebrow voice, with --track-10 letter spacing.' },
-    { name: '--jx-hairline', default: '1px', source: 'structural' as const, description: 'The select border weight, on the border role.' },
-    { name: '--jx-radius', default: 'var(--radius)', source: 'structural' as const, description: 'The select corner — the theme token, not the radius axis carrier.' },
+    { name: '--jx-unit', default: '0.25rem (4px) — the ruler unit; the select\'s block padding is calc(var(--jx-unit) × 1.75), fixed at every density rung' },
+    { name: '--space-6 / --space-10', default: 'calc(var(--jx-unit) × 1.5 / × 2.5) — the group column gap, the chain\'s wrapping gap, and the select\'s inline padding' },
+    { name: '--jx-text-base', default: '0.8125rem (13px) — the select\'s mono body voice: the ruler\'s T_base constant, NOT the density channel --jx-text; no rung rescales it' },
+    { name: '--text-label-lg / --track-10', default: '0.75rem (12px) / 0.1em — the label\'s uppercase eyebrow voice' },
+    { name: '--jx-hairline', default: '1px — the select border weight, on the border role' },
+    { name: '--jx-radius', default: 'var(--radius) — the select corner: the theme token, not the radius axis carrier' },
   ];
 
 </script>
