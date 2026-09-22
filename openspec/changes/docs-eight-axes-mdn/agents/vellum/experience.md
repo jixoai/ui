@@ -529,3 +529,25 @@
 - **git log -- <files> before re-verifying**: 54750f68 still being the
   heading files' last commit proved nothing drifted under the findings
   — the cheapest "did the tree move" receipt there is.
+
+## Task 17 (hero-section REVIEW) — lessons
+- **The query() demo class needs a LIVE flip check, not a mechanism
+  cite**: the theme query demo never flipped (silent — zero console
+  noise), while the identical engine resolved 'dark' standalone in the
+  same page context. A query demo can be FALSE-implying even when
+  every static artifact (code, caption, engine) is individually
+  correct: the INTEGRATION is the claim. Any page whose query case is
+  the teaching artifact gets a two-viewport probe with polar/clean
+  assertions — and the wall-clock hue kills naive color-equality
+  checks, so assert L/C polars or attribute flips, never full colors.
+- **Stylex dev class names defeat attribute-substring selectors**:
+  `[class*="ctaRow"]` matches nothing (classes are x1y0btm7-style
+  hashes); scope by panel hook (data-probe) + element/tag selectors,
+  or dump outerHTML first. Same discipline as LAW #15 but for
+  SELECTORS, not timing.
+- **Ambient solos can carry siblings' mid-edit failures**: the ambient
+  bijection failed on `color-picker|1|size|1` — a sibling's page row
+  landed before their matrix re-pin. Attribution procedure: read the
+  uncovered key's page name, check git status for that page's in-flight
+  edit, report the failure as attributed context (count + name) rather
+  than pass/fail.

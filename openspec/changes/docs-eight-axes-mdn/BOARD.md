@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | scribe | 16 | color-picker (OWN) | CODE | in-flight |
 | marginalia | 20 | button-group (vellum's) | REVIEW (2nd) | in-flight |
-| vellum | 17 | hero-section (quill's) | REVIEW (1st) | in-flight |
+| vellum | 18 | inline-code (quill's) | REVIEW (1st) | in-flight |
 | quill | 17 | input-group (OWN) | CODE | in-flight |
 ## DONE
 - ✅ **button-group** (owner vellum) — sixteenth closed page (scribe PASS + marginalia PASS with digit-exact convergence on all four voices/provider/radius/W7; the co-signed MINOR (--jx-inset third re-based lane + restored token row) landed WITH the closure by the orchestrator)
@@ -32,7 +32,7 @@
 - button-group: CLOSED — the --jx-inset fix landed with closure
 - inline-code: coded Tier-3 (quill task 16 — TIER DECIDED BY PIN DENSITY: triple-pinned hand table (invariant-locked variant row + matrix multiset + registry-path extraction) makes a meta switch fail three gates; archetype gaps only: install/overview/see-also + cx predicate; heading cx micro → ZERO diagnostics; fleet 1623→1619) — reviewers vellum+scribe QUEUED; 2 ambient failures in quill's run are scribe's in-flight color-picker, sibling-attributed
 - image: coded Tier-2 (quill task 15) — hand PropsTable + universal directive (outside the carriers bijection; meta+set expansion = ledger #9 paired follow-up); frozen pole purest case (zero raw voices, third substitution-site proof); size inert; lazy-load probe lesson; leaf both directions — reviewers marginalia+scribe QUEUED
-- hero-section: coded Tier-2 (quill task 13) — EMISSION-FORM theme split discovered (eyebrow/title raw vars flip, summary/badges defineVars freeze — W-next #2 refined); size = the heading contrast case (stamp lands, clamp+fixed-px voices give em nothing to scale); density supply-only on self / consumed by composition (guest CTA 13→12, Badge 12→11 measured); 20−8=12 arithmetic; hue-injection byte-pin honored docs-only — reviewers marginalia+vellum QUEUED
+- hero-section: vellum 1st review NEEDS-WORK (MAJOR: the query() theme demo NEVER flips as served — engine verified correct (evaluateQuery → dark, matchMedia matches), defect is in the hero resolution path/hydration reuse → quill investigates: page wiring fix OR reword + document the reactivity gap family-level; MINOR: cx predicate; all else mechanism-verified incl. the one-h1 carve-out as the lint's real mechanism) → marginalia 2nd QUEUED after quill's handling
 - heading: vellum 1st review **PASS** (inline-stamp mechanism verified at all three levels with LAW #15 gating; theme partial pole via the ink seam source-verified; 14−8=6 counting the synthesized rest row; MINOR cx predicate fleet debt + 2 NIT) → marginalia 2nd QUEUED
 - empty: vellum 1st review **PASS** (frozen pole proven by MECHANISM receipt — typed intermediate substitutes once at :root, scoped .dark never re-opens; grep alone insufficient; 8/8 frozen probe; composed-consumer negative twice with false-friends checked) → marginalia 2nd QUEUED; 1 MINOR (cx predicate, fleet debt) + 2 NIT
 - avatar: consolidated fix LANDED (vellum task 15: initials follow size reworded with the echo mechanism + both clip numbers cited to ledger #7; deviations paragraph split into carrier-vs-adoption; overflow claim ×0; cx predicate applied — page ZERO diagnostics, fleet 1623→1622) → re-verify QUEUED (marginalia)
