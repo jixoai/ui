@@ -13,11 +13,15 @@
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import Link from '$lib/ui/link/link.svelte';
   import { usageFile } from '$lib/canvas-usage';
   import { registrySourceUrl } from '$lib/registry-source';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+  import { meta as linkMeta } from '$lib/meta/link.meta';
+  import { LINK_DOCS } from '$lib/ui/props-table/docs/link.docs';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import linkSource from '$lib/ui/link/link.svelte?raw';
@@ -28,6 +32,10 @@
   // usage TreeFile). The hand template literal + `const close` dodge
   // (and the drifted, never-rendered iconUsage const) are gone.
   import { resolveRawCode } from 'virtual:jixoai-canvas/docs/components/link.html/+page';
+
+  // A literal closing-script tag inside a template literal would terminate
+  // this component's own script tag during the HTML-level scan — splice it.
+  const close = '</' + 'script>';
 
   const usage = usageFile({ '{ Link }': '@ui/link' }, resolveRawCode('lanes'));
   const iconUsage = usageFile({ '{ Link }': '@ui/link' }, resolveRawCode('icon'));
@@ -60,7 +68,10 @@ const external = /^https?:\\/\\//i.test(href);
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter(
+        (style): style is string | { readonly [key: string]: string | object } =>
+          Boolean(style),
+      )
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -69,12 +80,109 @@ const external = /^https?:\\/\\//i.test(href);
             ).join(' '),
       )
       .join(' ');
-  // ---- the universal props demo (explicit-props W3-B) --------------------
-  const universalUsage = `<!-- the eight-axis surface on the prose link -->
-<Link href="/docs.html" size={14} density="small">px number</Link>
-<Link href="/docs.html" size="large" radius="medium">named steps</Link>`;
-  const universalFiles: TreeFile[] = [
-    { name: 'src/lib/ui/link-universal.svelte', content: universalUsage },
+
+  // ---- the eight axes demos: code shown = code running -------------------
+  const axesUsage = `<!-- size: CONSUMED through the em voices — the stamp sets the
+     anchor's font-size, the label text inherits it, and the 0.8em
+     suffix glyph rescales with it -->
+<Link href="https://github.com/jixoai/ui" size={14}>14px label · 0.8em glyph</Link>
+
+<!-- theme: the FROZEN pole (the pure-alias case) — the ink is
+     tokens['--jx-primary'], resolved at the stylex :root scope, so a
+     dark island re-substitutes nothing: byte-identical ink -->
+<Link href="/docs.html" theme="dark">dark island, same ink</Link>`;
+  const axesFiles: TreeFile[] = [
+    { name: 'src/lib/ui/link-axes.svelte', content: axesUsage, kind: 'usage' },
+  ];
+
+  // the ONE query() case: responsive size — the number lane goes bare
+  // (results infer); string lanes need both generics. md = 48rem
+  // (the registered VIEWPORT_SCALE — cite the key, not a guess).
+  const responsiveSize = query({ md: 18 }, 14);
+
+  const queryUsage = `<script lang="ts">
+  import Link from '@ui/link';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- below 48rem the base (14px) applies; at 48rem+ the md case (18px)
+     wins — label text and the 0.8em glyph step together -->
+<Link href="/docs.html" size={query({ md: 18 }, 14)}>responsive label</Link>`;
+
+  const queryFiles: TreeFile[] = [{ name: 'link-query-demo.svelte', content: queryUsage, kind: 'usage' }];
+
+  // ---- the per-axis table (§2.5). Grep receipts: zero -effective
+  // readers in ui/link/; the only color voice is the defineVars alias
+  // --jx-primary (tokens['--jx-primary']) — the pure-alias frozen pole.
+  const axisRows = [
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "CONSUMED through the em voices — the §11 stamp sets the anchor's font-size and BOTH em-voiced surfaces follow: the label text (inherited — the anchor atom declares no font-size of its own) and the 0.8em suffix glyph (measured: 14px stamp → 14px anchor, 11.2px glyph; auto → the ambient scale). The underline offset is fixed 4px optical geometry and does NOT scale. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-shape-effective + --jx-radius-factor-effective; no family css reads them (grep receipt: zero carrier reads in ui/link/). The anchor draws no box. Number unit: none.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-radius-effective; no family css reads it (grep receipt: zero readers). Nothing rounds. Number unit: px.",
+    },
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the named rung stamps data-density on the anchor; the family reads none of the re-based channels (grep receipt: zero --jx-text/--jx-hit/--jx-inset reads — the icon lane's gap is the em-relative --link-icon-gap promotion seam, not a rung channel). The stamp supplies composed/guest content. Number unit: coefficient.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the instrument's ink is already --jx-primary (the alias), so the hue carrier adds nothing: --jx-color-effective stamps and zero family css reads it (grep receipt). Hue injection goes through the jx-hue-* utilities on the surrounding tree. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE FROZEN POLE, the pure-alias case — measured: the ink is tokens['--jx-primary'], a stylex defineVars member declared (and therefore resolved) at the stylex :root theme scope; the anchor inherits the already-substituted light value, so a scoped .dark re-substitutes NOTHING (receipt: --primary flips on the anchor, --jx-primary does not; the computed color is byte-identical). A dark island keeps the light-profile accent — consumers compose dark links inside their own dark ground. The one platform exception is forced-colors: active, which swaps the ink to the LinkText system keyword by media query, not by the axis. light and system stamp nothing — tree inheritance.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-elevation-effective; no family css reads it (grep receipt: zero shadow declarations). Text casts no shadow. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — stamps --jx-motion-effective; no family css reads it. The hover underline is instant (no transition declared); nothing animates. Number unit: coefficient.",
+    },
+  ];
+
+  // the family's fixed paint (the fixed-paint TokenTable pattern —
+  // no source column: every row is the component's own constant or
+  // seam, and the facts live in the Default cells)
+  const paintTokens = [
+    { name: 'the B2 non-nav lane', default: '--jx-primary ink · underline on hover', description: 'The prose face\'s non-nav lane as the component\'s own utilities — standalone outside any jx-pure scope; inside one, the values coincide (same property, same token, deterministic no-op).' },
+    { name: 'the offset', default: 'text-underline-offset: 4px', description: 'Fixed optical calibration — keeps the underline off the descenders; does NOT scale with the size axis (the measured contrast to the 0.8em glyph).' },
+    { name: '--link-icon-gap', default: '0.2em (promotion seam)', description: 'The icon lane\'s inline-start gap — em-relative so it scales with the ambient scale (the no-font-size kinship: no sheet step can express it); the lane\'s own atom owns the whole label-to-glyph distance (no intervening text node).' },
+    { name: 'the optical baseline', default: 'vertical-align: -0.125em', description: 'The glyph\'s shift — fixed optical geometry, like the offset.' },
+    { name: 'forced-colors ink', default: 'LinkText', description: 'The fleet convention (press-button\'s link rung) inside @media (forced-colors: active) — the platform exception to the frozen alias, gated by media query, not by the axis.' },
+    { name: 'the hooks', default: 'data-jx-link={external|internal} · data-jx-link-icon', description: 'The valued hook names which lane rendered; the icon span is aria-hidden (the target/rel pair carries the departure semantics).' },
   ];
 
 </script>
@@ -109,6 +217,48 @@ const external = /^https?:\\/\\//i.test(href);
 
     <div data-reveal="">
       <DocsInstall name="link" />
+    </div>
+
+    <!-- overview (docs-eight-axes-mdn task 20, tier 2: the skeleton had
+         Install/lanes/icon/detection already — this section + the
+         measured per-axis table complete the archetype; the W3-era
+         universal demo's movement-implying panels retire) -->
+    <div id="overview" data-reveal="">
+      <SectionCard
+        eyebrow="overview"
+        title="Overview"
+        summary="A native anchor carrying the prose face's non-nav lane as its own utilities; the href alone decides the external contract; the axes stamp a component whose paint is one ink, one offset, one hover."
+      >
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.measurePara)}>
+            Link renders one native <code>&lt;a&gt;</code> carrying the face B2 non-nav lane as
+            its OWN utilities — <code>--jx-primary</code> ink, a 4px underline offset, underline
+            on hover — so it stands alone outside any jx-pure scope; inside one, the values
+            coincide (same property, same token — a deterministic no-op, and the face never
+            declared a different value anyway). The external contract is PATTERN-based: any
+            absolute http(s) href is external — <code>target="_blank"</code> +
+            <code>rel="noreferrer"</code>, landed after the spread (the separator law) — because
+            window.location has no place in an SSR-safe registry component.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            The suffix-icon lane is the tri-state input semantic-glyph law verbatim:
+            undefined paints the default externalLink glyph IFF external (SSR-painted,
+            hydration-matched), null is the explicit OFF, a snippet renders custom content —
+            and internal links never carry the lane. The glyph is em-sized (0.8em) with the
+            0.2em gap owning the whole label-to-glyph distance, so the lane rides any ambient
+            scale — which is exactly how the size axis reaches it.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            A composed leaf, precisely: the markdown family maps prose links to it (grep
+            receipt: markdown-node is the one component edge), and it composes nothing but the
+            icon. The eight axes resolve all no-own on the anchor — size is the one CONSUMED
+            voice (the em lanes), theme is the frozen pole (the pure-alias case: a dark island
+            re-substitutes nothing), and six stamp-and-supply. Per-axis below; the shared
+            grammar lives on the
+            <a class="pill" href="/docs/universal-props.html">universal props</a> page.
+          </p>
+        </div>
+      </SectionCard>
     </div>
 
     <div id="usage" data-reveal="">
@@ -239,22 +389,83 @@ const external = /^https?:\\/\\//i.test(href);
     </SectionCard>
   </div>
 
-  <div id="universal-props" data-reveal="">
+  <div id="axes" data-reveal="">
     <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
+      family="axes"
+      headerRegion="axes"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The 0.8em suffix glyph rescales with the size axis; the anchor root stamps the carriers."
+      title="The eight axes on link"
+      summary="The prose link is one ink, one offset, one hover — so six axes stamp-and-supply with zero family readers (grep receipt). The exceptions: size is CONSUMED through the em voices (the label inherits the stamp; the 0.8em glyph rescales with it), and theme is the frozen pole's pure-alias case (the ink is defineVars-resolved at the stylex :root scope — a dark island re-substitutes nothing; forced-colors is the platform exception, media-gated). The carriers stamp the anchor root, greppable in the raw SSR."
     >
-      <ComponentCanvas title="Link · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}><Link href="/docs.html" size={14} density="small">size 14 · density small</Link></div>
-        <div class={cx(rt.panel)}><Link href="/docs.html" size="large" density="large">size large · density large</Link></div>
-        <div class={cx(rt.panel)}><Link href="https://jixoai.com" size="medium" color="primary">external · primary</Link></div>
-        <div class={cx(rt.panel)}><Link href="/docs.html" radius="medium">radius medium</Link></div>
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.note12, rt.inkMuted70)}>
+          Reading the table: Property is the axis, Type is the real carrier or consumption it
+          drives on THIS family, Default is the lane default — the named steps, number unit, and
+          consumption are in each description.
+        </p>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Deviations, cited: the adoption is the census batch D row (the long tail —
+          openspec/changes/explicit-props/research/migration-census.md). The §1 collision rule:
+          the interface is <code>Omit&lt;HTMLAnchorAttributes, 'color'&gt;</code> — the native
+          color attribute cleared for the hue lane; href, title, target and rel land after the
+          spread as the component's contract. A composed leaf, precisely: markdown-node maps
+          prose links here (the one component edge), and it composes nothing but the icon.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={axesUsage} lang="svelte" meta="the eight axes on link" />
         </div>
-      </ComponentCanvas>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas id="axes" title="link · the em voices and the frozen pole" files={axesFiles} stage="fill">
+            <div class={cx(rt.gridSm2, rt.wFull)}>
+              <div class={cx(rt.panel)} data-probe="link-auto">
+                <span class={cx(rt.note11)}>size auto — the ambient scale</span>
+                <Link href="https://github.com/jixoai/ui">ambient label ↗</Link>
+              </div>
+              <div class={cx(rt.panel)} data-probe="link-size-14">
+                <span class={cx(rt.note11)}>size={"{14}"} — label 14px, glyph 0.8em → 11.2px (measured)</span>
+                <Link href="https://github.com/jixoai/ui" size={14}>stamped label ↗</Link>
+              </div>
+              <div class={cx(rt.panel)} data-probe="link-light">
+                <span class={cx(rt.note11)}>light — the ambient accent</span>
+                <Link href="/docs.html">light ink</Link>
+              </div>
+              <div class={cx(rt.panel)} data-probe="link-dark">
+                <span class={cx(rt.note11)}>theme="dark" — .dark stamps; the ink is byte-identical (the frozen pole)</span>
+                <Link href="/docs.html" theme="dark">dark island, same ink</Link>
+              </div>
+            </div>
+            <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+              The size pair is the consumed lane, measured: the stamped anchor computes exactly
+              14px and the external glyph scales to 0.8 × 14 = 11.2px with it — while the
+              underline offset stays the fixed 4px optical calibration. The theme pair is the
+              pure-alias frozen pole: both anchors compute the same ink (the :root-resolved
+              --jx-primary) even though --primary itself flips on the element — the
+              substitution site decides, and here nothing rides the flipping var.
+            </p>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="link · query()" files={queryFiles}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+              <Link href="/docs.html" size={responsiveSize}>responsive label</Link>
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 48rem the base applies — 14px; at 48rem and
+                wider the md case wins — 18px, label and glyph together. The number lane goes
+                bare (results infer); string lanes take both generics. Resize across 48rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+
+        <div class={cx(rt.mt20)}>
+          <TokenTable tokens={paintTokens} />
+        </div>
+      </div>
     </SectionCard>
   </div>
 
@@ -264,16 +475,9 @@ const external = /^https?:\\/\\//i.test(href);
       headerRegion="api"
       eyebrow="api"
       title="API"
-        summary="Four props and a verbatim spread; href alone decides the external contract, icon decides only the decorative suffix lane."
+        summary="Props extend the native HTMLAnchorAttributes minus color (the §1 collision rule) — href alone decides the external contract, icon decides only the decorative suffix lane; 15 meta props − 8 ambient axes = 7 rows, all curated."
     >
-      <PropsTable universal props={[
-        { name: 'href', type: 'string', default: '—', description: 'The link target. An absolute http(s) href makes the link external: target=_blank + rel=noreferrer. App routes, anchors and non-http schemes keep default navigation.', required: true },
-        { name: 'title', type: 'string', default: '—', description: 'Advisory title, passthrough to the native attribute.' },
-        { name: 'icon', type: 'Snippet | null', default: 'undefined — glyph on externals', description: 'The suffix-icon lane, tri-state (undefined ≠ off): omitted paints the default externalLink glyph IFF external (inline-core, SSR-painted, no flash); null turns the lane off; a snippet renders custom content in the data-jx-link-icon span (aria-hidden, 0.8em). Internal links never carry the lane at any setting.' },
-        { name: 'children', type: 'Snippet', default: '—', description: 'The link label; omit for attribute-only anchors.' },
-        { name: 'class', type: 'string', default: "''", description: 'Forwarded to the anchor; consumer classes land last.' },
-        { name: '...rest', type: 'HTMLAnchorAttributes', default: 'spread', description: 'Every other attribute passes through to the native anchor — but href, title, target and rel are the component\'s contract and land after the spread (the separator law).' },
-      ]} />
+      <PropsTable meta={linkMeta} docs={LINK_DOCS} />
     </SectionCard>
   </div>
 

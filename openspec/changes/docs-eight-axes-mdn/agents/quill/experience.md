@@ -526,3 +526,28 @@
   makes 5s render-smoke timeouts meaningless; the solo re-run passes at 30s.
   Record the timeout bump in the gate ledger — an unexplained timeout bump
   reads as a regression and costs the coordinator a round.
+
+## Techniques (mine, added 2026-09-22, task 20 — link)
+- **EM VOICES ARE HOW A TYPOGRAPHY PRIMITIVE CONSUMES SIZE**: link declares
+  no font-size atom, so the §11 stamp sets the anchor's font-size and
+  everything em-voiced follows — the inherited label text and the 0.8em
+  glyph — while the FIXED optical voices (4px underline offset, −0.125em
+  shift) refuse to scale. One element demonstrates consumption and refusal
+  at once; measure both and the row teaches the no-font-size kinship with
+  numbers instead of adjectives.
+- **A PAGE CAN BE PAST THE ARCHETYPE IN ITS CRAFT SECTIONS AND STILL MISS
+  THE MEASURED LAYER**: link's lanes/icon/detection sections were
+  review-grade prose, yet the universal section still carried
+  movement-implying panels and no receipts. Tier 2 on such a page = keep the
+  craft sections untouched, add the measured axes layer, retire only the
+  false-implying demos.
+- **THE RAW-CODE CANVAS LANE REMOVES THE close DODGE — UNTIL YOU ADD A HAND
+  STRING BACK**: a page whose usage strings all come from resolveRawCode
+  never defines `const close`; the first hand-written template literal with
+  a `<script>` block reintroduces the closing-tag hazard and the undefined
+  const at once. When adding a hand string to a resolveRawCode page, bring
+  the splice const with it (the dev 500 is immediate and names the line).
+- **SUB-PIXEL COMPUTED STYLES NEED A TOLERANCE, NOT AN EXACT MATCH**: 0.8em
+  of 14px computes to 11.1875px used width in Chromium, not the nominal
+  11.2 — assert |computed − nominal| ≤ 0.1px or the probe red is a rounding
+  artifact wearing a failure costume.
