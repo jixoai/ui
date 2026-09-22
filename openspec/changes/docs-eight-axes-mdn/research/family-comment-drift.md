@@ -9,6 +9,7 @@ fixed in one cleanup batch AFTER the campaign (family files are out of doc scope
 3. accordion `accordion-defaults.svelte.ts` (+ `size` prop comment) claims "a number moves summary + body"; the family CSS reads rem vars — size paints nothing there (marginalia, task 1).
 4. alert family comment claims "size moves title/body"; the atoms are rem-anchored — only the root font-size moves (vellum, task 1: live-measured, source-read wrong).
 5. anchor.svelte JSDoc claims size moves what density actually moves — the wrong artifact vs the rem-based channels (quill review of anchor; page fixed by scribe, family comment left).
+6. checkbox.svelte `size` comment claims "CONSUMED by the family" — live-probed FALSE: the number lane is inert through the real carrier path (box/lane/label byte-identical at coefficient 1.5; channels declared at :root + rung scopes, substitution runs at the declaring element) — ledger #3/#4/#5 class (scribe, task 8: source-read wrong, measurement-first overturned it).
 
 ## W-next protocol findings (escalated to Owner at campaign close)
 1. SEMANTIC-INK DARK GAP (both anchor reviewers, independently measured): a plain `.dark` on a component root flips the RAW token layer but never re-substitutes the `--jx-*` semantic inks (declared only at :root + stylex theme scopes) — the same :root-substitution disease W6 fixed for fill/tonal/outline in press-button.css, never fleet-wide for semantic ink. Pages must document theme as supply-side until the protocol pass.

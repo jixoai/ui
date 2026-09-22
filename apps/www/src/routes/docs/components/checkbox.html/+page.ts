@@ -4,13 +4,15 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'demo', label: 'The pure-CSS selector' },
-  { id: 'in-a-form', label: 'In a submitted form' },
-  { id: 'types', label: 'Types' },
+  { id: 'overview', label: 'Overview' },
   { id: 'usage', label: 'Usage' },
+  { id: 'demo', label: 'The selector, redrawn' },
+  { id: 'in-a-form', label: 'In a submitted form' },
+  { id: 'api', label: 'Props' },
+  { id: 'axes', label: 'The eight axes' },
+  { id: 'bare', label: 'The bare branch' },
   { id: 'accessibility', label: 'Accessibility' },
-  { id: 'theming', label: 'Theming' },
-  { id: 'api', label: 'API' },
+  { id: 'see-also', label: 'See also' },
 ];
 
 export const load = () => ({ toc });

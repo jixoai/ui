@@ -52,6 +52,7 @@ const PILOTS = [
   'components/alert.html',
   'components/accordion.html',
   'components/badge.html',
+  'components/checkbox.html',
   'components/link.html',
   'components/prose.html',
   'components/list.html',
@@ -376,6 +377,24 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
           <Badge density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}>
             responsive — the lg base below 40rem, the sm rung at 40rem and wider
           </Badge>
+        </div>
+      </div>"
+    `);
+  });
+  it('checkbox.html :: axes', async () => {
+    expect((await extractionFor('components/checkbox.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16, rt.wFull)}>
+        <!-- density: the NAMED lane paints on this family — the
+             rung stamps the data-density scope on the field
+             wrapper, the scope block re-declares the channels AT
+             the wrapper, and the box, the hit lane, the gap and
+             the label voice all move together. (The NUMBER lane
+             stamps only a coefficient — inert here: substitution
+             runs at the declaring element, so nothing re-declares
+             at the stamp.) -->
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}><Checkbox label="lg rung — box and lane step up" name="axes-d-lg" density="lg" /></div>
+          <div class={cx(rt.panel)}><Checkbox label="2xs rung — the floor lowers to 24px" name="axes-d-2xs" density="2xs" /></div>
         </div>
       </div>"
     `);

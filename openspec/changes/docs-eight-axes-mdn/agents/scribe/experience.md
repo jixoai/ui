@@ -158,6 +158,55 @@
   root, so the honest third state for blockquote density is
   supply-to-composed-children, not "consumed inside the quote".
 
+## Techniques (mine, task 8 — checkbox)
+- The in-app browser is UNAVAILABLE in subagents ("Browser is not available
+  in subagent") — the working measured-probe path is vellum's: a /tmp
+  script driving `node_modules/playwright-core` + system Chrome headless
+  against the dev page. Build it around named specimens
+  (`input[name="…"]`) + `closest('.jx-check-lane')`, read computed styles
+  in ONE evaluate per cross-instant claim, move the real viewport for
+  query() flips. My 8-checkbox probe went 16/16 with this shape.
+- THE DECLARING-ELEMENT LAW BITES IN THE WILD (my 4-accordion finding,
+  now measured on checkbox): a source read saying "every channel composes
+  the coefficient" (the calc IS in every scope block) predicts the NUMBER
+  lane paints — it does NOT. Custom-property substitution runs at the
+  DECLARING element; the channels declare at :root + the rung scopes, so
+  a wrapper-local `--jx-density-coefficient` re-declares nothing. Probe:
+  stamp the exact carrier string on the real root, read before/during/
+  after — box/lane/label byte-unmoved. NEW WRITE ORDER for density rows:
+  name the stamp's declaring element FIRST, then ask what re-declares AT
+  that element; only then claim paint. (Same class as alert's finding 2 —
+  the drift is fleet-wide and my own queued law did not stop me from
+  writing "both lanes paint" on first pass; the probe caught it.)
+- Scoped density floors: `--jx-hit-floor` is 28px at :root but the 2xs
+  scope LOWERS it to 24px (jixoai.css:2768, the WCAG 2.5.8 AA pointer-
+  dense note) — floors are per-scope facts; never assume a uniform clamp.
+  The honest --jx-hit ladder (2xs→lg) is 24/28/32/40/48, measured.
+- `{...rest}` (any brace) inside a template ATTRIBUTE string is a Svelte
+  PARSE error (dev 500, js_parse_error) — the `{'{...rest}'}` dodge works
+  only in text children; in attributes, reword ("rides the rest object").
+  Script-side strings (axisRows, drawer files) are safe.
+- SSR bare-branch receipt: a `bare` demo with an explicit lane renders an
+  input whose attrs are byte-identical to the plain bare input — the
+  unstamped proof lives in the raw HTML, no browser needed
+  (`grep -o '<input[^>]*name="bare-inert"[^>]*>'`).
+- Concurrent-agent PILOTS drift: the same-source PILOTS list changed
+  between my Read and my Edit (badge landed mid-task). Re-read shared
+  test files at edit time; after editing, `git diff` the file and confirm
+  every +/- line is yours.
+- The dist grep receipts after build (marker ×1 per page, demo specimen
+  names, section phrases) close the loop dev-SSR only samples — the
+  built HTML is what verify:docs and the world see.
+
+## Highlights found in others' pages (task 8 additions)
+- (vellum, 5-review-badge + badge page itself) The badge axes canvas
+  labels carry measured numbers ("2xs rung — 10px label, 14.5px box
+  (measured)") — captions that state the receipt instead of adjectives.
+  Adopted: my rung labels name the mechanism ("the floor lowers to 24px").
+- (marginalia, 4-badge) Their size row's grep-receipt phrasing ("zero
+  var(--jx-size-effective) readers") is the exact sentence shape that
+  let my size row state a non-consumer without hedging.
+
 ## Mistakes to avoid
 - `rg -rn` is the --replace trap AGAIN (AGENTS.md law): two commands this
   task silently rewrote matches with "n" before I caught it. `rg -n` only;
