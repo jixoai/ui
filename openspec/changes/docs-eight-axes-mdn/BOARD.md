@@ -2,7 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
-| marginalia | 26 | code-card (vellum's) | REVIEW (1st) | in-flight |
+| marginalia | 27 | badge-indicator (OWN) | CODE | in-flight |
 | vellum | 24 | combobox (OWN) | CODE | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
@@ -38,7 +38,7 @@
 - hero-section: CLOSED — the third overturn form (reviewer MAJOR vs coder non-reproduction) resolved by instrument adjudication
 - descriptions: marginalia 2nd review NEEDS-WORK (MAJOR: the drag rig can't perform the fold — .desc-frame-rig lacks container-type: inline-size so @container hits the canvas column, never the frame; the LAW verified at 560px viewport, the RIG was broken; one-line fix + releases the min-content floor; MINOR co-signed: 40rem→64rem ×5; vellum's theme row TRUE — marginalia's own mid-review dd-flip was a wrong-element probe, self-resolved with the box-model-before-colors lesson) → closure-ready the moment the two one-liners land on scribe's flow
 - link: coded Tier-2 (quill 20 — size consumed through EM VOICES (stamped 14px anchor → 11.1875px glyph while the underline offset holds fixed 4px — consumption AND refusal in one element); theme frozen-pole pure-alias with the live −4° drift; the THIRD brief falsification: markdown-node maps prose links here (the promotion's point), leaf claim corrected in Overview; craft geometry measured (0.2em seam, −0.125em shift, external pair live)) → scribe+marginalia reviews QUEUED
-- code-card: coded Tier-2 gaps-only (vellum 22 — the FOURTH theme pattern: theme prop DROPPED AT SOURCE (constructive no-op) + ancestor-adaptive OWN tokens (.dark .jx-code-card re-declarations; ground 0.981→0.091 without the card carrying .dark) — spectrum now raw-flip/typed-frozen/bridge-only/dropped-own-adaptation; density the quietest lane (inert, no query seat with stated reasoning); shiki 68-span markup vs inline-code single-node measured; page ZERO diagnostics, fleet 1609) → scribe+marginalia reviews QUEUED
+- code-card: marginalia 1st review **PASS** (fourth theme pattern verified with the −4° arithmetic INSIDE a computed value; the TWO-MEDIUM theme receipt INFO: 42% jx-light formula on the canvas vs full dark engagement in a clean scope — both live, :where() order-arbitrated, name your medium; no-query-seat reasoning judged SOUND; shiki 68-span live vs 0-span raw SSR; LOW: #install/#see-also ids missing ×2 — rides scribe's consolidation) → scribe 2nd QUEUED
 - card-grid: scribe 1st review NEEDS-WORK-lite (MAJOR: the query demo's 'measured tenant padding 12↔16px' NOT reproducible — the truth belongs to section-card tenants, the demo shows chrome-frozen Card tenants (the image class: measured must reproduce or retract); MINOR: foot Description cell empty — the description-field arm page-side; NIT: no dark specimen in the axes canvas; core verified digit-exact incl. the two-halves split and the merged grid-min stamp) → vellum fix (one sentence + one curation entry + one panel) → marginalia 2nd
 - carousel: CLOSED
 
