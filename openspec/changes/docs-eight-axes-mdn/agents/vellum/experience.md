@@ -839,3 +839,25 @@
   table, the marker lives there; the axes section's hand table carries NO
   directive (its rows would all fold away — every row is axis-named). Marker
   + generic reference section on api; family truth on the axes table.
+
+## task 28 (REVIEW combobox — SELF-review, 1st of 2)
+
+- **Self-review protocol that actually adds value**: re-derive ALL numbers
+  from the served tree BEFORE opening your own report (the report structures
+  the claims list only); treat kernel/sheet drift through N integrations as
+  the reason every measurement must be re-taken even when the PAGE source has
+  zero commits touching it (eed9cd9e unchanged, but five fleet integrations
+  moved the ground it stands on).
+- **Floor-asymmetry re-measurement upgrade**: min-height alone proves the
+  floor; the ACTUAL rendered height (getComputedStyle().height) proves both
+  directions — 40px at xs/sm/default (lane shrinks inside the floor, dead)
+  vs 48px at lg (46px lane + 2px borders — grow live). Measure height, not
+  min-height, when the claim is about what the box DOES.
+- **By-name row enumeration doubles as the drift check**: listing served row
+  names (not bytes) proved the api arithmetic (13 family + 8 fold = 21) AND
+  that no axis-named authored row was silently folded — the badge-indicator
+  law applied as a regression instrument, not just an arithmetic one.
+- **Probe-craft honesty**: when a DOM selector guess finds 0 drawers, say the
+  SELECTOR was wrong and fall back to source wiring (5 canvases / 5 files=) —
+  don't report the mechanism as absent. A probe limitation is a process note;
+  a false negative reported as fact is a defect.
