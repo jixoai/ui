@@ -887,3 +887,32 @@
   numeric, aria-invalid/describedby wired; mechanics = focus management over
   real inputs. Synthetic DataTransfer-free paste test: set input.value to a
   multi-char string and dispatch input — handleInput distributes.
+
+## task 30 (CODE kbd)
+
+- **"Inherits font-size from context" captions deserve a live falsification
+  pass on every typography-first family**: kbd's served copy claimed context
+  inheritance (0.75em), but the atom pins --jx-text-secondary — measured 12px
+  inside 13.5px AND 13px contexts. The §11-vs-own-voice question resolves by
+  reading two contexts, not the source comment; the source comment was the
+  bug.
+- **Typed tokens split TWO ways — literal vs stream**: kbd's tonal voices
+  (--jx-tonal → primary) RE-DERIVE under scoped .dark (measured flip), while
+  combobox's typed --jx-border/--jx-terminal freeze at the :root pole. The
+  emission form that decides is whether the token's stored value is a literal
+  or a var() stream (streams re-resolve per element). THEME-SPLIT verdicts
+  must name which typed shape, not just "typed".
+- **The EXTRA lane (docs.extra) only works on INLINE literal rows**: the
+  ambient matrix's axisRowsOf parses PropsTable props arrays as object
+  literals — a hoisted const identifier is invisible ("found 0"). When the
+  matrix pins the row text (kbd density = frozen 'ambient scope'), keep the
+  inline literal and let the fold stand; serve the family truth in the axes
+  table instead.
+- **Two-shell-wrapper pages have TWO '  </div>\n</div>' tail patterns**:
+  s.index(CLOSES) lands on the FIRST (mid-file) one — use rindex for the real
+  tail, and assert the span is non-empty before cutting.
+- **Non-interactive glyph a11y**: a native <kbd> page's A11yTable keys row is
+  honestly '—' (takes no focus/keys); the a11y content is the element
+  semantics + combination reading (each key its own kbd, + as literal text).
+- **TokenTable source is an enum**: 'variant grammar' (prose) fails the type;
+  the honest enum value for a variant-grammar token is 'component'.
