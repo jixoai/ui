@@ -606,3 +606,25 @@
   count — .jx-btngroup-veil-layer appeared ×2 in the page bytes (the
   stylesheet text) and ×0 as elements. Grep the stylesheet AND query the
   DOM separately; the difference IS the dead-rule receipt.
+
+## Task 21 — image review (2026-09-22)
+- **Snippet-vs-default branches have DIFFERENT failure surfaces**: image's
+  `{#if failed && fallback}{@render fallback()}` renders consumer markup
+  BARE — no data-jx-image-broken panel, no data-density stamp. A query()
+  demo that provides a fallback snippet cannot demonstrate "the broken
+  panel's stamp moves" (measured: data-density null at both viewports).
+  When a caption names an element, check the demo's chosen branch renders
+  that element.
+- **PROBE-READINESS loop**: a fallback-slot probe cannot scroll to its
+  own slot text before the slot exists (the span renders only after the
+  swap). Anchor on the always-present canvas title (or warm the whole
+  page by scrolling every img into view first), wait for the swap, then
+  locate. My probe2 crashed on exactly this; probe5 landed the receipt.
+- **The 110-gate counts the hand lane too**: PropsTable's bare `universal`
+  directive emits the same data-jx-props-table-universal marker as a
+  meta-driven table — docs-universal GREEN 110/110 includes hand-table
+  pages. Hand tables can be honest: match rows to the real interface and
+  render axis rows from the shared schema.
+- **Fixed-paint TokenTable pattern**: rows with no source column (every
+  fact in the Default cell) sidestep the W-next #3 structural-label gap —
+  image's paintTokens are the model.
