@@ -488,3 +488,32 @@
   coupling") and navigation-menu's says "actions belong to
   dropdown-menu". When a page names composers, run the import grep per
   name; sibling-family headers often state the true relationship.
+
+## Task 16 — avatar review (2026-09-22)
+- **Inline beats class: the §11 carrier echo kills "fixed voice" claims.**
+  `stampCarriers` (defaults.svelte.ts:570-576) emits `font-size:
+  var(--jx-size-effective, 1rem)` INLINE on any family root with an
+  explicit size lane — an inline declaration overrides the family's
+  stylex `fontSize` atom. So an avatar's initials measure 14/16/18px at
+  the named steps and the BOX EDGE (48px/28px) on the number lane, while
+  the page claimed a fixed 12px label-lg step "at every size". Only the
+  AMBIENT path (no explicit lane → no stamp → class wins) holds a fixed
+  voice. Rule: before crediting any "fixed step/voice" row, read the
+  family's carrier-stamp helper AND measure the EXPLICIT lanes — ambient
+  alone lies.
+- **Measure overflow, don't infer it**: the 48 avatar renders "AL" at
+  48px font in a 46px content box — scrollWidth 52 > clientWidth 46,
+  clipped (the meta's "never overflows" falsified on the number lane).
+  `scrollWidth > clientWidth` on the live element is the receipt;
+  visual inspection of a headless screenshot would not have caught a
+  6px clip reliably.
+- **Carrier-stamp comments are not reads**: avatar.svelte:87 mentions
+  `--jx-size-effective` in a doc comment — a naive grep counts it and
+  breaks a zero-reader receipt. Grep hits need their context classified
+  (comment vs declaration vs read) before they enter a receipt.
+- **Caption-anchored probe locators must anchor on the text PREFIX**: a
+  canvas's description paragraph ("…one real query() case…") contains the
+  caption word too; `find(p => text.includes('query()'))` matched the
+  description, walked up to the grid, and returned the FIRST panel's
+  avatar — a wrong-element read that looked plausible (24px). Anchor on
+  `text.trim().startsWith(caption)` or the full caption string.

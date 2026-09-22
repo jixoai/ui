@@ -2,7 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 15 | button-group (vellum's) | REVIEW (1st) | in-flight |
-| marginalia | 16 | avatar (vellum's) | REVIEW (2nd) | in-flight |
+| marginalia | 17 | empty (quill's) | REVIEW (2nd) | in-flight |
 | vellum | 14 | heading (quill's) | REVIEW (1st) | in-flight |
 | quill | 14 | dropdown-menu (OWN) | FIX (2nd-review ledger) | in-flight |
 ## DONE
@@ -28,7 +28,7 @@
 - hero-section: coded Tier-2 (quill task 13) — EMISSION-FORM theme split discovered (eyebrow/title raw vars flip, summary/badges defineVars freeze — W-next #2 refined); size = the heading contrast case (stamp lands, clamp+fixed-px voices give em nothing to scale); density supply-only on self / consumed by composition (guest CTA 13→12, Badge 12→11 measured); 20−8=12 arithmetic; hue-injection byte-pin honored docs-only — reviewers marginalia+vellum QUEUED
 - heading: coded Tier-2 (quill task 12) — measurement-first overturned the brief: family reads ZERO carriers/channels; size consumes VIA THE INLINE STAMP (explicit size REPLACES the em ladder, auto restores); theme = partial pole via the ink seam (data-jx-ty-ink gate); 14−8=6 arithmetic; quill's ledger cleared (dock 14→21, theme own-default) — reviewers marginalia+vellum QUEUED
 - empty: vellum 1st review **PASS** (frozen pole proven by MECHANISM receipt — typed intermediate substitutes once at :root, scoped .dark never re-opens; grep alone insufficient; 8/8 frozen probe; composed-consumer negative twice with false-friends checked) → marginalia 2nd QUEUED; 1 MINOR (cx predicate, fleet debt) + 2 NIT
-- avatar: scribe 1st review **PASS** (six claims triple-layer re-derived; its 2 findings are PRE-EXISTING component-code svelte-check errors → drift ledger #6; radius-inertia probe self-corrected sm→md) → marginalia 2nd IN FLIGHT (double-blind parallel)
+- avatar: marginalia 2nd review NEEDS-WORK — SECOND OVERTURN (1st PASS missed it): "initials voice fixed at every size" is FALSE at every explicit size (the §11 inline echo beats the stylex class — heading's mechanism as DEFECT here: 48px font in a 46px box, clipped; drift ledger #7); MINOR: deviations paragraph contradicts the size-consumed headline (carrier-level clause needed) → vellum owes the consolidated fix (reword both rows; clip fix is family-level)
 - ⚠ DIST GATES DEFERRED: npm run build transiently RED in breadcrumb (scribe mid-edit, canvas demo not self-contained) — the post-breadcrumb integration build owns fresh dist + docs-universal + canvas-same-source solo for the combined state (chip micro-fix + date-picker + breadcrumb + hardening)
 ## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. (scribe's cascader NIT, ruled by orchestrator)
 
