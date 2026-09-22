@@ -472,7 +472,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             <Avatar name="Ada Lovelace" size={48} alt="" />
             <Avatar name="Ada Lovelace" size={28} alt="" />
           </div>
-          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>number lane · the box edge in px verbatim (48 / 28)</p>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>number lane · the box edge in px verbatim (48 / 28) — the initials follow the edge too (the §11 inline echo beats the fixed label step), and 48 clips its two letters (scrollWidth 52 > clientWidth 46 — drift ledger #7)</p>
         </div>
         <div class={cx(rt.panel)}>
           <Avatar name="Ada Lovelace" size={query<{ lg: number }, number>({ lg: 48 }, 40)} alt="" />
