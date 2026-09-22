@@ -21,8 +21,13 @@ node scripts/dev.mjs --port 5230   # 或 apps/www: npm run dev -- --port 5230
 2. `/docs/components/press-button.html` — 旗舰 dogfood：右侧控制坞逐轴翻转
    （size 命名/数字、shape=squircle、radius、density、color=error、
    elevation=level2、motion），reset 应回基线；暗舞台看 shimmer 标签。
-3. `/docs/components/component-canvas.html` — canvas 旗舰：六轴控制 + 全轴
-   暗舞台；specimen 消费六轴（em 文本座位、锚面板、填充按钮、motion 量规）。
+3. `/docs/components/component-canvas.html` — canvas 旗舰：**右上角 28px
+   八轴 bar**（theme 循环 + 七个 icon-button 菜单：size/shape/radius/
+   density/color/elevation/motion，auto 默认零落章）——任意组件页都有它，
+   点图标选轴值即通用变体测试；值是**供给不强制**（舞台消费自由），bar 与
+   展开面板双向同步同一状态，设定轴整墨高亮并自动滚入视野；窄视口下
+   ButtonGroup 横滚（chip 随明暗主题）。specimen 消费六轴（em 文本座位、
+   锚面板、填充按钮、motion 量规）。
 4. `/docs/components/dialog.html` + `sheet.html` — 浮层：开合动画、
    §7 阴影+表面配对、Escape 关闭；sheet 的 width（改名自 size）。
 5. `/docs/components/select.html` — portal 收据：打开 listbox 看自携带载体

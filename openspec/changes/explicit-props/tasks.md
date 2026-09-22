@@ -294,3 +294,28 @@ before the next batch opens; a batch is the rollback unit)
       (re-run post-fixes, incl. the registry/test twin sync), suite
       3170/3170, every gate green, Codex final GO 9.4/10. **Nothing
       pushed — the publish word is the Owner's.**
+
+## W7 — the Owner's eight-axis playground bar (post-acceptance directive)
+
+- [x] 7.1 the bar itself — LANDED e6f477dc: the canvas-playground chrome
+      cluster speaks the axis grammar — theme (the existing cycle
+      icon-button, driving the page-owned stage bindable) + seven
+      icon-button+DropdownMenu controls (size/shape/radius/density/
+      color/elevation/motion; auto + named steps, check state, auto
+      default stamps nothing), one scrollable ButtonGroup run, the head
+      shrunk 46→28px, whisper-seam idiom preserved; the legacy
+      density select retired; SUPPLY-NOT-FORCE (the Owner's ruling):
+      the lanes resolve `consumer-explicit ?? bar-lane` (getter-fielded)
+      and stamp on the workbench root — DomCanvas consumes at its
+      freedom. Probe 9/9; all gates green; suite 3170/3170.
+- [x] 7.2 the bar's vision round — LANDED ed7d6fa9: r1 judged NEEDS-FIX
+      (4 MAJOR) → all fixed with pixel receipts — bar/panel ONE truth
+      (the panel's selects reflect the resolved lanes; either path
+      sets, both display), set-state brand ink + wash (was a ≤3/255
+      no-op), the dark scroll chip theme-swapped at the family
+      (scroll-run.css, mirrored), the stray full-height accent bars
+      root-caused as the scrollport-clipped :focus-visible outline →
+      the run's members carry the INSET ring, plus the ramp() scroll
+      fade and scroll-into-view on set. r3 re-judged READY, zero
+      regressions, 8/8 glyphs legible, elevation/motion coverage
+      closed. Gates green, suite 3171/3171.
