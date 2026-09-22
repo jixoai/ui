@@ -215,7 +215,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="install" data-reveal="">
       <DocsInstall name="link" />
     </div>
 
@@ -369,23 +369,15 @@ ${close}
 </div>
 
 <div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
-  <div id="accessibility" data-reveal="">
+  <div id="api" data-reveal="">
     <SectionCard
-      family="accessibility"
-      headerRegion="accessibility"
-      eyebrow="a11y"
-      title="Accessibility"
-      summary="Native anchor semantics; the accessible name is the link text (write the departure into the words, not a glyph)."
+      family="api"
+      headerRegion="api"
+      eyebrow="api"
+      title="API"
+      summary="Props extend the native HTMLAnchorAttributes minus color (the §1 collision rule) — href alone decides the external contract, icon decides only the decorative suffix lane; 15 meta props − 8 ambient axes = 7 rows, all curated."
     >
-      <A11yTable
-        keys={[{ key: 'Enter', action: 'Activates the anchor — native behavior, untouched' }]}
-        aria={[
-          { name: 'a', value: 'native element', description: 'The platform announces the link role and its href; no extra ARIA.' },
-          { name: 'target / rel', value: 'external pair', description: 'target=_blank + rel=noreferrer land only on detected externals; the implied noopener is the fleet convention.' },
-          { name: 'data-jx-link', value: "'external' | 'internal'", description: 'Hook attribute naming which lane rendered — styling and tests read it without reverse-engineering the href.' },
-          { name: 'data-jx-link-icon', value: 'aria-hidden lane', description: 'The suffix-icon span is decorative: the accessible name is the link text alone, and the target/rel pair — never a glyph — carries the departure semantics.' },
-        ]}
-      />
+      <PropsTable meta={linkMeta} docs={LINK_DOCS} />
     </SectionCard>
   </div>
 
@@ -469,19 +461,27 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal="">
+  <div id="accessibility" data-reveal="">
     <SectionCard
-      family="api"
-      headerRegion="api"
-      eyebrow="api"
-      title="API"
-        summary="Props extend the native HTMLAnchorAttributes minus color (the §1 collision rule) — href alone decides the external contract, icon decides only the decorative suffix lane; 15 meta props − 8 ambient axes = 7 rows, all curated."
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="Native anchor semantics; the accessible name is the link text (write the departure into the words, not a glyph)."
     >
-      <PropsTable meta={linkMeta} docs={LINK_DOCS} />
+      <A11yTable
+        keys={[{ key: 'Enter', action: 'Activates the anchor — native behavior, untouched' }]}
+        aria={[
+          { name: 'a', value: 'native element', description: 'The platform announces the link role and its href; no extra ARIA.' },
+          { name: 'target / rel', value: 'external pair', description: 'target=_blank + rel=noreferrer land only on detected externals; the implied noopener is the fleet convention.' },
+          { name: 'data-jx-link', value: "'external' | 'internal'", description: 'Hook attribute naming which lane rendered — styling and tests read it without reverse-engineering the href.' },
+          { name: 'data-jx-link-icon', value: 'aria-hidden lane', description: 'The suffix-icon span is decorative: the accessible name is the link text alone, and the target/rel pair — never a glyph — carries the departure semantics.' },
+        ]}
+      />
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="link" />
   </div>
 </div>

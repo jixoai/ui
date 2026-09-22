@@ -191,7 +191,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "pass-1st"
+   "status": "done",
+   "closure": "#25 — marginalia 1st PASS + scribe 2nd PASS; id anchors landed with closure (verified +2/-2); W-next #3 description-arm author-side-confirmed"
   },
   {
    "page": "color-picker",
@@ -477,11 +478,12 @@
    "page": "link",
    "owner": "quill",
    "reviewers": [
-    "vellum",
-    "scribe"
+    "scribe",
+    "marginalia"
    ],
    "tier": 2,
-   "status": "pass-1st"
+   "status": "done",
+   "closure": "#24 — scribe 1st PASS + marginalia 2nd PASS; consolidation fixes by orchestrator (toc-order trio restored api→axes→accessibility; install/see-also id anchors)"
   },
   {
    "page": "list",

@@ -777,3 +777,29 @@
   (sibling's untracked +page.ts) cleared to 110/110 at gate time without any
   action of mine — re-run attribution-guarded failures at the end before
   reporting them as blockers.
+
+## task 26 (REVIEW native-scroll-area, 1st of 2)
+
+- **The fifth theme mechanism — observer-consumed**: the family's own
+  MutationObserver resolves the nearest scope (data-theme/.dark/.jx-light,
+  self-included walk) into a data-scheme attribute, and a capability sheet
+  maps it to color-scheme — the PAINT is the platform's. Verified live both
+  channels (class flip AND data-theme flip) with light→dark→light round-trip;
+  medium named: the data-scheme attribute + computed color-scheme.
+- **An SSR grep hit can be the page's own documentation**: the single
+  `role="scrollbar"` in the raw HTML was the a11y table's NAME cell
+  ("ABSENT"), not a mounted attribute — always resolve raw-byte hits to their
+  DOM node (or absence of one) before judging; the live count is the receipt.
+- **"N rows" claims need the authored/served distinction**: a hand table with
+  the bare `universal` directive serves authored rows + the shared 8 axis
+  rows — the authored count is the claim's referent; say so in the report so
+  reviewer #2 doesn't flag the arithmetic.
+- **Declaration precedence beats the §11 stamp**: inherited font-size stamps
+  move the ROOT (16→14px measured) while children with their own declared
+  voices keep theirs — "consumed through inheritance, declaration-scoped" is
+  a distinct consumption class: verify BOTH halves (root moved, declared
+  voice held) in one probe.
+- **Zero-transition families**: grep `transition` in the family css AND the
+  kit's sheet (count 0) before accepting "the OS owns the motion" — plus the
+  reduced-motion block forcing scroll-behavior: auto is the guarantee the
+  sheet keeps, not an animation claim.

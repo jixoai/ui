@@ -1,0 +1,39 @@
+# TASK 28 — REVIEW link (marginalia, 2026-09-22; 2nd of 2)
+
+- **Reviewer**: marginalia (2nd reviewer; 1st = scribe, PASS with 1 NOTE — `agents/scribe/reports/24-descriptions-fix-and-link-review.md` Part B)
+- **Target**: quill's page integrated at `34df1ce7` — `apps/www/src/routes/docs/components/link.html/+page.svelte` (487 lines) + `link.docs.ts`
+- **Method**: source reads (link.svelte/stylex/docs-curation/meta), live computed probes (size stamps, co-resident theme islands, hover state, external attributes — all mutations restored), SSR raw-byte parse (1,067,927 bytes), fleet svelte-check grepped to the page, leaf-claim greps
+- **VERDICT: PASS — closure declared** (link closes as page **#25**, racing code-card's #24) conditional on two one-line fixes riding consolidation: the toc/DOM order fix (MINOR) and the `#install`/`#see-also` ids (LOW). No re-review needed; receipts pinned below.
+
+## Scribe's claims re-derived — all TRUE
+
+1. **Size via em voices — VERIFIED.** The atom table declares **no font-size** (link.stylex.ts read whole — negative-grep clean). Stamped specimen (`size={14}`, data-probe link-size-14): anchor computes exactly **14px** with the verbatim stamp `--jx-size-effective: 14px; font-size: var(--jx-size-effective, 1rem)`; the external glyph (Icon 0.8em) computes **11.1875px** (scribe's exact number; = 0.8 × 14 in browser-quantized device px — the page's caption "0.8 × 14 = 11.2px" states the exact ratio; both describe the same computed value). Control (auto): anchor **16px**, glyph **12.7969px** (0.8 × 16). `textUnderlineOffset` **4px** at auto, at 14px, and under hover — the fixed optical calibration does not scale with the em voice, exactly as claimed.
+2. **Frozen-pole pure-alias — VERIFIED, the cleanest pair of the campaign.** Co-resident light/dark specimens: ink **byte-identical oklch(0.6489 0.237 42)** both islands (L/C stable; hue wall-clock, never quoted as law). The var-chain split measured ON THE SAME ELEMENTS: `--primary` **flips** — light `oklch(0.6489 0.237 42)` vs dark **`oklch(0.7044 0.1872 calc(42 - 4))`** (the one-hue drift arithmetic live in the computed value) — while `--jx-primary` is **identical** both islands: the atom reads the token frozen at the :root pole; the alias is pure. `class:dark` lands on the anchor (darkClass true) and nothing reads it. forced-colors: `@media (forced-colors: active) { color: LinkText }` in the atom — media-gated platform exception, not a theme arm (source receipt).
+3. **Craft geometry — VERIFIED.** Icon lane at the 14px stamp: seam `marginInlineStart` **2.8px** (0.2em), baseline shift **−1.75px** (−0.125em); at 16px ambient: 3.2px / −2px — em-relative exactly as documented. Hover (real page.hover): `textDecorationLine: underline` with offset **still 4px**. External pair live on both external specimens: `target="_blank"`, `rel="noreferrer"`, `data-jx-link="external"`; internal: no target/rel, `data-jx-link="internal"`.
+4. **Corrected leaf claim — VERIFIED.** The one product-surface component edge is `markdown-node.svelte:64` (`import Link from '../link/link.svelte'`); the page's prose states it with the grep receipt. code-card touches only the shared `HIGHLIGHT_KEY` token edge (code-card.svelte:89/223, imported from `$lib/highlight/context-key` — never from link). (The blueprints scene also imports the component — a demo fixture, not a product surface; the page's claim is scoped correctly.)
+5. **EXTRA 15−0−8=7 — VERIFIED.** Meta parses to exactly **15 props** (children, class, color, density, elevation, href, icon, motion, radius, rest, shape, size, style, theme, title), no dups; 8 universal; the 7 family rows (href, title, icon, children, class, style, rest) are **all curated** in link.docs.ts (the overrides object holds exactly those 7); the rest row IS served AND curated (link.docs.ts:42). No EXTRA lane — correct.
+
+**Posture lens (dispatch addendum): link has NO posture split** — confirmed from source: one root, the anchor, in every posture (children optional, but no separate standalone branch); the carriers + stamp land on the same element always (probed across all four page postures: auto/14/light/dark — style attr present only where a lane is explicit, data-density unstamped under auto). The size claim holds at every posture the page demos.
+
+## Findings (severity-tagged)
+
+1. **[MINOR · toc order ≠ DOM]** The toc lists `… detection → api → axes → accessibility`; the DOM renders `… detection → accessibility (@727,430) → axes (@730,839) → api (@860,276)`. Two inversions; the toc is the always-visible reading contract and the archetype order is api → axes → accessibility (descriptions/code-card/badge-indicator all serve it). The 1st pass recorded "toc present and ordered" — missed. Fix: move the accessibility section after axes (one block move — matches both the toc's intent and the archetype), or reorder the toc to the DOM; the archetype-conformant move is the recommendation. Rides consolidation.
+2. **[LOW · fleet consistency]** The Install and See-Also wrappers carry **no id anchors** (`+page.svelte:218`/`:484` — bare `<div data-reveal="">`) — the code-card LOW class, third instance (code-card, link, carousel all owe the ride; badge-indicator ships the ids). Fix: two attributes. Rides consolidation.
+3. **[NOTE · co-sign scribe]** The arrowGlyph snippet-type diagnostic at `+page.svelte:335:55` — confirmed byte-identical in my own fleet run (`Type '() => ReturnType<Snippet>' is not assignable to type 'Snippet<[]>'… two unrelated Snippet identities`). Zero runtime effect: the snippet specimen renders and is itself a verified receipt (the custom-glyph lane). Weigh: this is **not** the fleet cx-debt class — the cx predicate was a real narrowing gap; this is Svelte's snippet-identity quirk on an inline const, and the fix is an explicit `import type { Snippet }` + annotation on the const (one line, rides consolidation with findings 1-2). Pre-existing on HEAD — not quill's debt. NOTE stands.
+4. **[INFO · review-log precision]** Scribe's Part B receipt paraphrased the external pair as `rel="noopener external"` — the served attribute is `rel="noreferrer"` (with `data-jx-link="external"` carrying the "external" word). The PAGE and its curation state the contract correctly (link.docs.ts href row: `target="_blank" + rel="noreferrer" + data-jx-link="external"`). Log slip only; no page defect.
+
+## Gate receipts (this review)
+
+| Gate | Result |
+|---|---|
+| Live probes | size 16/14 anchor + 12.7969/11.1875 glyph; offset 4px ×3 states; var-chain flip vs frozen alias; lane 2.8px/−1.75px; hover underline; external pair attributes |
+| Raw SSR | 1,067,927 bytes; toc 8/8 present (order mismatch = finding 1); h1 = 1; data-doc-install/data-doc-see-also present (ids absent = finding 2); 6 tables / 118 cells / 0 empty |
+| Source receipts | no font-size in atoms; forced-colors media arm; leaf edge markdown-node:64; code-card = HIGHLIGHT_KEY only; meta 15 exact |
+| svelte-check (fleet, task-27 run over this tree) | link.html carries exactly the :335:55 diagnostic (finding 3) — nothing else |
+
+## Process evidence
+
+- Port **5244**: lsof **EMPTY before** (rc=1); my wrapper (PID 78151) → vite; killed by PID → **EMPTY after** (rc=1), pid gone; background task exit 143 = my SIGTERM.
+- **NO commits, NO pushes, zero tree edits** (review-only; writes are this report + experience.md).
+- Artifacts: probes `/tmp/marginalia-28-probe1.mjs`; SSR `/tmp/marginalia-28-ssr.html`; dev log `/tmp/marginalia-28-dev.log`; the fleet svelte-check evidence reuses `/tmp/marginalia-27-scheck2.log` (same tree state — the :335 diagnostic byte-identical there).
+- Probe craft: `waitUntil: 'networkidle'` timed out on a cold vite compile — `domcontentloaded` + a generous settle is the robust form for first-hit routes; and read helpers must live INSIDE `page.evaluate` (a helper defined in node scope throws `document is not defined`).

@@ -723,3 +723,42 @@
   islands keep byte-identical ink, while the SAME element's `--primary`
   chain recomputes live — co-resident specimens settle it without any
   theme toggling.
+
+## Org contract confirmation (task 25, per orchestrator request)
+- **BOARD.md is READ-ONLY for me.** Confirmed: across tasks 16-25 my
+  authorized writes have ever been only (a) my numbered reports under
+  agents/scribe/reports/, (b) agents/scribe/experience.md, (c) product
+  files explicitly mandated by the dispatch. I have never written
+  BOARD.md (reads only, for context). None of my task briefs implied
+  write access to BOARD; if any teammate's brief suggests otherwise,
+  that brief is the bug. The task-24-window clobber did not come from
+  my session's write path.
+
+## Techniques (task 25 additions)
+- When a data field vanishes between source and DOM, grep the RENDERER
+  first: TokenTable declares `description?: string` (token-table.svelte:41)
+  and never reads it again — the theming table's descriptions are dead
+  data. My consolidation append rendered nothing in SSR; I reverted it
+  rather than ship a fix that only LOOKS fixed. Read-back-or-revert.
+- `:where()` token re-declaration stacks arbitrate by source ORDER
+  (zero specificity each): a wrap-move-restore probe (card → div.dark →
+  div.dark.jx-light → restore) captures all three scopes in one
+  evaluate — base, dark engagement, and the order-arbitrated hybrid.
+- SSR string greps miss em-dash/apostrophe-escaped text: verify an edit
+  landed by grepping the FILE first, then decide whether "absent in
+  SSR" means not-rendered (renderer drops it) vs not-grepped (entity
+  escaping). They have different remedies.
+- The copied-state scope can ride the CONTROL ITSELF, not an ancestor:
+  code-card sets `'jx-hue-success copied'` on the button (source :509) —
+  an ancestor `closest('.jx-hue-success')` probe reads false while the
+  mechanism works. Find the class in source before writing the probe.
+
+## Highlights (task 25)
+- The −4° drift receipt, captured by two reviewers at two wall-clock
+  instants (calc(327 − 4) vs calc(337 − 4)): the hue base is the
+  brand-hue clock, the −4 is the sheet's invariant — the cleanest
+  demonstration yet of "cite the arithmetic, never the absolute hue".
+- 68 spans live vs 0 in 1.2 MB of raw SSR: the client-highlight medium
+  named on both sides — and the single style="color:" hit in the SSR
+  bytes was escaped sample prose (sugar-high's var(--sh-<type>)),
+  not a span.

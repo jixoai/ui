@@ -691,7 +691,7 @@ ${close}
   <!-- archetype gaps (docs-eight-axes-mdn task 22, tier 2): install +
        overview join here; the workbench/engines/auto sections below are
        the pre-existing canon and stay untouched -->
-  <div data-reveal="">
+  <div id="install" data-reveal="">
     <DocsInstall name="code-card" />
   </div>
 
@@ -1176,7 +1176,7 @@ ${close}
 
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Thirteen props; code is the only required one — everything else is composition."><PropsTable universal props={[{ name: 'code', type: 'string', default: '—', description: 'The sample (runtime prop; the backend escapes it into inert spans).', required: true }, { name: 'backend', type: 'HighlightBackend', default: 'context → shiki()', description: 'Highlight backend instance — shiki() | prismjs() | highlightJs() | sugarHigh() | treeSitter() | microLighter(); see the engine matrix.' }, { name: 'lang', type: 'string', default: "'ts'", description: "Language id; aliases (ts/sh/md/…) resolve in the active backend's table — or 'auto' (the AUTO_LANG sentinel, strict equality) to run the three-ring detection chain first; see lang=\"auto\"." }, { name: 'langDetector', type: 'LanguageDetector', default: '—', description: 'Detection ring ①: an explicit detector outranking context and backend (defaultLangDetector() / betlangDetector() from the highlight-lang-detector item, or any { id, detect } implementation).' }, { name: 'theme', type: 'string', default: "'jixoai'", description: 'Theme name in shiki vocabulary; each backend maps it into its own world.' }, { name: 'filename', type: 'string', default: "''", description: "Filename tab on the head's left; head renders when it or header exists. With lang='auto' it feeds the DLD's L1 tables verbatim (paths included — the detector takes the last segment)." }, { name: 'header', type: 'Snippet', default: '—', description: 'Head-right area; replaces the default lang label.' }, { name: 'footer', type: 'Snippet', default: '—', description: 'Footer-left content.' }, { name: 'copyable', type: 'boolean', default: 'true', description: "Copy control on the footer bar's right." }, { name: 'maxHeight', type: 'string', default: "''", description: 'CSS length capping the body; turns on vertical scrolling.' }, { name: 'fill', type: 'boolean', default: 'false', description: 'Stretch to the container height; the pre becomes the only scroll area.' }, { name: 'minHeight', type: 'string', default: "''", description: 'Floors the card height; pairs with fill so short samples open readable.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the figure.' }]} /></SectionCard></div>
 
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="code-card" />
   </div>
 </div>
