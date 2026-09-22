@@ -410,8 +410,8 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded"
   },
   {
    "page": "inline-code",
