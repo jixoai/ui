@@ -762,3 +762,35 @@
   named on both sides — and the single style="color:" hit in the SSR
   bytes was escaped sample prose (sugar-high's var(--sh-<type>)),
   not a span.
+
+## Techniques (task 26 additions)
+- Node-identity proof for "no re-mount": mark the live element
+  (`el.__probeMark = n`) BEFORE the state flip, then re-query and
+  compare reference + marker after — Svelte LAW #14 makes re-creation
+  the default suspicion, so "it still works" is not evidence; the
+  surviving marker is.
+- Nearest-wins scope semantics need a shadowing probe: html.dark under
+  a nearer .jx-light stage must NOT flip the region — resolving the
+  root-most scope instead of the nearest one would. One flip proves
+  the walk order, not just the walk.
+- Reduced-motion rules have REACH tiers: a zero-specificity :where
+  block inside @media lose to ANY class declaration even under reduce,
+  and scroll-behavior is non-inherited (an html-level smooth never
+  leaks). Discriminate with a consumer class in both media before
+  crediting the rule with "forcing" anything — then read the rule's
+  own comment, which usually already states its tier.
+- Count prop rows, not <tr> bytes: a folded universal directive can
+  render a SECOND table with its own header — raw counts read +2.
+  Enumerate the row names (python re.split on <tr>) for a receipt
+  that stays comparable across pages.
+
+## Highlights (task 26)
+- (native-scroll-area) The fifth theme mechanism is the first where
+  the CONSUMER of the theme signal is the platform scrollbar itself:
+  color-scheme follows a JS-resolved stage scope (not a css class
+  cascade), so the bar re-schemes in place — proven with a surviving
+  DOM marker through the flip.
+- The incident disclosure is now a four-record verification pattern:
+  page comment ↔ integration commit message ↔ served SSR (marker +
+  restored rows) ↔ my own green gate run. The LAST-WRITE write-then-
+  verify incident turned into the fleet's model for honest disclosure.

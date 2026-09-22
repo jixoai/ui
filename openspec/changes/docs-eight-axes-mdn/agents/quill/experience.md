@@ -601,3 +601,43 @@
   empty), plus the mtime/git-status proof the failing files are not in
   your diff scope. A raw "468/470" without key attribution reads as your
   failure; with attribution it reads as the tree's.
+
+## Techniques (mine, added 2026-09-23, task 22 — navigation-menu)
+- **CONSUMPTION ONE PROMOTION AWAY (the popover-panel channel)**: a family
+  whose root stamps carriers and whose FLOATING PANEL reads them through
+  popover.css makes radius/shape CONSUMED even though the bar itself
+  paints no corners — the top layer moves paint, never DOM, so the
+  promotion-kept inheritance delivers the carrier. Measure on the OPEN
+  panel (open it from the probe via the trigger click); the closed
+  popover's computed styles lie (display:none subtrees still compute, but
+  the anchored geometry claims need the open state anyway).
+- **THE HUE-INJECTION RED HERRING**: a first probe pass read the current
+  link's hue drift (27° → 33°) under a dark scope as the ink flipping —
+  false. The docs stage injects per-panel hues that drift on the
+  wall-clock (the color-picker task 19 hygiene), so two links in different
+  demo panels NEVER make a clean A/B. The clean theme signal is the IDLE
+  ink (a neutral token, no injection): identical computed values across
+  scopes = the alias froze; differ = flipped. Measure theme splits on
+  neutral tokens; treat hue readings near injected elements as noise
+  unless the probe holds position constant.
+- **THE COEFFICIENT'S DECLARATION-SCOPE FREEZE**: a number density lane
+  stamps --jx-density-coefficient on the family root, but the kernel
+  lanes (--jx-text etc.) are CALCULATED at their declaring [data-density]
+  scope — custom properties compute at the declarer, so the stamped
+  coefficient never re-enters the calc. Measured: coefficient bar's
+  entries byte-identical to ambient. A coefficient only moves consumers
+  that read the carrier at or below the stamp. Don't write "scales the
+  entries" for number-density families without this measurement.
+- **THE MATRIX RE-PIN IS PART OF THE AXES CONVERSION**: moving a page to
+  the axes archetype shifts PropsTable call-site indices (the axes
+  mechanism table takes slot 0), which unpins the frozen ambient-vocabulary
+  matrix. The avatar/color-picker precedent: re-pin the moved entries
+  (tableIndex only, cells unchanged) + add scope-marked entries for any
+  axis-named rows the universal table gained, with the re-pin note naming
+  the task. An identifier-reference mechanism table (props={axisRows})
+  needs NO exemption — the AST parser only reads inline arrays; the
+  dropdown-menu task 10 exemption was for an INLINE array.
+- **STRING-LANE query() NEEDS THE LITERAL GUARD AT THE CALL SITE**:
+  query({ md: 'lg' }, 'sm') widens to QueryResult<string> and reds
+  svelte-check against DensityLane props — `as const` on BOTH the case
+  and the base (the both-generics law's lightweight form).

@@ -59,6 +59,7 @@ const PILOTS = [
   'components/color-picker.html',
   'components/carousel.html',
   'components/descriptions.html',
+  'components/badge-indicator.html',
   'components/link.html',
   'components/prose.html',
   'components/list.html',
@@ -1771,5 +1772,57 @@ describe('canvas same-source — rendered parity through the real pipeline', () 
     expect(ruleDrawer.hasAttribute('data-open')).toBe(true);
     expect(ruleDrawer.textContent).toContain('blockquote-rule-usage.svelte');
     expect(ruleDrawer.textContent).toContain('border-8 — the widest structural edge');
+  });
+
+  it('badge-indicator.html :: badge-indicator-demo', async () => {
+    // the badge-indicator page joined the same-source lane at its tier-2
+    // authoring (marginalia task 27): the demo canvas is a STATIC stage
+    // (four posture chips over plain span children — no state, no
+    // stores), so the extractor holds it verbatim.
+    expect(
+      (await extractionFor('components/badge-indicator.html')).canvases['badge-indicator-demo'],
+    ).toMatchInlineSnapshot(`
+      "<div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap32)}>
+        <BadgeIndicator dot label="2 unread">
+          <span class={cx(rt.biChild)}>GB</span>
+        </BadgeIndicator>
+        <BadgeIndicator count={5}>
+          <span class={cx(rt.biChild)}>AL</span>
+        </BadgeIndicator>
+        <BadgeIndicator count={250} />
+        <BadgeIndicator count={0} showZero />
+      </div>"
+    `);
+  });
+
+  it('badge-indicator.html :: axes', async () => {
+    expect((await extractionFor('components/badge-indicator.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2, rt.wFull)}>
+        <div class={cx(rt.panel)} data-probe="wrap-default">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>density default — tenant 40px</p>
+          <BadgeIndicator count={5} density="default">
+            <PressButton>inbox</PressButton>
+          </BadgeIndicator>
+        </div>
+        <div class={cx(rt.panel)} data-probe="wrap-lg">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>density lg — tenant 48px, chip 18px</p>
+          <BadgeIndicator count={5} density="lg">
+            <PressButton>inbox</PressButton>
+          </BadgeIndicator>
+        </div>
+        <div class={cx(rt.panel)} data-probe="stamped-chip">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>stamped lg on the chip — 18px stays</p>
+          <BadgeIndicator count={5} density="lg" />
+        </div>
+        <div class={cx(rt.panel)} data-probe="size-echo">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>size 18 standalone — the inline mirror outruns the micro atom</p>
+          <BadgeIndicator count={5} size={18} />
+        </div>
+        <div class={cx(rt.panel)} data-probe="supply-only">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>color error + radius large — the paint does not move</p>
+          <BadgeIndicator count={8} radius="large" color="error" />
+        </div>
+      </div>"
+    `);
   });
 });

@@ -563,7 +563,8 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "coded"
+   "status": "done",
+   "closure": "#26 — vellum 1st PASS + scribe 2nd PASS (both NITs co-signed); observer-consumed fifth mechanism double-verified live; incident disclosure truthful"
   },
   {
    "page": "native-select",
@@ -582,8 +583,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 22 tier-2 the image model; hand universal table 13 rows; matrix re-pinned 0→1 + scope-marked size"
   },
   {
    "page": "number-input",
