@@ -158,8 +158,8 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
         <div class={cx(rt.col12)}>
           <span class={cx(rt.note11)}>outline — shadow (own) × border, 1 | 4 | 8</span>
           <div class={cx(rt.bqGrid640b)}>
-            <Blockquote rule="shadow" ruleSize={1}>shadow-4 — the default: a 1px inset rule painted over geometry.</Blockquote>
-            <Blockquote rule="shadow" ruleSize={4}>shadow-4 — the emphasis quote, still 0.875rem of pad.</Blockquote>
+            <Blockquote rule="shadow" ruleSize={1}>shadow-1 — the hairline: a 1px inset rule painted over geometry.</Blockquote>
+            <Blockquote rule="shadow" ruleSize={4}>shadow-4 — the emphasis quote, pad fixed at 14px (calc(var(--jx-unit) * 3.5)).</Blockquote>
             <Blockquote rule="shadow" ruleSize={8}>shadow-8 — the pull quote; ps stays fixed, the paint widens.</Blockquote>
             <Blockquote rule="border" ruleSize={1}>border-1 — the classic geometry-consuming rule.</Blockquote>
             <Blockquote rule="border" ruleSize={4}>border-4 — consumes 3px more of the box.</Blockquote>

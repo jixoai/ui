@@ -53,7 +53,7 @@ export const BLOCKQUOTE_DOCS: PropsDocs = {
     },
     children: {
       description:
-        'Body copy, rendered as direct children of the native blockquote (no wrapper). The body rides 0.875em of the ambient scale and rescales with the size axis.',
+        'Body copy, rendered as direct children of the native blockquote (no wrapper). At auto the body rides 0.875em of the ambient scale; an explicit size REPLACES that em voice — the root renders the stamped size verbatim and the body copy follows it.',
     },
     class: {
       description:

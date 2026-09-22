@@ -102,14 +102,14 @@
       type: `'small' | 'medium' | 'large' | 'auto' | number`,
       default: "'auto'",
       description:
-        "CONSUMED — stamps --jx-size-effective and the root font-size; the body's 0.875em voice (blockquote.css) rescales with it. The label/cite chrome rows stay fixed at var(--jx-text-base). Number unit: px.",
+        "CONSUMED — an explicit size REPLACES the em voice: the kernel stamps --jx-size-effective and font-size on the root inline, and the quote renders the stamped size verbatim (14 → 14px; large → var(--jx-size-large) = 18px). The 0.875em body voice (blockquote.css) is the auto-only ambient rescale — it never rides on top of an explicit size. The label/cite chrome rows stay fixed at var(--jx-text-base) (rem-anchored). Number unit: px.",
     },
     {
       name: 'density',
-      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      type: `'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number`,
       default: "'auto'",
       description:
-        "SCOPE — stamps --jx-density-coefficient and the data-density rung attribute; kernel channels inside the quote (--jx-stack, --jx-gap) follow the rung. The quote's own paddings ride --jx-unit and --jx-space-12 — not density channels — and stay fixed. small/medium/large alias sm/default/lg; the five legacy spellings stay addressable. Number unit: coefficient.",
+        "SCOPE — stamps --jx-density-coefficient and the data-density rung attribute on the root; the kernel's [data-density] scope blocks then re-declare the density channels (--jx-text, --jx-gap, --jx-stack, --jx-hit …) at the quote root, so kernel-bearing content composed into the body follows the rung. A bare number stamps the coefficient only — no rung attribute, no scope block matches, nothing recomposes (the declaring-element law). No blockquote css reads any channel: the quote's own paint is fixed — paddings ride --jx-unit and --jx-space-12, the label row's gap --jx-space-8. small/medium/large alias sm/default/lg; the five legacy spellings stay addressable. Number unit: coefficient.",
     },
     {
       name: 'theme',
@@ -296,8 +296,8 @@
           <div class={cx(rt.col12)}>
             <span class={cx(rt.note11)}>outline — shadow (own) × border, 1 | 4 | 8</span>
             <div class={cx(rt.bqGrid640b)}>
-              <Blockquote rule="shadow" ruleSize={1}>shadow-4 — the default: a 1px inset rule painted over geometry.</Blockquote>
-              <Blockquote rule="shadow" ruleSize={4}>shadow-4 — the emphasis quote, still 0.875rem of pad.</Blockquote>
+              <Blockquote rule="shadow" ruleSize={1}>shadow-1 — the hairline: a 1px inset rule painted over geometry.</Blockquote>
+              <Blockquote rule="shadow" ruleSize={4}>shadow-4 — the emphasis quote, pad fixed at 14px (calc(var(--jx-unit) * 3.5)).</Blockquote>
               <Blockquote rule="shadow" ruleSize={8}>shadow-8 — the pull quote; ps stays fixed, the paint widens.</Blockquote>
               <Blockquote rule="border" ruleSize={1}>border-1 — the classic geometry-consuming rule.</Blockquote>
               <Blockquote rule="border" ruleSize={4}>border-4 — consumes 3px more of the box.</Blockquote>
@@ -377,14 +377,14 @@
       headerRegion="axes"
       eyebrow="axes"
       title="The eight axes on this component"
-      summary="What each axis drives HERE — the carrier names are the family's real vars (blockquote.stylex.ts, blockquote.css), steps and units per universal-props.schema.ts, every axis defaulting auto. Three axes are consumed on the quote itself (size, density, theme); five are supply-only — they stamp their carriers for descendants and no blockquote css reads them, recorded per axis instead of silently omitted. ruleSize is the family's own literal axis and stays outside the eight (the census keep row)."
+      summary="What each axis drives HERE — the carrier names are the family's real vars (blockquote.stylex.ts, blockquote.css), steps and units per universal-props.schema.ts, every axis defaulting auto. Two axes are consumed on the quote itself (size, theme); density is scope-only — its rung re-bases the kernel channels for content composed into the body while the quote's own paint stays fixed; five are supply-only — they stamp their carriers for descendants and no blockquote css reads them, recorded per axis instead of silently omitted. ruleSize is the family's own literal axis and stays outside the eight (the census keep row)."
     >
       <div class={cx(rt.col20, rt.wFull)}>
         <PropsTable props={axisRows} title="" />
         <ComponentCanvas
           id="axes"
           title="Blockquote · the consumed lanes, live"
-          description="The lanes the quote itself paints: a px number and a named step on the size axis (the 0.875em body voice follows the root), the theme dark island, and one real query() case — the base 14px voice below the 48rem viewport, 16px at md and wider (resize the window). The supply-only axes stamp nothing visible on the quote; the table above records each absence."
+          description="The lanes the quote itself paints: a px number and a named step on the size axis (the root renders the stamped size verbatim — an explicit size REPLACES the 0.875em em voice, which applies only at auto), the theme dark island, and one real query() case — the base 14px below the 48rem viewport, 16px at md and wider (resize the window). The supply-only axes stamp nothing visible on the quote; the table above records each absence."
           sourceUrl={registrySourceUrl('blockquote')}
           files={axesFiles}
           stage="fill"
@@ -392,16 +392,16 @@
           <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
             <div class={cx(rt.gridSm2)}>
               <div class={cx(rt.panel)}>
-                <Blockquote label="size 14" size={14}>A px number sets the root font-size — the body renders 0.875em of it: 12.25px here.</Blockquote>
+                <Blockquote label="size 14" size={14}>A px number sets the root font-size verbatim — the body renders 14px, not 0.875 × 14; the em voice is auto-only.</Blockquote>
               </div>
               <div class={cx(rt.panel)}>
-                <Blockquote label="size large" size="large">The named step resolves through var(--jx-size-large); the body voice scales with it.</Blockquote>
+                <Blockquote label="size large" size="large">The named step resolves var(--jx-size-large) and the root renders it verbatim — 18px, no em rescale on top.</Blockquote>
               </div>
               <div class={cx(rt.panel)}>
                 <Blockquote label="theme dark" theme="dark">The .dark class bridge re-resolves the island's vars — ground, border and rule inks follow the dark profile.</Blockquote>
               </div>
               <div class={cx(rt.panel)}>
-                <Blockquote label="responsive" size={query({ md: 16 }, 14)}>Base 14px below the 48rem viewport, 16px at md and wider — resize and watch the body voice follow.</Blockquote>
+                <Blockquote label="responsive" size={query({ md: 16 }, 14)}>Base 14px below the 48rem viewport, 16px at md and wider — the stamped size lands verbatim at each rung (resize the window).</Blockquote>
               </div>
             </div>
           </div>
