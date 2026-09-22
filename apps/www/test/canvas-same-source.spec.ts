@@ -49,6 +49,7 @@ const routePage = (rel: string): string =>
 // surface — no canvases, by design.
 const PILOTS = [
   'components/blockquote.html',
+  'components/alert.html',
   'components/link.html',
   'components/prose.html',
   'components/list.html',
@@ -180,6 +181,24 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             <Blockquote variant="tonal" rule="shadow" ruleSize={4}>tonal + shadow-4: the rule starts to read through the tint.</Blockquote>
             <Blockquote variant="tonal" rule="shadow" ruleSize={8}>tonal + shadow-8: two edges, one hue source.</Blockquote>
           </div>
+        </div>
+      </div>"
+    `);
+  });
+  it('alert.html :: axes', async () => {
+    // the axes drawer joined the same-source lane with the page's task-4
+    // micro-fix (the hand literal had drifted from its stage at birth —
+    // "…= 6px" vs "off the banner's anchor"); the stage is the one source
+    expect((await extractionFor('components/alert.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16, rt.wFull)}>
+        <!-- radius: the banner SUPPLIES the concentric anchor; size stamps the root -->
+        <Alert variant="tonal" title="concentric anchor" radius={20} size={18}>
+          <Card radius="auto">child at auto — corners resolve max(0px, 20 − 14) = 6px off the banner's anchor</Card>
+        </Alert>
+        <!-- density: the named rung moves the × hit lane -->
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}><Alert title="large rung" density="lg" dismiss="manual">The × affordance rides the lg hit lane.</Alert></div>
+          <div class={cx(rt.panel)}><Alert title="2xs rung" density="2xs" dismiss="manual">The × affordance rides the 2xs hit lane.</Alert></div>
         </div>
       </div>"
     `);

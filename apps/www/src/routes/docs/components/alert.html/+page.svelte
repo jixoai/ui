@@ -19,6 +19,13 @@
   import { PlayFields, PlayHelp } from '$lib/playground';
   import { query } from '$lib/universal-props-query.svelte';
   import type { DensityLane } from '$lib/defaults.svelte';
+  // The canvas same-source lane (typography-context-and-parts §7, the
+  // quill idiom): the axes drawer composes from THIS page's own canvas
+  // markup — resolveRawCode('axes') extracts the stage children at
+  // build time. One source, two surfaces; the hand-mirrored literal
+  // had drifted from its stage at birth (review finding 1).
+  import { usageFile } from '$lib/canvas-usage';
+  import { resolveRawCode } from 'virtual:jixoai-canvas/docs/components/alert.html/+page';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import alertSource from '$lib/ui/alert/alert.svelte?raw';
@@ -41,7 +48,7 @@ ${close}
   Exit 1 — the bundle exceeded the size budget by 12 KB.
 </Alert>
 
-<Alert variant="tonal" title="dark profile" theme="dark">theme="dark" stamps the .dark class bridge on this banner only.</Alert>`;
+<Alert variant="tonal" title="dark profile" theme="dark">theme="dark" stamps the .dark class bridge on this banner only — a partial re-theme: the tonal pair re-scopes to the island's dark profile; the semantic ink layer stays root-anchored (W-next #1).</Alert>`;
 
   const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/alert/alert.svelte', content: alertSource },
@@ -49,30 +56,23 @@ ${close}
   ];
 
   // ── the eight axes on alert — grouped runnable examples ────────────────
-  // (hand-authored mirror of the stage markup — the canvas same-source
-  // idiom; the query() case gets its own canvas below)
-  const axesUsage = `<script lang="ts">
-  import Alert from '@ui/alert.svelte';
-  import Card from '@ui/card.svelte';
-${close}
-
-<!-- radius: the banner SUPPLIES the concentric anchor; size stamps the root -->
-<Alert variant="tonal" title="concentric anchor" radius={20} size={18}>
-  <Card radius="auto">child at auto — corners resolve max(0px, 20 − 14) = 6px</Card>
-</Alert>
-
-<!-- density: the named rung moves the × hit lane -->
-<Alert title="large rung" density="lg" dismiss="manual">The × affordance rides the lg hit lane.</Alert>
-<Alert title="2xs rung" density="2xs" dismiss="manual">The × affordance rides the 2xs hit lane.</Alert>`;
+  // The drawer's usage file composes from the stage markup in the axes
+  // canvas below (the same-source lane — the stage is THE source; the
+  // explanatory comments ride inside the stage children so both
+  // surfaces carry them). The query() case keeps its hand file: its
+  // drawer teaches the explicit call form while the stage carries the
+  // page's own const (a deliberate teaching difference, copy-checked).
+  const axesUsage = usageFile({ Alert: '@ui/alert', Card: '@ui/card' }, resolveRawCode('axes'));
 
   const axesFiles: TreeFile[] = [{ name: 'alert-axes-demo.svelte', content: axesUsage, kind: 'usage' }];
 
   // the ONE query() case: responsive density on a dismissible notice —
   // the base (large, the touch-generous 48px × lane) applies below the
   // 40rem viewport; at ≥40rem the sm case wins and the × steps down to
-  // the compact 32px lane. The explicit generic pins the case values to
-  // the lane (the bare literal would infer plain strings)
-  const responsiveDensity = query<{ sm: DensityLane }>({ sm: 'small' }, 'large');
+  // the compact 32px lane. The explicit generics pin the cases AND the
+  // base to the lane (the one-generic form leaves B inferred
+  // undefined, and 'large' fails its assignment — scribe finding 5)
+  const responsiveDensity = query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large');
 
   const queryUsage = `<script lang="ts">
   import Alert from '@ui/alert.svelte';
@@ -80,7 +80,7 @@ ${close}
   import type { DensityLane } from '@lib/defaults.svelte';
 ${close}
 
-<Alert title="Responsive dismiss target" dismiss="manual" density={query<{ sm: DensityLane }>({ sm: 'small' }, 'large')}>
+<Alert title="Responsive dismiss target" dismiss="manual" density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}>
   Media keys are min-width: below 40rem the base applies — the large
   rung and its 48px × lane (touch); at 40rem and wider the sm case
   wins — the compact small rung (pointer). Resize the window.
@@ -116,10 +116,10 @@ ${close}
     },
     {
       name: 'density',
-      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
       default: `'auto'`,
       description:
-        'A named rung stamps the data-density scope (small/medium/large alias sm/default/lg; the five legacy spellings keep working); a number stamps --jx-density-coefficient. Consumed HERE by --jx-hit, the × affordance\'s hit lane; the banner\'s type and padding rhythm is fixed literals. The declaration-only density posture retired at explicit-props D5 (migration-census.md, W3 CLOSE).',
+        'A named rung stamps the data-density scope (small/medium/large alias sm/default/lg; the five legacy spellings keep working); a number stamps --jx-density-coefficient — inert on this banner: nothing here scales by the coefficient, and only the named rungs move --jx-hit, the × affordance\'s hit lane (a bare number declares no scope block, so nothing re-declares AT the banner). The banner\'s type and padding rhythm are static tokens — var(--jx-text-base), var(--space-12), calc(var(--jx-unit) * 3.5) — and none of them reads a density channel. The declaration-only density posture retired at explicit-props D5 (migration-census.md, W3 CLOSE).',
     },
     {
       name: 'color',
@@ -133,7 +133,7 @@ ${close}
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        'The one axis that repaints the banner itself: dark stamps the .dark class bridge on the root and the token profile flips inside the notice. system resolves the JS-mutable global; auto inherits the tree.',
+        'A PARTIAL re-theme on this banner, measured (the drift ledger\'s W-next #1): dark stamps the .dark class bridge on the root, and the variant-grammar slots re-scope — the sheet declares --jx-tonal and --jx-outline on every theme scope (the canvas-bug law), so the tonal ground, border and its title/body inks follow the island\'s dark profile. The stylex semantic ink layer does NOT follow: --jx-foreground, --jx-muted-foreground, --jx-ring and the shadow ink stay :root-anchored — the outline rung\'s ramp, the × affordance and its focus ring keep the light values inside a dark island (documented supply-side until the protocol pass). system resolves the JS-mutable global; auto inherits the tree.',
     },
     {
       name: 'elevation',
@@ -273,7 +273,7 @@ ${close}
           <Alert variant="tonal" class="jx-hue-error" assertive={true} title="Build failed">
             Exit 1 — the bundle exceeded the size budget by 12 KB.
           </Alert>
-          <Alert variant="tonal" title="dark profile" theme="dark">theme=&quot;dark&quot; stamps the .dark class bridge on this banner only.</Alert>
+          <Alert variant="tonal" title="dark profile" theme="dark">theme=&quot;dark&quot; stamps the .dark class bridge on this banner only — a partial re-theme: the tonal pair re-scopes to the island's dark profile; the semantic ink layer stays root-anchored (W-next #1).</Alert>
         </div>
         {#snippet playground()}
           <PlayFields>
@@ -300,17 +300,19 @@ ${close}
       headerRegion="axes"
       eyebrow="axes"
       title="The eight axes on alert"
-      summary="Alert resolves all eight universal axes through its family Defaults (AlertDefaults) and stamps the resolved carriers on the banner root. What each axis drives on THIS family differs: theme repaints the banner itself, density moves the × hit lane, radius supplies the concentric anchor for nested parts — and four axes stamp-and-supply without touching the banner's own paint. The lane grammar (named · auto · number · query()) is the universal props page's."
+      summary="Alert resolves all eight universal axes through its family Defaults (AlertDefaults) and stamps the resolved carriers on the banner root. What each axis drives on THIS family differs: theme partially re-themes the banner (the tonal pair re-scopes under the .dark island; the semantic ink layer stays root-anchored), density moves the × hit lane, radius supplies the concentric anchor for nested parts — and four axes stamp-and-supply without touching the banner's own paint. The lane grammar (named · auto · number · query()) is the universal props page's."
     >
       <div class={cx(rt.col20)}>
         <PropsTable props={axisRows} title="" />
 
         <div class={cx(rt.mt20)}>
-          <ComponentCanvas title="alert · on the axes" files={axesFiles}>
+          <ComponentCanvas id="axes" title="alert · on the axes" files={axesFiles}>
             <div class={cx(rt.col16, rt.wFull)}>
+              <!-- radius: the banner SUPPLIES the concentric anchor; size stamps the root -->
               <Alert variant="tonal" title="concentric anchor" radius={20} size={18}>
                 <Card radius="auto">child at auto — corners resolve max(0px, 20 − 14) = 6px off the banner's anchor</Card>
               </Alert>
+              <!-- density: the named rung moves the × hit lane -->
               <div class={cx(rt.gridSm2)}>
                 <div class={cx(rt.panel)}><Alert title="large rung" density="lg" dismiss="manual">The × affordance rides the lg hit lane.</Alert></div>
                 <div class={cx(rt.panel)}><Alert title="2xs rung" density="2xs" dismiss="manual">The × affordance rides the 2xs hit lane.</Alert></div>

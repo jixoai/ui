@@ -101,3 +101,22 @@ it; do not invent new page machinery.
    present.
 7. **Highlights**: record what this page does BETTER than your own work
    in `experience.md` — then upgrade your own pages (the learning loop).
+
+## 6. Orchestrator rulings (campaign-wide)
+
+- **吃也供 in English prose**: the broadcast protocol's Chinese name is a
+  design proper noun. On first mention per page write "the broadcast
+  protocol (吃也供, supply-and-consume)"; thereafter "the broadcast
+  protocol" — never raw Chinese mid-English-prose without the gloss.
+  (Ruling from quill's anchor review NIT, 5 pages affected — fix pages
+  as you touch them; a sweep is NOT a separate task.)
+
+- **The query() typing law** (scribe's accordion review, campaign-wide): with
+  explicit type args ALWAYS pass BOTH — `query<{ sm: DensityLane }, DensityLane>({…}, 'large')`;
+  the single-arg form disables B's inference (defaults undefined) and ships a
+  real svelte-check error.
+- **The grep-receipt law**: any broadcast/supply claim ("axis X broadcasts to
+  nested consumers") requires a named-consumer grep receipt before it is
+  written — "zero readers tree-wide" is a grep result, never a vocabulary
+  analogy.
+- **The theme-split disclosure law** (vellum's alert re-probe): theme rows name WHICH voices flip — grep the declaring selector list per voice (jixoai.css slot blocks `:root,.jx-light,.dark` re-theme; the stylex defineVars layer stays frozen). "Partial re-theme, measured" with the two halves named.
