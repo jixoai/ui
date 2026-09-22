@@ -1,48 +1,27 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| scribe | 18 | inline-code (quill's) | REVIEW (2nd) | in-flight |
 | marginalia | 27 | badge-indicator (OWN) | CODE | in-flight |
 | vellum | 25 | card-grid fix (A, OWN) + file-input (B, OWN) | FIX + CODE | in-flight |
-| quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
+| quill | 22 | navigation-menu (OWN) | CODE | in-flight |
+| scribe | 25 | code-card 2nd (+LOW ids) (quill's) | REVIEW (2nd) | in-flight |
 
-## DONE (22)
-- ✅ **anchor** (scribe) — 1st: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS
-- ✅ **blockquote** (quill) — 2nd (scribe re-verify 6/6 + 31/31 probe)
-- ✅ **alert** (vellum) — 3rd (THEME-SPLIT survived independent re-measure)
-- ✅ **accordion** (marginalia) — 4th (vellum re-verify PASS 10/11; 11th = fleet cx debt)
-- ✅ **badge** (marginalia) — 5th (component-level EXTRA-lane rescue; scribe 2nd PASS both layers)
-- ✅ **chip** (quill) — 6th (dead extra lane resurrected + spec-pinned)
-- ✅ **breadcrumb** (scribe) — 7th (LAW #14 TRANSITION-FRAME discovered; marginalia re-verify PASS 7/7)
-- ✅ **date-picker** (quill) — 8th (one-cell theme-split; wall-clock hue tracking; zero disagreements)
-- ✅ **checkbox** (scribe) — 9th (carrier-strip ×3 number now page text; 112/112)
-- ✅ **component-canvas** (quill) — 10th (EXTRA doubled 27−6−2+2=21; page svelte-check 7→0)
-- ✅ **cascader** (quill) — 11th (tier-3 exemplar; fold verified byte-level)
-- ✅ **empty** (quill) — 12th (frozen pole triple-level; runtime-stylesheet emission scan standard)
-- ✅ **dropdown-menu** (quill) — 13th (the OVERTURN arc complete; shape-agnostic import-grep law)
-- ✅ **heading** (quill) — 14th (inline-stamp mechanism; re-verify-grade self-confirmation 16/16)
-- ✅ **avatar** (vellum) — 15th (second overturn arc; initials-follow-size; page zero diagnostics)
-- ✅ **carousel** (marginalia) — 22nd (double PASS full convergence; the same-token opposite-emission demonstrator; LAW #14 dots-honesty verified at two viewports; polar-assertion convergence on the brand-hue dot)
-- ✅ **input-group** (quill) — 21st (double PASS; the co-signed arithmetic sentence rode the closure; NEW MEDIUM: source:'structural' ×5 empty cells — the THIRD W-next #3 live instance → FIXED by scribe task 21: the structural arm landed (sourceLabel one-for-one with the union), the 5 cells render 'structural', render pin added; description-field arm stays in W-next)
-- ✅ **hero-section** (quill) — 20th (THE ADJUDICATION: vellum's MAJOR = NON-REPRODUCED probe-medium artifact — both instruments run by the adjudicator; LAW #16 FIRST-PAINT-BASE enters; emission-form split + one-h1 carve-out re-derived)
-- ✅ **color-picker** (scribe) — 19th (stamped-never-consumed triple-instrumented; the chain-head settled 24−8−4=12; quill's disclosed one-line STALE-COMMENT FLAG completes marginalia's MINOR — the page names the living family comment as the retired claim's last copy)
-- ✅ **image** (quill) — 18th (the snippet-vs-default MAJOR arc: marginalia found it, quill's path-(a) fix verified live by scribe — data-density sm↔lg on the default frame, no-CLS; frozen-pole purest case + leaf + carriers-bijection all held)
-- ✅ **inline-code** (quill) — 17th (pin-density tier-3 exemplar; double PASS; the co-signed toc row landed with closure)
-- ✅ **button-group** (vellum) — 16th (PROVIDER family; four voices digit-exact; --jx-inset fix landed with closure)
+## DONE (23)
+- ✅ **anchor** (scribe) — 1st · **blockquote** (quill) — 2nd · **alert** (vellum) — 3rd · **accordion** (marginalia) — 4th · **badge** (marginalia) — 5th (component EXTRA-lane rescue) · **chip** (quill) — 6th · **breadcrumb** (scribe) — 7th (LAW #14) · **date-picker** (quill) — 8th (one-cell theme-split) · **checkbox** (scribe) — 9th · **component-canvas** (quill) — 10th (EXTRA doubled) · **cascader** (quill) — 11th (tier-3 exemplar) · **empty** (quill) — 12th (frozen pole triple-level) · **dropdown-menu** (quill) — 13th (the OVERTURN arc; shape-agnostic grep law) · **heading** (quill) — 14th (inline-stamp mechanism) · **avatar** (vellum) — 15th (second overturn arc) · **button-group** (vellum) — 16th (PROVIDER; --jx-inset rode closure) · **inline-code** (quill) — 17th (pin-density tier-3; toc row rode closure) · **image** (quill) — 18th (snippet-vs-default MAJOR arc) · **color-picker** (scribe) — 19th (stamped-never-consumed; chain-head settled 24−8−4=12) · **hero-section** (quill) — 20th (THE ADJUDICATION; LAW #16) · **input-group** (quill) — 21st (structural-arm MEDIUM → fixed fleet-wide 27 pages) · **carousel** (marginalia) — 22nd (same-token opposite-emission demonstrator) · **descriptions** (scribe) — 23rd (rig-vs-law arc; the empirical flex-basis fix; 64rem boundary proof)
 
 ## Pipeline (open work)
-- inline-code: CLOSED
-- color-picker: marginalia 1st PASS (stamped-never-consumed re-falsified; family props comment → drift #10; 27−3 chain head falsified, result 24−8−4=12 holds) → quill 2nd QUEUED (after its double-MAJOR package)
-- input-group: CLOSED
-- image: CLOSED
-- hero-section: CLOSED — the third overturn form (reviewer MAJOR vs coder non-reproduction) resolved by instrument adjudication
-- descriptions: marginalia 2nd review NEEDS-WORK (MAJOR: the drag rig can't perform the fold — .desc-frame-rig lacks container-type: inline-size so @container hits the canvas column, never the frame; the LAW verified at 560px viewport, the RIG was broken; one-line fix + releases the min-content floor; MINOR co-signed: 40rem→64rem ×5; vellum's theme row TRUE — marginalia's own mid-review dd-flip was a wrong-element probe, self-resolved with the box-model-before-colors lesson) → closure-ready the moment the two one-liners land on scribe's flow
-- link: coded Tier-2 (quill 20 — size consumed through EM VOICES (stamped 14px anchor → 11.1875px glyph while the underline offset holds fixed 4px — consumption AND refusal in one element); theme frozen-pole pure-alias with the live −4° drift; the THIRD brief falsification: markdown-node maps prose links here (the promotion's point), leaf claim corrected in Overview; craft geometry measured (0.2em seam, −0.125em shift, external pair live)) → scribe+marginalia reviews QUEUED
-- code-card: marginalia 1st review **PASS** (fourth theme pattern verified with the −4° arithmetic INSIDE a computed value; the TWO-MEDIUM theme receipt INFO: 42% jx-light formula on the canvas vs full dark engagement in a clean scope — both live, :where() order-arbitrated, name your medium; no-query-seat reasoning judged SOUND; shiki 68-span live vs 0-span raw SSR; LOW: #install/#see-also ids missing ×2 — rides scribe's consolidation) → scribe 2nd QUEUED
-- card-grid: scribe 1st review NEEDS-WORK-lite (MAJOR: the query demo's 'measured tenant padding 12↔16px' NOT reproducible — the truth belongs to section-card tenants, the demo shows chrome-frozen Card tenants (the image class: measured must reproduce or retract); MINOR: foot Description cell empty — the description-field arm page-side; NIT: no dark specimen in the axes canvas; core verified digit-exact incl. the two-halves split and the merged grid-min stamp) → vellum fix (one sentence + one curation entry + one panel) → marginalia 2nd
-- carousel: CLOSED
+- link: scribe 1st review **PASS** (em-voices live 11.1875px; frozen-pole pure-alias; corrected leaf claim verified — ONE edge markdown-node.svelte:64) → marginalia 2nd QUEUED
+- code-card: marginalia 1st review **PASS** (fourth theme pattern; the two-medium :where() receipt; no-query-seat judged SOUND; LOW: #install/#see-also ids ×2 rides the consolidation) → scribe 2nd IN FLIGHT
+- card-grid: scribe 1st review NEEDS-WORK-lite (the query demo's measured-tenant claim NOT reproducible — section-card truth shown on chrome-frozen Card tenants; MINOR: foot Description cell; NIT: dark specimen) → vellum fix IN FLIGHT (task 25-A) → marginalia 2nd after
+- combobox: coded Tier-2 (vellum 24 — two self-fixed MAJORs; FLOOR-ASYMMETRY class; ARIA end-to-end; two-time-bases demonstrator) → scribe+marginalia reviews QUEUED
+- native-scroll-area: coded Tier-2 + remediation (quill 21 — the universal table restored 9 rows; the LAST-WRITE write-then-verify incident archived; observer-consumed FIFTH theme mechanism) → vellum+scribe reviews QUEUED
+- descriptions: CLOSED #23 (the two one-liners landed empirically harder — flex-basis overrode width; the working fix rides the derived frameStyle; fold at the exact 640px line)
+- badge-indicator: marginalia CODE IN FLIGHT (task 27)
+- file-input: vellum CODE IN FLIGHT (task 25-B)
+- navigation-menu: quill CODE IN FLIGHT (task 22)
 
-## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. · toc/See-also: See also is chrome, OUT of the toc (anchor precedent).
+## RULINGS: a11y floor (24 = WCAG 2.5.8 AA minimum; 28 = fleet default exceeding) · toc/See-also: chrome, OUT of the toc · component fixes: three-strikes → fix now (EXTRA lane, hardening pins, structural arm precedents) · reviewer page-edits: flag-only, route through owner/orchestrator
 
-## Law library (16): SSR ground truth · consumed-vs-supply · canvas-id swap · declaring-element · measurement-first · composed-consumer · resolved-record · query() both-args · grep-receipt (SHAPE-AGNOSTIC: match module paths, not alias forms) · disagreement-probe · EXTRA-lane (reference-identity exemption; spec-pinned) · single-evaluate probes · TRANSITION-FRAME (await > duration + light-regression) · PROBE-READINESS (element existence ≠ styled) · FIRST-PAINT-BASE (§9.1: query demos serve the unconditional base in raw SSR — hydrated probes are the ONLY valid instrument for flip claims; name your medium in every probe report) · THEME-SPLIT (three classes: declaring-selector / emission-form / stamp-declaration — raw var() flips at consumer; defineVars intermediates substitute once at :root and freeze)
-## Ledgers: drift 10 · W-next #3: STRUCTURAL ARM FIXED (heals 27 pages / 70+ rows; fleet empty-source count 0; badge's out-of-union 'theme' caught in place; hardening spec 2/2) — only the description-field arm remains · W-next 4 (semantic-ink gap · theme-split refinement · TokenTable dead text column two-arm (STRUCTURAL ARM FIXED — scribe task 21: sourceLabel +'structural', 27 pages' blank cells heal, render pin test/token-table-source.spec.ts; the DESCRIPTION-FIELD arm remains open) · dev CSSOM transient)
+## Law library (16): SSR ground truth · consumed-vs-supply · canvas-id swap · declaring-element · measurement-first · composed-consumer · resolved-record · query() both-args · grep-receipt (SHAPE-AGNOSTIC) · disagreement-probe · EXTRA-lane (reference-identity, spec-pinned) · single-evaluate probes · TRANSITION-FRAME · PROBE-READINESS · FIRST-PAINT-BASE (§9.1: raw SSR serves the base; hydrated probes for flip claims; name your medium) · THEME-SPLIT (five mechanisms: raw-flip / typed-frozen / bridge-only / dropped-own-adaptation / observer-consumed)
+## Defect classes: measured-must-reproduce · rig-must-perform-its-claim · floor-asymmetry · law-true-rig-broken
+## Ledgers: drift 10 · W-next 4 (semantic-ink gap · theme-split refinement · TokenTable description-field arm — structural half FIXED · dev CSSOM transient)
