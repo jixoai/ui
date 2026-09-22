@@ -295,6 +295,7 @@ export interface PulseOptions {
   import Icon from '$lib/ui/icon';
   import {
     densityRungOf,
+    elevationPairOf,
     provideQueryAnchor,
     provideUniversalLanes,
     stampCarriersForLanes,
@@ -494,9 +495,21 @@ export interface PulseOptions {
       ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1)); --jx-inset-effective: 0px'
       : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
   );
-  // the #4 composition: carriers + the radius stamp + the caller's
-  // own style LAST (the consumer escape hatch always wins)
-  const rootStyle = $derived([carriers, radiusConsumed, callerStyle].filter(Boolean).join('; ') || undefined);
+  // ---- the §7 elevation consumption (W6-r3) ------------------------
+  // A resolved elevation lane composes the §7 pair through the level
+  // table's var indirection (the batch-C pattern, the same helper
+  // dialog/sheet/toast ride): --jx-elevation-shadow re-points the
+  // press law's REST pose (press-button.css — the toast.css
+  // precedent) and --jx-elevation-surface rides for descendants.
+  // '' when the lane carries no opinion — the historic ground keeps
+  // painting, zero delta (no own default: the census's batch-C table
+  // records NONE for press-button; the axis is ambient-first).
+  const elevationConsumed = $derived(elevationPairOf(d.elevation));
+  // the #4 composition: carriers + the radius/elevation stamps + the
+  // caller's own style LAST (the consumer escape hatch always wins)
+  const rootStyle = $derived(
+    [carriers, radiusConsumed, elevationConsumed, callerStyle].filter(Boolean).join('; ') || undefined,
+  );
 
   // the flat-pose block reads the resolved variant through this alias —
   // same value as d.variant, named beside resolvedRaised for the

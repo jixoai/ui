@@ -288,14 +288,26 @@ function fillToCss(fill: number): string {
  *  dark — read from the HOST's scope); undefined → the theme scope's
  *  --background TOKEN (Owner r2: the SAME basis as text/border —
  *  never a measured ancestor; the CSS Canvas keyword AND the measured
- *  opaque-ancestor walk are both retired from the auto path) */
+ *  opaque-ancestor walk are both retired from the auto path), EXCEPT
+ *  a host whose own variant paints an OPAQUE FACE (press-button's
+ *  fill rung): there the face IS the fill layer — var(--jx-fill), a
+ *  live token — because the canvas-basis layer would REPAINT the
+ *  variant's own face and strand its ink (the W6-r3 dark-stage
+ *  receipt: scope --background oklch(0 0 0) over a fill button put
+ *  the black --jx-fill-ink label on a black face — invisible; the
+ *  face token keeps the pair's contrast at every scope) */
 function resolveFill(fill: number | null | undefined, host?: Element): { fillCss: string; blend: 'darken' | 'lighten' | null } {
   if (fill === null && !borderAreaSupported()) {
     const dark = contextIsDark(host);
     return { fillCss: fillToCss(dark ? 0x000000 : 0xffffff), blend: dark ? 'lighten' : 'darken' };
   }
   if (fill === null) return { fillCss: 'transparent', blend: null };
-  if (fill === undefined) return { fillCss: contextCanvasCss(host), blend: null };
+  if (fill === undefined) {
+    if (host instanceof Element && host.getAttribute('data-jx-press-button') === 'fill') {
+      return { fillCss: 'var(--jx-fill)', blend: null };
+    }
+    return { fillCss: contextCanvasCss(host), blend: null };
+  }
   return { fillCss: fillToCss(fill), blend: null };
 }
 

@@ -71,6 +71,40 @@
     )
   );
 }
+/* ── the §5 color-axis consumption (explicit-props W6-r3, the vision
+   round's AXIS-NOT-VISIBLE fix) ────────────────────────────────────
+   The paint ladder's PRIMARY-derived slots re-derive from the §11
+   carrier ON the family root (the canvas-bug law: the :root-declared
+   --jx-fill/--jx-tonal substituted var(--primary) at :root already —
+   an inline carrier stamp on the button would never reach them). At
+   rest the root invariant --jx-color-effective: var(--primary) keeps
+   the historic paint byte-identical; an explicit color lane re-hues
+   fill/tonal live (the stage scope's own re-declaration re-runs the
+   substitution per theme profile). --jx-outline does NOT follow — its
+   historic ground is --border, not the primary family, and re-pointing
+   it would repaint every outline button's frame; --jx-fill-ink keeps
+   the primary pair's ink (the §5 hue formula pins L, so the contrast
+   pair holds at every hue). The unlayered hue/pair utilities
+   (jx-hue-*, jx-pair-*) still outrank this layered rule — call-site
+   semantic injection wins over the axis default, the state-paint law. */
+:where([data-jx-press-button]) {
+  --jx-fill: var(--jx-color-effective, var(--primary));
+  --jx-fill-ink: var(--primary-foreground);
+  --jx-tonal: var(--jx-color-effective, var(--primary));
+}
+/* ── the §7 elevation-axis consumption (W6-r3; the toast.css
+   precedent, toast owns level3 the same way) ───────────────────────
+   A resolved elevation lane's pair (--jx-elevation-shadow, stamped by
+   elevationPairOf in the component) re-points the press law's REST
+   pose to the level recipe; hover/active keep the family's own
+   xs→sm/anchored signatures — the axis steps the GROUND, the press
+   law stays the PHYSICS. No lane → the historic shadow-xs ground,
+   byte-identical (the leading var is absent, the fallback holds).
+   Source order keeps the ghost none-trio and the flat pose winning
+   below — quiet/flat rungs never grow a shadow from the axis. */
+:where([data-jx-press-button]) {
+  --jx-press-shadow: var(--jx-elevation-shadow, var(--shadow-xs));
+}
 :where([data-jx-press-button='ghost']) {
   --jx-press-shadow: none;
   --jx-press-shadow-hover: none;
