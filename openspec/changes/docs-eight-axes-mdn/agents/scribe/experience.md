@@ -620,3 +620,21 @@
 - (quill) One bezel, three emission forms, all measured: the theme row
   is the fleet's cleanest demonstration that "theme" is not one
   mechanism but a stack of emission-time decisions.
+
+## Techniques (task 21 additions)
+- A "third instance" dispatch under-reports: sweep the WHOLE fleet for
+  the disease before sizing the fix. The one-arm mapper bug blanked
+  cells on 27 pages (dropdown/date-picker ×10 each) — the fix's value
+  statement changed from "3 pages" to "the fleet", which is why
+  component-level fixes earn their keep over page patches.
+- The mapper arm should mirror the union ONE FOR ONE — then the type
+  and the render can never diverge again without a diff showing in the
+  added member. The comment at the mapper names the failure mode for
+  the next editor.
+- Harden the contract you just fixed: a 2-test render pin (every union
+  member renders its label; the no-source guard drops the column) costs
+  245ms and locks the arm against regression. The no-source half is as
+  load-bearing as the fix half — cascader's two-column shape rides it.
+- Badge's `source: 'theme'` was an OUT-OF-UNION page value — the page
+  side of the same disease. When the union and the mapper disagree,
+  sweep the pages for values living in NEITHER.

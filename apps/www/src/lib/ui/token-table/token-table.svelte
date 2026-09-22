@@ -102,8 +102,20 @@
       )
       .join(' ');
 
+  // the arms mirror the TokenEntry source union ONE FOR ONE — an
+  // unmapped member renders an empty Source cell (the docs-eight-axes
+  // task-21 fix: 'structural' was accepted by the type and dropped at
+  // render, blanking 27 pages' law-level token rows)
   const sourceLabel = (s?: string) =>
-    s === 'density' ? 'density' : s === 'component' ? 'component' : s === 'color' ? 'color' : '';
+    s === 'density'
+      ? 'density'
+      : s === 'component'
+        ? 'component'
+        : s === 'color'
+          ? 'color'
+          : s === 'structural'
+            ? 'structural'
+            : '';
 
   // ── the eight-axis surface (W3-D4 — FIRST-TIME contract, all
   // no-own): one resolution record; the carriers JOIN the consumer

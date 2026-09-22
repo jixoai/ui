@@ -344,7 +344,7 @@
             { name: '--jx-fill-ink', default: 'var(--primary-foreground)', source: 'color', description: 'Ink on fill — always injected with --jx-fill.' },
             { name: '--jx-tonal', default: 'var(--primary)', source: 'color', description: 'Tonal ground/border/text hue source — the status injection seam (jx-hue-* intent utilities; arbitrary form outside the closed set).' },
             { name: '--jx-outline', default: 'var(--border)', source: 'color', description: 'Outline border source; re-declares on the .dark scope.' },
-            { name: '--jx-foreground', default: 'var(--foreground) at :root', source: 'theme', description: 'The outline rung\'s ink — a stylex token that does NOT re-substitute under a scoped .dark (the W-next semantic-ink gap; measured).' },
+            { name: '--jx-foreground', default: 'var(--foreground) at :root', source: 'structural', description: 'The outline rung\'s ink — a stylex token that does NOT re-substitute under a scoped .dark (the W-next semantic-ink gap; measured).' },
             { name: '--jx-radius', default: 'var(--radius) — 0px (8px where corner-shape is supported)', source: 'structural', description: 'The square corner-law; pill paints calc(infinity * 1px).' },
             { name: '--jx-hairline', default: '1px', source: 'structural', description: 'The frame; survives forced colors.' },
             { name: '--track-14', default: '0.14em', source: 'structural', description: 'The micro-label tracking (the promoted step var).' },
