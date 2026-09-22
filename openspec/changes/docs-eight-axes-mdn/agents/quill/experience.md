@@ -138,3 +138,41 @@
 - `TokenTable`'s `source` prop accepts only density/color/component/structural — 'theme'
   ships a real svelte-check error (badge.html:341 carries the same standing one; not mine
   to fix on a sibling's page under review).
+
+## Techniques (mine, added 2026-09-22, cascader 6-cascader)
+- **The all-supply family gets a POSITIVE receipts table, not apologetic rows**: cascader's
+  eight lanes paint NOTHING (zero `-effective` consumers in the family — grep receipt), so the
+  axis section leads with that as the story ("seven stamp-and-supply-only + theme's one
+  consumed voice"), and the TokenTable flips to "the fixed paint" — the constants the shells
+  DO read, each with its equation. Documenting what the paint reads is as load-bearing as
+  what it ignores; the table is the receipts column of the supply-only rows.
+- **Theme rows need the alias-substitution half named at the BUILT-CSS level**: the shell face
+  reads tokens.stylex aliases (`--jx-background: var(--background)`) declared at `:root,
+  .xbpgcew` in the built sheet — a plain `.dark` re-declares the RAW layer only, so the
+  inherited alias never re-substitutes. Source-read said "probably"; the built-CSS declaration
+  selector plus the byte-identity probe (`oklch(1 0 0)` both) made it measured. The ring half
+  flipped by exactly the −4° hue drift (142→138) — the theme-split law's "partial re-theme,
+  measured" with both halves probed.
+- **`--jx-text-base` vs `--jx-text` is a trap worth naming in the row**: the select reads the
+  ruler's T_base CONSTANT (13px, not rung-scoped), not the density channel — the exact
+  look-alike name that makes a wrong "density rescales the shell" claim sound right. The fixed
+  TokenTable row spells the distinction out.
+- **The density-invariant hit surface is probe-able from the page's own demos**: ambient (no
+  rung) + sm panel + the query() panel at ≥64rem give three rungs on one page; one
+  offsetHeight read each (35px === 35px === 35px) turns the a11y hit-floor note into a
+  measured number instead of a hedge.
+
+## Mistakes to avoid (cascader round)
+- **The bare query() form DOES ship a type error for string lanes** — my chip note said the
+  failure mode was "structurally absent" with inference + base; that's true only for NUMBER
+  lanes (number ∈ the union). `query({ lg: 'large' }, 'small')` infers `QueryResult<string>`
+  and fails assignment to `DensityLane` (caught 384:60 on the first svelte-check). String-lane
+  query() needs the BOTH-generics form, always: `query<{ lg: DensityLane }, DensityLane>(…, …)`.
+- **preserveHash constrains ToC surgery on legacy-mapped routes**: legacy-doc-routes.json maps
+  the old `/components/cascader.html` here with `preserveHash: true` — survivor sections kept
+  their ids (`usage`/`api`/`accessibility`/`cascader-demo`); only the dead ones (`types`,
+  `theming`) were dropped. Deep-link audit = inbound grep + the manifest's preserveHash flag,
+  not just the inbound grep.
+- **A build between edit and built-dist gates is part of the task**: verify:docs-universal /
+  verify:docs read dist; editing the page without rebuilding would "gate" a stale page. Order
+  held: edit → probe → build (sibling-build `pgrep` first) → gates → specs.

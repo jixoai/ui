@@ -21,7 +21,7 @@
     "scribe"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "fixed-awaiting-reverify"
   },
   {
    "page": "alert",
@@ -31,7 +31,7 @@
     "marginalia"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "done"
   },
   {
    "page": "anchor",
@@ -41,7 +41,7 @@
     "vellum"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "done"
   },
   {
    "page": "avatar",
@@ -61,7 +61,7 @@
     "vellum"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "needs-work-1st"
   },
   {
    "page": "badge-indicator",
@@ -81,7 +81,7 @@
     "marginalia"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "done"
   },
   {
    "page": "boot-splash",
@@ -101,7 +101,7 @@
     "marginalia"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "coded"
   },
   {
    "page": "button-group",
@@ -150,8 +150,8 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 3,
+   "status": "coded"
   },
   {
    "page": "chart",
@@ -181,7 +181,7 @@
     "vellum"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "coded"
   },
   {
    "page": "code-card",

@@ -27,6 +27,28 @@
   attrs; small→data-density="sm" + coefficient 1; dark→.dark) — six rails
   verified in one grep. Upgrade alert: recaption my demo panels with
   their exact stamps.
+- (badge review, marginalia — task 5)
+  **Curation headers that pin the extractor's ceilings as law**
+  (badge.docs.ts: WHY variant/shape degrade to opaque aliases, WHY
+  style/rest stay visible on purpose) — alert's curation gets the same
+  header discipline.
+  **Two-layer @supports wording** ("0px; 8px where corner-shape is
+  supported; 8px measured here") — base + upgrade + measurement in one
+  clause; alert's radius row says only the measured number.
+  **Supply-side grep receipts cited at the claim site** (zero-readers
+  grep as provenance for supply-only rows) — my independent re-grep
+  confirmed; alert's supply rows should cite theirs the same way.
+  **Same-source deletion of hand mirrors** (resolveRawCode composes both
+  drawers; hand mirror files deleted) — alert still carries one
+  hand-mirrored usage path to convert.
+  **Declaring-element mechanics per lane** (named rung → data-density
+  makes the chip the declarer; bare coefficient → matches no
+  :root/[data-density] block, inert) — owed to alert's density row since
+  the accordion review; badge's row is the model to copy.
+  **THEME-SPLIT executed to my own law:** marginalia's theme row names
+  both halves and my one-evaluate probe confirmed them exactly (tonal
+  trio flips, hue drift −4° exact, outline ink + --jx-foreground
+  frozen) — the law transfers; alert's theme row already carries it.
 - (accordion review, marginalia — upgrades queued with my alert micro-fix)
   **Named lane groups in the census-citation paragraph** (five
   broadcast-only · anchor-only radius · the repainters) — sharper than a
@@ -166,3 +188,22 @@
 - **Probe string FAILs are probe bugs until proven page bugs** —
   re-affirmed: my smoke's "2xs rung" FAIL was a 700-char slice cutoff;
   full-text re-measure flipped it to PASS before any page edit.
+- **THE SHARED UNIVERSAL SPLIT EATS SAME-NAMED FAMILY PROPS**
+  (badge review BLOCKER): props-table.svelte:169 filters
+  UNIVERSAL_AXIS_NAMES out of the main rows whenever the shared section
+  renders — a family prop that happens to carry an axis NAME (badge/chip's
+  `shape`) is silently dropped, and its curation override becomes dead
+  text. The rescue is the `docs.extra` lane (chip.docs.ts:72); when I
+  code pages with collided names, the family row rides `extra`, and when
+  I review, the check is: parse the SSR table rows, don't trust the
+  curation file — an override that never renders looks identical to one
+  that does.
+- **page.content() vs raw SSR HTML for payload greps:** Playwright's
+  content() re-serializes entities, so `query&lt;…&gt;` in the payload
+  won't match either the escaped or the plain needle. Grep the RAW
+  curl/SSR bytes for same-source drawer claims.
+- **0.14em ≠ '0.14em':** em tracking resolves against the element's OWN
+  font-size (12px chip → 1.68px computed). Assert tracking as
+  computed px ÷ own font-size, never as the literal — third time this
+  family of em-lessons has bitten; the declared var value and the
+  computed value are different claims.

@@ -58,6 +58,19 @@
   dev-server smoke cannot (2-breadcrumb).
 
 ## Highlights found in others' pages
+- (vellum, 4-fix-alert) THREE-LAYER evidence for a css-law claim: source
+  read + live computed probe + COMPILED-DIST grep (which selector block
+  actually ships) — the third layer catches dev-pipeline inference that
+  the first two can't distinguish. Their THEME-SPLIT re-probe also shows
+  the fix-grade move: a wrong claim ("full repaint") re-measured into a
+  SHARPER law (two halves, named) instead of a minimal retraction.
+  Adopted for my remaining pages: any theme-row edit gets the dist grep.
+- (my 7-review-alert, campaign review-side technique) Cross-round oklch
+  comparisons must diff STRUCTURE, not absolute values: --brand-hue is a
+  runtime documentElement stamp (hue-runtime.svelte.ts:146), so two
+  rounds legitimately log different hues (vellum 146, me 124) with the
+  identical L/C flip + −4° dark drift. Diffing absolute hue would
+  false-flag a regression.
 - (vellum, 2-review-anchor) The REBUTTAL discipline done right: quill's
   letter-spacing NIT ("em-based tracking micro-scales under size") looked
   correct from the CSS source, but vellum's exact-mechanism probe — stamp
