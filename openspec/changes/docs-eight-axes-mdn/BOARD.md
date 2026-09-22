@@ -2,7 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | scribe | 11 | checkbox (OWN) | FIX (both reviews' ledger) | in-flight |
-| marginalia | 11 | component-canvas (quill's) | REVIEW (1st) | in-flight |
+| marginalia | 12 | breadcrumb (scribe's fix @d6b8e21e) | RE-VERIFY | in-flight |
 | vellum | 10 | date-picker (quill's) | REVIEW (1st) | in-flight |
 | quill | 11 | cascader page-side fold (A) + empty (B, OWN) | MICRO + CODE | in-flight |
 ## DONE
@@ -13,10 +13,10 @@
 - ✅ **badge** (owner marginalia) — fifth closed page (vellum 1st NEEDS-WORK → one-pass fix incl. the COMPONENT-LEVEL extra-lane rescue → scribe 2nd PASS both layers, 14/14 probe; hardening pins landed in the breadcrumb batch)
 - ✅ **chip** (owner quill) — sixth closed page (vellum 1st PASS + micro-fix → marginalia 2nd PASS; the dead extra lane resurrected at component level and spec-pinned)
 ## Pipeline
-- breadcrumb: consolidated fix LANDED (scribe task 10: all 8 findings; LAW EVENT — marginalia's frozen you-are-here was a TRANSITION-FRAME artifact, .jx-menu-item 100ms transitions return the start frame on sync reads; menu DOES re-theme as the nav's DOM descendant, trail stylex ink frozen; theme row split by declaring layer AND level; 4 canvases same-source, PILOTS 69/69; hardening pins mutation-proven) → re-verify QUEUED
+- breadcrumb: consolidated fix LANDED (scribe task 10: all 8 findings; LAW EVENT — marginalia's frozen you-are-here was a TRANSITION-FRAME artifact, .jx-menu-item 100ms transitions return the start frame on sync reads; menu DOES re-theme as the nav's DOM descendant, trail stylex ink frozen; theme row split by declaring layer AND level; 4 canvases same-source, PILOTS 69/69; hardening pins mutation-proven) → marginalia re-verify IN FLIGHT
 - cascader: marginalia 1st review **PASS** (tier-3 justification CONFIRMED AND STRENGTHENED — old-page audit caught a consumption lie the rewrite deleted; ring −4° delta invariant re-measured; MINOR: TokenTable dead text column → W-next #3, page-side fold owed by quill; 2 NIT: co-stamp coefficient in-row, separator default phrasing) → scribe 2nd QUEUED
 - checkbox: BOTH reviews NEEDS-WORK in, consolidation aligned (quill MAJOR: bare contrast cell unstamped at ambient; marginalia MAJOR: in-a-form drawer is a stale tailwind-era mirror — unregistered classes, pasted example collapses; NITs: co-stamp story + dead density curation + partial same-source + corner-shape wording; every measured centerpiece TRUE — number-lane inertness re-proven with carrier-strip posture, full-flip theme pole, 4-ladder × 5-rung grid) → scribe consolidated fix IN FLIGHT (task 11)
-- component-canvas: coded Tier-2 (quill task 7, integrated eb66056b) — EXTRA rescue DOUBLED (theme+density §13 seats), ambient-vocabulary pin re-pinned WITH evidence 288/288 — marginalia 1st review IN FLIGHT → then scribe 2nd
+- component-canvas: marginalia 1st review **PASS** (all four extra duties TRUE on the current tree: W7 bar 28-canvas re-derivation with exact 0.875× em ratios, EXTRA arithmetic 27−6−2+2=21, re-pin honest 284/284, press-shadow literals fixed; NIT: theme extra row missing own-default marker — one-field fix to quill) → scribe 2nd QUEUED
 - date-picker: coded Tier-2 (quill task 9-B) — theme-split proven at a SINGLE element (--primary flips / --jx-primary frozen at the same day cell); 25−8+0=17 EXTRA arithmetic exact — vellum 1st review IN FLIGHT → then marginalia 2nd
 - dropdown-menu: coded Tier-2 (quill task 10) — four consumed axes probed (density/shape/radius dual-form/elevation OWN levels), theme-split WITHIN one widget (panel flips, trigger chrome frozen), five composers named + 14-instance dock receipt in SSR, ambient matrix t0 orphans removed with evidence (284/284) — reviewers marginalia+vellum QUEUED
 - avatar: coded Tier-2 (vellum task 9) — EXTRA arithmetic 17−8=9 exact, theme four-voices-frozen documented absence (W-next #1), query<number> flip 48↔40 — reviewers scribe+marginalia QUEUED

@@ -312,6 +312,37 @@
   better evidence — a NIT that a prior receipt disproves should die,
   not survive as style disagreement.
 
+## Task 11 (component-canvas review round, 2026-09-22) — learnings
+- **The W-next #3 dead-column law now has a third instance and a shape**:
+  TokenTable renders Token | Default | Source only; `description` never
+  renders, and `structural` source maps to an empty label — so
+  all-structural receipt tables (cascader's fixed-paint table,
+  component-canvas's fixed-voice table) show a visibly blank column and
+  write their evidence into the void. The reviewing posture that works:
+  confirm the RENDERED cells are honest at their granularity, confirm
+  the dead prose matches source (the css receipt), and file the
+  instance under the already-ruled component debt instead of demanding
+  a per-page fix the component owns.
+- **Documenting-consumer pages flip the grep direction.** component-canvas
+  legitimately READS `-effective` carriers (its specimens + §3 anchor
+  pins are the demo), so a fleet-wide "zero effective readers" grep
+  would false-accuse. Scope consumed-vs-supply greps to the family's
+  own paint files (css + the family stylex) and treat the docs page's
+  carrier stamps as the instrument, not the claim.
+- **A table-arity receipt catches rescue arithmetic**: family rows =
+  meta props − split axis lanes − name-filtered seats + extra re-adds
+  (component-canvas: 27 − 6 − 2 + 2 = 21, parsed exactly). The arithmetic
+  turns "the rescue renders" into "the rescue renders and nothing else
+  moved" — the same upgrade quill's 11→12 chip count made; do it on
+  every EXTRA-lane page.
+- **TRANSITION-FRAME (LAW #14) closed my task-7 observation**: the
+  cascader menu's you-are-here paint "not flipping" under the dark
+  toggle was the 100ms background/color transition's start frame —
+  synchronous computed reads return it. Post-law probe discipline: for
+  any transition-bearing claim, await > duration before the after-read
+  (or assert the start frame deliberately). My probe's bytes were
+  honest; the frame was the lie.
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation
