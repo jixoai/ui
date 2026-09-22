@@ -454,8 +454,9 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 29 tier-2; slot geometry max(--jx-hit, --jx-line×2) rung-winner reversal; dual-voice theme split; copied-template claims purged; 3 open questions"
   },
   {
    "page": "kbd",

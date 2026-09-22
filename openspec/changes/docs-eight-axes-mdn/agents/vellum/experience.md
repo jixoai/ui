@@ -861,3 +861,29 @@
   SELECTOR was wrong and fall back to source wiring (5 canvases / 5 files=) —
   don't report the mechanism as absent. A probe limitation is a process note;
   a false negative reported as fact is a defect.
+
+## task 29 (CODE input-otp)
+
+- **The copied universal-props template text is a defect class**: "the family
+  CONSUMES size and color" shipped on three pages (combobox, file-input,
+  input-otp) and was false on all three (echo-only / supply-only). Any
+  imported summary paragraph makes a CLAIM — grep the fleet for sibling
+  copies when one falls ("CONSUMES size and color" is the canary string).
+- **The max() geometry lane can invert which leg wins per rung**: OTP slot =
+  max(--jx-hit, --jx-line × 2) — line×2 wins at xs/sm (32/36) while hit wins
+  at default/lg (40/48). Measure the COMPUTED box, never re-derive from the
+  formula; the winner changes with the rung.
+- **python block-move asserts saved a second revert**: the backwards-span
+  assert (l0 > l1 ⇒ empty span) aborted BEFORE the write — assert-before-
+  write is the whole game; also s.index vs s.rindex matters when a tail
+  pattern ('  </div>
+</div>') occurs more than once across two shell wrappers.
+- **rg pattern escapes**: `rows=\{3\}` inside double quotes still reaches rg
+  as a Rust regex bounded repetition → silent zero-match exit. Use -F for
+  literal braces; a silent empty rg result is a PATTERN failure until proven
+  otherwise.
+- **Per-slot OTP a11y model, measured**: role=group + labelled slots (real
+  inputs), autocomplete=one-time-code on the FIRST slot only, inputmode per
+  numeric, aria-invalid/describedby wired; mechanics = focus management over
+  real inputs. Synthetic DataTransfer-free paste test: set input.value to a
+  multi-char string and dispatch input — handleInput distributes.
