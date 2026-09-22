@@ -902,3 +902,37 @@
   fleet's first MEDIA-keyed theme channel: emulateMedia flips it while
   a .dark class does not — three channels, one shell, each proven by a
   different probe shape.
+
+## Techniques (task 30 additions)
+- Canvas-painted families need PIXEL probes, not computed styles: the
+  terminal's ground lives in a 2D canvas — read it via an offscreen
+  drawImage + getImageData(3,3,1,1). A "ground holds light" claim is
+  not checkable against CSS at all.
+- Demo terminals may carry EXPLICIT theme objects (the workbench
+  preset pair #161616/#ffffff): the shadowed knob wins by design and
+  the token fallback never engages. Measure the shadow claim on a
+  NO-theme instance (the density demos), or you will misread the
+  shadow working as the token freezing.
+- JS-resolved token reads (getComputedStyle inside $effect) are LIVE
+  but UNOBSERVED: the effect's dependency list is the truth about
+  what re-triggers resolution. ghostty's shell-color effect tracks
+  only the theme-object prop fields — scope flips never re-resolve,
+  but any prop-driven re-run re-probes the current scope. "Boot-time
+  snapshot" overstates; "no-observer live-read cache" is the precise
+  attribution. Read the deps array, then name the channel.
+- A family can be typed-frozen on one LAYER (the css root atoms) and
+  raw-cached on another (the canvas above it) with the same visible
+  outcome — attribute per layer or the wording will be half wrong
+  even when the measurement is right.
+
+## Highlights (task 30)
+- (ghostty-term) The shadowed slot demonstrated on BOTH branches in
+  one probe battery: the explicit-theme terminal paints #161616 in
+  both scopes (the knob shadows the sheet), while the no-theme
+  terminal holds the last-probed pole across a scope flip (the sheet
+  owns it, unobserved). Two terminals, one contract.
+- The independent-attribution protocol paid out exactly as designed:
+  my no-observer derivation and quill's boot-time-snapshot agree on
+  every observable and diverge only on the counterfactual (prop-driven
+  re-runs re-probe live) — the source deps array settled it without a
+  second probe round.

@@ -335,8 +335,9 @@
     "quill"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 27 tier-2; live misfold fixed via EXTRA (density+theme rows reference-identity); theme=SHADOWED SLOT; 3 open questions to reviewers"
+   "status": "done",
+   "notes": "task 27 tier-2; live misfold fixed via EXTRA (density+theme rows reference-identity); theme=SHADOWED SLOT; 3 open questions to reviewers",
+   "closure": "#31 — quill 1st + scribe 2nd PASS; the SHADOWED SLOT wording refined at closure per scribe (surface=alias-freeze, canvas=no-observer — the lock is on scope observation, not time; KEEP×3 concurred independently)"
   },
   {
    "page": "grid",

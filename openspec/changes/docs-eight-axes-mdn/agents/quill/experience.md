@@ -729,3 +729,34 @@
   cannot see it. Check tasksUniverse membership BEFORE assuming a re-pin
   or an exemption is owed; the exempt-with-note path only applies to
   batch-listed pages.
+
+## Techniques (mine, added 2026-09-23, task 26 — review file-input)
+- **ARIA-HIDDEN MARKS MAKE VISUAL-FUSION FINDINGS VANISH — MEASURE THE
+  ANNOUNCEMENT, NOT THE TEXTCONTENT**: a decorative "!" span carrying
+  aria-hidden="true" is excluded from the accessible-description
+  computation, so "!1 dropped file rejected" in DOM textContent announces
+  as "1 dropped file rejected" — clean. Before filing an announcement
+  fusion finding, walk the subtree excluding aria-hidden (a six-line
+  approximation) or snapshot the a11y tree; textContent alone over-reports
+  defects.
+- **A GATE THAT HOLDS IN ONE COMPOSITION AND LEAKS IN ANOTHER IS STILL A
+  LEAK — AND TWO REVIEWERS' DIVERGENT RECEIPTS ARE DATA, NOT NOISE**: the
+  drop gate rejected marginalia's mixed png+txt drop and admitted my
+  txt-only AND mixed drops (7 reproductions, fresh loads). Isolate by
+  composition (mixed / txt-only / sequential), by order, and with a
+  capture-phase stopPropagation (blocking the entry proves the path);
+  when the compiled code shows the gate yet the behavior leaks, report
+  the repro recipe verbatim and route the mechanism to the Owner — do
+  not paper over the divergence to keep a verdict clean. Verdict
+  vocabulary: the PAGE passes (its prose can't fix the family), the
+  FINDING is family-grade MAJOR with the adjudication recipe.
+- **ROW-STATE CLAIMS NEED PRECISE CENSURE**: "the rejected file never
+  entered" must be tested by COUNTING rows and naming them — a boolean
+  `!!querySelector(row)` false-positives when an earlier accepted drop
+  already rendered a row. Count + name-match every assertion.
+- **THE DENSITY LADDER CAN BE VERIFIED AT THREE DEPTHS**: computed element
+  values (zone min-height 63/72/90/108 — the strongest), token strings
+  (--jx-file-h's max() branches carry 28/32/40/48 as raw digits — exact),
+  and source calc structure (thumb box = knob + 2px). Where no element is
+  served (rows need bound files), the token-digits + source-structure
+  pair is an honest verification — say which depth each claim got.
