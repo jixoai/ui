@@ -163,10 +163,19 @@
   let rows: PropEntry[] = $derived(meta ? propsFromMeta(meta, docs) : (props ?? []));
   // the universal section: meta tables auto-detect the family's axis
   // surface; hand-written tables opt in with the bare flag. When it
-  // renders, the eight axis rows leave the main table (the section is
-  // their one home — no duplication)
+  // renders, the GENERATED axis rows leave the main table (the section
+  // is their one home — no duplication). The curation's extra lane is
+  // EXEMPT: those rows are deliberate docs (chip/badge's family-local
+  // `shape`, the attachment/bind:this handles) — dropping them by name
+  // would document an absent prop, the exact drift the lane exists to
+  // kill (reference identity: propsFromMeta spreads docs.extra as-is).
   let showUniversal = $derived(universal || (meta != null && metaHasUniversalSurface(meta)));
-  let mainRows = $derived(showUniversal ? rows.filter((row) => !UNIVERSAL_AXIS_NAMES.has(row.name)) : rows);
+  let extraRows = $derived(new Set(docs?.extra ?? []));
+  let mainRows = $derived(
+    showUniversal
+      ? rows.filter((row) => !UNIVERSAL_AXIS_NAMES.has(row.name) || extraRows.has(row))
+      : rows,
+  );
   let uniRows = $derived(showUniversal ? universalRows(meta) : []);
   if (!meta && !props) {
     console.warn('[PropsTable] neither `meta` nor `props` given — empty table');

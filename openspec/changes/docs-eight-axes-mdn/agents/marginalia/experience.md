@@ -168,6 +168,36 @@
   curation (accordion has no generated meta — extractor coverage is the
   batch-close item).
 
+## Task 6 (badge fix round, 2026-09-22) — learnings
+- **A filter over a COMPOSED array eats the appended lane too.** The universal
+  split (`UNIVERSAL_AXIS_NAMES`) filters `propsFromMeta(meta, docs)` — which is
+  meta rows PLUS `docs.extra` — by name. So the extra lane (the documented
+  rescue path) silently re-collides for any extra row sharing an axis name.
+  The general lesson: when a "rescue lane" appends into an array that a
+  downstream filter sweeps by predicate, the rescue needs an exemption AT THE
+  FILTER (here: reference identity against `new Set(docs?.extra)`), not just
+  in the curation's intent. Fixed in props-table.svelte; chip's rescue — dead
+  since 1783878f — revived as a side effect.
+- **The prescription-vs-outcome gap**: vellum's review prescribed the right
+  curation move and my task text demanded "verify by SSR row-parse (the row
+  must RENDER)" — that one clause is what converted a would-be second dead
+  rescue into a component fix. Reviewers verify by reading source; coders
+  must verify by rendering. Any "row renders / doesn't render" claim needs an
+  SSR table-parse receipt, the same way "(measured)" needs a probe receipt.
+- **Probing unregistered custom properties**: `getComputedStyle().getPropertyValue`
+  on an unregistered custom property does NOT give you the resolved px —
+  bind the channel inline (`el.style.fontSize = 'var(--jx-text-secondary)'`)
+  on a probe element inside the `[data-density]` scope, then read the
+  computed font-size. That's how the five-rung text ladder got its real
+  values (2xs 10 / xs 10 / sm 11 / default 12 / lg 14 — the source calc
+  `max(0.625rem, T_rung − 1px)` confirmed live).
+- **Shared-tree gate noise → attribute, don't retry-blind**: this round's
+  reds (tailwindless parse error, checkbox placeholder snapshot,
+  component-canvas ambient-vocabulary row) were all parallel agents'
+  mid-flight files. `git status` + the failing test's own filesystem reads
+  attribute every one. Retry only after attribution says the flake isn't
+  structural; never `-u` over another agent's placeholder snapshot.
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation

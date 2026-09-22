@@ -20,8 +20,8 @@
     "vellum",
     "scribe"
    ],
-   "tier": null,
-   "status": "fixed-awaiting-reverify"
+   "tier": 2,
+   "status": "done"
   },
   {
    "page": "alert",
@@ -30,7 +30,7 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
+   "tier": 2,
    "status": "done"
   },
   {
@@ -40,7 +40,7 @@
     "quill",
     "vellum"
    ],
-   "tier": null,
+   "tier": 2,
    "status": "done"
   },
   {
@@ -60,8 +60,8 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "needs-work-1st"
+   "tier": 2,
+   "status": "fixed-awaiting-reverify"
   },
   {
    "page": "badge-indicator",
@@ -80,7 +80,7 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
+   "tier": 2,
    "status": "done"
   },
   {
@@ -100,8 +100,8 @@
     "vellum",
     "marginalia"
    ],
-   "tier": null,
-   "status": "coded"
+   "tier": 2,
+   "status": "needs-work-1st"
   },
   {
    "page": "button-group",
@@ -180,7 +180,7 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
+   "tier": 2,
    "status": "coded"
   },
   {

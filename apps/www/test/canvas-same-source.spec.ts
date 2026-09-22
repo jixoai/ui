@@ -51,6 +51,7 @@ const PILOTS = [
   'components/blockquote.html',
   'components/alert.html',
   'components/accordion.html',
+  'components/badge.html',
   'components/link.html',
   'components/prose.html',
   'components/list.html',
@@ -329,6 +330,53 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             30 days, no questions asked.
           </AccordionItem>
         </Accordion>
+      </div>"
+    `);
+  });
+  it('badge.html :: usage', async () => {
+    // the badge page joined the same-source lane with its task-6 fix
+    // round (the task-4 gap — both canvases compose from resolveRawCode
+    // since birth; the gate entry + snapshots close the lane).
+    expect((await extractionFor('components/badge.html')).canvases['usage']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.flex, rt.col, rt.itemsStart, rt.gap16)}>
+        <div class={cx(rt.wrapRow12)}>
+          <Badge>v1.2.0</Badge>
+          <Badge variant="fill">new</Badge>
+          <Badge variant="outline">beta</Badge>
+        </div>
+        <div class={cx(rt.wrapRow12)}>
+          <Badge class="jx-hue-neutral">draft</Badge>
+          <Badge class="jx-hue-error">failed</Badge>
+          <Badge shape="pill" class="jx-hue-success">
+            {#snippet slotStart()}<Icon name="check" />{/snippet}
+            passing
+          </Badge>
+        </div>
+      </div>"
+    `);
+  });
+  it('badge.html :: axes', async () => {
+    expect((await extractionFor('components/badge.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16, rt.wFull)}>
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}>
+            <Badge density="2xs">2xs rung — 10px label, 14.5px box (measured)</Badge>
+          </div>
+          <div class={cx(rt.panel)}>
+            <Badge density="lg">lg rung — 14px label, 23px box (measured)</Badge>
+          </div>
+          <div class={cx(rt.panel)}>
+            <Badge size={14}>size 14 — the label re-types, the box stays 20px</Badge>
+          </div>
+          <div class={cx(rt.panel)}>
+            <Badge theme="dark">dark island — the hue slots re-declare</Badge>
+          </div>
+        </div>
+        <div class={cx(rt.panel, rt.wFull)}>
+          <Badge density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}>
+            responsive — the lg base below 40rem, the sm rung at 40rem and wider
+          </Badge>
+        </div>
       </div>"
     `);
   });

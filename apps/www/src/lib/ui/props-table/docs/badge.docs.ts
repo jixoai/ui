@@ -7,11 +7,20 @@
  * overrides here).
  *
  * Corrections pinned to the extractor's documented ceilings:
- *   - variant / shape degrade to opaque aliases (BadgeVariant /
- *     BadgeShape are branded slot products) — the union text + the
- *     display defaults live here; the defaults are the family
- *     Defaults' own (badge-defaults.svelte.ts: the paint slot's
- *     'tonal', the literal slot's 'square').
+ *   - variant degrades to an opaque alias (BadgeVariant is a branded
+ *     slot product) — the union text + the display default live here;
+ *     the defaults are the family Defaults' own (badge-defaults.svelte.ts:
+ *     the paint slot's 'tonal').
+ *   - `shape` is the COLLISION CASUALTY of the shared split (the chip
+ *     precedent, chip.docs.ts): the main table drops every row named
+ *     in UNIVERSAL_AXIS_NAMES when the generated section renders, and
+ *     badge's FAMILY-LOCAL shape ('square' | 'pill', the corner-law
+ *     silhouette) shares its name with the §2 axis it left out —
+ *     migration-census.md batch B: the family prop owns the name, `pill`
+ *     is outside ShapeLane. The row rides `extra` back into the table
+ *     with its real union and the own-default marker; leaving it in
+ *     overrides documents an absent prop — the exact drift this lane
+ *     exists to kill.
  *   - style / rest stay visible ON PURPOSE: they are badge's
  *     composition story (the #4 seam joins the caller's style AFTER
  *     the carrier stamp; restProps are the span passthrough law).
@@ -26,12 +35,6 @@ export const BADGE_DOCS: PropsDocs = {
       description:
         'Prominence ladder: fill speaks loudest (solid ground, same-hue border, injected ink), tonal is the default voice (the 12% tinted ground, 45% border), outline draws structure only (transparent ground, the outline border). Hue comes from the global slots — never a variant name. Omitted → the ambient paint zone (ButtonGroup / zone scope), else the frozen own tonal.',
     },
-    shape: {
-      type: "'square' | 'pill'",
-      default: "'square' · own",
-      description:
-        'The corner law: square keeps the theme radius (var(--jx-radius) — 0px; 8px where corner-shape is supported), pill rounds fully (calc(infinity * 1px)). A family-local literal slot, NOT the universal §2 shape axis — the vocabulary collides with the axis name and §13 rules no mapping, so the axis is absent (explicit-props migration-census.md, batch B LANDED row; flagged for the W6 Owner dossier).',
-    },
     slotStart: {
       description:
         'Icon lane before the label — the svg sizes to the secondary text (var(--jx-text-secondary)) and its side\'s inset halves (the :has() lane) so glyph and label stay balanced.',
@@ -42,7 +45,7 @@ export const BADGE_DOCS: PropsDocs = {
     },
     children: {
       description:
-        'The label text — the whole point of the chip. It renders as a plain <span> and composes anywhere one does: headings, table cells, terminal cards.',
+        "The label text — the chip's entire content; the chip renders it as bare span content (the chip itself is a plain <span>), composing anywhere one does: headings, table cells, terminal cards.",
     },
     class: {
       description:
@@ -57,4 +60,14 @@ export const BADGE_DOCS: PropsDocs = {
         'Span attribute passthrough — data-*, title, aria-* land verbatim on the chip (a badge is a span; composition is the law, not a convenience).',
     },
   },
+  extra: [
+    {
+      name: 'shape',
+      type: "'square' | 'pill'",
+      default: "'square'",
+      ambient: 'own',
+      description:
+        "The corner law: square keeps the theme radius (var(--jx-radius) — 0px; 8px where corner-shape is supported), pill rounds fully (calc(infinity * 1px)). A family-local literal slot, NOT the universal §2 shape axis — the vocabulary collides with the axis name and §13 rules no mapping, so the axis is absent (explicit-props migration-census.md, batch B LANDED row; flagged for the W6 Owner dossier). Rendered from extra: the shared split filters this name from the generated rows.",
+    },
+  ],
 };

@@ -88,7 +88,7 @@
     },
     {
       name: 'density',
-      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      type: `'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number`,
       default: `'auto'`,
       description:
         "The chip's scale axis. A named rung stamps data-density and re-declares the four kernel channels the atoms read ON the chip — --jx-text-secondary (the label), --jx-line-secondary (the height), --jx-inset, --jx-gap. Measured ladder: label 10 / 11 / 12 / 14px, line 12.5 → 21px (box 14.5 → 23px — line plus the 1px hairlines), insets 8 → 16px, 2xs → lg (small/medium/large alias sm/default/lg). A NUMBER lane stamps only --jx-density-coefficient — the channels declare and substitute at :root/[data-density] scopes, so a chip-level coefficient recomposes nothing (the declaring-element law; measured inert), and a named rung resets the coefficient to 1 (explicit rung = exact rung).",
@@ -336,7 +336,7 @@
 
         <div class={cx(rt.mt20)}>
           <TokenTable tokens={[
-            { name: '--jx-text-secondary', default: '10 / 11 / 12 / 14px (2xs → lg)', source: 'density', description: 'The micro-label voice — and the icon lane\'s glyph size (measured rungs).' },
+            { name: '--jx-text-secondary', default: '10 / 11 / 12 / 14px (2xs–xs / sm / default / lg)', source: 'density', description: 'The micro-label voice — and the icon lane\'s glyph size (measured rungs).' },
             { name: '--jx-line-secondary', default: '12.5 / 13.5 / 15.95 / 18 / 21px (2xs → lg)', source: 'density', description: 'The kbd-law height source: line-height IS the box (measured rungs).' },
             { name: '--jx-inset', default: '8 / 12 / 16px (2xs–sm / default / lg)', source: 'density', description: 'Inline insets only, never block padding (measured rungs).' },
             { name: '--jx-gap', default: '8 / 12 / 16px (2xs–sm / default / lg)', source: 'density', description: 'The icon gap renders at half (--jx-gap / 2) (measured rungs).' },

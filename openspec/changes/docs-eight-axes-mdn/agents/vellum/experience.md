@@ -68,6 +68,21 @@
   refactored the page but not the toc array: dead `theming` anchor, the
   eight-axes section missing, stale labels. My alert toc is already
   archetype-shaped; audit it on every future page task before reporting.
+- (breadcrumb review, scribe — task 6)
+  **The third consumed-vs-supply state: "stamped but landed in a composed
+  part"** — density/shape/radius rows name WHERE the supply lands (the
+  menu's --jx-hit/--jx-line/--jx-inset/--jx-text; the panel's concentric
+  calc) and the demos instruct "open the node"; I measured the menu ride
+  live (32px→48px min-block-size across rungs) and the claim held exactly.
+  **The root-resolves SSR receipt inline on the query demo** ("inspect the
+  markup: data-density='sm' on this nav") — a self-caught correction turned
+  into a curl-checkable caption. **The census paragraph disposes the
+  non-deviations** ("No §13 renames apply: label is a family prop… not an
+  axis rename"). **Per-part-group props tables** (5 scannable tables) vs my
+  single flat alert table. **Provider-snapshot quoted verbatim at the claim
+  site** (grep-verified vs breadcrumb.svelte:123-127), not paraphrased.
+  **Gate discipline**: verify:docs-universal re-run on FRESH dist after the
+  full build — my stale-dist lesson applied unprompted by another agent.
 - **TokenTable defaults as equations** ("rung scale × coefficient") not
   px literals — the anti-rot form; measured channels confirmed it and
   proved the old px table wrong. Upgrade alert's token rows.
@@ -207,3 +222,73 @@
   computed px ÷ own font-size, never as the literal — third time this
   family of em-lessons has bitten; the declared var value and the
   computed value are different claims.
+- **THE THEME-SPLIT LAW FIRES ON COMPOSED FAMILIES TOO (breadcrumb review,
+  MAJOR 1):** the trail's ink atoms read the frozen stylex voices, so the
+  theme="dark" demo looked near-identical to ambient on the light page —
+  the row claimed "flips every semantic token the trail AND the composed
+  menu read" and measurement killed both halves (link/page ink byte-identical;
+  menu ink is the same frozen --jx-foreground, only its current-entry recipe
+  rides raw tokens). The grep-the-declaring-selector step + one evaluate is
+  now a fixed review sequence for EVERY theme row and theme demo, composed
+  family or not.
+- **A sample/stage pair can split within one commit even under the same-
+  source drawer** (breadcrumb: foldDemo sample says class="text-muted-
+  foreground", the stage runs cx(rt.inkMuted)) — the drawer law pins the
+  CANVAS files, not the inline CodeBlock snippets. Review check added:
+  diff every inline CodeBlock string against its stage markup, class token
+  by class token; the shown class must be a registered identity (grep the
+  repo before believing it renders).
+- **scribe's "kernel-only debt" mis-filing caught by sibling diff:** the
+  zero-arg query() call looked like un-fixable kernel debt until I grepped
+  the three integrated pages — all use the two-generic form. Before
+  accepting a "needs a kernel fix" framing, diff the sibling pages for the
+  local fix shape (the §6 both-args ruling exists precisely for this).
+- **Probe locator law, again:** a caption-text search hits the CODE SAMPLE
+  string before the live caption (the sample contains the same call text);
+  pick the first match whose container actually holds the target element,
+  and prove a FAIL is a page bug only after the locator disambiguation.
+- **The query() caption mechanism trap:** "the parts keep their ambient
+  read until the engine resolves" — measured: parts NEVER re-stamp (1
+  data-density element at both viewports); what steps is the nav's
+  scope-block channel set, which the subtree (menu included — native
+  popover stays a DOM descendant, inheritance follows the DOM tree) reads.
+  When a caption says "until X resolves", measure the thing at both sides
+  of X before believing the sequel ever happens.
+- (accordion re-verify, task 7)
+  **Cold dev-load race: never measure on a fixed sleep.** A fresh dev page
+  mid-chunk-load computes UA fallbacks (summaries read 16px, borders
+  default) and shows pre-hydration attrs (query rung stuck at the SSR base)
+  — my first re-run "found" a broken engine that was just my own premature
+  read. Readiness waits before ANY measurement: computed font-size ≠ UA
+  default (CSS applied), then the engine-resolved attr (hydration done).
+  Fixed sleeps are probe bugs waiting to happen.
+  **Canvas drawer contents are component props, not SSR bytes** — the raw
+  SSR grep CANNOT see a drawer's extracted file (closed drawer renders
+  nothing server-side). Same-source correctness for extracted usage files
+  is pinned by the canvas-same-source inline snapshots, not by HTML greps;
+  don't write SSR-byte assertions for drawer payloads.
+  **ComponentCanvas `id` is namespaced** (jx-canvas-<page>-*), so
+  `id="theme"` never exists as a DOM id — locate canvases by their section
+  id + structural class (e.g. `#universal-props .dark`), not by the canvas
+  prop.
+  **Grep receipts go stale as siblings land:** the size row's "the kernel's
+  emitter is the only other hit" was written before badge's prose quoted
+  the same string. A receipt pinned to another file's absence needs a
+  re-grep at every re-verify, and the wording should survive new hits
+  ("zero component readers — textual hits listed").
+  **Solo gate runs see the whole working tree:** canvas-same-source solo
+  failed on checkbox's stale PLACEHOLDER snapshot (scribe's in-flight task)
+  while all five accordion snapshots passed — attribute out-of-scope
+  failures to their BOARD owner before counting a gate red or green.
+
+## Upgrade commitments (from the breadcrumb review)
+- Alert's density row gets the landed-where clause pattern (and any future
+  composed family gets landing site + "open the node" demo instruction).
+- Alert's query demo caption points at its checkable SSR stamp, with the
+  corrected mechanism wording (scope block, not part re-stamp).
+- Alert's census paragraph gains the no-rename dispositions and the
+  verbatim provider-snapshot quote with source line.
+- Alert's single props table splits into per-part-group tables.
+- MY OWN alert theme demo re-probe (already committed) now has the
+  breadcrumb receipt as precedent: partial re-theme, both halves named,
+  composed-consumer voices checked per voice.
