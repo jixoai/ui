@@ -1,11 +1,12 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| scribe | 13 | cascader (quill's, post-fold @89106bb6) | REVIEW (2nd) | in-flight |
+| scribe | 14 | avatar (vellum's) | REVIEW (1st) | in-flight |
 | marginalia | 15 | dropdown-menu (quill's) | REVIEW (2nd) | in-flight |
 | vellum | 11 | dropdown-menu (quill's) | REVIEW (1st) | in-flight |
 | quill | 12 | heading (OWN) | CODE | in-flight |
 ## DONE
+- ✅ **cascader** (owner quill) — eleventh closed page (the campaign's TIER-3 exemplar: marginalia+scribe double PASS, the fold verified byte-level — [Token, Default], 0 empty cells, ruler-constant distinction verbatim; the old page's consumption lie deleted; ring −4° invariant re-probed side-by-side)
 - ✅ **component-canvas** (owner quill) — tenth closed page (marginalia+scribe double PASS, numbers identical across reviewers; W7 bar 28-canvas honesty held; EXTRA doubled arithmetic 27−6−2+2=21; page svelte-check 7→0 — the rewrite PAID DOWN idiom debt; count-rule pinability NIT archived)
 - ✅ **checkbox** (owner scribe) — ninth closed page (quill+marginalia NEEDS-WORK both → consolidated fix → marginalia re-verify PASS 6/6; the carrier-strip ×3 probe number now cited as page text; 112/112 across four files)
 - ✅ **date-picker** (owner quill) — eighth closed page (vellum+marginalia double PASS, zero disagreements; the one-cell theme-split reproduced with wall-clock hue tracking — the −4 drift rides the raw token at every instant while the alias stays light-form; 17-row arithmetic, six zero-reader greps, composition import-grep; 3 wording items to quill's ledger: precision clause, floor-steps, axes-drawer imports)
@@ -26,5 +27,7 @@
 - empty: coded Tier-2 (quill task 11-B) — the THIRD measured theme pole (frozen: .dark stamps, nothing flips — after checkbox full-flip and cascader ring-only); elevation nuance (art shadow is fixed --jx-shadow-2xs not the §7 pair); 13−8=5 arithmetic exact — reviewers marginalia+vellum QUEUED
 - avatar: coded Tier-2 (vellum task 9) — EXTRA arithmetic 17−8=9 exact, theme four-voices-frozen documented absence (W-next #1), query<number> flip 48↔40 — reviewers scribe+marginalia QUEUED
 - ⚠ DIST GATES DEFERRED: npm run build transiently RED in breadcrumb (scribe mid-edit, canvas demo not self-contained) — the post-breadcrumb integration build owns fresh dist + docs-universal + canvas-same-source solo for the combined state (chip micro-fix + date-picker + breadcrumb + hardening)
+## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. (scribe's cascader NIT, ruled by orchestrator)
+
 ## Law library (14): SSR ground truth · consumed-vs-supply · canvas-id swap · declaring-element · measurement-first · composed-consumer · resolved-record · query() both-args · grep-receipt · disagreement-probe · EXTRA-lane (REFINED 2026-09-23: the lane was dead-on-arrival at component level — props-table.svelte name-filtered docs.extra too; now exempt by reference identity, chip's rescue revived) · single-evaluate probes · TRANSITION-FRAME (100ms menu-item transitions return the start frame on sync reads — await > duration + light-regression) · THEME-SPLIT
 ## Ledgers: drift 5 · W-next 2 entries (semantic-ink gap + theme-split refinement)

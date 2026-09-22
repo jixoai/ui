@@ -348,6 +348,38 @@
   channels, name both seats in one cell with the law that separates
   them; the reader never has to hold the ambiguity.
 
+## Techniques (mine, task 13 — cascader review)
+- ARIA-LABEL LOCATOR pattern: when a family's root carries the label
+  prop as its accessible name (cascader role=group aria-label), locate
+  specimens by `[data-jx-cascader][aria-label="<label prop>"]` — immune
+  to stylex hash classes, drawer code-sample text collisions, and
+  ancestor-walk overshoot. My first two probe passes failed on exactly
+  those (caption fragments matched the DRAWER's code-sample text; the
+  ancestor walk found the canvas stage's stamps instead of the
+  cascader's).
+- Cross-specimen comparison instead of clone-into-island when the page
+  ships BOTH configs: the light and dark specimens sit side by side —
+  measure each in place (cleaner than cloning, no island remount).
+- Distinguishing same-name tokens: --jx-text-base (the ruler's T_base
+  constant) vs --jx-text (the density channel) — pages that conflate
+  them document density paint that does not exist; the fold's verbatim
+  "NOT the density channel --jx-text" wording is the correct shape.
+- The dead-Source-column fold: when a table's guard can remove a column
+  (tokens.some(t => t.source)), folding the facts into the visible
+  column and deleting dead rows is the review-legible form — but verify
+  the headers/row-count/empty-cells from served bytes, since the fold's
+  whole value is what no longer renders.
+
+## Highlights found in others' pages (task 13 additions)
+- (quill, cascader fold) The a11y prose carrying its own measurement
+  ("the native select measures 35px tall at every rung — measured
+  ambient, sm and lg — clearing the 24px WCAG 2.5.8 AA target floor")
+  in the a11y SECTION rather than the axes table: the hit-floor fact
+  lives where the a11y reader looks.
+- (quill) The honest-caption pattern perfected: each specimen caption
+  names the exact SSR bytes it produces ("data-density=sm +
+  --jx-density-coefficient: 1 on the root") — the caption is its own
+  grep command.
 ## Mistakes to avoid
 - `rg -rn` is the --replace trap AGAIN (AGENTS.md law): two commands this
   task silently rewrote matches with "n" before I caught it. `rg -n` only;
