@@ -232,6 +232,34 @@
   Divergence isn't failure — two reviewers with different denominators is
   the redundancy that catches the un-provable-by-one-check claims.
 
+## Task 8 (checkbox review round, 2026-09-22) — learnings
+- **A loose regex can false-PASS the exact thing you're checking.** My SSR
+  check for "the wrapped-contrast wrapper carries the stamps" matched an
+  unrelated axes-canvas div and printed PASS, while the actual contrast
+  cell carried nothing (quill's MAJOR-1, confirmed by re-grepping MY OWN
+  capture post-cross-read). Law: an existence probe must anchor on the
+  element's identity (its name attr / its section), never on a shape
+  pattern any div could satisfy; and after a cross-read reveals a false
+  PASS, re-grep your own capture before conceding — the evidence was
+  already in hand, the query was wrong.
+- **Verify the DECLARATION, not just the read.** I confirmed
+  `var(--corner-shape, bevel)` reads existed and let "the site's token"
+  slide; quill grepped for the declaration — none exists, the fallback
+  always wins. Symmetric law to consumed-vs-supply: a "reads token X"
+  claim needs X's declaring line, or the honest wording is
+  "undeclared seam, fallback wins".
+- **The co-stamped coefficient is LIVE at the rung scope** (setting 3 on
+  a real lg wrapper → box 24→72px): the kernel's pin at 1 is what makes
+  "explicit rung = exact rung" true. The number lane is inert only
+  because no scope block matches it. When documenting a two-half stamp
+  story, probe whether the halves INTERACT at the declaring scope —
+  mutually-exclusive-looking stories are often coupled there.
+- **Positive-control discipline held**: every inertness claim got a
+  movement control on the same harness (rung attr → 24/48; stripped →
+  20/40 unmoved under a 1.5→3 sweep). The control is what makes the
+  inert receipt meaningful, and what let me hand quill's 3b receipt a
+  DOM-level half.
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation
