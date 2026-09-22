@@ -274,8 +274,10 @@
   now gated meta-side + by the universal manifest), exempt the mechanism table scoped to the
   route (the inline-code#variant precedent), keep every still-true entry. Write the rationale
   into the exemption comment — the fixture is JSON, the spec is where the evidence lives.
-- **A primitive page demonstrates its own composer for free**: the canvas dock mounts 14
-  dropdown-menu instances at density xs on the very page — the SSR grep of their panel stamps is
+- **A primitive page demonstrates its own composer for free**: the canvas dock mounts 21
+  dropdown-menu instances at density xs on the very page (7 axis menus × the 3 dock-bearing
+  canvases — corrected 14→21 per marginalia's 1st review; the count grows with every
+  dock-bearing canvas the page adds) — the SSR grep of their panel stamps is
   a composed-consumer receipt that costs nothing.
 
 ## Techniques (mine, added 2026-09-22, task 11 — cascader fold + empty)
@@ -296,3 +298,22 @@
   dropped its `cx` helper while the markup kept calling it — 30 svelte-check errors caught
   pre-gate. When a rewrite preserves markup idioms, inventory the script-level helpers the
   markup depends on before deleting anything.
+
+## Techniques (mine, added 2026-09-22, task 12 — heading)
+- **The size axis can consume THROUGH ITS OWN STAMP, not family css**: stampCarriers
+  emits `font-size: var(--jx-size-effective, 1rem)` inline NEXT TO the var, and where
+  the stamp lands on the element that also carries the family's class font-size, inline
+  wins the cascade — an explicit lane REPLACES the local size grammar (heading's em
+  rung), auto restores it. Read the stamp's emission before declaring an axis
+  supply-only: the §11 carrier is two declarations, and either can be the consumer.
+  The grep receipt still says "zero family css readers" — true and beside the point.
+- **The theme partial pole has a fourth shape — the SEAM**: heading flips exactly one
+  voice because its ink is a var-FALLBACK chain (`var(--jx-ty-ink, var(--foreground))`):
+  standalone, the raw fallback flips under a scoped .dark; inside a gradient prose
+  face the presence-gated --jx-ty-ink declaration (prose.css) pins the ink and the
+  island can't take it. Same DOM, two ink regimes, decided by an ancestor attribute —
+  document the gate, not just the flip.
+- **A look-alike warning can be a red herring — run the grep anyway**: the brief
+  flagged --jx-text vs --jx-text-base for heading; the family reads NEITHER (zero
+  kernel-channel hits). The 30-second grep converts "watch for" into "absent, with
+  receipt" — and found the REAL story (the inline font-size stamp) next door.

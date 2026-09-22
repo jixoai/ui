@@ -105,6 +105,7 @@ export const COMPONENT_CANVAS_DOCS: PropsDocs = {
       type: "'light' | 'dark'",
       default: "'light'",
       bindable: true,
+      ambient: 'own',
       description:
         "Stage preview theme — page-owned bindable, flipped by the dock bar's theme axis button (aria-pressed carries state). Projects data-theme plus the theme sheet's dark/jx-light token-scope classes onto the STAGE element only; the docs chrome and sibling canvases never re-theme. Renders from the extra lane: the name is the §13-owned stage-preview seat, not the universal ThemeLane (the census D-fold row).",
     },

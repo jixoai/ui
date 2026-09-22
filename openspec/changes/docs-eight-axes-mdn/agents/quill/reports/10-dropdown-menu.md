@@ -92,7 +92,7 @@ first supply mention (Overview).
 | elevation own level2 vs level4 | probe (body element): shadow recipes differ (2px/6px vs 3px/10px), surface fills differ (oklch 0.96 vs 0.92), `--jx-elevation-effective` 3 vs 8 | TRUE |
 | theme split | probe: dark bezel oklch(0.185) vs light oklch(0.96) — flips; trigger ground oklch(1 0 0) in BOTH — frozen | TRUE |
 | density ladder + query flip | trigger min-block-size 32px (sm) / 48px (lg); query demo `data-density="lg"` at SSR base, `"sm"` at 1440px, `"lg"` again at 600px (< 40rem) — the caption's direction verbatim | TRUE |
-| the family composing itself | the canvas dock's 14 axis menus render at density xs on this page (`jx-canvas-dropdown-menu-axis-*` panels in the SSR) | TRUE |
+| the family composing itself | the canvas dock's 21 axis menus render at density xs on this page (7 per dock-bearing canvas — count corrected 14→21 per marginalia's 1st review) (`jx-canvas-dropdown-menu-axis-*` panels in the SSR) | TRUE |
 
 ## Matrix refresh (evidence-bearing)
 
