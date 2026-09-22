@@ -6,7 +6,7 @@
 | vellum | 23 | carousel (marginalia's) | REVIEW (1st) | in-flight |
 | quill | 18 | hero-section MAJOR handling (A) + image MAJOR fix (B, OWN) | FIX ×2 | in-flight |
 
-## DONE (20)
+## DONE (21)
 - ✅ **anchor** (scribe) — 1st: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS
 - ✅ **blockquote** (quill) — 2nd (scribe re-verify 6/6 + 31/31 probe)
 - ✅ **alert** (vellum) — 3rd (THEME-SPLIT survived independent re-measure)
@@ -22,6 +22,7 @@
 - ✅ **dropdown-menu** (quill) — 13th (the OVERTURN arc complete; shape-agnostic import-grep law)
 - ✅ **heading** (quill) — 14th (inline-stamp mechanism; re-verify-grade self-confirmation 16/16)
 - ✅ **avatar** (vellum) — 15th (second overturn arc; initials-follow-size; page zero diagnostics)
+- ✅ **input-group** (quill) — 21st (double PASS; the co-signed arithmetic sentence rode the closure; NEW MEDIUM: source:'structural' ×5 empty cells — the THIRD W-next #3 live instance → the one-arm component fix dispatched to scribe)
 - ✅ **hero-section** (quill) — 20th (THE ADJUDICATION: vellum's MAJOR = NON-REPRODUCED probe-medium artifact — both instruments run by the adjudicator; LAW #16 FIRST-PAINT-BASE enters; emission-form split + one-h1 carve-out re-derived)
 - ✅ **color-picker** (scribe) — 19th (stamped-never-consumed triple-instrumented; the chain-head settled 24−8−4=12; quill's disclosed one-line STALE-COMMENT FLAG completes marginalia's MINOR — the page names the living family comment as the retired claim's last copy)
 - ✅ **image** (quill) — 18th (the snippet-vs-default MAJOR arc: marginalia found it, quill's path-(a) fix verified live by scribe — data-density sm↔lg on the default frame, no-CLS; frozen-pole purest case + leaf + carriers-bijection all held)
@@ -31,7 +32,7 @@
 ## Pipeline (open work)
 - inline-code: CLOSED
 - color-picker: marginalia 1st PASS (stamped-never-consumed re-falsified; family props comment → drift #10; 27−3 chain head falsified, result 24−8−4=12 holds) → quill 2nd QUEUED (after its double-MAJOR package)
-- input-group: vellum 1st review **PASS** (§1-forwarding-≠-consumption separation verified in prose; density consumed+provided digit-exact with the r11 pin 28/28; theme mixed-by-emission-form var-chain on the root; chromeless 0-padding part confirmed; motion 150ms read past the LAW #14 gate; MINORs: arithmetic sentence in api summary + pre-logged usageLive warning for scribe's #2) → scribe 2nd QUEUED
+- input-group: CLOSED
 - image: CLOSED
 - hero-section: CLOSED — the third overturn form (reviewer MAJOR vs coder non-reproduction) resolved by instrument adjudication
 - descriptions: vellum 1st review **PASS** (ruler ladder digit-exact incl. injected-rung beats; frozen-pole twin via the runtime-alias census — no plain .dark redeclares any of the five; columns clamp source-pinned + container query measured; #install/#see-both restored per the incident record; MINOR: query caption says 40rem but the lg key is 64rem VIEWPORT_SCALE — discriminated at 800px) → marginalia 2nd QUEUED

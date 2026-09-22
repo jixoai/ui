@@ -591,7 +591,7 @@ ${close}
       headerRegion="api"
       eyebrow="api"
       title="API"
-      summary="Three parts, one context: the root owns the disable propagation and the name; the addon owns a lane; the input owns the field."
+      summary="Three parts, one context: the root owns the disable propagation and the name; the addon owns a lane; the input owns the field. The table renders 17 meta entries − 2 citation duplicates = 15 unique − 8 axis-named = 7 family rows + the synthesized rest (with data-density as a family row — the legacy attribute escape hatch) = 8 served rows."
     >
       <div class={cx(rt.col24)}>
         <PropsTable meta={inputGroupMeta} docs={INPUT_GROUP_DOCS} />

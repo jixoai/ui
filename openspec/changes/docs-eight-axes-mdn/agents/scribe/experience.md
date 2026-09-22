@@ -596,3 +596,27 @@
 - (quill) Path (a) as a disposition pattern: when a slot suppresses the
   family's own stamp, DROP the slot and demo the default frame — the
   honest surface is the family's own.
+
+## Techniques (task 20 additions)
+- The empty-source disease has a CURE SHAPE now, not just a symptom
+  list: sourceLabel maps {density, component, color}; every page that
+  passes 'structural'/'theme' renders blank cells. Three instances
+  (inline-code rode a fix, descriptions old page, input-group 5 cells)
+  all heal with ONE mapper arm — the W-next #3 fix should add the arm,
+  not patch pages.
+- Mixed-emission theme rows probe as three greps on ONE element set:
+  raw var() readers flip (seam), stylex alias readers freeze (bezel),
+  raw token recipes follow (well shadow) — name the emission form per
+  voice and the row writes itself.
+- Reduced-motion kills probe in one line:
+  page.emulateMedia({ reducedMotion: 'reduce' }) → transitionDuration
+  0s. Never cite the css @media alone when one emulation proves the
+  kill live.
+
+## Highlights (task 20)
+- (quill, input-group) The forwarding-≠-consumption correction names
+  its own root cause in the row prose ("the §1 forwarding rule mistaken
+  for consumption") — a falsified claim turned into a teaching row.
+- (quill) One bezel, three emission forms, all measured: the theme row
+  is the fleet's cleanest demonstration that "theme" is not one
+  mechanism but a stack of emission-time decisions.
