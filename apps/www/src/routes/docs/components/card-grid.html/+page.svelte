@@ -142,6 +142,23 @@ ${usageCards}${withOptOut ? usageOptOut : ''}
     { name: 'src/lib/ui/card-grid-universal.svelte', content: axesUsage },
   ];
 
+  // the theme-bridge specimen: the drawer shows the stage it runs — the
+  // bridge-only mechanism (the axes drawer above carries the density/size
+  // specimen instead; canvas-id swap law: code shown = code running)
+  const themeUsage = `<!-- theme: BRIDGE-ONLY — the resolved scope lands .dark on the
+     grid's root; the landlord's own paint is structural (transparent
+     ground, the 20px gap unmoved — measured identical in both scopes).
+     What answers is each tenant, through its own emission form: raw
+     var() reads flip at the consumer, typed emissions freeze at :root. -->
+<CardGrid theme="dark" min="220px">
+  <SectionCard eyebrow="tenant one" title="the bridge lands, the landlord holds">
+    its own emission form decides what flips
+  </SectionCard>
+</CardGrid>`;
+  const themeFiles: TreeFile[] = [
+    { name: 'src/lib/ui/card-grid-theme-bridge.svelte', content: themeUsage },
+  ];
+
   // the ONE query() case: responsive density through the landlord —
   // compact guests below 48rem, the default rung at 48rem+. The STRING
   // lane needs BOTH generics (the §6 typing law; the heading page's
@@ -504,7 +521,7 @@ ${close}
         </div>
 
         <div class={cx(rt.mt20)}>
-          <ComponentCanvas title="card-grid · theme bridge" files={universalFiles} stage="fill">
+          <ComponentCanvas title="card-grid · theme bridge" files={themeFiles} stage="fill">
             <div class={cx(rt.col16, rt.wFull)}>
               <CardGrid theme="dark" min="220px">
                 <SectionCard eyebrow="tenant one" title="the bridge lands, the landlord holds">

@@ -131,7 +131,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "fixed-awaiting-reverify"
+   "status": "done",
+   "closure": "#27 — vellum 1st + marginalia 2nd PASS; tenant-swap fix double-verified (ladder 8/12·12/16·12/20 + inert 20px gap); MEDIUM drawer mismatch fixed by orchestrator (own themeFiles const)"
   },
   {
    "page": "carousel",
