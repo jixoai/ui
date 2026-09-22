@@ -343,6 +343,27 @@
   (or assert the start frame deliberately). My probe's bytes were
   honest; the frame was the lie.
 
+## Task 12 (breadcrumb re-verify round, 2026-09-22) — learnings
+- **LAW #14 executed end-to-end on my own overturned finding**: with the
+  250ms await, the you-are-here background read 0.9551 → **0.2178** —
+  scribe's deterministic number, now reproduced under my own probe. The
+  trail stylex inks stayed frozen at 0.3211 in the same evaluate. A
+  re-verify that overturns your own observation is the strongest
+  closure there is: the law predicted both the original artifact (start
+  frame) and the steady-state truth, and both predictions landed.
+- **Re-verify economics**: per-finding verification targets the DIFF
+  (each finding's claimed fix, checked in served bytes + live), plus a
+  spot-check quota over the prior review's receipts (3 of 5 here) and
+  the three gates. Everything else inherits from the prior PASS table
+  unless the fix's blast radius touches it. The full re-derivation
+  instinct is how reviews balloon; the diff-targeted instinct is how
+  they close.
+- **Gate reds under a shared tree get one attributed retry**: the
+  tailwindless RED listed 30 violations all on one sibling's mid-write
+  page (`empty.html`) — attribution by reading the violation paths, one
+  timed retry, GREEN with the receipt verbatim. The retry is justified
+  by the attribution, not hope.
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation
