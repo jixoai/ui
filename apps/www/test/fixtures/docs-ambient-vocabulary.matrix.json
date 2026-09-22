@@ -25,31 +25,6 @@
     "exactDescription": null
   },
   {
-    "route": "avatar",
-    "batch": "A",
-    "tableIndex": 0,
-    "prop": "size",
-    "occurrence": 1,
-    "bareDefault": null,
-    "marker": "scope",
-    "defaultsFile": null,
-    "slotExport": null,
-    "exactDescription": null,
-    "note": "W5-r2 re-pin: the §13 adoption (W3-C) — avatar size joined the universal size axis, no own (legacy sm/md/lg normalize); page row updated to the ambient spelling"
-  },
-  {
-    "route": "avatar",
-    "batch": "A",
-    "tableIndex": 0,
-    "prop": "variant",
-    "occurrence": 1,
-    "bareDefault": "bevel",
-    "marker": "own",
-    "defaultsFile": "registry/files/ui/avatar/avatar-defaults.svelte.ts",
-    "slotExport": "avatarVariantSlot",
-    "exactDescription": null
-  },
-  {
     "route": "color-picker",
     "batch": "A",
     "tableIndex": 0,
@@ -83,30 +58,6 @@
     "marker": "own",
     "defaultsFile": "registry/files/ui/dialog/dialog-defaults.svelte.ts",
     "slotExport": "dialogSurfaceVariantSlot",
-    "exactDescription": null
-  },
-  {
-    "route": "dropdown-menu",
-    "batch": "A",
-    "tableIndex": 0,
-    "prop": "variant",
-    "occurrence": 1,
-    "bareDefault": "auto",
-    "marker": "own",
-    "defaultsFile": "registry/files/ui/dropdown-menu/dropdown-menu-defaults.svelte.ts",
-    "slotExport": "dropdownMenuSurfaceVariantSlot",
-    "exactDescription": null
-  },
-  {
-    "route": "dropdown-menu",
-    "batch": "A",
-    "tableIndex": 0,
-    "prop": "density",
-    "occurrence": 1,
-    "bareDefault": null,
-    "marker": "scope",
-    "defaultsFile": null,
-    "slotExport": null,
     "exactDescription": null
   },
   {
@@ -434,5 +385,31 @@
     "defaultsFile": "registry/files/ui/section-card/section-card-defaults.svelte.ts",
     "slotExport": "sectionCardToneSlot",
     "exactDescription": "Everyday bordered section or inner-page hero head."
+  },
+  {
+    "route": "avatar",
+    "batch": "A",
+    "tableIndex": 1,
+    "prop": "size",
+    "occurrence": 1,
+    "bareDefault": null,
+    "marker": "scope",
+    "defaultsFile": null,
+    "slotExport": null,
+    "exactDescription": null,
+    "note": "docs-eight-axes-mdn r1 re-pin (vellum, 2026-09-22): the page moved to the generated meta table + docs curation — the two table[0] hand rows (size ambient-scope, variant own-bevel) retired with the hand table; the axes table (table[1], the meta table holds index slot 0) carries the tracked size/density rows with the ambient-scope default. size is the §13 adoption (family prop IS the axis)."
+  },
+  {
+    "route": "avatar",
+    "batch": "A",
+    "tableIndex": 1,
+    "prop": "density",
+    "occurrence": 1,
+    "bareDefault": null,
+    "marker": "scope",
+    "defaultsFile": null,
+    "slotExport": null,
+    "exactDescription": null,
+    "note": "docs-eight-axes-mdn r1 re-pin (vellum, 2026-09-22): the page moved to the generated meta table + docs curation — the two table[0] hand rows (size ambient-scope, variant own-bevel) retired with the hand table; the axes table (table[1], the meta table holds index slot 0) carries the tracked size/density rows with the ambient-scope default. size is the §13 adoption (family prop IS the axis)."
   }
 ]

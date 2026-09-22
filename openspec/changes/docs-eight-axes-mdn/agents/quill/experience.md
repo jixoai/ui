@@ -251,3 +251,29 @@
   (breadcrumb canvas self-containment) is reported with the exact RolldownError + file mtime, the
   stale-dist gates run with the staleness caveat, and the page truths ride the dev-SSR receipts.
   Don't fix the sibling's file; don't block on their keyboard.
+
+## Techniques (mine, added 2026-09-22, dropdown-menu 10-dropdown-menu)
+- **A consuming family's radius row has TWO proofs, show both stamps**: dropdown-menu stamps
+  `--jx-radius-consumed` with a DIFFERENT formula per lane state — explicit = effective × factor
+  (the menu is the concentric anchor), auto = the §3 concentric calc verbatim as the css
+  fallback. Both formulas are greppable in the raw SSR side by side, and the probe measures the
+  honest outcome of the auto form (border-radius 0px at root invariants — a documented zero, not
+  a bug).
+- **Elevation's consumption pair lives on the BODY, not the shadow layer**: first probe read
+  `[data-jx-menu-shadow]` (none — the veil paints elsewhere) and called the family inert; the
+  pair rides `.jx-surface-body` (fill + box-shadow). Read the element the css law names, not the
+  element whose name sounds right.
+- **THEME-SPLIT can split WITHIN one widget**: dropdown's panel flips (raw --popover-foreground/
+  --ring/--destructive pair) while its own trigger stays frozen (--jx-background/--jx-border
+  aliases) — trigger and panel visibly diverge under one theme="dark". The byte-identity control
+  (trigger bg identical light/dark) + the flipping bezel is a two-element proof.
+- **The ambient matrix pins travel with the table migration**: moving a props table to
+  meta-driven leaves the matrix's table[0] entries orphaned (the parser skips meta calls by
+  design) and — if the page is in the bijection domain — the new per-axis hand table becomes the
+  FIRST axisRows candidates inside it. The honest refresh: remove the orphaned entries (facts
+  now gated meta-side + by the universal manifest), exempt the mechanism table scoped to the
+  route (the inline-code#variant precedent), keep every still-true entry. Write the rationale
+  into the exemption comment — the fixture is JSON, the spec is where the evidence lives.
+- **A primitive page demonstrates its own composer for free**: the canvas dock mounts 14
+  dropdown-menu instances at density xs on the very page — the SSR grep of their panel stamps is
+  a composed-consumer receipt that costs nothing.

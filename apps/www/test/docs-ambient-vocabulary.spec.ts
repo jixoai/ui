@@ -557,6 +557,17 @@ describe('matrix↔tasks bijection', () => {
     for (const route of tasksUniverse) {
       for (const c of axisRowsOf(pageSource(route))) {
         if (route === 'inline-code' && c.prop === 'variant') continue; // exempt: invariant-locked
+        // exempt (docs-eight-axes-mdn task 10, quill 2026-09-22):
+        // dropdown-menu's table[2] is the per-axis MECHANISM table — the
+        // campaign's hand rows documenting consumption/supply per family
+        // (density's lanes, the §3/§14 radius chain), outside the ambient
+        // economy this matrix guards. The page's ambient facts stayed
+        // pinned: the root table migrated to the GENERATED meta + the
+        // shared universal section (variant Own-'auto' / density ambient-
+        // scope render from meta.universal — verify:meta's meta-side
+        // ambient check + the 110-page universal manifest gate them), and
+        // the item hand table's density row keeps its matrix entry t1.
+        if (route === 'dropdown-menu' && c.tableIndex === 2) continue;
         out.push(keyOf(route, c.tableIndex, c.prop, c.ordinal));
       }
     }
