@@ -448,3 +448,43 @@
   - quill's axes-summary honesty index → badge's axes summary opens with
     the consumed/re-typing/supply-only counts; accordion's summary still
     owes the same sentence.
+
+## Task 15 — dropdown-menu review (2026-09-22)
+- **Anchor-name targeting beats label-text search on demo-heavy pages**:
+  the level4 demo trigger is labeled "Open" and four UNRELATED buttons
+  carry the text "level4" — my label-based probe clicked a wrong button,
+  found the still-open level2 panel, and read two DIFFERENT panels as one
+  identical stamp (a false "level4 demos level2" almost formed). Target
+  `[data-jx-menu-trigger]` / `span.jx-menu-anchor[anchor-name: …]`, never
+  `button` by text, when a page ships many demo buttons. Corollary: an
+  open popover found by `:popover-open` may be a PREVIOUS step's panel —
+  close or re-scope between opens, and sanity-check the panel's
+  `position-anchor` matches the intended demo.
+- **The [popover] platform element paints nothing BY DESIGN**
+  (jixoai.css `.jx-surface { background: none; border: none }`) — bezel
+  fill, seam and box-shadow live on the `.jx-surface-body` child
+  (`var(--jx-elevation-surface, var(--jx-surface-solid-fill,
+  var(--popover)))` + `var(--jx-elevation-shadow, none)`). Any
+  theme-split or elevation probe that reads the popover root gets
+  rgba(0,0,0,0)/none and may mis-conclude "unthemed".
+- **A family that stamps its own elevation ladder never resolves the
+  --popover fallback**: dropdown-menu's own level2 default always emits
+  the stamp, so the panel fill rides `--jx-elevation-level2-surface` →
+  `--surface-container-low` (0.96 light / 0.185 dark), NOT --popover
+  (dark --popover = 0.3211, kept above the ladder by design). Theme rows
+  that attribute the fill to "--popover raw read" are mechanism-wrong
+  even when the flip outcome is right — the measured dark fill value
+  (0.185 ≠ 0.3211) is the discriminator. Also: the elevation shadow
+  recipes re-declare under `.dark` as WHITE recipes (hsl(0 0% 100%/.16))
+  — a visible flip easy to omit from a FLIPS enumeration.
+- **grep pitfall (recurring family)**: `grep -o "--jx-hit" *.svelte`
+  parses the pattern as a FLAG → silent 0 hits that look like zero-reader
+  receipts. Use `grep -o -e "--jx-hit"` (or `--`). My first zero-reader
+  sweep was all-invalid; only the `-e` re-run produced real receipts.
+- **Composer claims die by import grep**: "menubar panels and
+  navigation-menu mount dropdown-menu" was false at every layer
+  (component import, demo nesting) — menubar's own header documents
+  deliberate duplication ("registry items stay independent, no hidden
+  coupling") and navigation-menu's says "actions belong to
+  dropdown-menu". When a page names composers, run the import grep per
+  name; sibling-family headers often state the true relationship.
