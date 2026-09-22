@@ -1,0 +1,1117 @@
+{
+ "seed": 20260922,
+ "agents": [
+  "quill",
+  "vellum",
+  "scribe",
+  "marginalia"
+ ],
+ "counts": {
+  "quill": 27,
+  "vellum": 26,
+  "scribe": 30,
+  "marginalia": 27
+ },
+ "pages": [
+  {
+   "page": "accordion",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "alert",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "anchor",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "avatar",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "badge",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "badge-indicator",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "blockquote",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "boot-splash",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "breadcrumb",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "button-group",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "card",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "card-grid",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "carousel",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "cascader",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "chart",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "checkbox",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "chip",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "code-card",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "color-picker",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "combobox",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "command",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "component-canvas",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "date-picker",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "descriptions",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "dialog",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "dropdown-menu",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "empty",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "figure",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "file-input",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "float-button",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "form",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "ghostty-term",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "grid",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "heading",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "hero-section",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "highlight-detect-default",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "hover-card",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "icon",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "icon-button",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "image",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "inline-code",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "input",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "input-group",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "input-otp",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "kbd",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "language-switcher",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "link",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "list",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "list-item",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "markdown",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "math-block",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "math-inline",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "menubar",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "mermaid",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "native-scroll-area",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "native-select",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "navigation-menu",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "number-input",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "pagination",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "pattern-cta",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "pattern-faq",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "pattern-hero-set",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "pattern-login",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "pattern-pricing",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "popconfirm",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "popover",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "press-button",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "progress",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "progressive-blur",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "prose",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "prototype-flex",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "prototype-grid",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "prototype-waterfall",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "radio",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "range",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "reference",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "result",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "scaffold-float",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "scroll-area",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "scroll-run",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "scroll-virtual",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "section-card",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "select",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "separator",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "sheet",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "skeleton",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "spin",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "stack",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "statistic",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "steps",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "system-dialog",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "table",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "tabs",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "tags-input",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "terminal-card",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "terminal-footer",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "terminal-header",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "text",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "textarea",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "theme-toggle",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "timeline",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "toast",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "toc",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "toggle",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "toggle-group",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "tooltip",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "tour",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "transfer",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "tree-view",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": null,
+   "status": "todo"
+  },
+  {
+   "page": "website-scaffold",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": null,
+   "status": "todo"
+  }
+ ]
+}
