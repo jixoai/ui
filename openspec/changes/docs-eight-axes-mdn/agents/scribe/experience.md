@@ -794,3 +794,40 @@
   page comment ↔ integration commit message ↔ served SSR (marker +
   restored rows) ↔ my own green gate run. The LAST-WRITE write-then-
   verify incident turned into the fleet's model for honest disclosure.
+
+## Techniques (task 27 additions)
+- "Consumed one promotion away" probes open REAL popovers: click the
+  trigger, await `getAnimations().finished` + settle (TRANSITION-FRAME
+  law), measure computed paint, then `hidePopover()` — never measure a
+  panel that is mid-WAAPI or still closed.
+- Family hooks beat generic selectors: my first battery read wrapper
+  panels (`[data-probe]` divs) and got 16px/transparent/0-width — the
+  family's real hooks were `nav[data-jx-navmenu]`,
+  `[data-jx-navmenu-trigger]`, `.jx-surface-body` (the FILL rides the
+  surface body, not `.jx-pop`). Read the component's element markup
+  BEFORE writing probe selectors.
+- The `universal` directive on PropsTable LIFTS axis-named rows into
+  the shared table: a 13-row authored hand table serves as 5 + 8
+  (shared) + parts. Count by enumerating ROW NAMES across all tables,
+  never `<tr>` bytes — headers and folds corrupt byte counts.
+- Async fits and roving trims need settle discipline: the indicator's
+  hug-box is written by fonts.ready/ResizeObserver (early read w=0),
+  and the roving trim's empty-state law renders ALL triggers tabbable
+  until trim — read both on a fresh, settled load.
+- Receipt discipline: quill's "tabIndex -1 (probe-asserted)" did not
+  reproduce — the served span has aria-hidden only. When a receipt
+  names an ATTRIBUTE, verify the attribute; "the intent holds" (no tab
+  stop) is not the same as the attribute existing.
+
+## Highlights (task 27)
+- (navigation-menu) The promotion-away radius channel is the cleanest
+  consumption story in the fleet: the nav root always stamps
+  --jx-radius-consumed and the TOP-LAYER panel reads it through the
+  DOM inheritance a popover promotion keeps — measured 0px → 10px on
+  real open menus, paint moving without DOM movement.
+- The theme split's clean signal discipline: the per-panel hue
+  injection drifts on the wall-clock, so the split lives or dies on
+  the IDLE NEUTRAL token — oklch(0.3211) in both scopes (typed alias,
+  frozen at :root) against the raw underneath 0.3211 → 0.8452, with
+  the panel flipping 0.96 → 0.185. Two channels, opposite answers,
+  one element tree apart.
