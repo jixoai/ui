@@ -433,3 +433,36 @@
   respawn or linger. Kill both PIDs, then `lsof` rc=1 as the receipt.
   (pgrep "5242" matches unrelated apps' `--shared-files` buffer-size
   flags — verify by command name, not substring.)
+
+## Task 13 (empty REVIEW) — lessons
+- **Grep receipts are necessary, never sufficient, for theme-pole
+  claims**: "zero raw-token reads" passed as written, yet the atoms DO
+  read six sheet voices — through the typed token layer, whose VALUES
+  are verbatim var(--border) strings. The pole is decided by the
+  EMISSION FORM, not the grep: tokens.stylex emits each value as an
+  INTERMEDIATE :root custom property (--jx-border: var(--border)) and
+  atoms consume var(--jx-border) — substitution happens once at :root,
+  so a scoped .dark re-declaring --border can never re-open it (the
+  declaring-element law, now proven at rule level for the frozen pole).
+  A reviewer who stops at the grep either falsifies a true claim or
+  blesses it for the wrong reason.
+- **Unstyled reads masquerade as theme flips**: measuring before the
+  family's css lands yields UA defaults whose currentcolor DOES flip
+  (it inherits the sheet's --foreground) — a false refutation that
+  looks like a disagreement-probe win. Readiness = the family
+  SIGNATURE (a computed property only the family sets, e.g. its
+  padding), never element existence. Second occurrence; now a law.
+- **stylex dev rule inspection**: computed styles alone can't reveal
+  WHICH var a rule reads; the vite-transformed module
+  (curl /src/lib/.../x.stylex.ts) exposes the className map, and the
+  injected rules live in INLINE <style> tags — search
+  ownerNode.textContent for '.className {' and the token emission
+  ('--jx-border:') rather than walking cssRules (nested/at-rule rules
+  and sheer volume defeat the walk).
+- **False friends in consumer greps**: "Empty" hits named
+  CommandEmpty (a different family's subcomponent), a popover comment,
+  and a blueprint scene — negative-consumer receipts need the import
+  path (ui/empty|@ui/empty|empty/empty.svelte), not the identifier.
+- **Sibling ports exist**: teardown = kill MY wrapper+child, lsof MY
+  port; a vite on the NEXT port (5244) belonged to a sibling started
+  earlier — verify by command + port, leave it alone.

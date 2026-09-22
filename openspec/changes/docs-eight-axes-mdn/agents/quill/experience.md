@@ -317,3 +317,39 @@
   flagged --jx-text vs --jx-text-base for heading; the family reads NEITHER (zero
   kernel-channel hits). The 30-second grep converts "watch for" into "absent, with
   receipt" — and found the REAL story (the inline font-size stamp) next door.
+
+## Techniques (mine, added 2026-09-22, task 13 — hero-section)
+- **THE THEME POLE'S SPLIT CAN RUN ALONG THE EMISSION FORM, not the selector
+  list**: two voices of the same component flipped under a scoped .dark while a
+  third froze — and the deciding fact was HOW each color was written. Raw
+  `var()` strings in the atom (`color: 'var(--primary-text)'`) substitute at
+  the CONSUMING element → flip. `tokens['--jx-muted-…']` (stylex defineVars)
+  emits an alias declared at the stylex :root theme scope → resolved THERE,
+  inherited already-substituted → frozen under any downstream scope. The
+  var-chain probe (section-level `--muted-foreground` flips while
+  `--jx-muted-foreground` stays byte-identical) is the receipt that separates
+  "alias freeze" from "slot block absent". Expect this wherever tokens.stylex
+  defineVars and raw var() strings coexist in one family.
+- **"Supply-only" needs a second question: does the STAMP's host host anyone?**
+  A carrier can be unread by the family css AND still matter — hero-section's
+  density is invisible on the hero's own atoms (zero channel reads) yet moves
+  every composed guest (CTA 13→12px, badges 12→11px at the sm rung) because
+  the rung scope IS the section root. For host/composer families, measure the
+  guests, not just the host; caption "supply-only on self, consumed by
+  composition".
+- **An explicit-size stamp can be REAL and INERT at once** (the heading
+  contrast): the stamp moves the section's computed font-size (14px exactly)
+  while nothing follows — fixed-scale typography (rem floors/caps, cqi fluid,
+  px micro steps) gives an em-of-parent law nothing to scale. The probe pair
+  needs the control: section voice MOVES (stamp detectable), paint voices
+  DON'T (inertness proven) — one panel pair, two assertions.
+- **A probe failure against my own brief is the discovery** (twice now): r1's
+  "summary did not flip" falsified the three-voices hypothesis in one
+  assertion. The page then teaches the measured law with the var-chain
+  receipt instead of the invented one. Keep the failing assertion visible in
+  the report — it's the audit trail of the correction.
+- **Test pins change the task shape before the first edit**: hue-injection's
+  byte-identical mirror pin (family = registry copy) ruled the task
+  docs-only; the docs-ambient carriers set and the terminal-patterns fixture
+  supplied the composer receipt for free. Grep test/ FIRST is not ceremony —
+  it redraws the boundary of what may be touched.
