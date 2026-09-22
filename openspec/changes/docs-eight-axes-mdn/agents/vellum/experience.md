@@ -551,3 +551,26 @@
   uncovered key's page name, check git status for that page's in-flight
   edit, report the failure as attributed context (count + name) rather
   than pass/fail.
+
+## Task 18 (inline-code REVIEW) — lessons
+- **Tier-3 by pin density is a real decision procedure**: when a hand
+  table is pinned N≥3 ways (row invariant + matrix ordinals +
+  grammar-path extraction), the archetype migration cost is the re-pin
+  cascade, not the writing — so the correct shape is gaps-only
+  (install/overview/see-also) with the pinned table byte-preserved.
+  The audit receipt is the COMMIT DIFF, not the rendered page: diff
+  the integration commit against its parent and count the removed
+  lines (here: exactly one, the cx filter). A zero-table-diff plus
+  green pin specs is the whole tier-3 proof.
+- **Weak signature gates fail SILENTLY-PARTIAL**: the mono-font gate
+  read a page where SOME atoms (padding) had landed and others
+  (background/border) hadn't — mixed live/dead reads look like
+  plausible values and pass casually. Gate on the SPECIFIC atom whose
+  value you are about to assert (the tonal tint for a tonal claim),
+  not on any family-adjacent property.
+- **The dispatch's byte-order sketch is a summary, not a spec**: real
+  toc audit = every listed id present + listed-relative-order == DOM
+  order + unlisted-but-present ids enumerated as findings (the axes
+  section unlisted was the review's MINOR). Same for test counts:
+  rg -c "it(" undercounts nested suites — the runner's own count is
+  the receipt (22, matching the dispatch exactly).
