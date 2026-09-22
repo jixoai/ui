@@ -943,3 +943,32 @@
   comparing or you get a false FAIL (and verify chrome-exclusion on both sides).
 - **Playwright page.request.get(url)** replaces in-page fetch for SSR raw HTML
   (about:blank fetch has no origin and fails).
+
+## Task 32 — number-input (2026-09-22)
+
+- **Transition trap for theme probes**: a 150ms css transition on box-shadow meant
+  the .dark read taken the same frame showed the OLD value ("frozen well") while the
+  custom property had already flipped. Rule: when a var reads flipped but the
+  computed property doesn't, wait past the transition (350ms) and re-read the
+  end-state before writing a frozen/re-deriving verdict.
+- **Consumer-vs-family prop asymmetry**: a family can destructure + consume a prop
+  (chrome → data-chrome) without declaring it in Props — works internally, fails
+  consumer call sites at svelte-check. Before putting `someProp="x"` in a page, grep
+  the family's Props interface, not just the implementation.
+- **Two-way bindings can fake commit behavior in demos**: a slider bound to the same
+  value coerces undefined→min (range inputs can't represent empty), making a
+  spec-proven "empty commits as undefined" LOOK broken on the live demo. Verify
+  commit claims on an unbound field; keep playground-bound fields away from
+  empty-state demos.
+- **Hold-clock receipts are cheap**: pointerdown + sampled inputValue at ~80/250/420/
+  700/1000ms distinguishes immediate-step / delay-plateau / repeat-cadence in one
+  hold. A plateau reading where acceleration was claimed (or vice versa) is a
+  one-probe falsification.
+- **Ambient baseline failures can clear themselves** (second occurrence): quill's
+  reference.html failed the ambient vocabulary gate at baseline, settled by gate
+  time. Re-run attributed failures at the end before diagnosing; never touch the
+  sibling's file to make it pass.
+- **Hardcoded px in old copy ages badly**: "28px-wide steppers / 40px law" predated
+  the density-kernel move — both numbers now measurable lies on scoped rungs. Grep
+  the page copy for bare px claims tied to geometry and re-measure each against the
+  served DOM.

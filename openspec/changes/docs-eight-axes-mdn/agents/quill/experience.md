@@ -787,3 +787,27 @@
   fold eats the served row). The pin is satisfied at SOURCE level while
   the SERVED table diverges — matrix pins and served truth live at
   different layers; the api summary must describe the served layer.
+
+## Techniques (mine, added 2026-09-23, task 28 — code reference)
+- **THE INHERITANCE POLE IS A FIRST-CLASS AXES STORY**: kbd (own kernel
+  voice, context-deaf) and reference (no paint surface, everything
+  inherited) are the same eight-axis table's two poles. The inheritance
+  family's verification is EASIER but must still be measured in two
+  contexts (13.5px prose, 16px panel) and the §11 stamp must be shown
+  beating the context (size={18} → 18px inside a 16px context) — the
+  stamp consumes THROUGH the inheritance, which is a claim, not a
+  default.
+- **NUMBERED-DOMAIN REGISTRATION IS A SECTION DUTY, NOT A PROVIDER DUTY**:
+  NumberingProvider supplies the document-level target registry, but a
+  Figure only registers a referenceable target inside a NUMBERING DOMAIN —
+  created by a numbered SectionCard. A provider+figure+reference rig
+  without the numbered section degrades every reference to settled-missing
+  (the old universal demo had this latent flaw). Rig recipe:
+  NumberingProvider > SectionCard numbering="decimal" > Figure + p >
+  Reference; the resolved text "Eq (1.1)" is the proof.
+- **THE SSR/POST-SETTLE DUALITY NEEDS BOTH READS**: the reference family's
+  contract is different bytes before and after settle — the SSR bytes
+  carry the fallback anchors' edge claims (5 × data-ref-to), while the
+  post-settle DOM releases the edge on missing targets (the loud span).
+  curl the SSR AND probe the live DOM; either alone mis-describes the
+  family.
