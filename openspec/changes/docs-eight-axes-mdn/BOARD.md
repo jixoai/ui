@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | scribe | 16 | color-picker (OWN) | CODE | in-flight |
 | marginalia | 18 | dropdown-menu (quill's fix @3a2fb138) | RE-VERIFY | in-flight |
-| vellum | 15 | avatar (OWN) | FIX (2nd-review ledger) | in-flight |
+| vellum | 16 | heading (quill's) | REVIEW (2nd) | in-flight |
 | quill | 15 | image (OWN) | CODE | in-flight |
 ## DONE
 - ✅ **empty** (owner quill) — twelfth closed page (vellum+marginalia double PASS; the frozen pole re-derived at all three levels — grep/mechanism/probe, the runtime-stylesheet emission scan is the new standard; size-lane echo lands but every descendant self-sets → supply-only IN EFFECT, the post-avatar lesson applied; avatar divergence consolidation archived: the 1st measured boxes, not initials fonts — that's where the MAJOR lived)
@@ -29,7 +29,7 @@
 - hero-section: coded Tier-2 (quill task 13) — EMISSION-FORM theme split discovered (eyebrow/title raw vars flip, summary/badges defineVars freeze — W-next #2 refined); size = the heading contrast case (stamp lands, clamp+fixed-px voices give em nothing to scale); density supply-only on self / consumed by composition (guest CTA 13→12, Badge 12→11 measured); 20−8=12 arithmetic; hue-injection byte-pin honored docs-only — reviewers marginalia+vellum QUEUED
 - heading: vellum 1st review **PASS** (inline-stamp mechanism verified at all three levels with LAW #15 gating; theme partial pole via the ink seam source-verified; 14−8=6 counting the synthesized rest row; MINOR cx predicate fleet debt + 2 NIT) → marginalia 2nd QUEUED
 - empty: vellum 1st review **PASS** (frozen pole proven by MECHANISM receipt — typed intermediate substitutes once at :root, scoped .dark never re-opens; grep alone insufficient; 8/8 frozen probe; composed-consumer negative twice with false-friends checked) → marginalia 2nd QUEUED; 1 MINOR (cx predicate, fleet debt) + 2 NIT
-- avatar: marginalia 2nd review NEEDS-WORK — SECOND OVERTURN (1st PASS missed it): "initials voice fixed at every size" is FALSE at every explicit size (the §11 inline echo beats the stylex class — heading's mechanism as DEFECT here: 48px font in a 46px box, clipped; drift ledger #7); MINOR: deviations paragraph contradicts the size-consumed headline (carrier-level clause needed) → vellum owes the consolidated fix (reword both rows; clip fix is family-level)
+- avatar: consolidated fix LANDED (vellum task 15: initials follow size reworded with the echo mechanism + both clip numbers cited to ledger #7; deviations paragraph split into carrier-vs-adoption; overflow claim ×0; cx predicate applied — page ZERO diagnostics, fleet 1623→1622) → re-verify QUEUED (marginalia)
 - ⚠ DIST GATES DEFERRED: npm run build transiently RED in breadcrumb (scribe mid-edit, canvas demo not self-contained) — the post-breadcrumb integration build owns fresh dist + docs-universal + canvas-same-source solo for the combined state (chip micro-fix + date-picker + breadcrumb + hardening)
 ## RULINGS: a11y floor wording — "WCAG 2.5.8 AA target floor" = 24px (the regulatory minimum); 28px = the fleet DEFAULT ergonomic floor (--jx-hit default rung), which EXCEEDS AA. Pages phrase: the 2xs rung lowers to the AA minimum (24px); the default floor (28px) exceeds it. (scribe's cascader NIT, ruled by orchestrator)
 

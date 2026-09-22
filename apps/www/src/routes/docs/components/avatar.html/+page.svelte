@@ -132,7 +132,10 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter(
+        (style): style is string | { readonly [key: string]: string | object } =>
+          Boolean(style),
+      )
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -166,7 +169,7 @@ ${close}
         tone="hero"
         eyebrow="registry:ui · NativeHTML"
         title="avatar — an img, honestly"
-        summary="The avatar IS an <img>: lazy, async-decoded, intrinsic width/height so layout never shifts. When the source fails or is absent, it swaps to an initials block derived code-point-wise from the name — CJK-safe (张伟 stays 张伟), halved to one code point at icon size so it never overflows. Three silhouettes ride one geometry: the bevel radius law (default), a true circle, and the squircle superellipse. Hover any avatar and the full name comes back on a tooltip — on by default, tooltip={false} opts out."
+        summary="The avatar IS an <img>: lazy, async-decoded, intrinsic width/height so layout never shifts. When the source fails or is absent, it swaps to an initials block derived code-point-wise from the name — CJK-safe (张伟 stays 张伟), halved to one code point at icon size so the badge never wraps. Three silhouettes ride one geometry: the bevel radius law (default), a true circle, and the squircle superellipse. Hover any avatar and the full name comes back on a tooltip — on by default, tooltip={false} opts out."
       >
         <div class={cx(rt.wrap12)}>
           <span class="pill">bevel · rounded · squircle</span>
@@ -383,14 +386,14 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'auto' | number`,
       default: 'ambient scope',
       description:
-        "CONSUMED — the §13 adoption: this prop IS the axis. Named steps keep the box ladder (small 24 · medium 32 · large 40 — measured), the legacy sm/md/lg spellings alias onto them pre-resolve (AVATAR_SIZE_ALIASES), and a number IS the box edge in px verbatim — the number lane stamps the box var (--jx-avatar-md) the md atom reads, so 48 is a 48px avatar. auto inherits the ambient font-size context (the 32px geometry baseline; a list-item media host may inject its own square through the same seam). The initials voice stays the fixed control-label step (--jx-text-label-lg) at every size — the sm box halves the block to ONE code point so a badge never wraps.",
+        "CONSUMED — the §13 adoption: this prop IS the axis. Named steps keep the box ladder (small 24 · medium 32 · large 40 — measured), the legacy sm/md/lg spellings alias onto them pre-resolve (AVATAR_SIZE_ALIASES), and a number IS the box edge in px verbatim — the number lane stamps the box var (--jx-avatar-md) the md atom reads, so 48 is a 48px avatar. auto inherits the ambient font-size context (the 32px geometry baseline; a list-item media host may inject its own square through the same seam). The initials voice FOLLOWS the size: at ambient (no explicit lane) the fallback block's fixed control-label step applies (--jx-text-label-lg, 12px — the one true fixed case), but an explicit lane stamps the §11 echo (font-size: var(--jx-size-effective, 1rem)) INLINE on the root, and inline beats the class token — measured 14 / 16 / 18px at small / medium / large, and the box edge verbatim on the number lane (48px initials at size={48}). At 48 the two-letter block overflows its own box (scrollWidth 52 > clientWidth 46 — visibly clipped; 28 clips mildly, 30/26): the sm box's halve-to-one-code-point rule keeps the 24px badge safe, but a large number lane has no such guard — the family-level clip is drift ledger #7 (fixed-paint follow-up; do not scale the block in app code — pass tooltip and a larger box, or halve the name yourself).",
     },
     {
       name: 'density',
       type: `'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number`,
       default: 'ambient scope',
       description:
-        "SUPPLY-ONLY — the rung stamps data-density on the img/fallback root, and nothing reads it: the avatar reads no density channel (the initials voice is the fixed --jx-text-label-lg step; there is no padding, gap or line to re-base — grep receipt: zero channel reads in the family css). The tooltip shell is the body's DOM ANCESTOR, so the rung's scope never re-scopes it either. A coefficient stamps --jx-density-coefficient — no scope block matches the leaf, nothing recomposes. Measured: box and initials unmoved under a stamped lg rung.",
+        "SUPPLY-ONLY — the rung stamps data-density on the img/fallback root, and nothing reads it: the avatar reads no density channel (the initials voice is the fixed --jx-text-label-lg step AT AMBIENT ONLY — an explicit size lane replaces it through the §11 echo, see the size row; there is no padding, gap or line to re-base — grep receipt: zero channel reads in the family css). The tooltip shell is the body's DOM ANCESTOR, so the rung's scope never re-scopes it either. A coefficient stamps --jx-density-coefficient — no scope block matches the leaf, nothing recomposes. Measured: box and initials unmoved under a stamped lg rung.",
     },
     {
       name: 'shape',
@@ -439,12 +442,16 @@ ${close}
             Deviations, cited: the six supply-only lanes (density · shape · radius · color ·
             elevation · motion) — the family consumes none of their carriers, per the broadcast
             protocol (吃也供, supply-and-consume; the universal-props concept page owns the term);
-            size · elevation · motion are the supply-only three with no reader in the tree, and
-            shape · radius · density stamp carriers the leaf simply never reads. The §13 size
+            their CARRIERS have no descendant reader in the tree, and the leaf stamps them for
+            consumer compositions alone. Size is the exception and reads in TWO places: the §13
+            adoption consumes the lane through the family prop (the box vars the atoms read), and
+            the §11 echo stamps the root's own font-size inline — the carrier var itself
+            (--jx-size-effective) has no descendant css reader. The §13 size
             adoption and the batch-B axis surface are recorded in
             <code class={cx(rt.inkAccent)}>migration-census.md</code>
             (openspec/changes/explicit-props/research, the W3 rows). The theme axis lands its
-            bridge and paints nothing — the W-next #1 gap, named per voice in the row above.
+            bridge and paints nothing — the W-next #1 gap, named per voice in the row above. The
+            number-lane initials clip is drift ledger #7 (family-level, the fixed-paint follow-up).
           </p>
         </div>
         <div class={cx(rt.mt20)}>
@@ -477,7 +484,7 @@ ${close}
                   <Avatar name="Ada Lovelace" size={48} alt="" />
                   <Avatar name="Ada Lovelace" size={28} alt="" />
                 </div>
-                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>number lane · the box edge in px verbatim (48 / 28)</p>
+                <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>number lane · the box edge in px verbatim (48 / 28) — the initials follow the edge too (the §11 inline echo beats the fixed label step), and 48 clips its two letters (scrollWidth 52 > clientWidth 46 — drift ledger #7)</p>
               </div>
               <div class={cx(rt.panel)}>
                 <Avatar name="Ada Lovelace" size={query<{ lg: number }, number>({ lg: 48 }, 40)} alt="" />

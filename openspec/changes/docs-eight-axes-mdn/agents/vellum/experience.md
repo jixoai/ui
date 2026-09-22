@@ -491,3 +491,24 @@
 - **Signature gates differ per family**: empty's signature was padding;
   heading's is fontWeight 700 — pick the one property only the
   family's own atom sets, not a value the ambient sheet could share.
+
+## Task 15 (avatar FIX) — lessons
+- **The initials block IS the root**: avatar renders the fallback as
+  the SAME element (data-jx-avatar-fallback sits on the root span, no
+  child) — a probe scoped to a child selector finds nothing and
+  silently reads the root instead. Structure-dump one instance
+  (outerHTML) before writing the measurement selectors; the two-burn
+  readiness law now has a sibling: dump-then-measure.
+- **The §11 echo's true shape, per family**: on heading it REPLACES a
+  class ladder that exists to be replaced (intended, documented); on
+  avatar it OVERRIDES a fixed voice that exists to stay fixed (defect,
+  ledger #7). Same emission, opposite intent — the docs wording must
+  name WHICH contract the echo meets or breaks, not just that it wins
+  the cascade. "Inline beats class" is the mechanism; the contract is
+  the story.
+- **Ambient is a measured value too**: the "fixed 12px" claim was true
+  in exactly one lane (ambient, no echo) — marginalia's "false at
+  every explicit size" and my "fixed at every size" were both
+  over-general. The fix names the lane predicate explicitly: a claim
+  about a token's voice must carry its lane qualifier or it is false
+  somewhere by construction.
