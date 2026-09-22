@@ -517,3 +517,28 @@
   description, walked up to the grid, and returned the FIRST panel's
   avatar — a wrong-element read that looked plausible (24px). Anchor on
   `text.trim().startsWith(caption)` or the full caption string.
+
+## Task 17 — empty review (2026-09-22)
+- **The emission-form law's live receipt**: the typed intermediates emit
+  at `:root, .xbpgcew` inside `@layer components.stylex.priority1` with
+  var(--raw) values — scan `document.styleSheets` (walk nested
+  cssRules, guard CORS) rather than the SSR bytes: in dev the stylex
+  emission is NOT in the served HTML, only in the runtime stylesheet.
+  A substring search for `jx-border` (no colon) finds it; my first scan
+  searched `'--jx-border:'` with a length-based early break and
+  returned an empty array that looked like "no emission".
+- **Clone-stamp probes must not mutate the control variable**: testing
+  the density NUMBER lane by cloning the sm figure and REMOVING its
+  data-density measured the rung removal (sm → ambient: 16→24px pad),
+  not the coefficient. The correct control is the AMBIENT figure (no
+  rung attribute) + the coefficient stamp — byte-identical before/after
+  is then the inertness receipt. My first attempt produced a false
+  "densityInert: false" that a careless read would have filed as a
+  page finding.
+- **A leaf family can be echo-safe**: the §11 size echo lands on
+  empty's root too, but every visible text descendant sets its own
+  font-size atom (term/zero inherit the art's var(--jx-text)), so
+  SUPPLY-ONLY stays true in effect — unlike avatar, where the fallback
+  had no font-size of its own. "Does the echo change anything visible?"
+  is a per-family question; the answer is in the descendant atoms, not
+  the stamp.

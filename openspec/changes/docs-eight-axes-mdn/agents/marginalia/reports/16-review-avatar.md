@@ -158,3 +158,32 @@ panel's avatar).
 - Independence: scribe's 1st review unread at filing (in flight).
 - Working tree carries sibling in-flight work (unchecked, untouched). NO
   commits, NO push.
+
+## Consolidation after cross-reading scribe's 1st review (report 14)
+
+- **The divergence, recorded for the archive**: scribe PASS, my
+  NEEDS-WORK, same tree. What the 1st missed and why: its probes
+  verified BOX SIZES (24/32/40, the number-lane seam, radius
+  inertness) — the initials claim was checked only as the sm HALVING
+  ("张伟 keeps 张", read off the fallback canvas), never as a font-size
+  measurement at explicit lanes. The MAJOR lives exactly in the gap
+  between those two readings: the halving is true, the "fixed voice"
+  is not. Scribe's own theme/theme-pair and inertness probes were
+  sound (its radius stamp first hit the sm specimen — same locator
+  trap I hit in dropdown-menu — then corrected to md, matching my
+  md-specific re-stamp).
+- **Scribe's findings 1-3 are family-code svelte-check debt** (the
+  onerror handler signature, the Object.entries guard, the
+  non-reactive-capture warning at :146) — pre-existing per its
+  provenance check (4a96996f, W3 batch B), correctly non-gating, and
+  orthogonal to my page findings. The :146 warning is adjacent to my
+  MAJOR's mechanism (provideUniversalLanes capture) but is a type/
+  reactivity lint, not the rendering falsehood I measured.
+- Agreements (independent reproduction on different ports): false
+  token rows deleted, theme frozen pair, box ladder, number lane,
+  radius/color/density inertness, EXTRA 17−8=9, query two-generic
+  flip, tier 2, toc 7/7, PILOTS 75/75, play-state rejection class.
+- **Net: my NEEDS-WORK stands** (the clip is now drift-ledger #7,
+  family-level per the coordinator). Both reviews' probe lessons
+  point the same way: box widths are not font sizes; measure the
+  voice where the claim names a voice.
