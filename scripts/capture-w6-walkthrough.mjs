@@ -1,5 +1,16 @@
 #!/usr/bin/env node
 // W6-r1 — the vision-walkthrough capture harness (explicit-props, task 6.1).
+// W6-r3 — the methodology round: beyond-viewport element captures now
+// FIT the viewport first (the r1 tall-section frames painted blank
+// below the fold — bands 8..20 of the tokens ladder measured 0.0%
+// non-background), padded clip shots exist for edge-tight tables, the
+// dialog/sheet freeze points re-pinned to visibly-mid phases (the r1
+// 70ms dialog frame was a ghost 15% into the 460ms surface timeline;
+// the 110ms sheet frame was nearly settled at 55% of 200ms), the
+// toast hover receipt drives the countdown-bearing variant (the
+// polite toast has NO bar — opt-in), and every axis flip carries a
+// PROGRAMMATIC stage-region pixel delta (the anti-AXIS-NOT-VISIBLE
+// receipt, r1 finding 19) with a reset≈baseline diff receipt.
 //
 // Drives REAL interactions (hover · click · type · resize · toggle · drag
 // a slider) against the dev server and captures pinned-phase screenshots,
@@ -25,7 +36,9 @@
 //    the DEFAULT (deterministic final states). Motion-SUBJECT captures
 //    (toast entry, dialog/sheet mid-open, the motion-axis flip) run
 //    under 'no-preference' at a FIXED documented delay — the delay is
-//    recorded in the manifest row's `motion` field.
+//    recorded in the manifest row's `motion` field, stated against the
+//    REAL declared durations (dialog 460ms surface timeline, sheet
+//    200ms slide, toast entry 200ms).
 // 3. The black-image defense (mandatory): every capture is decoded and
 //    programmatically verified non-trivial BEFORE entering the manifest
 //    (unique-color floor + non-background-ratio floor + dominant-color
@@ -36,6 +49,11 @@
 // 5. Canvas-stage dark variants ride the dock's OWN theme toggle click
 //    ([data-jx-canvas-theme-toggle] — a real interaction, the island
 //    law: only the stage re-themes).
+// 6. Beyond-viewport element targets FIT the viewport first (W6-r3):
+//    Chrome only rasterizes the scrollport — an element taller than
+//    the viewport screenshots with its below-fold half blank; the
+//    viewport grows to the element (+pad), the element re-scrolls
+//    into view, and the original size is restored after.
 import { createHash } from 'node:crypto';
 import { inflateSync } from 'node:zlib';
 import { mkdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
@@ -135,6 +153,66 @@ function pixelStats({ w, h, pixels, channels }) {
   };
 }
 
+// ── the W6-r3 anti-AXIS-NOT-VISIBLE receipt ──────────────────────────────
+// pixelDiff over two decoded frames: the share of sampled pixels whose
+// channel-sum moved beyond a sub-visual tolerance. Same-size frames
+// only (an axis flip that RESIZES the stage still reports through
+// changedShare: 1 — a resize IS a visible change).
+function pixelDiff(a, b) {
+  if (a.w !== b.w || a.h !== b.h) return { changedShare: 1, sizeMismatch: true };
+  let changed = 0;
+  let sampled = 0;
+  const stride = 4 * 7; // sample every 7th pixel
+  const n = Math.min(a.pixels.length, b.pixels.length);
+  for (let o = 0; o + 2 < n; o += stride) {
+    const d =
+      Math.abs(a.pixels[o] - b.pixels[o]) +
+      Math.abs(a.pixels[o + 1] - b.pixels[o + 1]) +
+      Math.abs(a.pixels[o + 2] - b.pixels[o + 2]);
+    if (d > 24) changed += 1;
+    sampled += 1;
+  }
+  return { changedShare: Number((changed / Math.max(1, sampled)).toFixed(4)) };
+}
+
+/** stage-region diff across one flip: shot before → apply → settle →
+ *  shot after → changedShare. The receipt every axis-flip row carries
+ *  (r1 finding 19: a stamp without a paint is a broken demo, and the
+ *  harness must be the one to catch it). */
+async function flipAndDiff(page, stage, flip) {
+  const before = decodePng(await stage.screenshot());
+  await flip();
+  await settle(page);
+  const after = decodePng(await stage.screenshot());
+  return pixelDiff(before, after);
+}
+
+// ── beyond-viewport fit (W6-r3 capture law 6) ────────────────────────────
+// Chrome rasterizes the scrollport: an element taller than the viewport
+// screenshots with its below-fold half BLANK (the r1 tokens ladder
+// measured 0.0% non-bg across bands 8-20). Grow the viewport to fit,
+// re-scroll, run, restore.
+async function withFittedViewport(page, locator, pad, run) {
+  const box = await locator.boundingBox();
+  if (!box) return run(null);
+  const vp = page.viewportSize();
+  const need = Math.ceil(box.height + pad * 2 + 8);
+  const resized = vp && need > vp.height;
+  if (resized) {
+    await page.setViewportSize({ width: vp.width, height: need });
+    await locator.scrollIntoViewIfNeeded().catch(() => {});
+    await page.waitForTimeout(350); // re-layout + re-raster settle
+  }
+  try {
+    return await run(resized ? { box, fitted: true } : { box, fitted: false });
+  } finally {
+    if (resized) {
+      await page.setViewportSize({ width: vp.width, height: vp.height });
+      await page.waitForTimeout(200);
+    }
+  }
+}
+
 // ── the session: theme + capture + manifest rows ──────────────────────────
 const manifest = {
   round: ROUND,
@@ -146,7 +224,9 @@ const manifest = {
     viewport: [1280, 900],
     themeSwitch: "the site's own contract: localStorage['theme'] + reload (never inversion); canvas-stage dark rides the dock theme-toggle click",
     pinnedPhase:
-      "reducedMotion 'reduce' by default; motion subjects pinned by pausing document.getAnimations({subtree:true}) at a fixed delay into the motion (WAAPI surfaces), resumed after the mid-phase shot",
+      "reducedMotion 'reduce' by default; motion subjects pinned by pausing document.getAnimations({subtree:true}) at a fixed delay into the motion (WAAPI surfaces), resumed after the mid-phase shot — delays stated against the REAL declared durations: dialog 200ms into the 460ms surface timeline (~43%), sheet 80ms into the 200ms slide (~40%), toast 150ms into the 200ms entry",
+    tallFit: 'element targets taller than the viewport grow the viewport first (capture law 6) — the r1 below-fold blank is a raster artifact, never a page defect',
+    axisDelta: 'every axis-flip row carries stage.changedShare — the programmatic anti-AXIS-NOT-VISIBLE receipt (r1 finding 19); the reset row carries the same diff against a pre-reset baseline stage',
     floors: { uniqueColors: FLOOR_UNIQUE, nonBgRatio: FLOOR_NON_BG, diffTol: DIFF_TOL },
   },
   captures: [],
@@ -220,18 +300,42 @@ async function selectAxis(page, slug, axis, value) {
 /**
  * The one capture primitive. target: {kind:'element', locator} | {kind:'viewport'}.
  * motion: 'reduced' | { freeMs: <the fixed delay already awaited> }.
+ * pad (element targets only, W6-r3): shoot the element's box grown by
+ * `pad` CSS px on every side via a page-level clip — for edge-tight
+ * tables whose text otherwise touches the frame and reads as clipped.
+ * Tall elements fit the viewport first either way (capture law 6).
  */
 async function capture(page, row) {
-  const { id, page: pageId, route, phase, theme, interaction, motion = 'reduced', target, settle: doSettle = true, evidence } = row;
+  const {
+    id, page: pageId, route, phase, theme, interaction, motion = 'reduced',
+    target, settle: doSettle = true, evidence, pad = 0,
+  } = row;
   const file = `${id}-${theme}.png`;
   const path = join(OUT, file);
   const attempts = [];
   for (let attempt = 1; attempt <= 2; attempt++) {
     if (doSettle) await settle(page);
-    const buf =
-      target.kind === 'viewport'
-        ? await page.screenshot({ path })
-        : await target.locator.screenshot({ path });
+    let buf;
+    if (target.kind === 'viewport') {
+      buf = await page.screenshot({ path });
+    } else {
+      buf = await withFittedViewport(page, target.locator, pad, async () => {
+        if (pad <= 0) return target.locator.screenshot({ path });
+        // padded CLIP shot in document coordinates (the fit above
+        // guarantees the whole box rastered)
+        const box = await target.locator.boundingBox();
+        if (!box) throw new Error('target vanished before the padded shot');
+        return page.screenshot({
+          path,
+          clip: {
+            x: Math.max(0, box.x - pad),
+            y: Math.max(0, box.y - pad),
+            width: box.width + pad * 2,
+            height: box.height + pad * 2,
+          },
+        });
+      });
+    }
     let stats;
     try {
       stats = pixelStats(decodePng(buf));
@@ -242,15 +346,25 @@ async function capture(page, row) {
     attempts.push({ attempt, ...stats });
     if (!stats.trivial) {
       const sha = createHash('sha256').update(buf).digest('hex');
+      // the W6-r3 receipts ride the row verbatim: axisDelta (the stage
+      // pixel diff across the flip), hue/shadow (the computed channel
+      // before/after), reset (the ≈baseline diff) — whatever the row
+      // carried beyond the standard fields
+      const receipts = {};
+      for (const key of ['axisDelta', 'hue', 'shadow', 'reset']) {
+        if (row[key] !== undefined) receipts[key] = row[key];
+      }
       manifest.captures.push({
         id, page: pageId, route, phase, theme,
         viewport: [page.viewportSize()?.width ?? null, page.viewportSize()?.height ?? null],
         interaction, motion, ...(evidence ? { evidence } : {}),
+        ...(Object.keys(receipts).length ? { receipts } : {}),
         file, sha256: sha, bytes: buf.length,
         nontrivial: stats, status: 'ok',
       });
       captureCounters.ok += 1;
-      console.log(`  ok       ${file}  uniq=${stats.uniqueColors} nonBg=${(stats.nonBgRatio * 100).toFixed(2)}%`);
+      const deltaNote = receipts.axisDelta ? ` Δ=${(receipts.axisDelta.changedShare * 100).toFixed(2)}%` : '';
+      console.log(`  ok       ${file}  uniq=${stats.uniqueColors} nonBg=${(stats.nonBgRatio * 100).toFixed(2)}%${deltaNote}`);
       return true;
     }
     console.log(`  TRIVIAL  ${file} attempt ${attempt} (uniq=${stats.uniqueColors} nonBg=${(stats.nonBgRatio * 100).toFixed(3)}%) — ${attempt === 1 ? 'retrying' : 'FAILED'}`);
@@ -345,7 +459,9 @@ async function universalProps(page) {
   await page.setViewportSize({ width: 1280, height: 900 });
 }
 
-// 2. press-button — the schema-driven canvas: flip every axis one at a time
+// 2. press-button — the schema-driven canvas: flip every axis one at a
+//    time, each flip carrying the STAGE-REGION pixel delta (the W6-r3
+//    anti-AXIS-NOT-VISIBLE receipt) + the COMPUTED carrier evidence
 async function pressButton(page) {
   const route = '/docs/components/press-button.html';
   const slug = 'press-button';
@@ -362,6 +478,10 @@ async function pressButton(page) {
   // every flip row carries the COMPUTED carrier receipt off the driven root
   const ev = () => carrierEvidence(driven);
 
+  // the W6-r3 flip helper: stage diff across the flip (before → apply →
+  // settle → after). A flip that repaints NOTHING fails the receipt.
+  const flip = (apply) => flipAndDiff(page, stage, apply);
+
   // baseline: hover the driven fill button (a real hover, the press law)
   await driven.hover();
   await capture(page, {
@@ -371,27 +491,35 @@ async function pressButton(page) {
   });
 
   // size: named → number (both lanes)
-  await selectAxis(page, slug, 'size', 'large');
+  const sizeDelta = await flip(() => selectAxis(page, slug, 'size', 'large'));
   await capture(page, {
     id: 'pb-size-large', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: meta('size=large'), evidence: await ev(), target: { kind: 'element', locator: canvas },
+    interaction: meta('size=large'), evidence: await ev(), axisDelta: sizeDelta,
+    target: { kind: 'element', locator: canvas },
   });
-  await selectAxis(page, slug, 'size', 'number');
-  const sizeNum = page.locator(ctl(slug, 'size:number'));
-  await sizeNum.fill('14');
-  await page.keyboard.press('Tab'); // commit (NumberInput fires change on blur)
+  const size14Delta = await flip(async () => {
+    await selectAxis(page, slug, 'size', 'number');
+    const sizeNum = page.locator(ctl(slug, 'size:number'));
+    await sizeNum.fill('14');
+    await page.keyboard.press('Tab'); // commit (NumberInput fires change on blur)
+  });
   await capture(page, {
     id: 'pb-size-14', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: meta('size=number → 14px'), evidence: await ev(), target: { kind: 'element', locator: canvas },
+    interaction: meta('size=number → 14px'), evidence: await ev(), axisDelta: size14Delta,
+    target: { kind: 'element', locator: canvas },
   });
   await selectAxis(page, slug, 'size', 'auto');
 
   // shape: squircle (the §14 flagship) — LIGHT + DARK (dock toggle = real click)
-  await selectAxis(page, slug, 'shape', 'squircle');
+  // W6-r3: the driven SEAT is a §3 anchor now (radius 20 + inset 14 →
+  // the auto radius computes 6px), so the ×2 squircle factor has a
+  // corner to curve — the r1 zero-corner repaint is fixed page-side
+  const shapeDelta = await flip(() => selectAxis(page, slug, 'shape', 'squircle'));
   await driven.hover();
   await capture(page, {
     id: 'pb-shape-squircle', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: `${meta('shape=squircle')} + hover the driven button`, evidence: await ev(), target: { kind: 'element', locator: canvas },
+    interaction: `${meta('shape=squircle')} + hover the driven button`, evidence: await ev(), axisDelta: shapeDelta,
+    target: { kind: 'element', locator: canvas },
   });
   await canvas.locator('[data-jx-canvas-theme-toggle]').click();
   await page.waitForTimeout(250);
@@ -405,23 +533,26 @@ async function pressButton(page) {
   await selectAxis(page, slug, 'shape', 'auto');
 
   // radius
-  await selectAxis(page, slug, 'radius', 'large');
+  const radiusDelta = await flip(() => selectAxis(page, slug, 'radius', 'large'));
   await capture(page, {
     id: 'pb-radius-large', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: meta('radius=large'), evidence: await ev(), target: { kind: 'element', locator: canvas },
+    interaction: meta('radius=large'), evidence: await ev(), axisDelta: radiusDelta,
+    target: { kind: 'element', locator: canvas },
   });
   await selectAxis(page, slug, 'radius', 'auto');
 
   // density: small vs large — LIGHT + DARK (most-telling pair)
-  await selectAxis(page, slug, 'density', 'small');
+  const densitySmallDelta = await flip(() => selectAxis(page, slug, 'density', 'small'));
   await capture(page, {
     id: 'pb-density-small', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: meta('density=small'), evidence: await ev(), target: { kind: 'element', locator: canvas },
+    interaction: meta('density=small'), evidence: await ev(), axisDelta: densitySmallDelta,
+    target: { kind: 'element', locator: canvas },
   });
-  await selectAxis(page, slug, 'density', 'large');
+  const densityLargeDelta = await flip(() => selectAxis(page, slug, 'density', 'large'));
   await capture(page, {
     id: 'pb-density-large', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: meta('density=large'), evidence: await ev(), target: { kind: 'element', locator: canvas },
+    interaction: meta('density=large'), evidence: await ev(), axisDelta: densityLargeDelta,
+    target: { kind: 'element', locator: canvas },
   });
   await canvas.locator('[data-jx-canvas-theme-toggle]').click();
   await page.waitForTimeout(250);
@@ -434,19 +565,31 @@ async function pressButton(page) {
   await page.waitForTimeout(250);
   await selectAxis(page, slug, 'density', 'auto');
 
-  // color
-  await selectAxis(page, slug, 'color', 'error');
+  // color — the hue receipt: the driven fill's COMPUTED background
+  // before vs after (the §5 consumption landed W6-r3: --jx-fill
+  // re-derives from --jx-color-effective on the family root)
+  const hueBefore = await driven.evaluate((el) => getComputedStyle(el).backgroundColor);
+  const colorDelta = await flip(() => selectAxis(page, slug, 'color', 'error'));
+  const hueAfter = await driven.evaluate((el) => getComputedStyle(el).backgroundColor);
   await capture(page, {
     id: 'pb-color-error', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: meta('color=error'), evidence: await ev(), target: { kind: 'element', locator: canvas },
+    interaction: meta('color=error'), evidence: await ev(), axisDelta: colorDelta,
+    hue: { before: hueBefore, after: hueAfter, moved: hueBefore !== hueAfter },
+    target: { kind: 'element', locator: canvas },
   });
   await selectAxis(page, slug, 'color', 'auto');
 
-  // elevation level2 — LIGHT + DARK (the dock enum spells it 'level2')
-  await selectAxis(page, slug, 'elevation', 'level2');
+  // elevation level2 — LIGHT + DARK (the dock enum spells it 'level2');
+  // the §7 consumption landed W6-r3 (the rest shadow re-points through
+  // the level pair), so the shadow receipt rides the same diff
+  const shadowBefore = await driven.evaluate((el) => getComputedStyle(el).boxShadow);
+  const elevationDelta = await flip(() => selectAxis(page, slug, 'elevation', 'level2'));
+  const shadowAfter = await driven.evaluate((el) => getComputedStyle(el).boxShadow);
   await capture(page, {
     id: 'pb-elevation-level2', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: meta('elevation=level2'), evidence: await ev(), target: { kind: 'element', locator: canvas },
+    interaction: meta('elevation=level2'), evidence: await ev(), axisDelta: elevationDelta,
+    shadow: { before: shadowBefore.slice(0, 90), after: shadowAfter.slice(0, 90), stepped: shadowBefore !== shadowAfter },
+    target: { kind: 'element', locator: canvas },
   });
   await canvas.locator('[data-jx-canvas-theme-toggle]').click();
   await page.waitForTimeout(250);
@@ -461,7 +604,7 @@ async function pressButton(page) {
 
   // motion: expressive — MOTION SUBJECT (no-preference, click+settle)
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await selectAxis(page, slug, 'motion', 'expressive');
+  const motionDelta = await flip(() => selectAxis(page, slug, 'motion', 'expressive'));
   await driven.click();
   await page.waitForTimeout(600); // the press transition settles
   await capture(page, {
@@ -470,6 +613,7 @@ async function pressButton(page) {
     motion: { freeMs: 600, note: 'reduced-motion lifted (motion is the subject); fixed 600ms post-click delay' },
     settle: false,
     evidence: await ev(),
+    axisDelta: motionDelta,
     target: { kind: 'element', locator: canvas },
   });
   await selectAxis(page, slug, 'motion', 'auto');
@@ -478,11 +622,11 @@ async function pressButton(page) {
   // the dock-head density select (the stage scope) — real select interaction
   const densitySelect = canvas.locator('[data-jx-canvas-density-select] select, select[data-jx-canvas-density-select]');
   if (await densitySelect.count()) {
-    await densitySelect.first().selectOption('xs');
-    await page.waitForTimeout(200);
+    const stageDensityDelta = await flip(() => densitySelect.first().selectOption('xs'));
     await capture(page, {
       id: 'pb-stage-density-xs', page: 'press-button', route, phase: 'settled', theme: 'light',
       interaction: 'the dock-head density select flipped to xs — the STAGE scope re-densifies',
+      axisDelta: stageDensityDelta,
       target: { kind: 'element', locator: canvas },
     });
     await densitySelect.first().selectOption('default');
@@ -490,14 +634,29 @@ async function pressButton(page) {
     finding(route, 'dock-head density select not found by [data-jx-canvas-density-select]');
   }
 
-  // reset (real click) → everything back to schema defaults
+  // reset (real click) → everything back to schema defaults. The W6-r3
+  // RESET RECEIPT: a pre-reset baseline STAGE shot (all axes auto, no
+  // hover) diffed against the post-reset stage — reset ≈ baseline or
+  // the demo wiring is broken (the r1 empty-white-box blocker).
+  await settle(page);
+  const preResetStage = await stage.screenshot();
   await canvas.locator('[data-jx-canvas-reset]').click();
   await page.waitForTimeout(250);
+  const resetDelta = pixelDiff(decodePng(preResetStage), decodePng(await stage.screenshot()));
+  const drivenAfterReset = await driven.evaluate((el) => ({
+    text: el.textContent?.trim() ?? '',
+    variant: el.getAttribute('data-jx-press-button'),
+  }));
   await capture(page, {
     id: 'pb-reset', page: 'press-button', route, phase: 'settled', theme: 'light',
-    interaction: 'the dock reset button CLICKED — stage returns to schema defaults',
+    interaction: 'the dock reset button CLICKED — stage returns to schema defaults (variant default fill, W6-r3)',
+    reset: { stageChangedShare: resetDelta.changedShare, driven: drivenAfterReset },
     target: { kind: 'element', locator: canvas },
   });
+  if (drivenAfterReset.text === '') finding(route, 'reset left the driven button UNLABELED (the empty-white-box regression)');
+  if (resetDelta.changedShare > 0.02) {
+    finding(route, `reset changed the stage beyond tolerance (changedShare=${resetDelta.changedShare}) — reset ≈ baseline violated`);
+  }
 
   // the page's static universal-props specimens (explicit lanes, hover one)
   const uni = canvasByTitle(page, 'PressButton · universal props');
@@ -508,7 +667,7 @@ async function pressButton(page) {
     interaction: 'hover the squircle specimen in the universal-props demo canvas (size 14/small · large/medium · squircle · concentric)',
     target: { kind: 'element', locator: uni },
   });
-  void stage; void meta;
+  void meta;
 }
 
 // 3. dialog — click-open, mid-open (motion PAUSED mid-flight), settled, Escape
@@ -523,12 +682,16 @@ async function dialog(page) {
     await trigger.hover();
     await page.emulateMedia({ reducedMotion: 'no-preference' }); // motion subject
     await trigger.click();
-    await page.waitForTimeout(70); // 70ms into the ~120ms surface motion
+    // W6-r3 re-pin: 200ms into the REAL 460ms surface timeline (~43% —
+    // visibly mid: the slide/blur well underway). The r1 70ms frame
+    // was a ghost 15% into the motion; the manifest note wrongly
+    // called the timeline "~120ms" against the page's own 460ms chip.
+    await page.waitForTimeout(200);
     await pauseAnimations(page); // PIN the phase (screenshot latency then cannot drift it)
     await capture(page, {
-      id: 'dialog-mid-open', page: 'dialog', route, phase: 'mid-open (animations paused 70ms into the ~120ms surface motion)', theme,
-      interaction: 'CLICK "Open dialog" — every animation paused in-page 70ms into the open motion',
-      motion: { freeMs: 70, pinnedBy: "document.getAnimations({subtree:true}).forEach(a=>a.pause()) — the freeze law for WAAPI surfaces" },
+      id: 'dialog-mid-open', page: 'dialog', route, phase: 'mid-open (animations paused 200ms into the 460ms surface timeline)', theme,
+      interaction: 'CLICK "Open dialog" — every animation paused in-page 200ms into the open motion',
+      motion: { freeMs: 200, declaredTotal: '460ms surface timeline (--jx-p 0→1, linear)', pinnedBy: "document.getAnimations({subtree:true}).forEach(a=>a.pause()) — the freeze law for WAAPI surfaces" },
       settle: false,
       target: { kind: 'viewport' },
     });
@@ -537,7 +700,7 @@ async function dialog(page) {
     await capture(page, {
       id: 'dialog-settled', page: 'dialog', route, phase: 'settled', theme,
       interaction: 'the same open dialog after the motion resumes and settles',
-      motion: { freeMs: 570, note: 'animations resumed; fixed 500ms settle delay' },
+      motion: { freeMs: 700, note: 'animations resumed; fixed 500ms settle delay' },
       settle: false,
       target: { kind: 'viewport' },
     });
@@ -561,12 +724,15 @@ async function sheet(page) {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     const label = (await trigger.textContent()) ?? 'open sheet';
     await trigger.click();
-    await page.waitForTimeout(110); // 110ms into the declared 200ms slide
+    // W6-r3 re-pin: 80ms into the declared 200ms slide (~40% —
+    // visibly mid-slide). The r1 110ms frame sat at 55%, already
+    // nearly settled.
+    await page.waitForTimeout(80);
     await pauseAnimations(page);
     await capture(page, {
-      id: 'sheet-mid-open', page: 'sheet', route, phase: 'mid-open (animations paused 110ms into the 200ms slide)', theme,
-      interaction: `CLICK "${label.trim()}" — every animation paused in-page 110ms into the slide`,
-      motion: { freeMs: 110, pinnedBy: 'document.getAnimations pause — the freeze law for WAAPI surfaces' },
+      id: 'sheet-mid-open', page: 'sheet', route, phase: 'mid-open (animations paused 80ms into the 200ms slide)', theme,
+      interaction: `CLICK "${label.trim()}" — every animation paused in-page 80ms into the slide`,
+      motion: { freeMs: 80, declaredTotal: '200ms sheet entry slide (CLOSE_MS=200)', pinnedBy: 'document.getAnimations pause — the freeze law for WAAPI surfaces' },
       settle: false,
       target: { kind: 'viewport' },
     });
@@ -575,7 +741,7 @@ async function sheet(page) {
     await capture(page, {
       id: 'sheet-settled', page: 'sheet', route, phase: 'settled', theme,
       interaction: 'the same open sheet after the motion resumes and settles',
-      motion: { freeMs: 610, note: 'animations resumed; fixed 500ms settle delay' },
+      motion: { freeMs: 580, note: 'animations resumed; fixed 500ms settle delay' },
       settle: false,
       target: { kind: 'viewport' },
     });
@@ -676,7 +842,8 @@ async function density2xs(page) {
     await ladderTarget.locator('[data-density]').first().hover();
     await capture(page, {
       id: 'd2xs-ladder', page: 'density-2xs', route, phase: 'settled', theme,
-      interaction: 'hover the 2xs rung scope in the five-rung ladder table (computed live from the css vars)',
+      interaction: 'hover the 2xs rung scope in the five-rung ladder table (computed live from the css vars) — W6-r3: padded clip (16px), the r1 tight crop read the edge-touching HIT column as clipped (DOM: scrollWidth == clientWidth, nothing actually overflows)',
+      pad: 16,
       target: { kind: 'element', locator: ladderTarget },
     });
   }
@@ -749,7 +916,11 @@ async function tokens(page) {
   );
 }
 
-// 9. component-canvas — the flagship axis demo: every dock axis driven
+// 9. component-canvas — the flagship axis demo: every dock axis driven,
+//    each flip carrying the stage-region pixel delta (W6-r3) — the
+//    specimen rework gives every axis a CONSUMING seat (em caption for
+//    size, §3 anchor panels for shape/radius, a fill button for color
+//    + elevation, a coefficient-keyed sweep for motion)
 async function componentCanvas(page) {
   const route = '/docs/components/component-canvas.html';
   const slug = 'component-canvas-universal-props';
@@ -757,6 +928,7 @@ async function componentCanvas(page) {
   await setTheme(page, 'light', route);
   const canvas = canvasByTitle(page, 'component-canvas · universal props');
   await canvas.scrollIntoViewIfNeeded();
+  const stage = canvas.locator('[data-jx-canvas-stage]');
   const flips = [
     ['size', 'large'],
     ['shape', 'squircle'],
@@ -766,24 +938,29 @@ async function componentCanvas(page) {
     ['motion', 'expressive'],
   ];
   for (const [axis, value] of flips) {
-    await selectAxis(page, slug, axis, value);
+    const delta = await flipAndDiff(page, stage, () => selectAxis(page, slug, axis, value));
     await capture(page, {
       id: `cc-${axis}-${value.replace(/[^a-z0-9]+/gi, '')}`, page: 'component-canvas', route,
       phase: 'settled', theme: 'light',
       interaction: `dock axis select flipped (${axis}=${value}) on the workbench root — the stage re-stamps live`,
       evidence: await carrierEvidence(canvas),
+      axisDelta: delta,
       target: { kind: 'element', locator: canvas },
     });
     await selectAxis(page, slug, axis, 'auto');
   }
   // all six axes set together, dark stage via the dock toggle (real click)
+  const allStart = decodePng(await stage.screenshot());
   for (const [axis, value] of flips) await selectAxis(page, slug, axis, value);
+  await settle(page);
+  const allDelta = pixelDiff(allStart, decodePng(await stage.screenshot()));
   await canvas.locator('[data-jx-canvas-theme-toggle]').click();
   await page.waitForTimeout(250);
   await capture(page, {
     id: 'cc-all-axes', page: 'component-canvas', route, phase: 'settled (all six axes)', theme: 'dark-stage',
     interaction: 'all SIX axis controls set (size large · shape squircle · radius large · color secondary · elevation level2 · motion expressive) + the dock theme-toggle CLICKED',
     evidence: await carrierEvidence(canvas),
+    axisDelta: allDelta,
     target: { kind: 'element', locator: canvas },
   });
   await canvas.locator('[data-jx-canvas-theme-toggle]').click();
@@ -793,12 +970,14 @@ async function componentCanvas(page) {
   );
   finding(
     route,
-    "color=secondary / elevation=level2 / motion=expressive stamp the carriers (probed: --jx-color-effective → oklch(0.968 0.211 109.7692), --jx-elevation-effective → 3, --jx-motion-effective → 1.5) but this demo's rest state paints NO pixel delta — the three frames come out byte-identical, kept deliberately as honest evidence; the vision round should weigh whether the flagship demo needs a consuming specimen (a fill seat for color, an elevating surface for elevation)",
+    'W6-r3: the r1 honest-evidence note (color/elevation/motion stamped carriers but painted NO pixel delta) is CLOSED — the specimen rework seats every axis (fill button consumes §5/§7 component-side since W6-r3, the anchor panels give squircle a corner, the em caption rides size, the sweep bar divides its period by the motion coefficient); every flip row now carries a nonzero stage changedShare receipt',
   );
 }
 
-// 10. toast — trigger one, capture mid-entry (PAUSED), settled, hover-freeze,
-//     then dismiss
+// 10. toast — mid-entry on the POLITE variant (no countdown bar — the
+//     drain gauge is opt-in via countdown: true, the W6-r3 harness
+//     correction), then the settled+hover receipt on the PULSE ·
+//     COUNTDOWN variant so the frozen bar is actually visible
 async function toast(page) {
   const route = '/docs/components/toast.html';
   for (const theme of ['light', 'dark']) {
@@ -815,30 +994,39 @@ async function toast(page) {
     const viewport = page.locator('[data-jx-toasts]');
     await capture(page, {
       id: 'toast-mid-entry', page: 'toast', route, phase: 'mid-entry (animations paused 150ms after push)', theme,
-      interaction: 'CLICK "polite toast" — every animation paused in-page 150ms into the entry',
-      motion: { freeMs: 150, pinnedBy: 'document.getAnimations pause — the freeze law for WAAPI surfaces' },
+      interaction: 'CLICK "polite toast" — every animation paused in-page 150ms into the entry. W6-r3 note: the POLITE variant deliberately carries NO countdown bar (the drain gauge is opt-in, countdown: true) — the r1 "hover freezes the countdown" claim over this variant was a harness assumption, corrected',
+      motion: { freeMs: 150, declaredTotal: '200ms toast entry (jx-toast-in)', pinnedBy: 'document.getAnimations pause — the freeze law for WAAPI surfaces' },
       settle: false,
       target: { kind: 'element', locator: viewport },
     });
     await unpauseAnimations(page);
     await page.waitForTimeout(600); // settled
-    const card = page.locator('[data-jx-toast]').first();
-    await card.hover(); // hover freezes the countdown — a real interaction
-    await page.waitForTimeout(250);
-    await capture(page, {
-      id: 'toast-settled-hover', page: 'toast', route, phase: 'settled + hover freeze', theme,
-      interaction: 'the toast settled, then HOVERED (the countdown freezes)',
-      motion: { freeMs: 1000, note: 'animations resumed; 600ms settle + 250ms post-hover delays' },
-      settle: false,
-      target: { kind: 'element', locator: viewport },
-    });
-    await page.emulateMedia({ reducedMotion: 'reduce' });
     const dismiss = page.locator('[data-jx-toasts] button[aria-label="dismiss notification"]').first();
     if (await dismiss.count()) {
       await dismiss.click();
       await page.waitForTimeout(400);
     } else {
       await page.waitForTimeout(5500); // wait out the default duration
+    }
+    // the countdown-bearing variant: pulse · countdown (8s drain) —
+    // hover freezes the bar mid-drain (the W6-r3 receipt)
+    await canvas.getByRole('button', { name: 'pulse · countdown' }).click();
+    await page.waitForTimeout(900); // settle past entry, ~11% into the 8s drain
+    const card = page.locator('[data-jx-toast]').first();
+    await card.hover(); // hover freezes the countdown — a real interaction
+    await page.waitForTimeout(250);
+    await capture(page, {
+      id: 'toast-settled-hover', page: 'toast', route, phase: 'settled + hover freeze (the drain bar mid-gauge)', theme,
+      interaction: 'CLICK "pulse · countdown" (countdown: true, 8s) — the toast settles, then HOVERS: the drain bar freezes mid-gauge with the store timer (the unified hold)',
+      motion: { freeMs: 1150, note: 'animations resumed; 900ms settle + 250ms post-hover delays' },
+      settle: false,
+      target: { kind: 'element', locator: viewport },
+    });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const dismiss2 = page.locator('[data-jx-toasts] button[aria-label="dismiss notification"]').first();
+    if (await dismiss2.count()) {
+      await dismiss2.click();
+      await page.waitForTimeout(400);
     }
   }
 }
@@ -880,6 +1068,59 @@ for (const [id, fn] of SCENARIOS) {
 
 await context.close();
 await browser.close();
+
+// ── the W6-r3 triage verdicts (the intent-verified minors, recorded so
+//    the manifest carries the round's decisions beside its evidence) ──
+manifest.triage = [
+  {
+    finding: 'sheet panel goes page-dark while dialog/select stay island-light under a page-dark theme',
+    verdict: 'intended — page structure, not a component divergence',
+    evidence:
+      "sheet/dialog/select defaults all carry theme no-own (themeAxisSlot()); the dialog/select demos render INSIDE canvas stages (data-theme=light + .jx-light island scopes — the island law: 'they stamp data-theme/data-density on the stage element only'), while the sheet page's PRIMARY demo is page-level (outside any canvas; its canvas demo at 'Sheet · universal props' islands like the rest). A page-level sheet following the page theme is the axis' ambient-first law working.",
+  },
+  {
+    finding: 'select dark panel crop has a bottom gradient the light crop lacks',
+    verdict: 'intended — the §7 elevation shadow recipe',
+    evidence:
+      'the promoted panel is a jx-surface at own elevation level2; .jx-surface-body paints box-shadow: var(--jx-elevation-shadow, none) — the dark level2 recipe is white-alpha soft layers (hsl(0 0% 100% / …)), invisible against a white page, a soft glow against the pure-black dark canvas. §7: dark carries hierarchy through surface rungs with weak shadows — weak, not absent.',
+  },
+  {
+    finding: 'dark-stage dock dims to mid-gray (reads as disabled under a scrim)',
+    verdict: 'intended — the island law keeps the dock page-theme chrome',
+    evidence:
+      "the dock is NOT inside the stage element (probed: closest stage = null); it floats as a translucent card (background oklab(1 0 0 / 0.58)) pinned to the canvas root — 'the dock itself is a bordered surface card on true background, so it reads on both stage themes' (the canvas theming contract). Over a dark stage the 58% white composes mid-gray: the cost of one chrome serving both stage themes; ink stays black-on-gray ≈4.6:1.",
+  },
+  {
+    finding: 'radius=large softens/grays the shadow slab vs the crisp black slab at default',
+    verdict: 'intended — §14 geometry',
+    evidence:
+      'the hard-offset shadow follows the border-radius outline; at radius 10 the corner curvature tapers the 2px offset into a softer read — bigger corners taper the hard offset by construction. The §14 law composes radius × per-shape factor; no shadow rule keys on radius.',
+  },
+  {
+    finding: 'toast hover frames show no countdown bar (r1)',
+    verdict: 'harness assumption — corrected in r2',
+    evidence:
+      "the drain gauge is OPT-IN (ToastCountdown renders only when item.countdown && duration > 0); the polite toast pushes neither. The r2 settled+hover capture drives 'pulse · countdown' (8s) so the frozen bar is visible; the mid-entry capture keeps the polite variant with the corrected note.",
+  },
+  {
+    finding: 'd2xs ladder last column clipped at the right edge (r1)',
+    verdict: 'capture crop, not page overflow — corrected in r2',
+    evidence:
+      'DOM probe: #scale scrollWidth == clientWidth == 720, body scrollWidth == innerWidth (1280) — nothing overflows; the r1 element crop hugged the table edge so the edge-touching HIT column read as cut. r2 captures with a 16px padded clip.',
+  },
+  {
+    finding: 'squircle demo caption truncated mid-phrase (r1)',
+    verdict: 'not reproduced — sentence ends there',
+    evidence:
+      'DOM probe: the caption wraps (white-space normal), scrollWidth == clientWidth, and its box sits 26px inside the card edge; the phrase "…on degrade, the same var" IS the full sentence (no terminal period — added one in W6-r3 so the ending reads as intentional).',
+  },
+  {
+    finding: 'NIT records (r1, unfixed by design)',
+    verdict: 'recorded',
+    evidence:
+      'dock occludes specimen labels in captures (the floating dock IS the driver — kept in frame); theme chip olive residue (unverified — needs an Owner-eye pass); RADIUS select row half-clipped at the dock scroll edge (the dock body scrolls, capture artifact); XS/SM site-adoption cards near-indistinguishable (the kernel values themselves step 1px — 11 vs 12px text, honest); middle query card square corners annotated in-page (W6-r3: the caption now names the 0px auto state).',
+  },
+];
 
 // ── the manifest summary ──────────────────────────────────────────────────
 const perPage = {};

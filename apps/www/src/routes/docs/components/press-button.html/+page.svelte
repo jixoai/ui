@@ -98,7 +98,14 @@ ${close}
     ...meta,
     props: {
       ...meta.props,
-      variant: { kind: 'enum', values: [...variantLadder], ambient: 'zone' },
+      // default: 'fill' (W6-r3): the generated meta leaves variant
+      // default-less (ambient zone), so the dock's reset seed DROPPED
+      // the key and the driven button's label ({v.variant}) rendered
+      // EMPTY after reset — the vision round's empty-white-box
+      // blocker. The schema default is what reset restores; the page
+      // owns the demo baseline ('fill', the initial bind below), so
+      // the two must agree for reset ≈ baseline.
+      variant: { kind: 'enum', values: [...variantLadder], default: 'fill', ambient: 'zone' },
       attach: { kind: 'enum', values: [...effectNames], default: 'none' },
     },
   };
@@ -449,7 +456,18 @@ ${close}
               <PressButton variant="fill" {@attach pressEffect(ripple({ duration: 800 }))}>deploy</PressButton>
             </label>
           </div>
-          <div class={cx(rt.col10, rt.tBorder, rt.itemsCenter, rt.pt20)}>
+          <!-- the driven seat is a §3 CONCENTRIC ANCHOR (W6-r3, the
+               vision round's squircle AXIS-NOT-VISIBLE fix): it supplies
+               radius 20 + the ruler inset 14px exactly like the
+               universal-props dogfood card, so the driven button's
+               radius=auto computes max(0px, 20−14) = 6px at rest and
+               the squircle ×2 factor has a corner to curve (12px
+               superellipse) — a bare seat resolves the root 0px
+               invariants and every shape flip paints nothing -->
+          <div
+            class={cx(rt.col10, rt.tBorder, rt.itemsCenter, rt.pt20)}
+            style="--jx-radius-effective: 20px; --jx-inset-effective: 0.875rem"
+          >
             <span class={cx(rt.microEyebrow, rt.inkMuted)}>
               driven by the playground
             </span>
