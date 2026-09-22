@@ -364,6 +364,29 @@
   timed retry, GREEN with the receipt verbatim. The retry is justified
   by the attribution, not hope.
 
+## Task 13 (date-picker review round, 2026-09-22) — learnings
+- **Assert polar invariants, not raw oklch strings.** My hue regex
+  returned null on `oklch(0.7044 0.1872 calc(256 - 4))` — the kernel
+  composes hue as calc() under the wall-clock rotation, so a naive
+  `oklch(L C H)` parse dies exactly on the interesting tokens. The
+  stable assertions are L and C (0.7044/0.1872 dark vs 0.6489/0.237
+  light) plus the −4 offset read from the raw string; the absolute hue
+  is wall-clock noise. Vellum had banked this lesson a round earlier —
+  reading sibling experience files before probing would have saved the
+  miss.
+- **One cell, two formulas is the sharpest THEME-SPLIT receipt shape.**
+  Reading `--primary` (raw, flips) and `--jx-primary` (alias, frozen) on
+  the SAME element removes every confound — no sibling matching, no
+  cross-element comparison. The measured pair (dark formula vs light
+  form at one node) is the strongest possible evidence for the split
+  rows; prefer same-element dual-token reads over two-element
+  comparisons wherever a split claim exists.
+- **Min-height lanes: measure the floor, cite the floor.** The rendered
+  box overshoots its min-height whenever content is taller (my probe:
+  58/70px rendered over 40/48px floors) — a row that says "the box
+  steps" is directionally true but the exact claim is the floor.
+  Quote the min-heights; say "floor" if floor is what the law sets.
+
 ## Mistakes to avoid
 - **`rg -rn` is the replace trap** — hit it THREE times this session despite
   the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation
