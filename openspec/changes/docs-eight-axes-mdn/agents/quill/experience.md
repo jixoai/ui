@@ -227,3 +227,27 @@
   declares --x. `grep var(--x` finds consumers; `grep -- "--x:"` finds whether the token exists.
 - **Svelte data-* booleans stringify** (`data-axis-auto="true"`) — learned in task 7, re-used
   here when asserting attribute presence in probe expectations.
+
+## Techniques (mine, added 2026-09-22, task 9 — chip fix + date-picker)
+- **The theme-split single-element proof**: don't compare the same var across two islands (the
+  site's live --brand-hue ticks between reads and fakes a diff) — read BOTH vars at ONE element
+  inside the dark island. date-picker's cell: `--primary` = the dark formula (flipped),
+  `--jx-primary` at that same cell = the light formula (frozen at :root). Two vars, one element,
+  the split proven without cross-element noise.
+- **Inertness probes must name the wrapper kind**: coefficient 1.5 on an AMBIENT wrapper →
+  unmoved (the number-lane claim); the same stamp on a NAMED-RUNG wrapper recomposes (the rung
+  scope block re-declares the channels AT the wrapper — it IS a declaring element). The
+  component never renders rung+non-1 coefficient (the reset stamp is atomic), but a probe that
+  hits the wrong wrapper kind reports a false violation. Check `data-density` before stamping.
+- **The composed-consumer law has a negative half worth naming**: date-picker's panel reads the
+  surface pair `var(--jx-elevation-shadow, none)` but the FAMILY never stamps the pair (toast/
+  terminal-card/press-button do) — "the consumption pair exists, the stamp doesn't" is a sharper
+  supply-only row than a bare "no readers".
+- **`Popover API` ≠ the popover family**: date-picker composes the native popover attribute +
+  jx-surface vocabulary directly. Say which components are NOT in the chain when the family
+  smells composed — the regression-sensitive area stays untouched and the reader stops looking
+  for coupling that isn't there.
+- **Shared-tree gate etiquette, task 9 edition**: a build blocker from a sibling's mid-edit page
+  (breadcrumb canvas self-containment) is reported with the exact RolldownError + file mtime, the
+  stale-dist gates run with the staleness caveat, and the page truths ride the dev-SSR receipts.
+  Don't fix the sibling's file; don't block on their keyboard.

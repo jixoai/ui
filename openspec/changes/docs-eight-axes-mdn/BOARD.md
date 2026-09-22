@@ -5,7 +5,7 @@
 | scribe | 10 | props-table hardening test (A) + breadcrumb consolidated fix (B, OWN) | MICRO + FIX | in-flight |
 | marginalia | 9 | cascader (quill's) | REVIEW (1st) | in-flight |
 | vellum | 9 | avatar (OWN) | CODE | in-flight |
-| quill | 9 | chip micro-fix (OWN) + date-picker (OWN) | FIX-A + CODE-B | in-flight |
+| quill | 10 | dropdown-menu (OWN) | CODE | in-flight |
 
 ## DONE
 - ✅ **anchor** (owner scribe) — the campaign's FIRST fully-closed page: coded → 2 reviews NEEDS-WORK → consolidated fix → re-verify PASS (quill 9/9 + 5/5 probe)
@@ -19,7 +19,10 @@
 - chip: vellum 1st review **PASS** (1 MINOR: density ladder lg says 13px, kernel+measured truth 14px — fix "11/12/14px" at :294 + TokenTable :709; 2 NIT: axesUsage recheck on that fix, radius/color negative-grep receipt form; EXTRA-lane verifications ×3 hold, regression sweep clean, arithmetic proven) → marginalia 2nd QUEUED; MINOR+NIT to quill as micro-fix
 - cascader: coded Tier-3 full rewrite (quill task 6, integrated 6a325144) — reviewers scribe+marginalia QUEUED
 - checkbox: BOTH reviews NEEDS-WORK in, consolidation aligned (quill MAJOR: bare contrast cell unstamped at ambient; marginalia MAJOR: in-a-form drawer is a stale tailwind-era mirror — unregistered classes, pasted example collapses; NITs: co-stamp story + dead density curation + partial same-source + corner-shape wording; every measured centerpiece TRUE — number-lane inertness re-proven with carrier-strip posture, full-flip theme pole, 4-ladder × 5-rung grid) → scribe consolidated fix QUEUED (after task 10)
-- component-canvas: coded Tier-2 (quill task 7) — EXTRA rescue DOUBLED (theme+density §13 seats), ambient-vocabulary pin re-pinned WITH evidence 288/288 — reviewers scribe+marginalia QUEUED
+- component-canvas: coded Tier-2 (quill task 7, integrated eb66056b) — EXTRA rescue DOUBLED (theme+density §13 seats), ambient-vocabulary pin re-pinned WITH evidence 288/288 — reviewers scribe+marginalia QUEUED
+- chip: micro-fix INTEGRATED (14px ladder ×2 spots, negative-grep receipt form on radius/color) → marginalia 2nd review UNLOCKED (after cascader)
+- date-picker: coded Tier-2 (quill task 9-B) — theme-split proven at a SINGLE element (--primary flips / --jx-primary frozen at the same day cell); 25−8+0=17 EXTRA arithmetic exact — reviewers marginalia+vellum QUEUED
+- ⚠ DIST GATES DEFERRED: npm run build transiently RED in breadcrumb (scribe mid-edit, canvas demo not self-contained) — the post-breadcrumb integration build owns fresh dist + docs-universal + canvas-same-source solo for the combined state (chip micro-fix + date-picker + breadcrumb + hardening)
 
 ## Law library (13): SSR ground truth · consumed-vs-supply · canvas-id swap · declaring-element · measurement-first · composed-consumer · resolved-record · query() both-args · grep-receipt · disagreement-probe · EXTRA-lane (REFINED 2026-09-23: the lane was dead-on-arrival at component level — props-table.svelte name-filtered docs.extra too; now exempt by reference identity, chip's rescue revived) · single-evaluate probes · THEME-SPLIT
 ## Ledgers: drift 5 · W-next 2 entries (semantic-ink gap + theme-split refinement)

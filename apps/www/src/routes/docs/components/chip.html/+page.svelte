@@ -291,7 +291,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'xs' | '2xs' | 'sm' | 'default' | 'lg' | 'auto' | number`,
       default: "'auto'",
       description:
-        "CONSUMED — the named rungs. The rung stamps data-density and the kernel's scope block re-declares the channels the twin reads ON the root (--jx-inset, --jx-gap, --jx-text-secondary, --jx-line-secondary): inset 8 / 12 / 16px, label 11 / 12 / 13px, height ≈18 / 20 / 23px at sm / default / lg — the whole badge-twin geometry re-bases. small / medium / large alias sm / default / lg; the five legacy spellings stay addressable. A coefficient number stamps --jx-density-coefficient only — no rung attribute matches, nothing recomposes on the chip (the declaring-element law; measured: box unmoved at 1.5). Number unit: coefficient.",
+        "CONSUMED — the named rungs. The rung stamps data-density and the kernel's scope block re-declares the channels the twin reads ON the root (--jx-inset, --jx-gap, --jx-text-secondary, --jx-line-secondary): inset 8 / 12 / 16px, label 11 / 12 / 14px, height ≈18 / 20 / 23px at sm / default / lg — the whole badge-twin geometry re-bases. small / medium / large alias sm / default / lg; the five legacy spellings stay addressable. A coefficient number stamps --jx-density-coefficient only — no rung attribute matches, nothing recomposes on the chip (the declaring-element law; measured: box unmoved at 1.5). Number unit: coefficient.",
     },
     {
       name: 'theme',
@@ -305,7 +305,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'auto' | number`,
       default: "'auto'",
       description:
-        "SUPPLY-ONLY — stamps --jx-radius-effective for the concentric consumers (press-button's corner calc, card, tooltip, menubar read the same carrier). The silhouette atoms never read it: square paints the site radius var(--jx-radius), pill paints calc(infinity * 1px). Measured: a stamped 10px carrier under an 8px computed corner. Documented absence on the chip itself. Number unit: px.",
+        "SUPPLY-ONLY — stamps --jx-radius-effective; no family css reads it (grep receipt: zero --jx-radius-effective readers in the chip atoms — square paints the site radius var(--jx-radius), pill paints calc(infinity * 1px)). The consumers are the concentric downstream (press-button's corner calc, card, tooltip, menubar read the same carrier). Measured: a stamped 10px carrier under an 8px computed corner. Documented absence on the chip itself. Number unit: px.",
     },
     {
       name: 'shape',
@@ -319,7 +319,7 @@ ${close}
       type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
       default: "'auto'",
       description:
-        "SUPPLY-ONLY — stamps --jx-color-effective (named → the §12 var indirection; a number → hue degrees through the oklch formula; raw strings pass through, closed at build). No chip css reads it: the variant atoms consume the four grammar slots, and the slot re-derivation from the carrier is keyed to [data-jx-press-button] — the chip root never carries it (measured: an error carrier leaves the primary tint). Hue that paints rides the jx-hue-* / jx-pair-* classes. Number unit: hue degrees.",
+        "SUPPLY-ONLY — stamps --jx-color-effective; no family css reads it (grep receipt: zero --jx-color-effective readers in the chip atoms). The variant atoms consume the four grammar slots, and the slot re-derivation from the carrier is keyed to [data-jx-press-button] — the chip root never carries it (measured: an error carrier leaves the primary tint). Named → the §12 var indirection; a number → hue degrees through the oklch formula; raw strings pass through, closed at build. Hue that paints rides the jx-hue-* / jx-pair-* classes. Number unit: hue degrees.",
     },
     {
       name: 'elevation',
@@ -706,7 +706,7 @@ ${close}
           <TokenTable tokens={[
             { name: '--jx-inset', default: '8 / 12 / 16px at sm / default / lg', source: 'density', description: 'Inline chip padding — a slot lane replaces its side at half.' },
             { name: '--jx-gap', default: 'density scale', source: 'density', description: 'Spacing base — the root gap runs at half.' },
-            { name: '--jx-text-secondary', default: '11 / 12 / 13px at sm / default / lg', source: 'density', description: 'Micro-label size; also the composed svg size.' },
+            { name: '--jx-text-secondary', default: '11 / 12 / 14px at sm / default / lg', source: 'density', description: 'Micro-label size; also the composed svg size.' },
             { name: '--jx-line-secondary', default: 'density scale', source: 'density', description: 'Micro-label line height — the badge-twin height source.' },
             { name: '--jx-radius', default: 'the site radius', source: 'structural', description: 'The square silhouette corner — the pill silhouette ignores it (full round).' },
             { name: '--jx-fill', default: 'var(--primary)', source: 'color', description: 'Fill ground + same-hue border (fill variant); re-declared under .dark.' },
