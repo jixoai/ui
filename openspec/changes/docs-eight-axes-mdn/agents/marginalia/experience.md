@@ -931,3 +931,10 @@
 - **Two chains can split inside ONE element group**: the ghost stroke reads var(--border) directly (site token — re-derives with any scope) while the meta ink reads the --jx-muted-foreground :root alias (frozen) — a footer can be half-re-deriving and half-frozen under the same .dark scope. The tier classification is per-CHAIN, not per-element.
 - **Token-injection hover sampling**: set the motion token to 2s on the root, real-hover, sample mid-flight — the interpolated oklab (brand hue components appearing) proves a live ramp, and RM emulation then shows whether the transition survives reduce. Three receipts (authored / injected / RM) from one drive.
 - The §1 size stamp moves the HOST font-size; "nothing renders follows it" is verified by reading the rendered text tiers under TWO different stamps (18 and 13 here) — a constant at one stamp proves nothing.
+
+## T83 (transfer 2nd) — the chain map is a table, not a phrase; placeholder li's pollute label censuses
+
+- **The per-chain census table** (alias var vs base var at the same element, across seats × theme states) is the strongest form the alias-theme law has taken: one row per seat shows `--jx-card` held vs `--card` flipped on the dark seat — the tier-2 signature visible without any prose. Build the table first, then write the paragraph.
+- **Checkbox sets have default value="on"** — keying a transfer/checkbox-group census on input.value reads "on" for every row. Key on row label text (and account for empty-state placeholder li's, which enter/leave label counts and mimic lost rows).
+- **Movers that disable on empty selection will crash a scripted drive** (no enabled button left after a move clears picks). The crash IS the law working — re-check rows before each move class and log the clicked button's text so the transcript is auditable.
+- rest-LESS verification is a two-liner: the Props interface extends nothing + no spread in the component. Don't over-probe what source settles.
