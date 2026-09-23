@@ -591,8 +591,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "task 90 marginalia 1st PASS (0M/2m); MINOR 1 retracted-with-receipt (real path verified dev+dist), MINOR 2 filed W-next #22; 2nd = vellum"
   },
   {
    "page": "navigation-menu",
