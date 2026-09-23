@@ -181,7 +181,7 @@ ${close}
       type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number · query()`,
       default: `'auto'`,
       description:
-        "THE EXIT IS ITS OWN MACHINE — the exit animation reads the family's own --jx-boot-splash-duration channel (durationMs, default 350ms), not the motion kernel; prefers-reduced-motion kills the exit outright (measured: an instant unmount where the animated path holds the 350ms floor plus the 350ms exit); zero transition declarations (grep receipt). Number unit: coefficient.",
+        "THE EXIT IS ITS OWN MACHINE — the exit animation reads the family's own --jx-boot-splash-duration channel (durationMs, default 350ms), not the motion kernel; prefers-reduced-motion kills the exit outright on the MANUAL path (measured: a 0ms instant unmount), while auto+RM keeps the 350ms floor as the blink-flash guard — the floor survives RM, only the exit phase dies (both paths measured); zero transition declarations (grep receipt). Number unit: coefficient.",
     },
   ];
 </script>
@@ -421,7 +421,7 @@ exit="none"         → no phase: the floor elapsed, the layer unmounts`}
         { name: 'description', type: 'string', default: '—', description: 'Running copy — progress, or time-consuming text (the Owner spec\u2019s consumption lane).' },
         { name: 'exit', type: "'opacity-out' | 'blur-out' | 'none'", default: "'opacity-out'", description: 'The exit animation; keyframes ride the same head block.' },
         { name: 'revealOn', type: "'fonts' | 'load' | 'manual'", default: "'fonts'", description: 'When the layer dismisses itself: document.fonts.ready (the last layout-shifting resource class), the window load event, or manual — bind:open is yours (a flip to false runs the exit vocabulary).' },
-        { name: 'timeoutMs', type: 'number', default: '4000', description: 'The hard cap — a hung font CDN never holds the page hostage.' },
+        { name: 'timeoutMs', type: 'number', default: '4000', description: 'The hard cap on the auto signals (fonts/load) — a hung font CDN never holds the page hostage. Manual is uncapped: the cap never arms, your bind:open is the only exit (live-proven present past a 4s cap).' },
         { name: 'minMs', type: 'number', default: '350', description: 'The minimum display floor — avoids the blink-flash of an instant dismissal.' },
         { name: 'durationMs', type: 'number', default: '350', description: 'The exit animation length.' },
         { name: 'open', type: 'boolean (bindable)', default: 'true', description: 'The dismissal state; manual mode\u2019s control surface. BIND it — a one-way open={state} wire is the dead-replay trap: the child\u2019s internal dismissal writes never reach your state.' },

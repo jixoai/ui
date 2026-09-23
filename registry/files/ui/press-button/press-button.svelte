@@ -403,9 +403,11 @@ export interface PulseOptions {
      *  button's) */
     popovertarget?: string;
     ariaLabel?: string;
-    /** square pose: a size-10.5 (42px) frame with no padding — the
-     *  icon/toolbar idiom, level with the text button's own band;
-     *  press law and every variant ride unchanged */
+    /** square pose: a size-10.5 frame with no padding — the
+     *  icon/toolbar idiom, level with the text button's own band; the
+     *  rendered square rides the density hit channel (40.0px measured at
+     *  default — not a literal), press law and every variant ride
+     *  unchanged */
     square?: boolean;
     /** THE PHYSICS AXIS (Owner 2026-09-03), orthogonal to the paint
      *  ladder: raised=true (default) keeps the convex law byte-identical;
@@ -558,7 +560,8 @@ export interface PulseOptions {
     if (flashTimer !== undefined) clearTimeout(flashTimer);
   });
 
-  // the square swaps ONLY geometry: one band (42px, the text button's
+  // the square swaps ONLY geometry: one band (the density hit channel's
+  // square — 40.0px measured at default, level with the text button's
   // own height) with the glyph centered — paint, physics and effects
   // are identical to the text pose. The forced-colors trio pins the
   // focus law for every rung: 2px Highlight, offset 2, never removed

@@ -379,7 +379,7 @@ ${close}
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        "SPLIT WITHIN THE LADDER (measured per element under .dark) — the PAINT re-derives: the site's dark scope re-declares the four seam tokens as live chains, so fill re-tints to the drifted dark primary (measured oklch(0.6489 0.237 47) → oklch(0.7044 0.1872 43)) and outline's frame flips to the dark border (white). The outline/ghost LABEL INK stays frozen — tokens['--jx-foreground'] is a defineVars :root literal the dark scope does not re-declare (measured oklch(0 0 0) on both sides). system/auto = tree inheritance. No number lane.",
+        "SPLIT WITHIN THE LADDER (measured per element under .dark) — the PAINT re-derives: the site's dark scope re-declares the four seam tokens as live chains, so fill re-tints to the drifted dark primary (signature: L/C identical on both sides, hue wall-clock — absolute hue digits don't reproduce across runtime states; the site-local hue runtime, jixoai.css :32-45, rotates the channel) and outline's frame flips to the dark border (white). The LABEL INK stays frozen on every rung — outline/ghost's tokens['--jx-foreground'] is a defineVars :root literal the dark scope does not re-declare (measured oklch(0 0 0) on both sides), and fill's label ink is constant oklch(0 0 0) on light AND on the re-tinted dark fill — the frozen-ink seam extends to the loudest rung, where black-on-dark-primary is the visible contrast cost. system/auto = tree inheritance. No number lane.",
     },
     {
       name: 'elevation',
@@ -938,7 +938,8 @@ ${close}
           density ladder (24/28/32/40/48px; the 2xs stamp measured in place and restored), the
           concentric seat (radius-effective 20px − inset 14px → 6px computed), the ×2 squircle
           (radius 10 → 20px, superellipse(2)), the seam re-tint and the .dark split (fill
-          oklch(0.6489 47) → oklch(0.7044 43) while the outline ink stayed oklch(0 0 0)), the
+          re-tint with L/C identical and hue wall-clock — the runtime rotation caveat; the
+          outline and fill label inks stayed oklch(0 0 0)), the
           forced-colors trio (link → LinkText; fill → ButtonFace/ButtonText) and the popovertarget
           open/toggle were measured on this page's served DOM (probe, task 33); the unread-axis and
           zero-reader rows carry grep receipts over ui/press-button/. The query() seat below rides
