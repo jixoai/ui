@@ -23,7 +23,7 @@
   import Badge from '$lib/ui/badge/badge.svelte';
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import Input from '$lib/ui/input/input.svelte';
@@ -579,7 +579,7 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -588,6 +588,85 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ---- the law table: the frame-width laws --------------------------------
+  const lawTable = [
+    { posture: 'the frame-width laws', input: 'container: jx-table / inline-size', renders: 'two engines read the FRAME\u0027s own width, never the viewport\u0029s — at ≥ 30rem the scroll law (fit-content columns, native overflow-x, data-sticky pins behind a hairline fold, all logical properties so RTL mirrors free); below it the stack law (thead folds away, td[data-label] renders a muted label beside the value, the first cell takes the head surface). stack={false} pins the scroll law at every width', announces: 'measured both sides of the 30rem line in the workbench' },
+    { posture: 'semantics stay the consumer\u0027s', input: 'thead · tbody · tfoot · th · td · caption', renders: 'real elements authored in the children snippet — rows are never wrapped, numeric alignment stays a consumer class; the component owns only the frame', announces: 'the accessibility tree is the author\u0029s, wholesale' },
+    { posture: 'the a11y split', input: 'caption · scope · data-label · aria-sort · aria-live', renders: 'caption names the table; scope pairs headers with cells; data-label feeds the card law\u0029s labels; the recipes add aria-sort on the sorted th only (the caret stays aria-hidden) and aria-live=polite on the selection readout', announces: 'announcements are measured, never assumed' },
+    { posture: 'the color-freedom seam', input: 'style="--jx-table-hover: …"', renders: 'every paint routes through the --jx-table-* local tokens — one var retunes one aspect per instance; the hover follows --brand-hue at runtime (one number recolors it)', announces: 'a token surface, not a palette' },
+    { posture: 'the density floor', input: 'explicit ?? inherited ?? own sm', renders: 'density is the family\u0029s ONE opinion — the design-frozen local fallback (dense tabular rows are the declared posture), riding the eager-capture provider lane that keeps the chain boundary-legal; the rung stamps by default (measured)', announces: 'the fleet\u0029s density-opinion family' },
+    { posture: 'separate borders', input: 'border-collapse: separate', renders: 'required by the sticky law — collapsed borders tear under sticky pins in some engines; rendering is identical here because the language carries only horizontal hairlines', announces: 'an engine constraint turned into the table\u0029s whole visual grammar' },
+  ];
+
+  // ---- the measured eight-axes layer ---------------------------------------
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'sm' · the family's OWN`,
+      description:
+        "OWN, 'sm' — the fleet's density-opinion family: dense tabular rows are the declared posture, so the rung stamps BY DEFAULT with no prop (measured data-density=\"sm\" on the bare workbench table); an explicit lane overrides, an inherited provider wins over the own. The reactive bridged write carries the supply (the provider-snapshot kernel law — density never rides the literal). Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "STAMP-ONLY, VOICE ON THE FRAME — the §11 pair lands on the figure (measured 18px computed) while the table's OWN text voice is the density-tuned 12px (--jx-text at the sm own — dense tabular text is the declared posture and wins inside the frame); your cells read the table's voice, the frame reads the lane. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "CONSUMED — corner-shape rides the §14 alias ladder on the frame (the radius law's base is 0 with the bevel upgrade where supported — a table with square corners by intent). Number unit: none.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "STAMPED, SILHOUETTE DEFECT (W-next): the lane stamps --jx-radius-effective on the frame (measured 12px), but the silhouette currently paints the static --jx-radius atom (measured 8px) — the zero-specificity consumed rule is outranked by the atom. The stamped supply is correct; the painted corner needs the family's atom to read the consumed var. Number unit: px.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY, TOKEN SURFACE — the lane lands on the root, but the table's paint is the --jx-table-* local surface (ground, head, hover, hairline, rule, edge); per-instance retuning goes through the style seam, not the hue lane. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "BRIDGE — class:dark lands on the frame (measured) and the --jx-table-* tokens re-voice through the theme scope; the consumer-authored cells ride the same bridge. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the frame carries a hairline ring, not a shadow (the table sits IN the plane, flush by intent); the lane supplies for what you nest inside the frame. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the carrier lands on the root; the family's only choreography is the hover tone (a token mix, not a transition law) and the pulse-free static frame. Reduced motion freezes nothing here because nothing moves. Number unit: coefficient.",
+    },
+  ];
+
+  const axisTokens = [
+    { name: '--jx-table-surface', default: 'var(--background)', source: 'color' as const, description: 'The opaque cell ground — sticky cells need it to mask the content scrolling under them.' },
+    { name: '--jx-table-head', default: 'var(--muted)', source: 'color' as const, description: 'The head band and the stack-law card head.' },
+    { name: '--jx-table-hover', default: 'primary 7% mix', source: 'color' as const, description: 'The hover tone — follows --brand-hue at runtime; the style seam retunes it per instance.' },
+    { name: '--jx-table-hairline / -rule / -edge', default: 'border mixes', source: 'color' as const, description: 'The hairline frame, the row rules, and the sticky fold mark — the only lines the language draws.' },
+    { name: 'the density channels', default: '--jx-inset / -gap / -stack / -text / -line', source: 'density' as const, description: 'The kernel channels the dense mode retunes — the own sm is their floor.' },
+    { name: 'container: jx-table', default: 'inline-size', source: 'structural' as const, description: 'The named container — every responsive decision reads the frame, never the viewport.' },
+  ];
 
   // ---- the universal props demo (explicit-props W3-D3) --------------------
   // (no TreeFile annotation: this page's imports predate the type's
@@ -640,6 +719,47 @@ ${close}
       summary="One zero-dependency item. The recipes below add their own families — checkbox, input, toggle-group, select, pagination, dropdown-menu, popover, press-button — each a separate add."
     >
       <CodeBlock code={`npx jixoai-ui add table`} lang="sh" meta="install" />
+    </SectionCard>
+  </div>
+
+  <!-- overview -->
+  <div id="overview" data-reveal="">
+    <SectionCard
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="The figure frame is a named inline-size container, so every responsive decision reads the FRAME's width, never the viewport's. Two frame-width laws, consumer-owned semantics, token paint, and a recipe suite on top — the component owns only the frame."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.measurePara)}>
+          table is the fleet's a11y-heavy surface, and its first law is
+          <em>who owns the semantics</em>: the component renders only the
+          figure frame — the real
+          <code>thead/tbody/tfoot/th/td/caption</code> elements are authored
+          by YOU in the children snippet, rows are never wrapped, and the
+          caption prop names the table for assistive technology. On top of
+          that, two frame-width laws run off a named inline-size container:
+          at ≥ 30rem the scroll law (fit-content columns, native overflow-x,
+          <code>data-sticky</code> pins behind a hairline fold, all logical
+          properties so RTL mirrors free); below it the stack law — thead
+          folds away and <code>td[data-label]</code> renders a muted label
+          beside each value, the card law. <code>stack={'{false}'}</code>
+          pins the scroll law at every width.
+        </p>
+        <p class={cx(rt.measurePara)}>
+          The paint is a token surface, not a palette: every color routes
+          through the <code>--jx-table-*</code> locals, so
+          <code>style="--jx-table-hover: …"</code> retunes one var per
+          instance and the hover follows the site's brand hue at runtime.
+          Density is the family's one opinion (the own is
+          <code>sm</code> — dense tabular rows are the declared posture);
+          the seven sibling axes are no-own supply for the cells. And the
+          recipes below — sorting, filtering, selection, pagination, row
+          actions, column visibility — are PAGE-OWNED STATE composed from
+          the family: the component owns the frame, you own the decision.
+        </p>
+      </div>
     </SectionCard>
   </div>
 
@@ -1383,29 +1503,65 @@ ${close}
     </ComponentCanvas>
   </div>
 
+  <div id="law" data-reveal="">
+    <SectionCard
+      family="law"
+      headerRegion="law"
+      eyebrow="law"
+      title="The frame-width laws"
+      summary="Two responsive engines read the frame's own width; semantics stay the consumer's; paint is a token surface with a per-instance seam; density is the one opinion. Measured across the 30rem line in the workbench above."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable
+          props={lawTable.map((row) => ({
+            name: row.posture,
+            type: row.input,
+            default: row.renders,
+            description: `announces: ${row.announces}`,
+          }))}
+          title=""
+        />
+      </div>
+    </SectionCard>
+  </div>
+
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="Responsive modes" summary="Keep the native table markup; dense reduces row height and stack selects the narrow-frame card law.">
       <ComponentCanvas title="table · modes" stage="fill" files={tableModesFiles}><div class={cx(rt.tbGridMd2Full)}><Table caption="default"><tbody><tr><td>regular rows</td></tr></tbody></Table><Table dense stack={false} caption="dense scroll"><tbody><tr><td>compact, always scrollable</td></tr></tbody></Table></div></ComponentCanvas>
     </SectionCard>
   </div>
-  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'caption', value: 'native table caption', description: 'Names the table for assistive technology.' }, { name: 'scope', value: 'col | row', description: 'Associates headers with their cells.' }, { name: 'data-label', value: 'string', description: 'Labels values in the narrow card layout.' }, { name: 'aria-sort', value: 'ascending | descending', description: 'Recipe wiring: lives on the sorted th only; the caret glyph stays aria-hidden.' }, { name: 'aria-live', value: 'polite', description: 'Selection count readout announces changes without stealing focus.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Table caption="density"><tbody><tr><td>row</td></tr></tbody></Table></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-table-surface', default: 'var(--background)', source: 'component' }, { name: '--jx-table-head', default: 'var(--muted)', source: 'component' }, { name: '--jx-table-hover', default: 'primary 7% mix', source: 'color' }, { name: '--jx-table-hairline', default: 'border 12% mix', source: 'color' }, { name: '--jx-table-rule', default: 'border 18% mix', source: 'color' }, { name: '--jx-table-edge', default: 'border 34% mix', source: 'color' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  <div id="universal-props" data-reveal="">
+  <div id="axes" data-reveal="">
     <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
+      family="axes"
+      headerRegion="axes"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The frame (the figure) is the family's own DOM root; the consumer-authored thead/tbody keep their a11y semantics untouched, density keeps its design-frozen own sm (the bridged provider lane), and the cells ride the supply chain."
+      title="The eight axes on table"
+      summary="Density is the family's ONE opinion (own sm — the rung stamps by default); the seven sibling axes are no-own supply landing on the frame root, and the consumer-authored cells inherit through the cascade. Paint stays on the --jx-table-* token surface — the color-freedom seam retunes it per instance."
     >
-      <ComponentCanvas title="Table · universal props" stage="fill" files={universalFiles}>
-<div class={cx(rt.panel)}><Table caption="axes" size={18} density="small"><thead><tr><th scope="col">consumer</th><th scope="col">status</th></tr></thead><tbody><tr><td data-label="consumer">unipty</td><td data-label="status">live</td></tr><tr><td data-label="consumer">betlang</td><td data-label="status">beta</td></tr></tbody></Table></div>
-<div class={cx(rt.panel)}><Table caption="named steps" size="medium" radius="large"><thead><tr><th scope="col">consumer</th><th scope="col">status</th></tr></thead><tbody><tr><td data-label="consumer">mermaid</td><td data-label="status">live</td></tr></tbody></Table></div>
-      </ComponentCanvas>
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <div class={cx(rt.mt20)}>
+          <TokenTable tokens={axisTokens} />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="Table · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)} data-probe="table-size"><Table caption="axes" size={18} density="small"><thead><tr><th scope="col">consumer</th><th scope="col">status</th></tr></thead><tbody><tr><td data-label="consumer">unipty</td><td data-label="status">live</td></tr><tr><td data-label="consumer">betlang</td><td data-label="status">beta</td></tr></tbody></Table></div>
+<div class={cx(rt.panel)} data-probe="table-named"><Table caption="named steps" size="medium" radius="large"><thead><tr><th scope="col">consumer</th><th scope="col">status</th></tr></thead><tbody><tr><td data-label="consumer">mermaid</td><td data-label="status">live</td></tr></tbody></Table></div>
+<div class={cx(rt.panel)} data-probe="table-stamps"><Table caption="stamps" density="large" theme="dark" radius={12}><thead><tr><th scope="col">consumer</th></tr></thead><tbody><tr><td data-label="consumer">sysdlg</td><td data-label="status">live</td></tr></tbody></Table></div>
+          </ComponentCanvas>
+          <p class={cx(rt.bodyMuted, rt.mt16)}>
+            The stamps panel rides the merge law: density="small" overrides
+            the own sm rung, the dark bridge re-voices the token surface, and
+            radius={'{12}'} lands on the frame — the family's concentric
+            anchor. The cells inherit the cascade untouched.
+          </p>
+        </div>
+      </div>
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable universal props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Uses compact row padding.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', default: "'sm' · ambient scope", description: 'Explicit override, then the inherited scope, then the family own sm — dense tabular rows are the table’s declared posture (the design-frozen local fallback, now the density slot’s own).' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable universal props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Compact row padding — measured note (2026-09-23): at the family own sm the dense rule is a visual no-op (the gap channel equals the inset channel there, both 8px); it bites at the higher density rungs.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', default: "'sm' · ambient scope", description: 'Explicit override, then the inherited scope, then the family own sm — dense tabular rows are the table’s declared posture (the design-frozen local fallback, now the density slot’s own).' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'caption', value: 'native table caption', description: 'Names the table for assistive technology.' }, { name: 'scope', value: 'col | row', description: 'Associates headers with their cells.' }, { name: 'data-label', value: 'string', description: 'Labels values in the narrow card layout.' }, { name: 'aria-sort', value: 'ascending | descending', description: 'Recipe wiring: lives on the sorted th only; the caret glyph stays aria-hidden.' }, { name: 'aria-live', value: 'polite', description: 'Selection count readout announces changes without stealing focus.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">
     <SectionCard

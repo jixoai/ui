@@ -1007,3 +1007,32 @@
   reporter who checks `git status` naively sees an extra modified file they
   "never touched". Verify the pair with diff after every family edit and
   name the pair in the integration receipt.
+
+## Techniques (mine, added 2026-09-23, task 36 — code table)
+- **CONTAINER-QUERY COMPONENTS ARE PROBED THROUGH THE COMPONENT'S OWN RIG**:
+  the table's responsiveness reads a named inline-size container on the
+  FRAME, not the viewport — so viewport resizing proves nothing. The
+  workbench's own width slider (a range control) drives the frame across
+  the 30rem line; keyboard (focus + arrows) is the reliable driver for
+  custom sliders. Both laws then measure in one session: thead display
+  none below, scrollWidth > clientWidth above, td::before content the
+  data-label (the pseudo-safe read).
+- **A DENSITY OWN CAN HIDE ITS OWN FEATURE**: table's dense rule is
+  `padding: var(--jx-gap) var(--jx-inset)` — at the family's own sm the
+  gap channel EQUALS the inset channel, so dense is a visual no-op exactly
+  where the family declares its posture. When an axis own and a feature
+  share channels, measure the feature AT the own: equal channels = a
+  silently dead feature. (The probe asserts the no-op as a named defect
+  receipt, and the demo panel uses density="large" so overrides stay
+  distinguishable from the own.)
+- **ATOM vs :where IS A REAL CASCADE FRONT**: a stylex atom's static
+  borderRadius beats a zero-specificity :where consumed rule — the §3 lane
+  stamps --jx-radius-effective correctly while the painted silhouette
+  reads the static token. The stamp and the paint are separately
+  assertable (getComputedStyle the custom property vs border-radius);
+  when they diverge, the finding is the cascade front, not the lane.
+- **UNIVERSAL-FLAG API TABLES FILTER AXIS-NAMED ROWS INTO THE APPENDIX**:
+  a hand-written api row named `density` silently migrates into the
+  universal appendix (the appendix is the axis rows' one home) — enumerate
+  the served rows before asserting the api count, and expect family-owned
+  axis documentation to live in the page's own axes section.

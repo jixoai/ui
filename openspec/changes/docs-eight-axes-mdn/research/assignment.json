@@ -714,8 +714,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 39 FIX landed (the inert-fill falsification owned + re-measured with her own burst instrument); TWO LIVE clocks taught; RM persists the visible tween (engine-side, css-unreachable); discriminator proves the css channel live; api rest-less arithmetic fixed; 1st-review re-verify queued (marginalia), then 2nd"
+   "status": "pass-1st",
+   "notes": "task 51 marginalia re-verify PASS (0M/0m/1L/1N) — falsification addressed, re-derived with her own instrument; LOW landed: discriminator stretch softened to the instrument range (3.0 slope-fit / 4.1 / 4.5 CDP); proceeds to 2nd (quill's lane)"
   },
   {
    "page": "progressive-blur",
@@ -966,8 +966,9 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 36 tier-2 surgical (no rewrite; two long-standing diagnostics fixed); frame-width law driven live both ends; a11y battery (aria-sort via sort BUTTON not th text; caption names; live count); THREE family defects receipted: dense no-op at sm (gap==inset 8px), radius static atom (FIXED family-side by orchestrator — consumed chain + fallback), playground rowIds cross-canvas"
   },
   {
    "page": "tabs",

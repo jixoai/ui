@@ -137,7 +137,7 @@ ${close}
       type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
       default: `'auto'`,
       description:
-        "TWO LIVE CLOCKS, BOTH OFF THE AXIS — the indeterminate sweep rides the promotion seams var(--motion-indeterminate, 900ms) linear infinite (measured 0.9s/linear/24px tile) and slows to 4s under prefers-reduced-motion (measured); the determinate fill's authored 200ms decelerate is LIVE — burst-measured (3 runs, clip frames decoded in-page): the edge moves by 32–53ms and settles by 82–99ms, and the tween PERSISTS under reduced-motion (moved 32–36ms, settled 98–103ms — the engine's smoothing is css-unreachable); a 3s-linear injection stretches the paint to ≈3s, so the transition channel governs; --jx-motion-effective has zero readers (grep receipt). Number unit: coefficient.",
+        "TWO LIVE CLOCKS, BOTH OFF THE AXIS — the indeterminate sweep rides the promotion seams var(--motion-indeterminate, 900ms) linear infinite (measured 0.9s/linear/24px tile) and slows to 4s under prefers-reduced-motion (measured); the determinate fill's authored 200ms decelerate is LIVE — burst-measured (3 runs, clip frames decoded in-page): the edge moves by 32–53ms and settles by 82–99ms, and the tween PERSISTS under reduced-motion (moved 32–36ms, settled 98–103ms — the engine's smoothing is css-unreachable); a 3s-linear injection stretches the paint to ≈4–4.5s across instruments (3.0s by slope fit; 4.1s task-39; 4.5s on the re-verify's CDP-timestamped capture — the stretch is slope-consistent linear, the exact span is instrument-bound), so the transition channel governs; --jx-motion-effective has zero readers (grep receipt). Number unit: coefficient.",
     },
   ];
 
@@ -311,7 +311,7 @@ ${close}
           Receipts: the two live clocks (sweep 0.9s/linear/infinite with a 24px tile, 4s under
           reduced motion; the fill edge burst-measured moving by 32–53ms and settling by 82–99ms
           in normal mode — and PERSISTING under reduced motion, 32–36ms moved / 98–103ms settled
-          across 3 runs, with a 3s-linear injection stretching the paint to ≈3s; a single capture
+          across 3 runs, with a 3s-linear injection stretching the paint to a slope-consistent linear crawl (≈4–4.5s, instrument-bound); a single capture
           taken ≥200ms after the set would read "inert" — burst is the truth instrument for paint
           transitions), the density-invariant
           height (10px at the 2xs stamp), the radius seam (4px ambient, 9px stamped), the theme

@@ -34,7 +34,10 @@ export const tableStyles = stylex.create({
     borderWidth: tokens['--jx-hairline'],
     borderStyle: 'solid',
     borderColor: 'var(--jx-table-rule)',
-    borderRadius: tokens['--jx-radius'],
+    // §3/§14: the consumed chain first, the site radius as the auto
+    // fallback (the frame's resting corner — explicit lanes stamp
+    // --jx-radius-consumed in table.svelte's rootStyle)
+    borderRadius: 'var(--jx-radius-consumed, var(--jx-radius))',
     containerType: 'inline-size',
     containerName: 'jx-table',
     // the local token surface (the color-freedom seam)

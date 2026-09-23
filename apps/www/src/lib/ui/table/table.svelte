@@ -181,8 +181,19 @@
   provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
   let uniRoot = $state<HTMLElement>();
   provideQueryAnchor(() => uniRoot ?? null);
+  // §3/§14 radius consumption — the frame's dialect: an explicit lane
+  // lands flat on the corner (effective × factor); auto stamps NOTHING
+  // so the atom's var fallback keeps the frame's own site-radius
+  // default (unlike the sheet's 0px invariants, this surface owns a
+  // nonzero resting corner — the concentric inset form belongs to
+  // nested surfaces, and the frame IS the border bearer)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : undefined,
+  );
   const rootStyle = $derived(
-    [carriers, styleAttribute].filter(Boolean).join('; ') || undefined,
+    [carriers, radiusConsumed, styleAttribute].filter(Boolean).join('; ') || undefined,
   );
 </script>
 
