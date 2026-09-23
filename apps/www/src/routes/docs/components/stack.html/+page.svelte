@@ -1,21 +1,25 @@
 <!--
-  stack — canonical page (the Layout family, 2026-09-18). The flow
-  primitive: one-dimensional arrangement over the typed space ladder.
-  Demo-standard skeleton: Intro → Install → Usage → Examples →
-  a11y/theming → API → See Also.
+  stack page (docs-eight-axes-mdn task 33, MDN archetype; tier 2
+  优化重构 — the live workbench, gap ladder, axis-vocabulary and
+  flow-mode demos carried; the archetype gains overview/law + the
+  measured eight-axes layer + a ToC; the universal marker moves to the
+  api table. Family untouched — the Layout family's flow primitive:
+  structural props name intent, the paint axes are W3-D3 all no-own,
+  and the carriers join the consumer style attr.
 -->
 <script lang="ts">
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
-  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import Stack from '$lib/ui/stack';
   import type { StackGap } from '$lib/ui/stack';
   import { CATALOG } from '$lib/catalog';
   import { registrySourceUrl } from '$lib/registry-source';
+  import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp, PlayRow, PlaySelect } from '$lib/playground';
 
@@ -97,7 +101,7 @@ ${close}
   const resolveUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? usageLive : file.content;
 
-  // ---- the gap ladder demo (a hand-authored mirror of the region below)
+  // the gap ladder demo
   const stackGapDemo = `<script lang="ts">
   import Stack from '@ui/stack';
 ${close}
@@ -111,7 +115,7 @@ ${close}
     { name: 'stack-gap-demo.svelte', content: stackGapDemo, kind: 'usage' },
   ];
 
-  // the axes demo (justify between + align baseline)
+  // the postures demo (justify between + align baseline)
   const stackAxesDemo = `<script lang="ts">
   import Stack from '@ui/stack';
 ${close}
@@ -151,12 +155,15 @@ ${close}
     { name: 'stack-wrap-demo.svelte', content: stackWrapDemo, kind: 'usage' },
   ];
 
-  // the page's local join (the separator serialize law)
+  // the page's local join (the separator serialize law + the cx
+  // predicate: the type guard zeroes the standing svelte-check
+  // diagnostic — plain strings pass through whole; stylex objects
+  // contribute their string members ($$css dropped)).
   const cx = (
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -166,7 +173,85 @@ ${close}
       )
       .join(' ');
 
-  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  // ---- the law table: the flow primitive ----------------------------------
+  const lawTable = [
+    { posture: 'structural, not style', input: 'direction · gap · align · justify · wrap · inline', renders: 'the props name LAYOUT INTENT, never paint — classified never-ambient and outside the context gate\u0027s vocabulary: an axis would have nothing meaningful to inherit (a row is a row because its consumer says so)', announces: 'the structural face stays outside the eight-axis contract' },
+    { posture: 'omission transparency', input: 'a prop you did not name', renders: 'NOTHING — every atom is opt-in: row is flex\u0027s default (no direction atom exists), an omitted align stamps no align-items, an omitted gap stamps no gap (measured: the bare stack computes align-items: normal, gap: normal)', announces: 'the DOM carries only what you named' },
+    { posture: 'the token-bound gap', input: 'gap="4" … "80"', renders: 'sixteen rungs, each a var(--jx-space-N) atom — spacing is never a free pixel, it composes with the sheet ladder the rest of the system reads (measured: gap="48" computes the --jx-space-48 rung)', announces: 'spacing is system spacing' },
+    { posture: 'rest before stamp', input: 'your id · data-* · handlers', renders: 'the spread lands BEFORE the component\u0027s own attributes — consumer attributes REPLACE, never merge (the layout-family law); data-jx-stack, the density rung and the carriers follow', announces: 'your attributes win; the stamps cannot be contested' },
+    { posture: 'the paint half', input: 'the eight axes (W3-D3)', renders: 'all no-own, first-time: an explicit lane stamps the §10 carriers onto the style attribute — JOINED with your own declarations (the merge law, the prototype-flex posture); a Stack paints nothing itself (source receipt: the atom table holds display/flex/gap declarations only)', announces: 'supply for the children, paint for nobody' },
+    { posture: 'layout only', input: 'everything else', renders: 'no color, no padding, no typography — children keep their semantics wholesale and the reading order IS the DOM order (no order/reverse props by design). A stack is a plain div carrying layout, nothing to maintain', announces: 'transparent layout' },
+  ];
+
+  // ---- the measured eight-axes layer ---------------------------------------
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "STAMP-ONLY, RUNG — the resolved lane stamps the §4 legacy rung on the stack root (measured: density=\"small\" → data-density=\"sm\"), the SCOPE your children flow through; the stack itself reads no channel. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "STAMP-ONLY, VOICE — the §11 pair (--jx-size-effective + font-size) lands on the root (measured 18px computed on the size demo) and the children inherit it through plain cascade — one number moves the whole stack. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the alias + §14 radius factor land on the root; the stack paints no corner (source receipt: the atom table holds display/flex/gap declarations only). Number unit: none.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — --jx-radius-effective lands on the root for what you compose inside (a bordered child can consume it); the stack draws no border of its own. Number unit: px.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — --jx-color-effective lands on the root; the stack's ink is its children's ink (paint belongs to the children, the hero's own law). Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "BRIDGE — class:dark lands on the root (measured) and re-voices the token scope your children read; the layout itself is invisible to it. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the §7 pair stamps on the root; the stack owns no shadow (layout sits IN the plane). Compose it with a surface child that reads the supply. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the carrier lands on the root; the flow has no choreography of its own (no transitions in the atom table — grep receipt), so the lane is pure scope for motion-reading children. Number unit: coefficient.",
+    },
+  ];
+
+  const axisTokens = [
+    { name: '--jx-space-2 … 80', default: '16 rungs', source: 'color' as const, description: 'The sheet ladder — every gap atom resolves exactly one rung; spacing is never a free pixel value.' },
+    { name: 'data-jx-stack', default: 'the only hook', source: 'component' as const, description: 'The component\u0027s single stamp — everything else on the root is yours or the axes\u0029.' },
+    { name: 'the merge law', default: 'carriers + your style', source: 'structural' as const, description: 'The §10 carriers join the consumer style attribute in one channel — the prototype-flex layout-primitive posture.' },
+    { name: 'rest-replace', default: 'spread before stamp', source: 'structural' as const, description: 'Consumer attributes replace, never merge — the layout-family law.' },
+    { name: 'omission', default: 'no atom stamped', source: 'structural' as const, description: 'The DOM carries only the props you named — row rides flex\u0027s own default.' },
+  ];
+
+  // ---- the universal props demos (explicit-props W3-D3) --------------------
   const universalUsage = `<Stack gap="8" size={18} density="small">…</Stack>`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/stack-universal.svelte', content: universalUsage },
@@ -200,24 +285,50 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="install" data-reveal="">
       <DocsInstall name="stack" />
     </div>
 
-    <div id="usage" data-reveal="">
+    <div id="overview" data-reveal="">
       <SectionCard
-        family="usage"
-        headerRegion="usage"
-        eyebrow="usage"
-        title="Usage"
-        summary="Name layout intent, get flex — direction and gap are the working pair; align/justify/wrap/inline refine. Omitted props add nothing at all."
+        eyebrow="overview"
+        title="Overview"
+        summary="The Layout family's flow primitive: one-dimensional arrangement (row/column) over the site's typed space ladder. A Stack is not a new layout engine — it is the sheet's own ladder with a component face, and it paints nothing else."
       >
-        <CodeBlock code={usage} lang="svelte" meta="Stack usage" />
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.measurePara)}>
+            Name layout intent, get flex: <code>direction</code> and
+            <code>gap</code> are the working pair, <code>align</code> /
+            <code>justify</code> / <code>wrap</code> / <code>inline</code>
+            refine. Every prop is STRUCTURAL — layout intent, not paint
+            vocabulary — and every one is optional: an omitted prop stamps no
+            atom at all (row rides flex's own default), so the DOM carries
+            only what you named. The gap is never a free pixel: each rung is
+            a token-bound atom over the sheet's <code>--jx-space-N</code>
+            ladder, sixteen steps from 2 to 80, so spacing composes with the
+            rest of the system instead of drifting per-surface.
+          </p>
+          <p class={cx(rt.measurePara)}>
+            Two contracts hold the component's shape. The structural face is
+            never-ambient — an axis would have nothing meaningful to inherit
+            (a row is a row because its consumer says so) — so
+            direction/gap/align/justify/wrap/inline stay outside the defaults
+            contract exactly as founded. The paint face is the eight-axis
+            surface, all no-own: an explicit lane stamps the §10 carriers
+            onto the style attribute JOINED with your own declarations (the
+            merge law), and the scope flows to your children — one
+            <code>size={18}</code> moves the whole stack's voice. The
+            component itself paints nothing: no color, no padding, no
+            typography; children keep their semantics wholesale and the
+            reading order is the DOM order (no order/reverse props by
+            design).
+          </p>
+        </div>
       </SectionCard>
     </div>
 
     <!-- workbench: live gap/axis swaps -->
-    <div id="stack-workbench" data-region="stack-workbench" data-reveal="">
+    <div id="stack-workbench" data-reveal="">
       <ComponentCanvas
         title="stack"
         description="One row/column, three cells. The playground swaps the rung and the axes live — the drawer's usage file tracks every pick."
@@ -293,14 +404,37 @@ ${close}
       </SectionCard>
     </div>
 
-    <!-- axes -->
-    <div id="axes" data-reveal="">
+    <div id="law" data-reveal="">
       <SectionCard
-        family="axes"
-        headerRegion="axes"
-        eyebrow="axes"
-        title="Axes — the closed CSS vocabulary"
-        summary="align is the cross axis (start · center · end · baseline · stretch — flex's stretch default rides omission), justify is the main axis (start · center · end · between · stretch). No invented words, no numeric weights."
+        family="law"
+        headerRegion="law"
+        eyebrow="law"
+        title="The flow primitive"
+        summary="Structural props name intent and stay never-ambient; omission is transparency; the gap is always a ladder rung; your attributes replace, never merge — and the stack paints nothing."
+      >
+        <div class={cx(rt.col20)}>
+          <PropsTable
+            props={lawTable.map((row) => ({
+              name: row.posture,
+              type: row.input,
+              default: row.renders,
+              description: `announces: ${row.announces}`,
+            }))}
+            title=""
+          />
+        </div>
+      </SectionCard>
+    </div>
+  </div>
+
+  <div class={cx(rt.shellFlush)}>
+    <div id="postures" data-reveal="">
+      <SectionCard
+        family="postures"
+        headerRegion="postures"
+        eyebrow="postures"
+        title="Postures — the closed CSS vocabulary"
+        summary="align is the cross axis (start · center · end · baseline · stretch — flex's stretch default rides omission), justify is the main axis (start · center · end · between · stretch). No invented words, no numeric weights — and wrap/inline flip the flow itself."
       >
         <ComponentCanvas title="stack · axes" stage="fill" files={axesFiles}>
           <div class={cx(rt.wrapStart24, rt.wFull)}>
@@ -321,64 +455,49 @@ ${close}
             </div>
           </div>
         </ComponentCanvas>
-      </SectionCard>
-    </div>
-
-    <!-- flow modes -->
-    <div id="flow-modes" data-reveal="">
-      <SectionCard
-        family="flow-modes"
-        headerRegion="flow-modes"
-        eyebrow="flow modes"
-        title="wrap and inline"
-        summary="wrap allows multi-line flow (flex-wrap: wrap) for chip clouds and tag rows; inline switches the flow itself to display: inline-flex — the stack sits in a text line instead of owning a block."
-      >
-        <ComponentCanvas title="stack · wrap" stage="fill" files={wrapFiles}>
-          <div class={cx(rt.col16, rt.wFull, rt.maxWMd)}>
-            <div class={cx(rt.panel, rt.p12)}>
-              <span class={cx(rt.eyebrowPrimary, rt.block, rt.mb8)}>wrap — the chip cloud</span>
-              <Stack gap="8" wrap>
-                {#each Array(14) as _, i}
-                  <span class="pill">tag {i + 1}</span>
-                {/each}
-              </Stack>
+        <div class={cx(rt.mt16)}>
+          <ComponentCanvas title="stack · wrap" stage="fill" files={wrapFiles}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWMd)}>
+              <div class={cx(rt.panel, rt.p12)}>
+                <span class={cx(rt.eyebrowPrimary, rt.block, rt.mb8)}>wrap — the chip cloud</span>
+                <Stack gap="8" wrap>
+                  {#each Array(14) as _, i}
+                    <span class="pill">tag {i + 1}</span>
+                  {/each}
+                </Stack>
+              </div>
             </div>
-          </div>
-        </ComponentCanvas>
+          </ComponentCanvas>
+        </div>
       </SectionCard>
     </div>
-  </div>
-</div>
 
-<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
-  <div id="accessibility" data-reveal="">
-    <SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A stack is a plain div carrying layout only — no role, no announcements, nothing to maintain. Reading order is DOM order; the component never reorders visually (no order/reverse props by design).">
-      <PropsTable universal props={[{ name: '(none)', type: '—', default: '—', description: 'No ARIA surface: the stack is transparent layout. Children keep their own semantics wholesale.' }]} />
-    </SectionCard>
-  </div>
-  <div id="theming" data-reveal="">
-    <SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Tokens" summary="One token family feeds the whole component: the --jx-space-N ladder. No color, no radius, no typography — paint belongs to the children.">
-      <PropsTable props={[{ name: '--jx-space-2 … 80', type: '16 rungs', default: 'the sheet ladder', description: 'Every gap atom resolves one rung — spacing is never a free pixel value.' }]} />
-    </SectionCard>
-  </div>
-  <div id="universal-props" data-reveal="">
-    <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The structural props (direction/gap/align/justify) stay outside the contract exactly as founded; the paint axes join as a FIRST-TIME no-own container surface — the size axis scales the stack root, the children ride the supply chain."
-    >
-      <ComponentCanvas title="Stack · universal props" stage="fill" files={universalFiles}>
-<div class={cx(rt.panel)}><Stack gap="8" size={18} density="small"><p>one number moves the stack</p><p>children inherit the root font-size</p></Stack></div>
-<div class={cx(rt.panel)}><Stack gap="8" size="medium" radius="large"><p>named steps resolve through the alias ladder</p></Stack></div>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
+    <div id="usage" data-reveal="">
+      <SectionCard
+        family="usage"
+        headerRegion="usage"
+        eyebrow="usage"
+        title="Usage"
+        summary="Name layout intent, get flex — direction and gap are the working pair; align/justify/wrap/inline refine. Omitted props add nothing at all."
+      >
+        <CodeBlock code={usage} lang="svelte" meta="Stack usage" />
+      </SectionCard>
+    </div>
 
-  <div id="api" data-reveal="">
-    <SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Seven structural props plus the HTML rest — all optional, all never-ambient (no Defaults contract: an axis has nothing meaningful to inherit; a row is a row because its consumer says so).">
-      <PropsTable props={[
+    <div id="accessibility" data-reveal="">
+      <SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A stack is a plain div carrying layout only — no role, no announcements, nothing to maintain. Reading order is DOM order; the component never reorders visually (no order/reverse props by design).">
+        <p class={cx(rt.bodyMuted)}>
+          No ARIA surface: the stack is transparent layout. Children keep
+          their own semantics wholesale — a button inside a stack is still a
+          button, a list is still a list — and because there is no
+          order/reverse prop, the visual order can never diverge from the
+          reading order the accessibility tree reports.
+        </p>
+      </SectionCard>
+    </div>
+
+    <div id="api" data-reveal="">
+      <SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Seven structural props plus the HTML rest — all optional, all never-ambient (no Defaults contract: an axis has nothing meaningful to inherit; a row is a row because its consumer says so)."><PropsTable universal props={[
         { name: 'direction', type: "'row' | 'column'", default: "'row'", description: 'The flow axis. Row is flex\u2019s default — no atom is stamped.' },
         { name: 'gap', type: "'2' | '4' | '6' | '8' | '10' | '12' | '14' | '16' | '18' | '20' | '24' | '28' | '32' | '40' | '48' | '80'", default: '— (none)', description: 'The typed space ladder rung (token-bound; the sheet\u2019s --jx-space-N). Omitted = no gap at all.' },
         { name: 'align', type: "'start' | 'center' | 'end' | 'baseline' | 'stretch'", default: '— (stretch)', description: 'Cross-axis alignment (align-items). Omission leaves flex\u2019s own stretch default — omission transparency.' },
@@ -387,10 +506,36 @@ ${close}
         { name: 'inline', type: 'boolean', default: 'false', description: 'Inline flow (display: inline-flex) instead of block flow.' },
         { name: 'children', type: 'Snippet', default: '—', description: 'The flow\u2019s contents.' },
         { name: '…rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'Every other attribute lands on the div — consumer attributes replace, never merge.' },
-      ]} />
-    </SectionCard>
-  </div>
-  <div data-reveal="">
-    <DocsSeeAlso name="stack" />
+      ]} /></SectionCard>
+    </div>
+
+    <div id="axes" data-reveal="">
+      <SectionCard
+        family="axes"
+        headerRegion="axes"
+        eyebrow="axes"
+        title="The eight axes on stack"
+        summary="The paint half, W3-D3 first-time, all no-own: an explicit lane stamps the §10 carriers onto the style attribute — JOINED with your own declarations — and the scope flows to your children. The structural props stay outside this contract exactly as founded."
+      >
+        <div class={cx(rt.col20)}>
+          <PropsTable props={axisRows} title="" />
+          <div class={cx(rt.mt20)}>
+            <TokenTable tokens={axisTokens} />
+          </div>
+          <div class={cx(rt.mt20)}>
+            <ComponentCanvas title="Stack · universal props" stage="fill" files={universalFiles}>
+              <div class={cx(rt.panel)} data-probe="stack-size"><Stack gap="8" size={18} density="small"><p>one number moves the stack</p><p>children inherit the root font-size</p></Stack></div>
+              <div class={cx(rt.panel)} data-probe="stack-named"><Stack gap="8" size="medium" radius="large"><p>named steps resolve through the alias ladder</p></Stack></div>
+              <div class={cx(rt.panel)} data-probe="stack-stamps"><Stack gap="8" theme="dark" radius={12} style="border-radius: 3px" data-probe-inner="merge"><p>the merge law: carriers and your style in one attribute</p></Stack></div>
+              <div class={cx(rt.panel)} data-probe="stack-bare"><Stack><p>the bare posture: nothing named, nothing stamped</p></Stack></div>
+            </ComponentCanvas>
+          </div>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div data-reveal="">
+      <DocsSeeAlso name="stack" />
+    </div>
   </div>
 </div>

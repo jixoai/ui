@@ -922,8 +922,9 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 33 tier-2; omission transparency (bare Stack stamps nothing); gap ladder rem-based calcs not literals (size lane never scales gaps — documented); closed vocabulary live; merge law consumer-wins; universal marker moved to api table; LAW #19 holding zero twins"
   },
   {
    "page": "statistic",

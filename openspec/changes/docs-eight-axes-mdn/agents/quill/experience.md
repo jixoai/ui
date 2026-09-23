@@ -927,3 +927,28 @@
   ids pre-guard, skeleton measured zero post-guard, same probe pattern. The
   audit asserts "zero twins OR H2-twin mechanism only", so it stays green
   either side of the guard landing and names the mechanism either way.
+
+## Techniques (mine, added 2026-09-23, task 33 — code stack)
+- **SPACE TOKENS ARE CALCS — DON'T ASSERT THE LITERAL**: the gap ladder's
+  --jx-space-48 is calc(0.25rem * 12); getPropertyValue returns the UNRESOLVED
+  calc while computed gap returns the resolved 48px. Assert the computed
+  value against the expected px AND the var's presence — asserting
+  computed === raw var text fails a lawfully-built token system. The rem
+  base is also the story: gap rungs do NOT scale with the size lane's
+  stamped font-size (rem is document-root-relative) — "one number moves the
+  stack" is about the VOICE only.
+- **OMISSION TRANSPARENCY NEEDS A BARE FIXTURE**: "an omitted prop stamps no
+  atom" is only measurable on a stack with NOTHING passed — computed
+  align-items: normal / gap: normal (flex's own defaults, not authored
+  values). Every demo panel with gap="8" would mask the law. Build the bare
+  fixture, then assert the ABSENCE shape.
+- **THE MARKER FOLLOWS THE API TABLE**: the docs-universal marker
+  (data-jx-props-table-universal) belongs on the api table's PropsTable
+  (universal flag = the shared appendix). Old pages sometimes parked it on
+  the a11y/theming table — moving it to api is part of the archetype
+  migration, and the a11y section reverts to honest prose.
+- **TWO SECTIONS CAN SHARE ONE ID CANDIDATE — RENAME THE DEMO, NOT THE LAW**:
+  the old page's "axes" (CSS axis-word demos) collides with the archetype's
+  "axes" (the measured eight-axes layer). The demo renames to "postures"
+  (layout intent vocabulary); the eight-axes layer owns #axes. Keep the
+  toc == DOM bijection while both concepts stay on the page.
