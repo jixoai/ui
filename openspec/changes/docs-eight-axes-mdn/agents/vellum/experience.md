@@ -1555,3 +1555,23 @@
   your edits the tree still carries.
 - **console.debug does not surface on this Playwright channel** — instrumentation
   must use console.warn (or capture via CDP). One silent diagnosis round taught it.
+
+## 2026-09-22 — T137 second-review batch (mermaid/pagination/pattern-faq/pattern-hero-set)
+
+- **Lazy per-viewport rendering needs a PROGRESSIVE scroll** — mermaid's engine renders
+  per IntersectionObserver viewport; a jump-to-bottom census caught ONE svg where
+  eleven exist. Step-scroll (700px × 450ms) mounts every seat. The same gap silently
+  halves any "N instances" census on lazily-rendering pages.
+- **Cross-seat reads corrupt per-seat instruments** — clicking the FIRST zoom button
+  while reading the LAST mmd svg produced a length delta that looked like a re-render.
+  Walk from the control UP to its own seat's node (bounded ancestor levels); never let
+  the click target and the read target come from different censuses.
+- **role=img can ride a wrapper** — mermaid's viewports carry role=img + aria-label on
+  the DIV, not the svg element. The a11y-ladder census must sweep [role=img] of any tag.
+- **The site chrome participates in every page probe** — 24 summaries, 21 aria-haspopup
+  menus, and a second ⌘K dialog live in the scaffold around the page under test. Scope
+  census/drives to the page's own family region (#demo, [data-family]) or the chrome's
+  state masquerades as the page's.
+- **Read the named carrier, not the nearest matching ancestor** — pagination's
+  aria-hidden lives on the token span inside the li; ellipsis reads at the li returned
+  null. Third lane, same lesson as the T98 sr-only span and the section-card zones.
