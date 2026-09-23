@@ -30,8 +30,11 @@
     children: Snippet;
   } = $props();
 
-  let uid = getContext<{ seq: number }>('jx-play-uid');
-  const rowId = `jx-play-row-${++uid.seq}`;
+  // $props.id() (instance-unique, SSR-stable): the old getContext
+  // counter reset per PlayFields — every second canvas re-minted
+  // jx-play-row-1-label (LAW #19 duplicate, vellum's T127 LOW)
+  const uid = $props.id();
+  const rowId = `jx-play-row-${uid}`;
 
   // text mode: naming rides aria-labelledby — the leaf controls
   // self-wire through this context; the getter keeps `label` reactive

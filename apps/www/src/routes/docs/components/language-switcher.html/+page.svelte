@@ -115,7 +115,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -228,9 +228,9 @@ ${close}
             <code class={cx(rt.inkAccent)}>&#123; code, label, href &#125;</code> — pair renders the
             first two, menu renders all of them</span></li>
         <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-          <span>menu semantics: <code class={cx(rt.inkAccent)}>aria-haspopup="listbox"</code> on the
-            trigger, <code class={cx(rt.inkAccent)}>role="option"</code> +
-            <code class={cx(rt.inkAccent)}>aria-selected</code> on entries</span></li>
+          <span>menu semantics: a bare-disclosure BUTTON trigger (no aria-haspopup), a NAV
+            landmark, and locale anchors carrying <code class={cx(rt.inkAccent)}>aria-current="page"</code> —
+            navigation, not listbox selection (the a11y section below teaches the same served truth)</span></li>
         <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
           <span>styling speaks <code class={cx(rt.inkAccent)}>currentColor</code> and the terminal
             tokens — it drops onto any bezel or themed surface unchanged</span></li>

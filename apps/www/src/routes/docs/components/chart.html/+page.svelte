@@ -43,7 +43,7 @@
   const SEV = [4, 3, 2, 1];
 
   // ---- live demo state (playground protocol: snapshots + reset) --------
-  const canvasInitial = { table: false, cells: 'braille', area: false, markers: true };
+  const canvasInitial = { table: false, cells: 'braille' as 'block' | 'braille', area: false, markers: true };
   let showTable = $state(canvasInitial.table);
   let cellMode = $state<'block' | 'braille'>(canvasInitial.cells);
   let lineArea = $state(canvasInitial.area);
@@ -121,7 +121,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -577,12 +577,12 @@ ${close}
         </DensityDemo>
         <TokenTable
           tokens={[
-            { name: '--chart-1 .. --chart-5', default: 'semantic palette', source: 'theme' },
-            { name: '--brand-hue', default: 'oklch hue degrees', source: 'theme (neutral ladder)' },
-            { name: '--jx-fill / --jx-tonal / --jx-outline', default: 'variant slots', source: 'hue injection' },
-            { name: '--font-mono', default: 'JetBrains Mono stack', source: 'theme (the glyph lock)' },
+            { name: '--chart-1 .. --chart-5', default: 'semantic palette', source: 'color' },
+            { name: '--brand-hue', default: 'oklch hue degrees', source: 'color' },
+            { name: '--jx-fill / --jx-tonal / --jx-outline', default: 'variant slots', source: 'color' },
+            { name: '--font-mono', default: 'JetBrains Mono stack', source: 'component' },
             { name: '--jx-text / --jx-line / --jx-gap', default: 'density scale', source: 'density' },
-            { name: '--border / --muted', default: 'theme', source: 'grid hairlines / donut track' },
+            { name: '--border / --muted', default: 'theme', source: 'color' },
           ]}
         />
       </div>

@@ -1242,3 +1242,19 @@ pad delta. (5) Svelte snippet narrowing ({#if foot} guarding {@render foot()}) i
 typing-only debt — check the guard before invoking the tour-:456 latent-bug precedent.
 (6) The brand hue is per-load variable — L/C identity is the stable law; hue digits are
 environment receipts.
+
+## 2026-09-22 · T129 mermaid/pagination/patterns 1sts — census scopes and the per-load brand hue, part two
+
+(1) A page's OWN interactive nav (pagination's aria-label="Pagination") pollutes any
+`nav a` rail census — scope the toc rail to the scaffold's aside or the authored +page.ts,
+and count DOM id duplicates separately from rail links (pagination's REAL finding was the
+duplicate #usage ×2, invisible in the rail). (2) Mermaid zoom races the LAZY render: cap-
+ture the svg node only AFTER the seat reaches data-state="rendered", or the lazy swap
+masquerades as a zoom re-render; the error seat likewise needs scrollIntoView + engine-
+pass before data-state="error" paints. (3) copyCommand-style "one string, N jobs" CTAs
+put the PAYLOAD in the visible label — find the control by aria-label ("copy " + command),
+not by the word copy. (4) The brand hue is per-load variable (T120's lesson, re-hit via
+pagination's press-shadow adjacent reads): compare oklch L/C channels for identity; file
+hue digits as environment receipts. (5) Named-step coincidences (size={16} vs medium=16px)
+make demo pairs that cannot show what they teach — a demo-coherence nit class worth one
+look on every composed universal seat.

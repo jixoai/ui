@@ -164,8 +164,9 @@
     "quill",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st vellum T127 PASS 0M/1m/0L/0N; consolidated: :48 cells-union narrowing, FIVE TokenTable source-union seats trued to vocab, cx closed (page + family x4, MIRRORED)."
   },
   {
    "page": "checkbox",
@@ -226,8 +227,9 @@
     "quill",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st vellum T127 PASS 0M/2m/0L/0N; MINOR-1 (Enter-select never closes — live-only, static chain sound) LEDGERED + assigned to vellum for repro; MINOR-2 cx closed (page + family x5, MIRRORED)."
   },
   {
    "page": "component-canvas",
@@ -493,8 +495,9 @@
     "quill",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "1st vellum T127 PASS 0M/1m/1L/0N; consolidated: the stale listbox bullet trued to the served DOM (bare-disclosure BUTTON + NAV + aria-current anchors), cx closed both trees (MIRRORED)."
   },
   {
    "page": "link",
@@ -536,8 +539,9 @@
     "vellum",
     "quill"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st vellum T127 PASS 0M/1m/1L/0N; the PlayRow id law LANDED fleet-wide ($props.id() replaces the per-PlayFields counter — the jx-play-row-1-label x2 class dead; the W-next #12 fix shape); page cx closed; family 47 = typing CODE micro assigned to vellum."
   },
   {
    "page": "math-block",

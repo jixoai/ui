@@ -1498,3 +1498,29 @@
   ERROR lives in test/fixtures/context-coverage/root/registry (a sandbox copy), not the
   product tree or the mirrored registry. Mirror-law receipts should name all three
   surfaces: lib, registry twin, fixture sandbox.
+
+## 2026-09-22 — T127 first-review batch (chart/command/language-switcher/markdown)
+
+- **A "static readout" that never moved was another seat's readout** (the s13/s16
+  lesson now generalized): in component families with per-seat mount state, verify the
+  DRIVE TARGET was actually driven (dialog open? value landed?) before reading any
+  downstream state. Per-step verification (open? focused? visible?) beats post-hoc
+  reconciliation.
+- **offsetParent is null inside top-layer dialogs** — visibility checks inside
+  showModal surfaces must use getBoundingClientRect. The empty-state "invisible" read
+  was the instrument, not the paint.
+- **Page-reveal sections are lazy-mounted** — deep-section DOM reads need scroll-mount
+  first; top-of-page getElementById false-fails on ids that DO mount (input's #true)
+  and svg censuses read empty (chart's axes seat). Full-scroll, then read.
+- **First-svg finders catch icons** — pages carry 24×24 icon svgs everywhere; identify
+  the CHART svg by its viewBox (0 0 100 40). Same shape as the tgroup root/item
+  attribute pollution: scope by the structural signature, not the tag.
+- **Positional PlayRow label ids duplicate across canvases** — jx-play-row-1-label ×2
+  on markdown: canvas rows mint row-N ids per canvas, so every two-canvas page carries
+  the collision. The fix belongs in the canvas component (instance-scope), and the
+  census shape is ids matching /row-\d+-label/.
+- **The claim-vs-claim contradiction resolves at the DOM** — language-switcher's law
+  bullet (haspopup=listbox/option/selected) vs its own a11y section (bare disclosure/
+  nav/aria-current): the served DOM picked the a11y side, making the bullet a stale-
+  prose LOW instead of a judgment call. When a page disagrees with itself, serve the
+  verdict.
