@@ -298,7 +298,7 @@ describe('cascade order (Codex r2 P0 — source order decides equal specificity)
     }
   });
 
-  it('radio: the ::before kill survives the checkbox compose (content: none wins the base; the checked morph carries)', () => {
+  it('radio: the ::before kill survives the checkbox compose; the indeterminate branches are RETIRED (T94)', () => {
     const css = serializeLaw(radioLaw, { format: 'utility' }).css;
     // base ::before overridden to content:none by radio's delta
     expect(css).toMatch(/\.jx-html-radio::before \{[^}]*content: none/s);
@@ -308,7 +308,14 @@ describe('cascade order (Codex r2 P0 — source order decides equal specificity)
     // checkbox's ::before morphs carry (dead paint under content:none —
     // exactly the V2 cascade; they must not silently disappear)
     expect(css).toContain('.jx-html-radio:checked::before');
-    expect(css).toContain('.jx-html-radio:indeterminate::before');
+    // the T94 retirement (omitStateSelectors/omitPseudoStates at the
+    // declaration source): a radio group matches :indeterminate whenever
+    // NO member is checked — a RESTING group, not a selection state.
+    // Inheriting checkbox's indeterminate branches painted every
+    // all-unchecked group as a solid brand blob. The retirement must
+    // hold in EVERY emitted form — resurrecting these selectors is the
+    // regen-resurrection failure the generated-sheet law guards against.
+    expect(css).not.toContain(':indeterminate');
   });
 });
 

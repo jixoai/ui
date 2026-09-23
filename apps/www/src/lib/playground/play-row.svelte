@@ -14,7 +14,7 @@
   (ItemField never had that prop — density rides the ambient scope).
 -->
 <script lang="ts">
-  import { getContext, setContext } from 'svelte';
+  import { setContext } from 'svelte';
   import type { Snippet } from 'svelte';
   import { ItemField } from '$lib/ui/list-item';
 
