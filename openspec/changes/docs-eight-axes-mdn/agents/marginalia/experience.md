@@ -909,3 +909,10 @@
 - **Body-level clone is the sharpest instrument in this family**: same element, same classes, moved outside the stage — moves-to-flip TRUE settles STAGE-PIN in one read, immune to sample-site doubt.
 - **One internally inconsistent page seat beat five consistent ones**: spin :248 said root-dark FLIPS while five other seats said frozen-everywhere. When a page disagrees with itself, adjudicate before harmonizing — the minority seat was right.
 - My own prior receipts are not exempt from the concordance-contradiction alarm: task 72's discordance (two sibling receipts vs my one) was the signal that broke this open. Census-all + ancestor-walk + body-clone, in that order, is the full protocol.
+
+## T76 (tabs 2nd) — the pin-finder as routine receipt; two probe bugs worth their price
+
+- The remaining-sweep flag works as a workflow: folding the pin-finder into a routine 2nd review turns the fleet law from "believed" to "receipted" — tabs' 29 holds all walked to the same stage div class, zero anomalies, in one probe.
+- **Unawaited promise in page.evaluate logging prints `{}`** (JSON of a Promise) — looks like an empty result, silently discards the data. Every locator/evaluate helper that returns a promise gets `await` at the call site, not just inside.
+- **When a stamped attr matches both a static demo and the live seat, keying on the attr alone reads the wrong element** (first-match won the static lg demo). Read ALL stamped roots at both viewport ends and take the one whose value CHANGES — the static becomes the control and the receipt gets self-proving.
+- Family type-debt classes to keep separating in gates receipts: the Object.entries-undefined overload (kernel-adjacent, harmless) vs a `Cannot find name` (a missing import — type-layer only while the runtime strips types, but it's a one-line real fix; name it distinctly in the report).

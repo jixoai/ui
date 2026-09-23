@@ -979,8 +979,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 68 scribe 1st PASS (0M/0m/0L/0N); ARIA chain on real keys (29 tablists/129 tabs/22 panels censused; End-skip verified; panels unmounted by element-presence); indicator 15-of-20 distinct samples; THE THIRD ADJUDICATION DATA POINT: tabs FLIPS at the paint WITH the mechanism named (--jx-foreground at :root, :root==html, html.dark re-declares --foreground -> the alias re-derives at root and inherits); fleet line: separator HOLD / tags-input FLIP / tabs FLIP / spin HOLD — chain-specific, both classes paint-true"
+   "status": "done",
+   "notes": "CLOSED #55 (vellum 42 + scribe 68 1st + marginalia 76 2nd PASS); THE SWEEP CONFIRMATION: every unpinned instance flips (7/7 + 9/9 + 12/12, no data-theme ancestor), the 29 holds = exactly the 29 stage pins, moves-to-flip — the alias-theme law's fourth family clean; scribe's pre-74 canvas-ground insight honored (the stage-pin truth before task 74 named it); family flag: tabs-list.svelte:158 missing TabsScrollEffect import (drift #16, type-layer only)"
   },
   {
    "page": "tags-input",
