@@ -1062,3 +1062,21 @@
   (2 positions max). State the settle tolerance or the numbers will look
   discordant when they agree (marginalia's NIT, confirmed: my ±0.5px settle
   read 93-114ms against the quoted 82-99ms window — concord, not conflict).
+- **THE THEME-SPLIT HAS A HOST LAYER: THE CANVAS IS A LIGHT ISLAND** (terminal-footer,
+  task 67, measured by ancestor walk): under `html.dark` the page tokens flip
+  (--border white at body/main), but the component-canvas stage carries
+  `data-theme="light"` + `.jx-light`, re-pinning the light profile for
+  everything inside — the served demo footer stayed black-stroked while the
+  SAME rendered footer cloned to body level re-derived white, and a
+  component-level `.dark` stamp (closest scope) re-derived it in place. Three
+  scopes, one var: the host island beats the page, the component stamp beats
+  the island. When a theme claim "fails" on a docs page, walk the ancestors
+  for the pinning scope before believing it.
+- **PLAYGROUND BINDS ARE NOT COMPONENT BINDS**: PlayToggle exposes
+  `value = $bindable()` and forwards to Toggle's `checked` — `bind:checked`
+  on the playground wrapper is a non-bindable error. The kit's prop names are
+  the API; read the wrapper before binding through it.
+- **A BRACE IN MARKUP TEXT IS A PARSE ERROR**: a page summary containing
+  `{...rest}` (spread notation as PROSE) reads as an expression opener and
+  500s the route. Spread-as-prose needs rewording ("spreads the rest onto")
+  or an HTML-escaped brace.

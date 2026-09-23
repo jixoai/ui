@@ -1010,8 +1010,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 67 tier-2; THE HOST LAYER find: theme-split location beats the prop (canvas stage data-theme=light + .jx-light re-pins the profile; same footer at body level re-derives; component .dark stamp re-derives in place; stroke re-derives while --jx-muted-foreground ink freezes); ghost clamp measured; hover seam motion-150 RM-safe; EXTRA nuance: attribute-transparent not rest-less"
   },
   {
    "page": "terminal-header",

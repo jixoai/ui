@@ -1,13 +1,10 @@
-<!--
-  Docs page for the terminal-footer family (composition-first,
-  2026-08-25). Intents: hero summary, one ComponentCanvas over the
-  composed footer (columns with free links), the ghost recipe section.
-  Structure follows the list-item exemplar; the component family is
-  untouchable from here.
--->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
+  import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -15,18 +12,15 @@
   import TerminalFooter from '$lib/ui/terminal-footer/terminal-footer.svelte';
   import TerminalFooterColumn from '$lib/ui/terminal-footer/terminal-footer-column.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { PlayFields, PlayRow, PlayText, PlayToggle, PlaySegmented, PlayHelp } from '$lib/playground';
+
+  // Same-source law: the drawer shows the exact registry copy this site runs.
   import terminalFooterSource from '$lib/ui/terminal-footer/terminal-footer.svelte?raw';
   import terminalFooterCssSource from '$lib/ui/terminal-footer/terminal-footer.css?raw';
-  import CodeBlock from '$lib/code-block.svelte';
-  import { GITHUB_URL } from '$lib/site';
-  import { PlayFields, PlayHelp } from '$lib/playground';
-  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
-  // A literal closing-script tag inside a template literal would terminate
-  // this component's own script tag during the HTML-level scan — splice it.
   const close = '</' + 'script>';
 
-  // single usage sample: the drawer file and the body CodeBlock share it
   const usage = `<script lang="ts">
   import TerminalFooter from '@ui/terminal-footer/terminal-footer.svelte';
   import TerminalFooterColumn from '@ui/terminal-footer/terminal-footer-column.svelte';
@@ -38,18 +32,36 @@ ${close}
     <a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer">GitHub</a>
     <a href="/r/registry.json">Registry JSON</a>
   </TerminalFooterColumn>
+  <TerminalFooterColumn title="docs">
+    <a href="/docs.html">Docs</a>
+  </TerminalFooterColumn>
 </TerminalFooter>`;
 
-  const files: TreeFile[] = [
+  const canvasUsage = `<TerminalFooter {ghost} {copyright}>
+  <TerminalFooterColumn title="project">…free links…</TerminalFooterColumn>
+  {#if extraColumn}<TerminalFooterColumn title="docs">…</TerminalFooterColumn>{/if}
+</TerminalFooter>`;
+
+  const canvasFiles: TreeFile[] = [
     { name: 'registry/files/ui/terminal-footer/terminal-footer.svelte', content: terminalFooterSource },
     { name: 'registry/files/ui/terminal-footer/terminal-footer.css', content: terminalFooterCssSource },
-    { name: 'src/lib/ui/terminal-footer-usage.svelte', content: usage, kind: 'usage' },
+    { name: 'src/lib/ui/terminal-footer-usage.svelte', content: canvasUsage, kind: 'usage' },
   ];
 
-  // ---- canvas-everywhere sweep (2026-09-08): hand-authored mirror of
-  // the effect-only column grid below — the same-source resolveRawCode
-  // migration of this string is the recorded follow-up -------------
-  const terminalFooterTypesDemo = `<script lang="ts">
+  // playground state (P1): the page owns the snapshot
+  const canvasInitial = { ghost: 'JIXOAI-UI', extraColumn: false, copyright: 'default' };
+  let ghost = $state(canvasInitial.ghost);
+  let extraColumn = $state(canvasInitial.extraColumn);
+  let copyright = $state(canvasInitial.copyright);
+  const copyrightText = $derived(copyright === 'default' ? `© ${new Date().getFullYear()}` : '© 2026 jixoai · MIT');
+  function resetCanvas(): void {
+    ghost = canvasInitial.ghost;
+    extraColumn = canvasInitial.extraColumn;
+    copyright = canvasInitial.copyright;
+  }
+
+  // the states pair (types section): titled column vs the untitled stack
+  const typesUsage = `<script lang="ts">
   import TerminalFooterColumn from '@ui/terminal-footer/terminal-footer-column.svelte';
 ${close}
 
@@ -57,8 +69,7 @@ ${close}
   <div class="flex min-w-56 flex-1 flex-col gap-3 border border-border p-4">
     <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">titled column</span>
     <TerminalFooterColumn title="project">
-      <a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer">GitHub</a>
-      <a href="/r/registry.json">Registry JSON</a>
+      <a href="https://github.com/jixoai/ui">GitHub</a>
     </TerminalFooterColumn>
     <span class="text-muted-foreground text-[12.5px]">title + free link children</span>
   </div>
@@ -72,29 +83,104 @@ ${close}
   </div>
 </div>`;
 
-  const terminalFooterTypesFiles: TreeFile[] = [
-    { name: 'terminal-footer-types-demo.svelte', content: terminalFooterTypesDemo, kind: 'usage' },
+  const typesFiles: TreeFile[] = [
+    { name: 'terminal-footer-types-demo.svelte', content: typesUsage, kind: 'usage' },
   ];
-  // the page's local join (the separator serialize law): plain
-  // strings pass through whole; stylex objects contribute their
-  // string members ($$css dropped).
+
+  // the page's local join (the separator serialize law): plain strings
+  // pass through whole; stylex objects contribute their string members
+  // ($$css dropped).
   const cx = (
-    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+    ...styles: ({ readonly [key: string]: string | object } | undefined)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
-        typeof style === 'string'
-          ? style
-          : Object.entries(style).flatMap(([key, value]) =>
-              key !== '$$css' && typeof value === 'string' ? [value] : [],
-            ).join(' '),
+        Object.entries(style).flatMap(([key, value]) =>
+          key !== '$$css' && typeof value === 'string' ? [value] : [],
+        ).join(' '),
       )
       .join(' ');
-  // ---- the universal props demo (explicit-props W3-C) --------------------
-  const universalUsage = `<TerminalFooter ghost="JIXOAI/UI" theme="dark">…columns…</TerminalFooter>`;
-  const universalFiles: TreeFile[] = [
-    { name: 'src/lib/ui/terminal-footer-universal.svelte', content: universalUsage },
+
+  // ── the measured per-axis table (task 67) — every cell measured on the
+  // served DOM (probe) or negative-grepped over ui/terminal-footer/ ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "MANAGED BUT PAINT-INVARIANT — the rung attr stamps the footer root (data-density), and the shell's measure + rhythm is fixed elsewhere: the padding steps are space tokens re-pinned by the sm/lg media seams and the meta gaps are fixed steps (measured an identical shell at the 2xs and lg rungs). Zero --jx-density-effective readers (grep receipt). Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "INHERITED ECHO, PARTIAL — the §1 stamp sets the root font-size and the FREE text follows it: the © line and the column links inherit (measured 30px under a 30px stamp), while the ghost ignores it (clamp(3rem, 11vw, 9rem) is viewport/root-relative, measured unmoved) and the column-title/copyright voices ride fixed promoted label steps (11px/12.5px, measured constant). Zero --jx-size-effective readers (grep receipt). Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero shape-channel readers (grep receipt: no corner-shape or factor consumer in ui/terminal-footer/); the shell is square chrome (measured border-radius 0). Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero radius-effective readers (grep receipt); the footer carries no border-radius to re-shape (measured 0px — flat chrome, no card surface). Number unit: px.',
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the family's one brand paint (the free-link hover) reads var(--primary) straight from the legacy chain (measured muted → primary on hover), so the global brand-hue runtime moves it while the hue AXIS never reaches the component: zero --jx-color-effective readers (grep receipt). Quote the ink by lightness/chroma — the hue digits rotate with the runtime. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "DECLARATIVE, AND THE HOST DECIDES — the family split: unlike the terminal bezel twins (header/card, whose shell-theme literal owns the name), the footer carries NO theme literal; theme=\"dark\" only stamps the .dark class on the root. What re-derives is split and measured: the ghost's stroke rides color-mix over var(--border), so it re-derives under a .dark scope (1px oklab(0 0 0 / 0.55) → oklab(1 0 0 / 0.55)) while the meta/title ink keeps its light --jx-muted-foreground (the --jx-* set is :root-only — frozen). And the host lesson: inside a component-canvas stage a data-theme=\"light\" island re-pins the light profile, so the served demo stays black-stroked under page-dark — the SAME rendered footer moved to body level re-derives white. Location decides; system/auto = tree inheritance. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero elevation-carrier readers (grep receipt); the footer is flat page chrome (measured box-shadow none). Number unit: dp.',
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "ONE SEAM, RM-SAFE — the family's single transition is the free-link hover: var(--motion-150) var(--motion-ease-out) (measured 0.15s ease-out; re-timing the token re-times the hover — measured 2s under a --motion-150 injection, the seam governs). A color transition has no motion path, so it survives prefers-reduced-motion (measured 0.15s under RM emulation — no kill authored, none needed). Zero --jx-motion-effective readers (grep receipt). Number unit: coefficient.",
+    },
+  ];
+
+  // the ONE query() case: responsive size — the number lane goes bare;
+  // md = 48rem (the registered VIEWPORT_SCALE — cite the key).
+  const responsiveSize = query({ md: 18 }, 13);
+
+  const queryUsage = `<script lang="ts">
+  import TerminalFooter from '@ui/terminal-footer/terminal-footer.svelte';
+  import TerminalFooterColumn from '@ui/terminal-footer/terminal-footer-column.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- below 48rem the base (13px root) applies; at 48rem+ the md case (18px)
+     wins — the free text (© line, links) echoes it, the ghost stays clamped -->
+<TerminalFooter ghost="JIXOAI/UI" size={query({ md: 18 }, 13)}>
+  <TerminalFooterColumn title="project"><a href="/docs.html">Docs</a></TerminalFooterColumn>
+</TerminalFooter>`;
+
+  const queryFiles: TreeFile[] = [
+    { name: 'terminal-footer-query-demo.svelte', content: queryUsage, kind: 'usage' },
   ];
 
 </script>
@@ -103,128 +189,226 @@ ${close}
   <title>Terminal footer · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai terminal-footer family: the ghost wordmark that closes the narrative — a huge hollow brand word via text-stroke with an @supports fallback — over a composed meta row of TerminalFooterColumn parts (title + free links) and the © line."
+    content="The jixoai terminal-footer: the ghost wordmark that closes the narrative — a huge hollow brand word via text-stroke with an @supports fallback — over a composed meta row of TerminalFooterColumn parts (title + free links) and the © line."
   />
 </svelte:head>
 
 <div
   class={cx(rt.shell)}
 >
-  <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
-       glass bar under the scaffold header (height 0, see toc.css) -->
 
   <div class={cx(rt.shellCol)}>
-    <div data-reveal="">
-      <SectionCard
-        headingLevel={1}
-        tone="hero"
-        eyebrow="registry:ui · Layout"
-        title="terminal-footer — the ghost wordmark"
-        summary="The closing beat of the page narrative: one giant hollow brand word — clamp(3rem, 11vw, 9rem), transparent fill, a 1px text-stroke of the border color at 55% — over a meta row composed as TerminalFooterColumn parts: a column title plus FREE link children (the closed links[] data prop died with the data-driven form). Decorative by declaration: the word is aria-hidden and unselectable, so it is pure sign-off, never information."
-      >
-        <div class={cx(rt.wrap12)}>
-          <span class="pill">text-stroke recipe</span>
-          <span class="pill">@supports fallback</span>
-          <span class="pill">aria-hidden · unselectable</span>
-          <span class="pill">columns composed</span>
-        </div>
-      </SectionCard>
-    </div>
+  <div data-reveal="">
+    <SectionCard
+      headingLevel={1}
+      tone="hero"
+      eyebrow="registry:ui · Layout"
+      title="terminal-footer — the ghost wordmark"
+      summary="Composition-first: the root is a real <footer> landmark, the meta row composes TerminalFooterColumn parts (a title plus FREE link children — the closed links[] data prop died with the data-driven form), and the ghost word is decorative by declaration — aria-hidden, unselectable, pure sign-off. The family carries no theme literal: the paint follows the page, and the axes are a first-time all-no-own contract."
+    >
+      <div class={cx(rt.wrap12)}>
+        <span class="pill">composition-first</span>
+        <span class="pill">free link children</span>
+        <span class="pill">text-stroke recipe</span>
+        <span class="pill">aria-hidden · unselectable</span>
+        <span class="pill">declarative theme</span>
+      </div>
+    </SectionCard>
+  </div>
 
-    <div data-reveal="">
-      <ComponentCanvas
-        title="terminal-footer"
-        description="A real footer renders here — composed from columns with free links, staged inline at the canvas width. The ghost scales with the viewport (11vw with clamps), so narrow the window and watch the wordmark breathe."
-        sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-footer/terminal-footer.svelte"
-        {files}
-        stage="fill"
-      >
-        <div class={cx(rt.wFull)}>
-          <p class={cx(rt.inkMuted, rt.mb16, rt.textCenter, rt.text125)}>
-            ↓ a live footer, rendered directly — the stage is its viewport
-          </p>
-          <TerminalFooter ghost="JIXOAI-UI" copyright="© 2026 jixoai · MIT">
-            <TerminalFooterColumn title="project">
-              <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
-              <a href="/r/registry.json">Registry JSON</a>
-            </TerminalFooterColumn>
-            <TerminalFooterColumn title="registry">
-              <a href="https://ui.shadcn.com/docs/registry" target="_blank" rel="noreferrer">
-                shadcn registry docs
-              </a>
-            </TerminalFooterColumn>
-          </TerminalFooter>
-        </div>
-        {#snippet playground()}
-          <PlayFields>
-            <PlayHelp>
-              hover a link inside a column — it warms from muted to the brand hue (a layered
-              descendant rule; the anchors are free children, so no utility slot exists on them).
-              Narrow the viewport: the ghost word scales by <code>11vw</code> between clamps, so
-              it breathes with the window instead of overflowing.
-            </PlayHelp>
-          </PlayFields>
-        {/snippet}
-      </ComponentCanvas>
-    </div>
+  <!-- install (the archetype's install anchor; chrome — out of the toc) -->
+  <div id="install" data-reveal="">
+    <DocsInstall name="terminal-footer" />
+  </div>
 
-    <div id="ghost-recipe" data-reveal="">
-      <SectionCard
-        family="ghost-recipe"
-        headerRegion="ghost-recipe"
-        eyebrow="law"
-        title="The ghost, precisely"
-        summary="Three declarations carry the effect; the fourth is honesty about engine support. The wordmark never carries meaning a screen reader needs — the composed link columns below do that work."
-      >
-        <div class={cx(rt.col20)}>
-          <ul class={cx(rt.col8, rt.body13)}>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>scale: <code class={cx(rt.inkAccent)}>font-size: clamp(3rem, 11vw, 9rem)</code> with
-              <code class={cx(rt.inkAccent)}>line-height: 0.9</code> — big at every tier, never banner-sized</span></li>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>hollow: transparent fill +
-              <code class={cx(rt.inkAccent)}>-webkit-text-stroke: 1px</code> of the border token at 55%</span></li>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>fallback: <code class={cx(rt.inkAccent)}>@supports not (-webkit-text-stroke)</code> swaps
-              to a 35% border-tinted solid fill</span></li>
-            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>etiquette: <code class={cx(rt.inkAccent)}>aria-hidden="true"</code> +
-              <code class={cx(rt.inkAccent)}>select-none</code> — decorative by construction; external
-              links are authored by the caller (target/rel are yours to set)</span></li>
-          </ul>
-          <CodeBlock code={usage} lang="svelte" meta="usage" />
-        </div>
-      </SectionCard>
-    </div>
+  <!-- overview -->
+  <div id="overview" data-reveal="">
+    <SectionCard
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="The platform gives the landmark; the family gives the ghost recipe, the composed meta row, and a split theme story — all measured."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          The semantics are the platform's and the composition law is the family's: the root is a
+          real <code class={cx(rt.inkPrimary)}>&lt;footer&gt;</code> (the contentinfo landmark —
+          zero ARIA wiring authored), and the meta row is not data. The old closed
+          <code class={cx(rt.inkPrimary)}>links[]</code> prop died: columns compose as
+          <code class={cx(rt.inkPrimary)}>TerminalFooterColumn</code> children — a title span plus
+          FREE anchor children the consumer authors, external-link attributes
+          (<code class={cx(rt.inkPrimary)}>target</code>/<code class={cx(rt.inkPrimary)}>rel</code>)
+          included. The component owns the shell (a 90rem measure with auto margins and
+          three-step padding seams — 16px base, 24px at 40rem, 32px at 64rem, measured), the ghost
+          recipe, and the column voices; the content is entirely yours.
+        </p>
+        <p class={cx(rt.para)}>
+          The ghost is three declarations and an honesty clause. Scale:
+          <code class={cx(rt.inkPrimary)}>clamp(3rem, 11vw, 9rem)</code> — measured 140.8px at a
+          1280 viewport (11vw below the cap) and 144px (the 9rem cap) at 1600. Hollow: transparent
+          fill with a 1px text-stroke of the border token at 55%. Fallback:
+          <code class={cx(rt.inkPrimary)}>@supports not (-webkit-text-stroke)</code> swaps a 35%
+          border-tinted solid fill for engines without the stroke. Etiquette:
+          <code class={cx(rt.inkPrimary)}>aria-hidden</code> +
+          <code class={cx(rt.inkPrimary)}>user-select: none</code> — decorative by construction,
+          never information. And the theme story is a measured split: the stroke rides
+          <code class={cx(rt.inkPrimary)}>color-mix</code> over <code class={cx(rt.inkPrimary)}>var(--border)</code>,
+          so it re-derives under a .dark scope (black tint → white tint, measured) while the
+          meta and title inks keep their light <code class={cx(rt.inkPrimary)}>--jx-muted-foreground</code>
+          (the --jx-* set is :root-only — frozen). One host lesson worth carrying: inside a
+          component-canvas stage a <code class={cx(rt.inkPrimary)}>data-theme="light"</code> island
+          re-pins the light profile, so the served demo stays black-stroked under page-dark while
+          the same rendered footer at body level re-derives white — location decides.
+        </p>
+        <p class={cx(rt.para)}>
+          The eight axes are a FIRST-TIME all-no-own contract — zero effective-carrier readers
+          (grep receipt). Density stamps the rung and moves nothing (paint-invariant shell,
+          measured at the 2xs and lg rungs); size is an inherited echo (the free text scales with
+          the root voice, the ghost does not); shape/radius/color/elevation supply unread (flat
+          square chrome whose only brand paint is the link hover); motion rides one seam (the
+          hover's 150ms ease-out token — re-timed by injection, measured, and RM-safe since a color
+          change has no motion path); theme is declarative (above). Kinship:
+          <code class={cx(rt.inkPrimary)}>terminal-header</code> and
+          <code class={cx(rt.inkPrimary)}>terminal-card</code> (the dark-locked bezel twins — the
+          footer is the light-following sibling of the family),
+          <code class={cx(rt.inkPrimary)}>website-scaffold</code> (the page shell this closes).
+        </p>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="live-demo" data-reveal="">
+    <ComponentCanvas
+      title="terminal-footer"
+      stage="fill"
+      description="A real footer renders here — composed from columns with free links, staged inline at the canvas width. The ghost scales with the viewport (11vw between clamps), so narrow the window and watch the wordmark breathe."
+      sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/terminal-footer/terminal-footer.svelte"
+      files={canvasFiles}
+      onreset={resetCanvas}
+      output={[{ label: '© line', value: copyrightText }]}
+    >
+      <div class={cx(rt.wFull)}>
+        <p class={cx(rt.inkMuted, rt.mb16, rt.textCenter, rt.text125)}>
+          ↓ a live footer, rendered directly — the stage is its viewport
+        </p>
+        <TerminalFooter {ghost} copyright={copyrightText}>
+          <TerminalFooterColumn title="project">
+            <a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="/r/registry.json">Registry JSON</a>
+          </TerminalFooterColumn>
+          {#if extraColumn}
+            <TerminalFooterColumn title="docs">
+              <a href="/docs.html">Docs</a>
+              <a href="/recipes.html">Recipes</a>
+            </TerminalFooterColumn>
+          {/if}
+        </TerminalFooter>
+      </div>
+      {#snippet playground()}
+        <PlayFields>
+          <PlayRow label="ghost">
+            <PlayText bind:value={ghost} placeholder="JIXOAI-UI" />
+          </PlayRow>
+          <PlayRow label="second column">
+            <PlayToggle bind:value={extraColumn} />
+          </PlayRow>
+          <PlayRow label="© line">
+            <PlaySegmented
+              bind:value={copyright}
+              options={[
+                { value: 'default', label: 'live year' },
+                { value: 'custom', label: 'authored' },
+              ]}
+            />
+          </PlayRow>
+          <PlayHelp>
+            hover a link inside a column — it warms from muted to the brand hue (a layered
+            descendant rule; the anchors are free children, so no utility slot exists on them).
+            The © line defaults to the live year; author <code>copyright</code> to replace it.
+          </PlayHelp>
+        </PlayFields>
+      {/snippet}
+    </ComponentCanvas>
+  </div>
+
+  <div id="terminal-footer-base" data-reveal="">
+    <SectionCard
+      family="terminal-footer-base"
+      headerRegion="terminal-footer-base"
+      eyebrow="W3C foundation"
+      title="What the platform gives"
+      summary="The root is the native <footer> — the contentinfo landmark, free by default: no role wiring, no names to manage. The free links are real anchors (crawlable, focusable, in composed order); the ghost is hidden from the tree, so the landmark reads exactly as composed."
+    >
+      <CodeBlock code={usage} lang="svelte" meta="usage" />
+    </SectionCard>
+  </div>
   </div>
 </div>
 
 <div class={cx(rt.shellFlush)}>
-  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One footer shell; the meta row is composed freely — titled or untitled columns of free links.">
-    <ComponentCanvas title="terminal-footer · columns" stage="fill" files={terminalFooterTypesFiles}>
-      <div class={cx(rt.wrapStart24)}>
-        <div class={cx(rt.col12, rt.panel, rt.grow, rt.tfMinW56)}><span class={cx(rt.eyebrowPrimary)}>titled column</span><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a><a href="/r/registry.json">Registry JSON</a></TerminalFooterColumn><span class={cx(rt.inkMuted, rt.text125)}>title + free link children</span></div>
-        <div class={cx(rt.col12, rt.panel, rt.grow, rt.tfMinW56)}><span class={cx(rt.eyebrowPrimary)}>untitled stack</span><TerminalFooterColumn><a href="/docs.html">Docs</a><a href="/recipes.html">Recipes</a></TerminalFooterColumn><span class={cx(rt.inkMuted, rt.text125)}>omit title for a bare link stack</span></div>
-      </div>
-    </ComponentCanvas>
-  </SectionCard></div>
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the footer from column parts; ghost and copyright are the shell's own strings."><CodeBlock code={usage} lang="svelte" meta="TerminalFooter usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The ghost is decorative by declaration; the real content is the composed landmark and its free links."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the column links in composed order' }]} aria={[{ name: 'aria-hidden', value: 'true', description: 'On the ghost wordmark + select-none — pure sign-off, never information' }, { name: 'footer', value: 'landmark', description: 'The root is a real footer element' }, { name: 'target/rel', value: 'yours', description: 'External link attributes are authored by the caller on the free anchors' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="Viewport-scaled chrome, not density-scaled: the ghost breathes by 11vw; the paint is three text-stroke declarations with an @supports fallback."><div class={cx(rt.col24)}><DensityDemo><TerminalFooter ghost="JIXOAI-UI" copyright="© 2026 jixoai · MIT"><TerminalFooterColumn title="project"><a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a></TerminalFooterColumn></TerminalFooter></DensityDemo><TokenTable tokens={[{ name: 'ghost scale', default: 'clamp(3rem, 11vw, 9rem)', source: 'component' }, { name: '-webkit-text-stroke', default: '1px border @ 55%', source: 'color' }, { name: '@supports fallback', default: '35% border-tinted fill', source: 'color' }]} /></div></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Types" summary="One column part, two postures: titled (an uppercase eyebrow over the stack) or untitled (a bare link stack)."><ComponentCanvas title="terminal-footer · columns" stage="fill" files={typesFiles}>
+    <div class={cx(rt.wrapStart24)}>
+      <div class={cx(rt.col12, rt.panel, rt.grow, rt.tfMinW56)}><span class={cx(rt.eyebrowPrimary)}>titled column</span><TerminalFooterColumn title="project"><a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer">GitHub</a><a href="/r/registry.json">Registry JSON</a></TerminalFooterColumn><span class={cx(rt.inkMuted, rt.text125)}>title + free link children</span></div>
+      <div class={cx(rt.col12, rt.panel, rt.grow, rt.tfMinW56)}><span class={cx(rt.eyebrowPrimary)}>untitled stack</span><TerminalFooterColumn><a href="/docs.html">Docs</a><a href="/recipes.html">Recipes</a></TerminalFooterColumn><span class={cx(rt.inkMuted, rt.text125)}>omit title for a bare link stack</span></div>
+    </div>
+  </ComponentCanvas></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Compose the footer from column parts; ghost and copyright are the shell's own strings — everything inside the columns is yours."><CodeBlock code={usage} lang="svelte" meta="TerminalFooter usage" /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Viewport-scaled chrome, not density-scaled: the ghost breathes by 11vw (density paint-invariant, measured at the 2xs and lg rungs), the paint is three text-stroke declarations with an @supports fallback, and the single transition rides a motion token a consumer can re-time."><div class={cx(rt.col24)}><DensityDemo scopes={['2xs', 'xs', 'sm', 'default', 'lg']}><TerminalFooter ghost="JIXOAI-UI" copyright="© 2026 jixoai · MIT"><TerminalFooterColumn title="project"><a href="https://github.com/jixoai/ui" target="_blank" rel="noreferrer">GitHub</a></TerminalFooterColumn></TerminalFooter></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: 'ghost scale', default: 'clamp(3rem, 11vw, 9rem)', source: 'component', description: 'Measured 140.8px at 1280 (11vw under the cap), 144px at 1600 (the cap).' }, { name: '-webkit-text-stroke', default: '1px border @ 55%', source: 'color', description: 'The hollow word — color-mix over var(--border); re-derives under a .dark scope (measured black tint → white tint).' }, { name: '@supports fallback', default: '35% border-tinted fill', source: 'color', description: 'The unlayered carve-out for engines without text-stroke.' }, { name: '--motion-150 / --motion-ease-out', default: '0.15s ease-out', source: 'structural', description: 'The free-link hover seam (re-timed by the token, measured).' }, { name: 'shell measure', default: '90rem + auto margins', source: 'component', description: 'The footer caps at 1440px and centers (measured at a 1600 viewport).' }, { name: '--jx-muted-foreground', default: 'light literal', source: 'color', description: 'The meta/title ink — frozen under .dark (the --jx-* set is :root-only).' }]} /></div></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The declared surface is 12 named props on the shell (ghost, copyright, children, class, style + the eight axes) and 3 on the column (title, children, class). The residual is NOT dropped — both components spread the rest onto their real elements (HTMLAttributes passthrough, 'color' withheld on the shell), so the footer is attribute-transparent: id, data-*, aria-* and handlers land on the landmark you composed."><PropsTable universal props={[{ name: 'ghost', type: 'string', default: '—', description: 'The ghost wordmark (decorative, aria-hidden, unselectable).', required: true }, { name: 'copyright', type: 'string', default: `© {live year}`, description: 'The © row text.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The meta row — compose TerminalFooterColumn parts.', required: true }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the footer root.' }, { name: 'style', type: 'string', default: "''", description: 'Style passthrough, joined after the axis carriers.' }, { name: '…rest', type: 'HTMLAttributes<HTMLElement>', default: '—', description: 'Forwarded onto the <footer> element — the shell is attribute-transparent (id, data-*, aria-*, handlers; the color ATTRIBUTE is withheld, the color AXIS is not).' }, { name: 'Column: title', type: 'string', default: '—', description: 'The column heading (an uppercase eyebrow span); omit for an untitled link stack.' }, { name: 'Column: children', type: 'Snippet', default: '—', description: 'FREE link children — anchors are yours to author (target/rel included).', required: true }, { name: 'Column: …rest', type: 'HTMLAttributes<HTMLDivElement>', default: '—', description: 'Forwarded onto the column div.' }]} /></SectionCard></div>
 
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
       headerRegion="universal-props"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own — the footer is flat page chrome. Unlike the terminal bezel twins (header/card, whose shell-theme literal owns the `theme` name), the footer carries NO theme literal — the theme axis joins WHOLE."
+      title="The eight axes on terminal-footer"
+      summary="The FIRST-TIME all-no-own contract, measured honestly: density stamps the root and moves nothing (paint-invariant shell — the measure and rhythm live in the family css, media seams and all); size is an inherited echo on the free text (the ghost stays clamped); shape/radius/color/elevation supply unread (flat square chrome, one brand hover); motion rides a single re-timable hover seam; theme is DECLARATIVE — no shell literal, the paint follows the page, and a canvas light-island can pin the demo."
     >
-      <ComponentCanvas title="TerminalFooter · universal props" stage="fill" files={universalFiles}>
-<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Flat chrome, whole axes: the theme axis joins here (no shell literal owns the name).</p></div>
-      </ComponentCanvas>
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the shell (90rem cap with auto margins — measured 1440px wide, centered, at a
+          1600 viewport; padding seams 16/24/32px at base/40rem/64rem) and the ghost (140.8px at
+          1280, 144px at 1600 — the 9rem cap; transparent fill, 1px stroke at 55%) were measured on
+          this page's served DOM (probe, task 67); the theme split (stroke
+          oklab(0 0 0 / 0.55) → oklab(1 0 0 / 0.55) under a .dark scope while the meta ink stayed
+          oklch(0.3211 0 0); the canvas data-theme="light" island pinning the served demo; the same
+          footer re-derived at body level) and the hover seam (0.15s ease-out muted → primary;
+          2s under a --motion-150 injection; 0.15s preserved under RM emulation) were measured the
+          same way; the unread rows carry grep receipts over ui/terminal-footer/. The query() seat
+          below rides the md viewport key (48rem) on the size lane.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="terminal-footer · query()" files={queryFiles}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWMd)}>
+              <TerminalFooter ghost="JIXOAI/UI" size={responsiveSize}>
+                <TerminalFooterColumn title="project"><a href="/docs.html">Docs</a></TerminalFooterColumn>
+              </TerminalFooter>
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 48rem the base (13px root) applies; at 48rem and
+                wider the md case wins (18px) — the free text (© line, links) echoes it while the
+                ghost stays clamped. The number lane goes bare. Resize across 48rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="TerminalFooter · universal props" stage="fill" files={queryFiles}>
+            <div class={cx(rt.panel)}><TerminalFooter ghost="JIXOAI-UI" size={18} density="small"><TerminalFooterColumn title="project"><a href="/docs.html">Docs</a></TerminalFooterColumn></TerminalFooter></div>
+          </ComponentCanvas>
+        </div>
+      </div>
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the TerminalFooter and TerminalFooterColumn Props interfaces."><PropsTable universal props={[{ name: 'ghost', type: 'string', default: '—', description: 'The ghost wordmark (decorative, aria-hidden).', required: true }, { name: 'copyright', type: 'string', default: '© {live year}', description: 'The © row text.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The meta row — compose TerminalFooterColumn parts.', required: true }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough (footer root / column root).' }, { name: 'Column: title', type: 'string', default: '—', description: 'The column heading; omit for an untitled link stack.' }, { name: 'Column: children', type: 'Snippet', default: '—', description: 'FREE link children — anchors are yours to author.', required: true }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The landmark is the platform's; the ghost is decorative by declaration; everything readable is composed by you — including the external-link attributes."><A11yTable keys={[{ key: 'Tab', action: 'Moves through the column links in composed order — the free anchors are real links, focusable by default' }]} aria={[{ name: 'footer (implicit)', value: 'contentinfo landmark', description: 'The root is a real <footer> element — zero ARIA authored; screen readers list it as the page contentinfo' }, { name: 'aria-hidden', value: 'true', description: 'On the ghost wordmark, with user-select: none — decorative by construction: pure sign-off, never information' }, { name: 'column titles', value: 'spans, not headings', description: 'The uppercase eyebrows carry no heading semantics — the landmark and its links carry the structure' }, { name: 'target / rel', value: 'yours', description: 'External-link attributes are authored by the caller on the free anchors' }, { name: 'hover', value: 'color-only', description: 'The link warming is a color transition (measured 0.15s ease-out) — no motion path, so it survives prefers-reduced-motion; never the only affordance (focus and activation are native)' }]} /></SectionCard></div>
+
+  <!-- see-also (chrome — out of the toc) -->
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="terminal-footer" />
+  </div>
 </div>
