@@ -2,9 +2,15 @@
   jixoai dialog (registry/files/ui/dialog/dialog.svelte).
 
   NativeHTML base (2026-08-20): the native <dialog> element driven by
-  showModal()/close(). The platform supplies the focus trap, the Escape
-  key (cancel event), an inert page behind, top-layer rendering, and
+  showModal()/close(). The platform supplies Escape
+  key (cancel event), top-layer rendering, and
   closed-by-default (no-JS page loads never paint dialog contents inline).
+  The modal focus trap holds for the in-dialog cycle but LEAKS every
+  second Tab to the host page's skip link (measured per-press,
+  docs-eight-axes-mdn task 85 — the one page focusable the modal
+  inertness does not cover; the next press returns inside the dialog).
+  The repair (inert polyfill or scaffold-side skip-link handling) is
+  queued W-next; until then consumers should not claim a full trap.
   The component adds exactly two things: bindable open state, and the
   shared WAAPI surface timeline (460ms, --jx-p — skipped under
   prefers-reduced-motion) whose layer choreography (surface sinks, shadow

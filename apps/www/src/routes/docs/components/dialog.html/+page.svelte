@@ -240,7 +240,7 @@ ${close}
   // ONE typed state object (canvas-floor-lab 2.1): open + title live in
   // play.current; reset() restores the documented defaults (closed,
   // "Deploy queued") with every binding still live.
-  const play = playState({ open: false, title: 'Deploy queued' });
+  const play = playState({ open: false as boolean, title: 'Deploy queued' });
 
   // ToC outline: pairs with the section ids below, in page order.
 
@@ -275,7 +275,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -340,7 +340,7 @@ ${close}
   <div data-reveal="">
     <ComponentCanvas
       title="dialog"
-      description="One native <dialog> driven by showModal(): the browser owns the focus trap, Escape, and the top layer — the component adds bindable open state and the shared WAAPI surface timeline. Retitle it from the Playground; preview the scrim in both stage themes."
+      description="One native <dialog> driven by showModal(): the browser owns Escape and the top layer — the component adds bindable open state and the shared WAAPI surface timeline. The platform focus trap holds for the in-dialog cycle but LEAKS every second Tab to the page's skip link (measured per-press; the repair is the family's, W-next). Retitle it from the Playground; preview the scrim in both stage themes."
       sourceUrl={registrySourceUrl('dialog')}
       install="dialog"
       files={canvasFiles}
@@ -765,8 +765,8 @@ ${close}
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Flip bind:open from anywhere — every exit (×, Escape, code) runs the same animated close."><CodeBlock code={basicUsage} lang="svelte" meta="Dialog usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role, focus trap, and Escape are the platform's."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap; the page behind is inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class={cx(rt.col20)}><p class={cx(rt.bodyMuted)}>the trigger inherits the density scope, the surface inherits through the DOM tree — flip the canvas dock's density select (xs / sm / default / lg) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that select.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 14% / white 14%', source: 'color', description: '::backdrop — semi-transparent black (light) / white (dark), never a brand tint.' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native dialog element carries the modal contract — role and Escape are the platform's, fully; the platform focus trap holds for the in-dialog cycle but LEAKS every second Tab (measured, per-press receipts by two reviewers: in-dialog tabbable → the page skip link → in-dialog tabbable — the only page focusable that escapes the modal inertness)."><A11yTable keys={[{ key: 'Tab', action: 'Cycles inside the dialog — the showModal() focus trap, WITH A MEASURED LEAK: every second press reaches the page\'s skip link (the one page focusable the modal inertness does not cover; reproduced per-press, two independent runs — the repair is the family\'s, W-next). From the skip link the next press returns to the dialog — the rest of the page IS inert' }, { key: 'Escape', action: 'Cancel event, intercepted only to share the animated close' }, { key: 'Enter / Space', action: 'Activate the focused control (× button, footer buttons, form method="dialog" submits)' }]} aria={[{ name: 'aria-label', value: 'title', description: 'On the dialog element — the header heading when given.' }, { name: 'role', value: 'dialog (native)', description: 'The platform element; no ARIA roles to maintain.' }, { name: 'aria-label', value: '"Close"', description: 'On the × button.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The surface rides the shared motion kernel — one animated custom property drives entry, exit, and the scrim."><div class={cx(rt.col20)}><p class={cx(rt.bodyMuted)}>the trigger inherits the density scope, the surface inherits through the DOM tree — flip the canvas dock's density select (xs / sm / default / lg) to re-scope them together; the scrim reads in both stage themes the same way. The four-copy DensityDemo row is retired by that select.</p><TokenTable tokens={[{ name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Surface-motion progress: blurIn/slide/materials/shadow + backdrop opacity.' }, { name: '--scrim', default: 'black 32% / white 10%', source: 'color', description: '::backdrop — semi-transparent black (light, hsl(0 0% 0% / 0.32)) / white (dark, hsl(0 0% 100% / 0.1)), never a brand tint; the staged demos pin light, so their scrim stays black under root dark (measured).' }, { name: '--jx-surface-in-x/y', default: '0px / 6px', source: 'component', description: 'Entry translate offset.' }, { name: 'surface width', default: 'min(92vw, 26rem)', source: 'structural' }, { name: 'close fade', default: '120ms (skipped under reduced motion)', source: 'structural' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
 
   <div id="universal-props" data-reveal="">
     <SectionCard
@@ -774,7 +774,7 @@ ${close}
       headerRegion="universal-props"
       eyebrow="axes"
       title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The modal carries its OWN elevation — level4 (8dp, M3's dialog rung): the theme's level table pairs every level's shadow recipe with a surface-ladder rung (§7, shadows lead in light). An explicit lane or a dp number steps the pair; the carriers stamp the top-layered root itself (the promotion moves paint, not DOM — the batch C portal law), so a radius opinion anchors the concentric law for everything inside."
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The elevation axis on this modal is STAMPED, NOT PAINTED (measured): the level carriers stamp the top-layered root (radius proves the channel — the 20px seat anchors the concentric law for everything inside), but the shadow/rung recipe never paints on the served dialog — no box-shadow, filter, or backdrop-filter on any channel at settle, level4/level3/6dp/level-1/dark visually identical. The wiring decision (wire the shadow reader or retire the rung receipts) is the family owner's — W-next."
     >
       <ComponentCanvas title="Dialog · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.wrap12)}>
@@ -785,12 +785,12 @@ ${close}
           <PressButton onclick={() => (u5 = true)}>radius 20 · concentric</PressButton>
           <PressButton onclick={() => (u6 = true)}>dark · theme axis</PressButton>
         </div>
-        <Dialog title="level4 · the modal default" variant="solid" bind:open={u1}><p class={cx(rt.text13)}>The own level: 8dp shadow recipe + the surface-container-high rung.</p></Dialog>
-        <Dialog title="level3 · one rung down" variant="solid" elevation="level3" bind:open={u2}><p class={cx(rt.text13)}>6dp + the surface-container rung.</p></Dialog>
-        <Dialog title="6dp · the number lane" variant="solid" elevation={6} bind:open={u3}><p class={cx(rt.text13)}>Exact dp snaps down to the enclosing table rung — 6dp IS level3.</p></Dialog>
-        <Dialog title="level-1 · the concave" variant="solid" elevation="level-1" bind:open={u4}><p class={cx(rt.text13)}>The inset 1px shadow over the deepest ladder rung — 可填充的凹陷.</p></Dialog>
-        <Dialog title="radius 20 · the concentric anchor" radius={20} bind:open={u5}><p class={cx(rt.pb8, rt.text13)}>children at radius="auto" compute max(0px, 20 − 14) = 6px — the §3 law through the top layer.</p><PressButton radius="auto">auto radius</PressButton></Dialog>
-        <Dialog title="dark · the theme axis" variant="solid" theme="dark" bind:open={u6}><p class={cx(rt.text13)}>In dark the surface rungs STEP (shadows are weak there) — the level4 pair resolves surface-container-high's dark value.</p></Dialog>
+        <Dialog title="level4 · the modal default" variant="solid" bind:open={u1}><p class={cx(rt.text13)}>The own level stamps level4 — the 8dp recipe and the surface-container-high rung are the level TABLE's pairing; on the served surface the shadow does not paint (measured — W-next owns the wiring).</p></Dialog>
+        <Dialog title="level3 · one rung down" variant="solid" elevation="level3" bind:open={u2}><p class={cx(rt.text13)}>The level3 stamp pairs 6dp + the surface-container rung in the table — same unpainted truth as level4.</p></Dialog>
+        <Dialog title="6dp · the number lane" variant="solid" elevation={6} bind:open={u3}><p class={cx(rt.text13)}>Exact dp snaps down to the enclosing table rung — 6dp IS level3 (the mapping is real; the shadow it names is the unpainted half).</p></Dialog>
+        <Dialog title="level-1 · the concave" variant="solid" elevation="level-1" bind:open={u4}><p class={cx(rt.text13)}>The concave rung — the inset 1px recipe over the deepest ladder step; stamped, and like every sibling here the shadow stays unpainted (可填充的凹陷, measured).</p></Dialog>
+        <Dialog title="radius 20 · the concentric anchor" radius={20} bind:open={u5}><p class={cx(rt.pb8, rt.text13)}>children at radius="auto" compute max(0px, 20 − 14) = 6px — the §3 law through the top layer, the one elevation-adjacent lane that PAINTS (measured digit-exact).</p><PressButton radius="auto">auto radius</PressButton></Dialog>
+        <Dialog title="dark · the theme axis" variant="solid" theme="dark" bind:open={u6}><p class={cx(rt.text13)}>The dark theme axis — the table's rung STEPPING claim is unpainted on the served surface (same W-next decision); the axis itself still stamps the scope.</p></Dialog>
       </ComponentCanvas>
     </SectionCard>
   </div>
