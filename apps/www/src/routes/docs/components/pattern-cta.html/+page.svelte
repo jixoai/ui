@@ -53,7 +53,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -109,9 +109,11 @@ ${close}
         <PlayFields>
           <PlayHelp>
             press the copy CTA — the command hits the clipboard, the check glyph takes the leading
-            lane and the surface flips to <code>copied</code> (tonal + success hue). Hover the
-            button: only the hard shadow grows, the body never moves — press physics are
-            press-button's contract, verified by its own suite.
+            lane and the surface flips to <code>copied</code> (tonal + success hue). The body never
+            moves under press or hover — the press law is press-button's contract, verified by its
+            own suite; THIS seat's variant carries no shadow poses (hover boxShadow stays none,
+            measured) — the shadow-grows half of the law lives in press-button's own seats, not
+            here.
           </PlayHelp>
         </PlayFields>
       {/snippet}

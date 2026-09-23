@@ -636,8 +636,9 @@
     "vellum",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "task 91 marginalia 1st PASS (0M/0m/0L/1N — the borrowed hover claim); hedge + gate-zero landed; 2nd = vellum"
   },
   {
    "page": "pattern-faq",

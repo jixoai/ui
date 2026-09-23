@@ -990,3 +990,11 @@
 - **The color-scheme chain audited at the wrong node lies**: the staged select reads light under root dark (HOST pin — correct), and even the UNSTAGED select reads light because the SITE'S THEME SYNC stamps `color-scheme: light` INLINE on `<html>` and never flips it. The chain walk (html → body → field → select, both modes) is the only honest form — the finding lands at the site layer, not the family.
 - **Each gate has its own CLI contract**: verify:km takes `--url`, verify-native-parity takes a BARE PORT (`node scripts/verify-native-parity.mjs 5244`), and its DOM-isomorphism assertion expects CLASS parity at the root path — composition families (stylex shell classes on the control) will always trip it; the finding seats at the family/harness contract, not the page.
 - E-driven FormData receipts: select a real option first — an empty-option form reads `plan=""` and proves the pair's existence, not its payload.
+
+## T91 (pattern-cta 1st) — pattern pages grade by composition law; borrowed claims get NIT-grade receipts
+
+- **Pattern pages waive the eight-axes archetype by composition**: the page DECLARES "all no-own, a composition product over batch A-D1 children" — the audit grades the composition law (ONE copy affordance, the members' roles, the carriers reaching the band root) instead of universal-props ownership. The census: count the copy affordances, name each composed member's role, read the carrier stamps at the band root.
+- **Borrowed claims get NIT-grade receipts**: a pattern quoting "press physics are press-button's own, verified by its own suite" inherits the claim — if the borrowed behavior doesn't paint on the served surface, the finding is a one-line hedge (or the owner's check), never a family rewrite. Grade the SEAT of the claim.
+- **Synthetic mouseover still doesn't engage CSS :hover** (the T81 class, re-proven): real page.hover for any hover-clause receipt, and read the transform (not viewport y — scrolling poisons rect comparisons).
+- **Click-through receipts**: capture-phase preventDefault + a real click — the interceptor counts 1, the href is receipted, the SPA never navigates. Real event, no navigation, auditable transcript.
+- The copied-surface read needs the +120ms sample (the flip) AND the +1.6s restore — one drive, two samples, the whole 1.4s law.
