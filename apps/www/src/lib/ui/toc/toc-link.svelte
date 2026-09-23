@@ -25,7 +25,10 @@
 
   let { href, class: className = '', child, children, ...rest }: Props = $props();
 
-  const props = $derived({
+  // named linkProps (not props): a $derived binding named `props` makes
+  // svelte-check resolve $props() against it — a circular-inference
+  // cluster (4 errors, task 116 LOW-1)
+  const linkProps = $derived({
     ...rest,
     href,
     'data-jx-toc-link': '',
@@ -34,7 +37,7 @@
 </script>
 
 {#if child}
-  {@render child({ props })}
+  {@render child({ props: linkProps })}
 {:else}
-  <a {...props}>{@render children?.()}</a>
+  <a {...linkProps}>{@render children?.()}</a>
 {/if}

@@ -148,7 +148,7 @@ export const load = () => ({ toc });`;
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        'DECLARATIVE STAMP, AND THE HOST DECIDES — theme="dark" stamps the .dark class on the rail root; the page bridge re-derives the rail inks page-wide (measured the rail title oklch(0.3211 0 0) → oklch(0.8452 0 0) under prefers-dark), and a canvas data-theme="light" island would pin a rail placed inside it (the host layer, measured on sibling lanes). system/auto = tree inheritance. No number lane.',
+        'DECLARATIVE STAMP, AND THE HOST DECIDES — theme="dark" stamps the .dark class on the rail root; the page bridge re-derives the rail inks page-wide (measured the rail title oklch(0.3211 0 0) → oklch(0.8452 0 0) under prefers-dark, task-69-era digits — the direction holds, re-measure at citation), and a canvas data-theme="light" island would pin a rail placed inside it (the host layer, measured on sibling lanes). system/auto = tree inheritance. No number lane.',
     },
     {
       name: 'elevation',
@@ -285,7 +285,7 @@ ${close}
           exports no load: its aside rail is the component in manual mode, demoing the real thing.
           A load may also return <code class={cx(rt.inkPrimary)}>{`{ toc: 'outline' }`}</code> — the
           layout rail then self-derives from #main; that third form is the layout seat's
-          capability, not yet any route's practice (the fleet's 107 authored rails are all arrays).
+          capability, not yet any route's practice (the fleet's authored rails are all arrays — 107 at the task-79 read, 120 today; the digit drifts with the campaign).
           When you read "the rail" below, it means the component; when you read "the layout rail",
           it means the page-data channel.
         </p>
@@ -442,7 +442,7 @@ ${close}
           duplicate -2 suffix, data-toc-skip, CJK positional fallback, two-tier collapse,
           idempotent re-derivation and heading-to-heading extents were exercised in-browser against
           a fixture; the theme strata (rail title oklch(0.3211 0 0) → oklch(0.8452 0 0) under the
-          page bridge) the same way; the unread rows carry grep receipts over ui/toc/. The query()
+          page bridge — task-69-era digits, re-measure at citation) the same way; the unread rows carry grep receipts over ui/toc/. The query()
           seat below rides the md viewport key (48rem) on the size lane.
         </p>
         <div class={cx(rt.mt20)}>

@@ -232,7 +232,9 @@ ${close}
             already carries <code class={cx(rt.inkAccent)}>role="menu"</code>. The other corners are
             deliberately not demoed — both are contested lanes on scaffold-based docs pages
             (measured): the sections-nav column owns the left 256px full-height, and the page-toc
-            rail owns the top-right block (x1231–1421, y94–358) — a fab there paints under the rail
+            rail owns the top-right block (x1231–1421, y94–358 at the task-86 read — content-
+            dependent: the rail's width and height ride its headings; a later measurement read
+            x1220 w212 on the same lane) — a fab there paints under the rail
             and its hit area is covered. Consumers embedding in the scaffold should float
             right-side, below the rail (the lane question is queued for the Owner, W-next).
           </p>
