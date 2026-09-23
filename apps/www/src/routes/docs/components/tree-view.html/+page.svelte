@@ -27,7 +27,7 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import TreeView, { type TreeItemCtx, type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
+  import TreeView, { type TreeItemCtx, type TreeNode, type TreeSlotRender } from '$lib/ui/tree-view/tree-view.svelte';
   import TreeViewMulti from '$lib/ui/tree-view/tree-view-multiselect.svelte';
   import Avatar from '$lib/ui/avatar/avatar.svelte';
   import Icon from '$lib/ui/icon';
@@ -315,7 +315,7 @@ ${close}
 <TreeView
   nodes={projectTree}
   defaultExpanded={['src', 'src/lib', 'src/routes']}
-  onSuffixSlotRender={(ctx) => (ctx.isFolder ? folderActions : undefined)}
+  onSuffixSlotRender={((ctx: TreeItemCtx) => (ctx.isFolder ? folderActions : undefined)) as unknown as TreeSlotRender}
 />`;
 
   const coreFiles: TreeFile[] = [
@@ -384,7 +384,7 @@ let miniChecked = $state<string[]>(['docs/tokens.html']);
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -578,7 +578,7 @@ let miniChecked = $state<string[]>(['docs/tokens.html']);
           <TreeView
             nodes={fileTree}
             defaultExpanded={fileOpen}
-            onPrefixSlotRender={(ctx) => {
+            onPrefixSlotRender={((ctx: TreeItemCtx<FileType>) => {
               if (ctx.isFolder) return folderIcon;
               switch (ctx.node.meta) {
                 case 'ts':
@@ -592,8 +592,7 @@ let miniChecked = $state<string[]>(['docs/tokens.html']);
                   return mdIcon;
                 default:
                   return genericIcon;
-              }
-            }}
+              } }) as unknown as TreeSlotRender<FileType>}
           />
         </div>
       </ComponentCanvas>
@@ -663,7 +662,7 @@ let miniChecked = $state<string[]>(['docs/tokens.html']);
         <TreeView
           nodes={projectTree}
           defaultExpanded={['src', 'src/lib', 'src/routes']}
-          onSuffixSlotRender={(ctx) => (ctx.isFolder ? folderActions : undefined)}
+          onSuffixSlotRender={((ctx: TreeItemCtx) => (ctx.isFolder ? folderActions : undefined)) as unknown as TreeSlotRender}
         />
       </div>
       {#snippet playground()}
@@ -705,7 +704,7 @@ let miniChecked = $state<string[]>(['docs/tokens.html']);
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Nodes are plain data (name/children/disabled/meta); selection stays consumer-owned through the controlled selected prop."><CodeBlock code={usageCode} lang="svelte" meta="Tree-view usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="A native-ARIA tree: nested tree/group/treeitem roles, roving tabindex, and the full APG arrow contract."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move focus between visible items (roving tabindex)' }, { key: '→', action: 'Expand a collapsed folder, or jump into its first child' }, { key: '←', action: 'Collapse an expanded folder, or return to the parent' }, { key: 'Home / End', action: 'Jump to the first / last visible item' }, { key: 'Enter / Space', action: 'Activate the item — folders toggle, leaves select; extensions may preventDefault' }]} aria={[{ name: 'role', value: 'tree / group / treeitem', description: 'Nested native-ARIA tree roles; one tab stop by roving tabindex.' }, { name: 'aria-expanded', value: 'folders only', description: 'Reports the folder’s collapsed state.' }, { name: 'aria-selected', value: 'leaves only', description: 'Mirrors the controlled selected path id.' }, { name: 'aria-disabled', value: 'disabled nodes', description: 'Focusable for screen readers, never activatable (APG disabled treeitem).' }, { name: 'aria-label', value: 'ariaLabel prop', description: 'Names the tree (default "tree").' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Row paint rides fixed utilities; --jx-indent is the one geometry lever — it drives group padding and the lines guide rails together."><div class={cx(rt.col20)}><DensityDemo><TreeView nodes={miniTree} defaultExpanded={['src']} lines /></DensityDemo><TokenTable tokens={[{ name: '--jx-indent', default: '16px (indent prop)', source: 'component', description: 'px per depth level — group padding and the lines rails derive from it.' }, { name: 'guide rails', default: '1px var(--border)', source: 'color', description: 'One rail per indent level in the lines variant, only as tall as the group.' }, { name: 'focus ring', default: '2px var(--ring)', source: 'color', description: 'The row repaints when its treeitem owns focus-visible.' }, { name: 'multiselect box', default: 'var(--primary) fill', source: 'color', description: ':checked / [data-mixed] repaint; the glyph paints --primary-foreground.' }, { name: 'type icons', default: 'accent 60% mix', source: 'color', description: 'fileIcons glyphs lean toward the foreground through the accent tint when engaged.' }, { name: 'suffix reveal', default: 'hover / focus-within', source: 'structural', description: 'The actions column is opacity-gated until the row is engaged.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Row paint rides the ambient chain (measured: row height drifts 17.5/18/18.5/19.2px across the rungs — the density response flows; no fixed utility pins it); --jx-indent is the one geometry lever — it drives group padding and the lines guide rails together."><div class={cx(rt.col20)}><DensityDemo><TreeView nodes={miniTree} defaultExpanded={['src']} lines /></DensityDemo><TokenTable tokens={[{ name: '--jx-indent', default: '16px (indent prop)', source: 'component', description: 'px per depth level — group padding and the lines rails derive from it.' }, { name: 'guide rails', default: '1px var(--border)', source: 'color', description: 'One rail per indent level in the lines variant, only as tall as the group.' }, { name: 'focus ring', default: '2px var(--ring)', source: 'color', description: 'The row repaints when its treeitem owns focus-visible.' }, { name: 'multiselect box', default: 'var(--primary) fill', source: 'color', description: ':checked / [data-mixed] repaint; the glyph paints --primary-foreground.' }, { name: 'type icons', default: 'accent 60% mix', source: 'color', description: 'fileIcons glyphs lean toward the foreground through the accent tint when engaged.' }, { name: 'suffix reveal', default: 'hover / focus-within', source: 'structural', description: 'The actions column is opacity-gated until the row is engaged.' }]} /></div></SectionCard></div>
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
