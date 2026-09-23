@@ -524,7 +524,7 @@ let typesTitledValue = $state<string[]>(['done']);
           (alias-frozen grounds + scope-re-derived leans — the measured island seat) and the
           density rung flip (the ONE consumed axis) close the battery. One capture receipt: the
           served demos sit inside component-canvas stages whose data-theme="light" pin
-          (stratum #3, attribute-scoped re-declaration) holds the ground for its subtree — under
+          (the HOST stratum — attribute-scoped re-declaration, distinct from the token strata #2/#3 above) holds the ground for its subtree — under
           root-level dark the --jx-card alias re-derives at :root (1.0 → 0.3211, measured) while
           a pinned stage's panel holds the light value.
         </p>

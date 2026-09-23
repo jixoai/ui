@@ -1143,3 +1143,18 @@
   layer while the head-carried STYLE tag persists by design — so "is it
   there?" needs both channels: fetch the SSR for the ship-receipt, query the
   DOM for the unmount-receipt. One channel alone reads as a defect.
+
+## 2026-09-22 · T80 first-review transfer — probe expectations derive from SOURCE semantics, not dispatch headlines
+
+Four probe faults this round, all mine, one root cause: I calibrated assertions against the
+task brief's headline phrases instead of the component's own state semantics. The brief said
+"bridge echoes value=keep" (the AT-REST state) and my post-move assertion inherited it — the
+component correctly echoes the whole list (`keep\na`, multi-entry join). The return-move
+driver clicked every unchecked row instead of the movers the family's own `move()` selects.
+Fix pattern: before writing any state-machine probe assertion, re-derive the expected value
+from the component source at the exact line (transfer.svelte:174–185, :191), and for fleet
+dark-mode probes remember the L1 bridge is `html.dark` — `colorScheme` emulation alone
+leaves `rootDark` false. Also measured this round: the seven-strata evidence completes with
+BOTH sides of a `theme="dark"` island seat — grounds hold (`--jx-card` 1 0 0) while leans
+flip (`--primary` 0.6489→0.7044 / 0.237→0.1872, hue via `calc(49 - 4)`) — the quote-L/C-
+never-hue law is visible in the token source itself and makes a clean probe receipt.
