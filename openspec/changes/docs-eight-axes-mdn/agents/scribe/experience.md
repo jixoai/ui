@@ -1615,3 +1615,48 @@
 - SSR: 230 prerendered frame spans, keyframes style client-only, toc 11 ×2, marker ×1.
 - LAW #18: gallery 11/11 keyed; LAW #19: 81 ids 0 dups. Page 0 diagnostics; family
   warns/errors pre-existing. Gates: ambient 284/284, universal 110/110.
+
+## Task 64 — system-dialog (2nd review, PASS 0M/0m/0L/0N + a COMMITTED foreign gate break)
+
+### Banked lessons
+- **Assert state on BOTH sides of a scoping probe**: my first outside-Escape sequence
+  pressed Escape and moved on without re-reading open state — the panel HAD stayed open
+  (scoping held) but my transcript couldn't prove it. Every "X does not close Y" receipt
+  needs the open-state read after the attempt, not just the next step's success.
+- **Trigger-only-opens vs toggling triggers**: a dialog Trigger that calls
+  setOpen(true) (no toggle) makes click-based reopen a no-op when already open — probe
+  sequences must not infer close-events from later successful opens; read the state.
+- **Strict leftover censuses need load-time baselines**: a body>div with
+  display:contents holding the COMPOSED demo dialog exists from first load — any
+  "leftover host" count must subtract the load-time baseline or it counts composition
+  wrappers as orphans (marginalia's canvas-layer lesson, re-applied).
+- **The sibling parse error can be COMMITTED**: the rotating ambient failures were
+  "uncommitted sibling file" twice (tags-input, then toast-class), but 7f1b78ff landed a
+  separator.html apostrophe inside a single-quoted law sentence — js_parse_error, 6
+  ambient failures corpus-wide, COMMITTED. Attribution protocol is the same (zero
+  my-page keys in the failures) but the fix is an orchestrator dispatch, not a wait.
+- **1-based notes vs 0-based tableIndex**: the matrix re-pin note says "root=1/
+  Trigger=2/Content=3/Action=4 (axes 5)" while the fixture stores tableIndex 3/4 —
+  the page gained the law table ahead of the parts, shifting every ordinal by one.
+  Reconcile notes and indexes against the SERVED table order before calling a re-pin
+  wrong.
+
+### Receipts (task 64)
+- Landed MINOR both halves verified: token row "AUTHORED, NOT SERVED" + overview
+  disclosure sentence; my paint: 544.5px / max-width none; my stylesheet walk: ZERO
+  max-width rules corpus-wide (the atom never ships).
+- Anchored rise: --s2 (uid), block-end, 12px gap, center-x delta 0, top layer.
+- Mechanics: no light dismiss; Escape scoped both sides (outside-Escape asserted
+  open-state both sides); Tab exits; Cancel landing; seam → deleted yes + invoker
+  restore.
+- Trio: exactly one panel per call, dead-center (700/450 at 1400×900), no anchor chain;
+  confirm true/false, prompt value/null, alert acknowledged; zero trio-minted leftovers.
+- Stamps: sm + dark + 12px consumed + --jx-corner calc(12px*1) published + own level3
+  (effective 6 + level3 shadow); auto stamps nothing. Read site named (the promoted
+  panel element).
+- Matrix re-pin: Content table[3] / Action table[4] verified in fixture AND served order.
+- LAW #19: 51 ids 0 dups; no eaches (composition family). Page 0 diagnostics; family
+  LAW #20 residue (trigger 5 errors, content 8× :144 warns) pre-existing.
+- Gates: ambient 278/284 — 6 failures all separator.html :505 js_parse_error (committed
+  foreign law-text apostrophe; zero system-dialog keys; re-pin rows PASS); universal
+  110/110. 2a26eb96-era MINOR fix 38560e22 verified served.
