@@ -1008,3 +1008,54 @@
   8px/squircle stamped inline on the SAME element whose computed corner
   is 2px via var(--kbd-radius, 2px) — supply and seam on one element,
   zero ambiguity.
+
+## Techniques (task 33 additions)
+- **Glide precondition probe (menubar)**: the bar-glide vs panel-walker
+  split is focus-state-dependent — from an Enter-open (focus INSIDE the
+  panel), arrows are panel-scoped and dead; the glide requires
+  trigger focus (click-open keeps focus on the trigger). When a
+  keyboard chain has two key owners (bar walker / menu walker), probe
+  BOTH entry states before declaring a chain dead.
+- **Two-pass glide receipt**: pass 1 (Enter path) taught the scoping;
+  pass 2 (click path) captured the actual claim. The failed-looking
+  pass 1 became evidence FOR quill's open-question-2 adjudication
+  (receipt over comment).
+- **Dead-seat check before agreeing to a consolidation item**: when a
+  reviewer proposes "one sentence in the <Component> row", grep the
+  component for the field first — ui/token-table's `description?:`
+  is declared but never rendered (second dead-API instance after
+  code-card task 25). An agreed item with a dead seat is not shippable.
+- **Content-identity check at review start**: `git diff <page-commit>
+  HEAD --stat -- <page> <family>` — proves the bytes you reviewed are
+  the bytes the author shipped, independent of how far HEAD has moved.
+- **Rung census from source, not prose**: the density system's named
+  set is FIVE ('lg'|'default'|'sm'|'xs'|'2xs', density.svelte.ts :23);
+  a reviewer's "all four rungs" was imprecise in both directions.
+  Count the union in the type, then count what the page serves.
+- **Baseline classification of svelte-check noise**: page-scoped gate
+  = 0 diagnostics ON THE PAGE; family-file diagnostics get classified
+  by (a) identical pattern in an untouched sibling family
+  (list-item/index.ts duplicate-identifier ×4), (b) workspace-dominant
+  warning class (state_referenced_locally ×1018), (c) green runtime
+  gates, (d) zero working-tree changes to the family.
+- **Source-anchor alpha reads**: acrylic alpha from a color-mix recipe
+  (jixoai.css :939 72% mix) — my settled-frame 0.732174 matches the
+  source; the other reviewer's 0.83 didn't. The recipe, not either
+  measurement, is the anchor.
+
+## Highlights (task 33)
+- (menubar) The in-place top-layer promotion verified end-to-end:
+  DIV[role=menu] ← SPAN[slot] ← LI ← UL#bar live walk + the source
+  chain — paint moves, DOM stays, inheritance carries the stamps.
+- (menubar) The glide one-hop captured digit-for-digit on real clicks:
+  File expanded=false / Edit=true / focus "Undo" inside, dead ×2,
+  Escape restores to the Edit trigger — and the Enter-path counter-
+  probe proving the trigger-focus precondition.
+- (menubar) triggerOpen frozen-light band CONFIRMED at the exact line
+  (menubar.stylex.ts :58-59 `tokens['--jx-muted']` — stylex atom
+  freezes; menubar.css raw `var(--muted)` hover re-derives): the
+  split-voice exemplar for the declaration-coverage taxonomy.
+- (menubar) Consolidation item (a) with mechanism: authored hand array
+  3 entries (label, density, variant), served 2 — density is
+  axis-named and folds into the universal 8. The kbd class, third
+  instance.

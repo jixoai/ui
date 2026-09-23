@@ -554,8 +554,9 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 31 tier-2; panel IN-PLACE (third DOM shape); radius panel-only live chain 0/12/8; glide ONE HOP measured; 3 open questions"
+   "status": "done",
+   "notes": "task 31 tier-2; panel IN-PLACE (third DOM shape); radius panel-only live chain 0/12/8; glide ONE HOP measured; 3 open questions",
+   "closure": "#36 — quill 1st + scribe 2nd PASS; W-next #7 CONFIRMED with source line (triggerOpen stylex atom vs hover's raw chain); consolidation: fold-honest api summary + the bar-gap flip-limit note in a live seat (TokenTable description is dead — W-next #3 second instance)"
   },
   {
    "page": "mermaid",
