@@ -2,7 +2,7 @@
   jixoai terminal card (registry/files/ui/terminal-card/terminal-card.svelte).
   The Broadside hero terminal, composed after the openspecui reference:
   traffic-light title bar, one large typed command line, outputs that
-  surface line by line, 6px hard offset shadow. Commands type in
+  surface line by line, 4px hard offset shadow. Commands type in
   character by character (one-time entrance — never looping); the cursor
   is a STATIC block (the jixoai motion law; the reference's blink
   predates it). Prerendered/no-JS shows the settled terminal; reduced
@@ -78,7 +78,7 @@
     /** universal color axis (§5): the hue axis of the oklch system */
     color?: ColorLane | QueryResult<ColorLane>;
     /** universal elevation axis (§7): official M3 levels · dp ·
-     *  query(). NO own — the bezel's 6px hard offset shadow is its
+     *  query(). NO own — the bezel's 4px hard offset shadow is its
      *  own documented law (the elevation grammar's terminal
      *  exemption); an explicit lane steps the §7 table */
     elevation?: ElevationLane | QueryResult<ElevationLane>;
@@ -244,7 +244,7 @@
       <span class={cx(terminalCardStyles.prompt)}>$</span><span>{typed}</span><span class="jx-cursor {cx(terminalCardStyles.cursor)}" aria-hidden="true"></span>
     </p>
     <div data-jx-terminal-outputs="" class={cx(terminalCardStyles.outputs)}>
-      {#each outputs as line, index (line)}
+      {#each outputs as line, index (index)}
         <p class={cn('jx-out', index < shownLines && 'jx-out-shown')}>{line}</p>
       {/each}
     </div>

@@ -91,7 +91,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -108,7 +108,7 @@ ${close}
   <title>Terminal card · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai terminal-card component: the Broadside hero terminal — traffic-light title bar, one large typed command, outputs surfacing line by line, 6px hard offset shadow. One-shot typing entrance, static block cursor, reduced motion renders instantly."
+    content="The jixoai terminal-card component: the Broadside hero terminal — traffic-light title bar, one large typed command, outputs surfacing line by line, 4px hard offset shadow. One-shot typing entrance, static block cursor, reduced motion renders instantly."
   />
 </svelte:head>
 
@@ -123,12 +123,12 @@ ${close}
       tone="hero"
       eyebrow="registry:ui · Shell"
       title="terminal-card — the typing terminal"
-      summary="The Broadside hero terminal, composed after the openspecui reference: a traffic-light title bar, one large typed command, outputs that surface line by line, and the 6px hard offset shadow. The entrance is one-shot — it types once and settles, never looping; the cursor is a static block per the motion law. Prerendered and no-JS loads show the settled terminal; reduced motion skips straight to it."
+      summary="The Broadside hero terminal, composed after the openspecui reference: a traffic-light title bar, one large typed command, outputs that surface line by line, and the 4px hard offset shadow. The entrance is one-shot — it types once and settles, never looping; the cursor is a static block per the motion law. Prerendered and no-JS loads show the settled terminal; reduced motion skips straight to it."
     >
       <div class={cx(rt.wrap12)}>
         <span class="pill">one-shot typing</span>
         <span class="pill">static block cursor</span>
-        <span class="pill">6px hard offset shadow</span>
+        <span class="pill">4px hard offset shadow</span>
         <span class="pill">speed prop pacing</span>
       </div>
     </SectionCard>
@@ -219,7 +219,7 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="command as a plain string; outputs surface line by line after the typing completes — replay by re-mounting."><CodeBlock code={usage} lang="svelte" meta="TerminalCard usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The settled terminal is real text in the markup; the entrance is decoration hidden from readers."><A11yTable keys={[]} aria={[{ name: 'aria-hidden', value: 'true', description: 'On the traffic-light dots and the static block cursor — pure scenery' }, { name: 'prerendered output', value: 'settled', description: 'typed = command in markup: the full command + outputs are real text before any JS' }, { name: 'prefers-reduced-motion', value: 'instant', description: 'Returns before the first timer — the card renders fully settled' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint: the bezel is fixed chrome. The scoped token class swaps dark for the light CRT shell; one rhythm divides by speed."><div class={cx(rt.col24)}><DensityDemo><TerminalCard barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['one-shot typing · static cursor']} /></DensityDemo><TokenTable tokens={[{ name: 'jx-light', default: 'scoped token class', source: 'component', description: 'theme="light" swaps the dark lock for the light CRT shell' }, { name: 'type rhythm', default: '42ms + 0-40ms jitter / 110ms outputs', source: 'component', description: 'Every delay divides by the speed multiplier (default 1, clamped ≥ 0.25)' }, { name: 'shadow', default: '6px hard offset', source: 'component' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No density footprint: the bezel is fixed chrome. The scoped token class swaps dark for the light CRT shell; one rhythm divides by speed."><div class={cx(rt.col24)}><DensityDemo><TerminalCard barTitle="quick-start — zsh" command="npx jixoai-ui add terminal-card" outputs={['one-shot typing · static cursor']} /></DensityDemo><TokenTable tokens={[{ name: 'jx-light', default: 'scoped token class', source: 'component', description: 'theme="light" swaps the dark lock for the light CRT shell' }, { name: 'type rhythm', default: '42ms + 0-40ms jitter / 110ms outputs', source: 'component', description: 'Every delay divides by the speed multiplier (default 1, clamped ≥ 0.25)' }, { name: 'shadow', default: '4px hard offset', source: 'component' }]} /></div></SectionCard></div>
 
   <div id="universal-props" data-reveal="">
     <SectionCard
@@ -227,7 +227,7 @@ ${close}
       headerRegion="universal-props"
       eyebrow="axes"
       title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The bezel carries SEVEN lanes: its `theme` prop is the SHELL lock (own-before-ambient, dark-locked regardless of the tree) — NOT the theme axis' ambient-first law; §13 rules no rename, so the theme axis forwards ambient, unadopted (the ghostty-term precedent). Elevation carries NO own — the bezel's 6px hard offset shadow is its own documented law; an explicit lane steps the §7 table over it."
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The bezel carries SEVEN lanes: its `theme` prop is the SHELL lock (own-before-ambient, dark-locked regardless of the tree) — NOT the theme axis' ambient-first law; §13 rules no rename, so the theme axis forwards ambient, unadopted (the ghostty-term precedent). Elevation carries NO own — the bezel's 4px hard offset shadow is its own documented law; an explicit lane steps the §7 table over it."
     >
       <ComponentCanvas title="TerminalCard · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.panel)}><TerminalCard barTitle="universal · zsh" command="jixoai deploy --axes" outputs={['eight axes · resolved in one record', 'theme axis forwarded ambient (the shell lock owns the name)']} /></div>

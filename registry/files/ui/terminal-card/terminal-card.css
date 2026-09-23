@@ -25,7 +25,7 @@
      radius-effective × the §14 factor; auto: the §3 concentric calc
      × the factor — the fallback below, the auto form verbatim). The
      elevation pair rides the table's shadow recipe over the bezel's
-     own 6px hard offset ONLY when a lane resolved (the var chain's
+     own 4px hard offset ONLY when a lane resolved (the var chain's
      tail is the historic shadow, verbatim — zero delta unresolved) */
   :where([data-jx-terminal]) {
     corner-shape: var(--jx-shape-effective, round);

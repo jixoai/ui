@@ -1014,8 +1014,9 @@
     "vellum",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "task 99 marginalia 1st PASS (0M/1m/1L); 6px->4px trued at all 8 seats (mirrored), outputs each index-keyed, overload closed; 2nd = vellum"
   },
   {
    "page": "terminal-footer",

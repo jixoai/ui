@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-23T11:12:29.679Z",
+  "generatedAt": "2026-09-23T11:44:36.824Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -855,8 +855,8 @@
           "source": "registry/files/ui/terminal-card/terminal-card.svelte",
           "mirror": "apps/www/src/lib/ui/terminal-card/terminal-card.svelte",
           "target": "@ui/terminal-card/terminal-card.svelte",
-          "sourceSha": "cd3dd1b9d3c9e4f0bdf64ad4da79a264c5acedda52c8b684ba4b32fe7af140c2",
-          "mirrorSha": "cd3dd1b9d3c9e4f0bdf64ad4da79a264c5acedda52c8b684ba4b32fe7af140c2"
+          "sourceSha": "834300ae63b28ef5be2a51b462392772dc75fc9216172699aef6b1f4735deb5e",
+          "mirrorSha": "834300ae63b28ef5be2a51b462392772dc75fc9216172699aef6b1f4735deb5e"
         },
         {
           "source": "registry/files/ui/terminal-card/terminal-card-defaults.svelte.ts",
@@ -876,8 +876,8 @@
           "source": "registry/files/ui/terminal-card/terminal-card.css",
           "mirror": "apps/www/src/lib/ui/terminal-card/terminal-card.css",
           "target": "@ui/terminal-card/terminal-card.css",
-          "sourceSha": "e7ef4ed8dd8cf9a475b4bf5362745f75e16f09ec831d21c77f366a7076a9cdfd",
-          "mirrorSha": "e7ef4ed8dd8cf9a475b4bf5362745f75e16f09ec831d21c77f366a7076a9cdfd"
+          "sourceSha": "ef0af8c853e85a1b713f6bb79085dbd836e173f68349ea396431d9fd5d969478",
+          "mirrorSha": "ef0af8c853e85a1b713f6bb79085dbd836e173f68349ea396431d9fd5d969478"
         },
         {
           "source": "registry/files/ui/terminal-card/terminal-card.stylex.ts",
