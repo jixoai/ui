@@ -1226,3 +1226,45 @@
 - (press-button) The api census by name: 15 authored → 14 served
   (density folds), the universal 8 intact; toc 12/12; page 0
   diagnostics; ambient 284/284 clean — the re-pinned matrix holds.
+
+## Techniques (task 43 additions)
+- **The self-proving typecheck fixture**: to verify a type BOUNDARY
+  (not just a declaration), write a temp file where the REJECTED
+  assignment carries @ts-expect-error and the ACCEPTED one carries
+  nothing — zero diagnostics proves both halves at once (a false
+  accept flips the directive to "Unused", a false reject surfaces a
+  real error). Delete the file after the run.
+- **Two fixture traps banked**: `Component['props']` does not type in
+  svelte-check's emitted shape — use svelte's `ComponentProps<typeof
+  Component>`; and a PROSE comment containing the literal directive
+  text registers as a directive applied to the next line ("Unused"
+  noise) — never write the marker in explanatory copy.
+- **Visual-vs-DOM order receipt**: for direction-reverse claims, sort
+  children by getBoundingClientRect().x descending and compare against
+  DOM order — the flip shows as the descending list EQUALING the DOM
+  order (the left-to-right sequence is its inverse).
+- **Omission transparency read**: an all-auto axis set leaves the style
+  attr carrying ONLY the consumer's layout declarations — the absence
+  of carrier text IS the receipt (undefined stamps nothing, byte-level).
+- **The rig-drive protocol**: enumerate the canvas's real select/input
+  elements positionally (PlayRow wrappers don't expose label-text
+  locators), drive each BOTH directions with settle waits, and diff the
+  final computed state against the initial — byte-identity closes the
+  clean-revert claim.
+
+## Highlights (task 43)
+- (prototype-flex) The rig verified byte-identical in both directions
+  with clean reverts; the playground-snippet laziness live-proven (the
+  snippet's help text absent from the DOM while the stage-body controls
+  are always mounted).
+- (prototype-flex) The query boundary TYPECHECK-PROVEN by my own
+  self-proving fixture: gap rejects QueryResult (directive consumed),
+  the size lane accepts (clean) — "lanes take query(); passthroughs
+  don't" is now enforcement-backed, not just declared.
+- (prototype-flex) The forwarder census panel-by-panel: named-step
+  carriers, the sm/lg rungs, the dark bridge, string-gap verbatim, and
+  the all-auto panel's carrier-free style attr — omission transparency
+  at the byte level.
+- (process) A fourth in-flight sibling edit (system-dialog) entered the
+  tree mid-session; the 4 ambient failures keyed exactly to it and were
+  attributed on the same protocol — zero prototype-flex keys.

@@ -745,8 +745,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 35 tier-2; the rig wired end-to-end; forwarder axes (zero-translation); query lanes-vs-passthroughs boundary; 4 open questions + trio loop pills added (task 37)"
+   "status": "pass-1st",
+   "notes": "task 43 scribe 1st PASS (0M/0m/0L/1N); rig byte-identical both directions; query-boundary SELF-PROVING typecheck fixture (gap rejects QueryResult, size accepts); NIT sentence landed (laziness rationale in canvas description); doctrine candidate adjudicated YES: lanes take query(), passthroughs don't"
   },
   {
    "page": "prototype-grid",

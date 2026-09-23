@@ -277,7 +277,7 @@ ${close}
     <div id="live-demo" data-reveal="">
       <ComponentCanvas
         title="prototype-flex · the rig"
-        description="The property panel, live: every control below binds a real prop 1:1 — measured end-to-end in task 35, each change lands in the container's computed style (flex-direction / flex-wrap / align-items / justify-content / gap)."
+        description="The property panel, live: every control below binds a real prop 1:1 — measured end-to-end in task 35, each change lands in the container's computed style (flex-direction / flex-wrap / align-items / justify-content / gap). The controls live in the stage body by design: the canvas mounts its playground snippet lazily (drawer-only), so anything that must stay driveable belongs beside the specimen, not in the snippet."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/prototype-flex/prototype-flex.svelte"
         {files}
         resolveFileContent={resolveRigUsage}
