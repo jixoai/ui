@@ -1042,3 +1042,24 @@
   bridge) not computed paint values. Say "no paint to measure is itself the
   measured finding" — and answer dispatch hypotheses (gap-tokens) with the family's
   own law when they contradict.
+
+## Task 36 — prototype-grid (2026-09-22)
+
+- **Duplicate keyed-each keys abort HYDRATION PAGE-WIDE**: `{#each ['1fr','2fr','1fr']
+  as n (n)}` threw each_key_duplicate client-side and every component on the page
+  un-mounted (empty `<!--[--><!--]-->` blocks) while SSR HTML looked perfect and
+  svelte-check stayed silent. Display-only galleries take INDEX keys; page probes
+  must include a "children actually mounted" check (childElementCount on a known
+  component), not just HTTP 200.
+- **Resolved track geometry is the grid analogue of paint pixels**:
+  getComputedStyle().gridTemplateColumns returns px-per-track — measure THAT per rig
+  state, never the style string (the string shows authored intent; the resolved
+  value shows the layout truth, including gap absorption: tracks 240→228px when gap
+  went to 30px).
+- **minmax floors read as track shrinkage**: auto-fit minmax(140px, 1fr) measured
+  tracks at ~145px under viewport pressure — the floor engaging BEFORE a re-count.
+  The sequence (shrink-to-floor, then re-count) is the semantics to cite for
+  auto-fit/auto-fill claims.
+- **Sibling in-flight files move DURING your task**: ambient was green at baseline
+  and failed 2/284 at gate time — sheet.html modified mid-flight by quill.
+  Re-run, attribute by git status (modified + untracked = whose), report keyed, move on.
