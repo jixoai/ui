@@ -58,14 +58,18 @@ export function deriveTocOutline(root: ParentNode, options: TocOutlineOptions = 
     (el) => !el.closest('[data-toc-skip]'),
   );
 
-  const slugOf = (label: string, index: number): string => {
+  const baseSlugOf = (label: string, index: number): string => {
     const slug = label
       .toLowerCase()
       // ascii-slugs only: CJK and friends collapse to nothing, so keep a
       // positional fallback (stable across re-derivation for static content)
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
-    const base = slug || `section-${index + 1}`;
+    return slug || `section-${index + 1}`;
+  };
+
+  const slugOf = (label: string, index: number): string => {
+    const base = baseSlugOf(label, index);
     let id = base;
     let n = 2;
     while (used.has(id)) id = `${base}-${n++}`;
@@ -77,9 +81,35 @@ export function deriveTocOutline(root: ParentNode, options: TocOutlineOptions = 
   headings.forEach((el, i) => {
     const level = Number(el.tagName.slice(1));
     const label = (el.textContent ?? '').trim();
-    const id = el.id !== '' && !used.has(el.id) ? (used.add(el.id), el.id) : slugOf(label, i);
-    // stamp derived ids back: ToC links are real fragment anchors
-    if (el.id !== id) el.id = id;
+    // WRAPPER-TWIN GUARD (LAW #19, docs-eight-axes-mdn 2026-09-22): a
+    // heading whose nearest id-bearing ancestor already owns EXACTLY the
+    // slug this pass would mint adopts it instead of stamping — minting
+    // anyway twins the wrapper's id (duplicate ids: querySelector/aria
+    // resolution goes first-match, masking the defect; the sheet page
+    // receipted the fleet set). Narrower than the retired v1 ancestor
+    // step by construction: adoption happens ONLY on exact slug match, so
+    // the search corpus (which mints the same slug for the id-less
+    // heading) still converges — its anchor resolves to the wrapper,
+    // which contains this heading. The wrapper keeps its SSR-authored id.
+    const holder = el.closest('[id]');
+    let id: string;
+    if (el.id !== '' && !used.has(el.id)) {
+      id = el.id;
+      used.add(id);
+    } else if (
+      holder !== null &&
+      holder !== el &&
+      holder.id === baseSlugOf(label, i) &&
+      !used.has(holder.id)
+    ) {
+      id = holder.id;
+      used.add(id);
+      // adopt — deliberately NO stamp: the wrapper owns the anchor
+    } else {
+      id = slugOf(label, i);
+      // stamp derived ids back: ToC links are real fragment anchors
+      el.id = id;
+    }
     // extent end = next heading at same or higher level (smaller number)
     let end: Element | null = null;
     for (let j = i + 1; j < headings.length; j++) {

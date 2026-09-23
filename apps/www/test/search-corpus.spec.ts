@@ -436,10 +436,53 @@ describe('the slug law converges with the runtime outline', () => {
     expect(page.sections.map((s) => s.id)).toEqual(outline.map((entry) => entry.id));
     expect(page.sections[0]!.id).toBe('kept'); // existing ids win on both sides
     expect(page.sections[2]!.id).toMatch(/^section-/); // CJK positional fallback
-    // the wrapper blind spot (anchor law v2): id-bearing ancestors are
-    // NOT the heading's address and never join the dedup set — the
-    // stamper owns the anchor (chip/press-button usage-2 regression)
+    // the wrapper blind spot (anchor law v2, refined by the LAW #19 twin
+    // guard): id-bearing ancestors never join the dedup set, and the
+    // heading's address is its own derived slug — EXCEPT when the nearest
+    // ancestor already owns exactly that slug, where the heading adopts
+    // it unstamped (entry id unchanged, so corpus convergence holds; the
+    // first <div id="usage"> pair below exercises the adopt path, the
+    // second the used-collision fallback)
     expect(page.sections.slice(6).map((s) => s.id)).toEqual(['usage', 'usage-2']);
+    host.remove();
+  });
+
+  it('WRAPPER-TWIN guard (LAW #19): exact-slug ancestors are adopted unstamped, mismatched ones stamp', () => {
+    const html = PAGE(`
+      <div id="overview" data-reveal=""><h2>Overview</h2></div>
+      <div id="types"><h2>Types</h2></div>
+      <div id="other"><h2>Types</h2></div>
+      <div id="usage"><h2>Usage</h2></div>
+      <div id="usage"><h2>Usage</h2></div>`);
+    const host = document.createElement('div');
+    host.innerHTML = html.match(/<main>([\s\S]*)<\/main>/)![1]!;
+    document.body.appendChild(host);
+    const outline = deriveTocOutline(host, { levels: [2] });
+    // adopt / adopt / stamp (mismatch: wrapper "other" ≠ slug "types" →
+    // own id, base-2) / adopt / used-collision → stamp "usage-2"
+    expect(outline.map((e) => e.id)).toEqual(['overview', 'types', 'types-2', 'usage', 'usage-2']);
+    // the twin kill: adopted headings carry NO id — the wrapper stays the
+    // single owner of the anchor (SSR ground truth), while entry ids (and
+    // thus corpus + ToC hrefs) are byte-identical to the v2 mint
+    const all = [...host.querySelectorAll('[id]')];
+    expect(all.map((el) => el.id)).toEqual([
+      'overview', // wrapper
+      'types', // wrapper
+      'other', // wrapper
+      'types-2', // h2 under #other — mismatch stamps its own (base-2: "types" adopted)
+      'usage', // first wrapper
+      'usage', // second wrapper (pre-existing author duplicate, not ours to fix)
+      'usage-2', // h2 under the second #usage — used-collision fallback stamps
+    ]);
+    // adopted headings stay unstamped — exactly the three twin cases
+    expect([...host.querySelectorAll('h2')].map((h) => h.id)).toEqual([
+      '',
+      '',
+      'types-2',
+      '',
+      'usage-2',
+    ]);
+    expect(new Set(all.map((el) => el.id)).size).toBe(all.length - 1); // only the authored usage pair repeats
     host.remove();
   });
 
