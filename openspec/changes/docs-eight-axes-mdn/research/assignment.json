@@ -92,8 +92,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 34 tier-2; dead workbench fixed (rendered instance + bind-back); clock receipts; controlled theme pair LAW #16"
+   "status": "pass-1st",
+   "notes": "task 34 tier-2; dead workbench fixed (rendered instance + bind-back); clock receipts; controlled theme pair LAW #16; scribe 1st PASS (findings 1-2 ride closure: motion-row RM clause + manual-no-cap api clause; family-spec absence -> W-next candidate)"
   },
   {
    "page": "breadcrumb",
@@ -890,8 +890,9 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 31 tier-2; LAW #18 caught pre-integration (sibling keyed noise, re-pin table[1]); duplicate-id twins confirmed-with-mechanism -> stamper root cause + LAW #19 guard; showModal no-scroll-lock measured; canvas-host width defect -> W-next #8; entry/exit pixel-measured 200ms/223-230ms"
   },
   {
    "page": "skeleton",

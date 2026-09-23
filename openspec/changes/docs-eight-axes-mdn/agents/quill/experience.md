@@ -865,3 +865,38 @@
   (--jx-scroll-thumb-radius), not a corner axis. Read the composed target's
   contract before writing "FORWARDED" claims; the seam and the destination
   can each rename or drop a lane.
+
+## Techniques (mine, added 2026-09-23, task 31 — code sheet)
+- **KEYED EACH + UNNAMED ROWS = TOTAL PAGE WIPE**: PropsTable's
+  {#each mainRows as prop (prop.name)} throws each_key_duplicate when law-table
+  rows lack a name field — and the throw happens during client render, so the
+  SSR DOM (which HAS the h1) is wiped and the page ships dead. curl-only checks
+  cannot see it; a probe must read the POST-HYDRATION h1 count. The contract:
+  law tables through PropsTable must map rows to {name, type, default,
+  description} (the task-30 integration fix, now banked as the pattern).
+- **THE PRINT FREEZE CLONE POISONS UNSCOPED QUERIES**: the paged-doc pipeline
+  deep-clones the page into [data-print-output]; clones carry stale [open]
+  attributes and print-context geometry (a cloned 18rem sheet measures 100vw).
+  Every probe query/locator must scope to [data-print-source]; duplicate-id
+  audits must separate the live tree from the clone.
+- **SECTIONCARD AUTO-ANCHORS ITS H2 WITH THE SECTION SLUG**: a wrapper
+  <div id="overview"> around <SectionCard title="Overview"> yields TWO
+  #overview nodes (the H2 twin inside the wrapper) — fleet-wide, navigable
+  (first match = wrapper), but the hard assert must expect the twin mechanism,
+  not zero duplicates, until the fleet decides the fix.
+- **WHEEL, NOT scrollTo, IS THE USER-PATH SCROLL PROBE**: docs pages scroll
+  .jx-shell-body, never the window (window.scrollTo is a silent no-op), and
+  showModal does NOT lock scroll — wheel over the ::backdrop chains to the
+  page scroller. Measure the user path (page.mouse.wheel) against the real
+  scroller, with a closed-page baseline and a post-close restore.
+- **CANVAS HOST BEATS TOP-LAYER DIALOG WIDTH ATOMS**: identical class lists,
+  different computed width (page-hosted 384px vs canvas-hosted 100vw) — a
+  cssRules walk found no matching author rule, so suspect containment/runtime
+  mutation. Workaround for demos: host modal-dialog panels outside the canvas
+  (the trigger can stay inside). Defect receipt goes to the canvas owner.
+- **PIXEL TRACES NEED force CLICKS + FIRST-OPEN KEYING**: data-reveal
+  scroll-driven animations keep mutating boxes, so Playwright's actionability
+  stability wait delays clicks by seconds and wrecks rAF sampling windows.
+  Click with force (label-anchored), key the trace off the first frame where
+  the target exists, and assert a moving-window (intermediate pixels +
+  monotonic) instead of a mid-index guess.

@@ -1148,3 +1148,41 @@
   "0 resolved labels in SSR" half of the record.
 - (process) The warm-reload lesson banked after my own frozen first
   visit; the sheet sibling noise re-attributed fresh on all four legs.
+
+## Techniques (task 36 additions)
+- **Multi-capture clocks for animationend machines**: single-run
+  absolutes drift with fonts.ready/compile latency (797 vs my 779-844);
+  run the mode 3× at an 8ms sampler and quote the RANGE + the
+  decomposition (floor + exit + latency). The structural decomposition
+  is the receipt; the absolute is instrument output.
+- **The live no-cap proof**: a "no timeout cap" source read becomes a
+  receipt when you hold PAST the cap (manual mode present at 4600ms
+  with timeoutMs=4000) — behavioral proof of an uncapped lane.
+- **Sub-frame timing**: rAF-poll resolution (first check at the next
+  frame) reads "0ms" for instant unmounts — quote it as sub-frame
+  instant, the honest form of ~27ms-class claims.
+- **The stamp-lands-no-rule-hears read**: for descendant-bridge theme
+  machines, read the layer's classList DIRECTLY (does the class land?)
+  alongside the computed paint (does anything hear it?) — the pair
+  proves BOTH halves of LAW #16's stamp-only attribution without
+  closest()-chain ambiguity (the author's own probe-bug class).
+- **Head-block presence reasoning**: a svelte:head style block inside a
+  component renders whenever the COMPONENT mounts, independent of any
+  {#if} gate on the styled element — the vocabulary ships even when
+  the surface is closed (boot-splash's zero-css law rides this).
+
+## Highlights (task 36)
+- (boot-splash) The dead-replay fix verified end-to-end with the chip
+  bind-back (open=false after internal dismissal) and multi-run clocks:
+  fonts ≈700-720ms window (floor+exit+latency), manual uncapped past
+  the 4s cap (live-proven), dismiss ≈350+latency, exit=none ≈ the bare
+  floor, RM split = manual instant (sub-frame 0ms) vs auto floor-kept.
+- (boot-splash) The LAW #16 theme pair digit-exact: the prop's dark
+  class lands in the layer's classList while the paint stays light
+  (descendant-only bridge), and the ancestor .dark host flips
+  oklch(0.145)/oklch(0.9551) with no prop.
+- (boot-splash) The campaign's first bit-exact meta arithmetic:
+  21 props = 11 family + 8 axes + style + rest — "21 − 8 = 13 family
+  seats (11 served + rest/style)" matches the file key-for-key.
+- (boot-splash) W-next candidate: no family spec locks the
+  dead-replay fix — a boot-splash.spec would pin the machine.
