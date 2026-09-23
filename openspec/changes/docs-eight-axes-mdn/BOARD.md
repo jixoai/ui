@@ -3,7 +3,7 @@
 |---|---|---|---|---|
 | quill | 70 | website-scaffold (OWN) | CODE | in-flight |
 | vellum | 75 | terminal-footer (quill's) | REVIEW (1st) | in-flight |
-| marginalia | 74 | separator+spin RE-ADJUDICATION | PROBE | in-flight |
+| marginalia | 76 | tabs 2nd (quill's lane freed) | REVIEW (2nd) | in-flight |
 | scribe | 71 | toast (vellum's) | REVIEW (1st) | in-flight |
 
 ## DONE (54)

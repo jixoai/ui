@@ -245,7 +245,7 @@ export default {
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        "THE ROOT-PINNED ALIAS (the separator find's shape #2, measured) — the ink reads --jx-primary, a :root-declared alias (--jx-primary: var(--primary), one of 116 `: var(` chains in the token table) whose var() substitutes AT THE ROOT: a scoped .dark island re-derives inherited --primary but the ink HELDS the light value (measured frozen), while root-level html.dark re-derives it (measured flip). class:dark stamps for composed descendants. No number lane.",
+        "THE ROOT-PINNED ALIAS (the separator find's shape #2, measured) — the ink reads --jx-primary, a :root-declared alias (--jx-primary: var(--primary), one of 116 `: var(` chains in the token table) whose var() substitutes AT THE ROOT: a scoped .dark island re-derives inherited --primary but the ink HELDS the light value (measured frozen), while root-level html.dark re-derives it — measured flip for UNPINNED inks; data-theme demo stages locally pin (the three-tier model, task-74). class:dark stamps for composed descendants. No number lane.",
     },
     {
       name: 'elevation',
@@ -354,10 +354,11 @@ ${close}
             is the family's §13 hybrid (numbers stamp the §1 carrier; the ABSENT state rides the
             density ruler's var(--jx-icon)); shape/radius/color/elevation/motion supply unread —
             the ink is pinned to the primary hue through the ROOT-PINNED ALIAS chain
-            (--jx-primary: var(--primary)), and it is FROZEN EVERYWHERE: a scoped dark island
-            cannot repaint it, and at root-level dark the html alias re-derives but the
-            re-derived value never reaches the glyph (measured at the element — the A/B
-            adjudication). Kinship:
+            (--jx-primary: var(--primary)), and the tiers are THREE (the task-74 pin-finder:
+            33 of 40 inks FLIP under root dark, the 7 holds are exactly the data-theme
+            demo stages): a scoped dark island cannot repaint it; unpinned root-level dark
+            FLIPS it (measured at the elements and by a body-level move); data-theme
+            stages locally pin. Kinship:
             <code class={cx(rt.inkPrimary)}>skeleton</code> (the fleet's other motion surface —
             the pulse beside the spin),
             <code class={cx(rt.inkPrimary)}>progress</code> (determinate loading),
@@ -634,7 +635,7 @@ ${close}
       headerRegion="theming"
       eyebrow="theming"
       title="Theming"
-      summary="One paint word for both lanes: currentColor in the primary hue — through the ROOT-PINNED alias (--jx-primary: var(--primary)), and the ink is frozen EVERYWHERE — a scoped dark island cannot repaint it, and at root-level dark the html alias re-derives but the value never reaches the glyph (the A/B adjudication, measured at the element). The wrapping badge rides the popover tokens."
+      summary="One paint word for both lanes: currentColor in the primary hue — through the ROOT-PINNED alias (--jx-primary: var(--primary)), and the tiers are three: a scoped dark island cannot repaint it, unpinned root-level dark FLIPS it (33/40 census, the task-74 pin-finder), data-theme stages locally pin. The wrapping badge rides the popover tokens."
     >
       <div class={cx(rt.col24)}>
         <DensityDemo>
@@ -645,7 +646,7 @@ ${close}
         </DensityDemo>
         <TokenTable
           tokens={[
-            { name: 'text-primary', default: 'frames + svg paint', source: 'color', description: 'currentColor in the primary hue through the :root alias --jx-primary → var(--primary) — FROZEN EVERYWHERE (scoped island: held; root-level dark: the html alias re-derives but the glyph holds — A/B measured at the element)' },
+            { name: 'text-primary', default: 'frames + svg paint', source: 'color', description: 'currentColor in the primary hue through the :root alias --jx-primary → var(--primary) — THREE TIERS (scoped island: held; unpinned root dark: FLIPS — the html var and paint agree; data-theme stages: locally pinned — the task-74 census)' },
             { name: 'interval', default: 'per spinner (80-400ms)', source: 'component', description: 'Rides the catalog verbatim (line 130ms, simpleDots 400ms…); the svg lane is clocked by its own SMIL document' },
             { name: 'bg-popover', default: 'status pill fill', source: 'color' },
             { name: '--scrim', default: 'wrap posture dim', source: 'color', description: 'The family scrim token — a modal dim on the wrapping posture, never a hand-mixed tint' },
@@ -684,7 +685,7 @@ ${close}
       headerRegion="universal-props"
       eyebrow="axes"
       title="The eight axes on spin"
-      summary="The ZERO-READER CLASS, measured: the family animates by its OWN engine (the flat CSS keyframes + the SMIL clock) and reads NONE of the eight carriers — density stamps a managed rung, size is the family's §13 hybrid (numbers stamp the §1 carrier; ABSENT rides the density ruler's var(--jx-icon)), and shape / radius / color / elevation / motion supply unread. The ink is pinned to the primary hue through the ROOT-PINNED alias — the separator find's shape #2 — frozen EVERYWHERE (the A/B adjudication: html re-derives, the element holds). Reduced motion is two named channels, measured live."
+      summary="The ZERO-READER CLASS, measured: the family animates by its OWN engine (the flat CSS keyframes + the SMIL clock) and reads NONE of the eight carriers — density stamps a managed rung, size is the family's §13 hybrid (numbers stamp the §1 carrier; ABSENT rides the density ruler's var(--jx-icon)), and shape / radius / color / elevation / motion supply unread. The ink is pinned to the primary hue through the ROOT-PINNED alias — the separator find's shape #2 — frozen under scoped islands, FLIPPED by unpinned root dark, PINNED by data-theme stages (three tiers, the task-74 pin-finder). Reduced motion is two named channels, measured live."
     >
       <div class={cx(rt.col20)}>
         <PropsTable props={axisRows} title="" />
@@ -699,7 +700,7 @@ ${close}
           motion measured LIVE on both channels (emulated reduce → frame animation-name 'none' with
           frame 0's opacity-1 face; the svg instance's animationsPaused() flips true and back), the
           theme split (the ink HELD the light primary under a scoped .dark island and re-derived at
-          root-level dark A/B: html re-derives, the element holds; measured), the density stamp (data-density="sm" on the seat panel) and
+          root dark unpinned: FLIPS at the elements — the earlier element-holds read was the stage pin, superseded by the task-74 census; measured), the density stamp (data-density="sm" on the seat panel) and
           the grep receipts (zero --jx-*-effective readers over ui/spin/) were measured on this
           page's served DOM (probe, task 41). LAW #19 id landscape: duplicate ids NONE page-wide;
           the keyed gallery mounts 11/11. The query() seat below rides the md viewport key (48rem)
