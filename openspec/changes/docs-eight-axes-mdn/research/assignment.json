@@ -968,8 +968,8 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 60 scribe 1st PASS (0M/1m/0L/0N); RADIUS FLIP CONFIRMED live (12/10/8px three-lane table); W-next #10 + #11 reproduced as billed (#11 PAIR identified: rig vs lazy-drawer uid restart); MINOR landed: the radius axis row trued post-fix"
+   "status": "done",
+   "notes": "CLOSED #52 (quill 36 + scribe 60 1st + marginalia 69 2nd PASS); radius flip digit-exact three lanes; frame-width law both ends; a11y battery on real clicks (tri-state via button, indeterminate rule, caption 20/20); the NIT landed (dense no-op at EVERY rung: gap==inset 8px sm / 16px lg — strengthens W-next #10); the MINOR rides #11 with its AT cost (both PlayRows' aria-labelledby resolve the FIRST label — page-size announces 'frame width')"
   },
   {
    "page": "tabs",

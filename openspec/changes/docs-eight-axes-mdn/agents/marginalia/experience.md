@@ -880,3 +880,9 @@
 - **Chrome has no .paused on SVGSVGElement — use animationsPaused()**: the boolean accessor is implemented; the getCurrentTime-delta clock is the equivalent instrument when it isn't. Both agree: RM freezes the SMIL clock to delta 0 and resumes it.
 - **Consecutive-fetch hashes are a drift census**: spin.html's SSR differs across requests ONLY in hydration-comment hashes and svg gradient ids (svgInstanceSeq) — the SSR face of the hydration_html_changed LOW. Diff-isolate the drift before judging warm-reload; the drift itself is a finding (module counters vs per-render stability).
 - **The adjudication target's own history matters**: the "measured flip" claim traced to an html-level read — an instrument gap, not a page defect. Severity rides the CLAIM's wording (copy correction), while the underlying defect (frozen ink on dark grounds) goes to the family ledger.
+
+## Task 69 — table 2nd review (2026-09-23)
+- **A landed row can be verified from its own numbers**: the corrected radius row quoted its three lanes; re-deriving the lanes at the specimens (12/10/8 + the stamp-presence rule) is the whole verification — the row that landed carries its own test.
+- **Playground id counters restart per PlayFields instance**: two canvases = two row-1 labels = an aria-labelledby collision with a real AT cost (the second control announces the first's label). The W-next ledger item's cost is at the accessibility layer, not just hygiene.
+- **Mid-reveal reads lie**: a computed font-size read during a reveal transform returned 11px where the settled value is 12px — anchor computed-read probes after the reveal pass completes, and re-read anomalies once before filing them.
+- **Read overflow at the actual scroll container**: the table's scrollWidth equaled its clientWidth because the FIGURE is the scroller — measure scrollW against the frame width (646 > 560), not the table against itself.
