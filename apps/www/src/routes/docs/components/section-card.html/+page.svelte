@@ -56,7 +56,7 @@ ${close}
 
 <div class="flex flex-wrap items-start gap-6">
   <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone default · h2</span><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="The everyday content atom: eyebrow row, muted summary, body slot."><p class="text-[13px]">body snippet slot</p></SectionCard><p class="text-muted-foreground text-[12.5px]">every section on a page</p></div>
-  <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone hero · h1</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class="flex flex-wrap gap-3"><span class="pill">hero body</span></div></SectionCard><p class="text-muted-foreground text-[12.5px]">the inner-page head (S4.1 unique-h1 law)</p></div>
+  <div class="flex min-w-64 flex-1 flex-col gap-3 border border-border p-4"><span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">tone hero · h2 (h1 pairs at the route head — S4.1)</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class="flex flex-wrap gap-3"><span class="pill">hero body</span></div></SectionCard><p class="text-muted-foreground text-[12.5px]">the inner-page head (S4.1 unique-h1 law)</p></div>
 </div>`;
 
   const sectionCardTypesFiles: TreeFile[] = [
@@ -118,7 +118,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -256,7 +256,7 @@ ${close}
     <ComponentCanvas title="section-card · tones" stage="fill" files={sectionCardTypesFiles}>
     <div class={cx(rt.wrapStart24)} data-doc-demo-scope="headings-ok">
       <div class={cx(rt.col12, rt.panel, rt.grow, rt.scMinW64)}><span class={cx(rt.eyebrowPrimary)}>tone default · h2</span><SectionCard eyebrow="quick start" title="Acquire a Backend." summary="The everyday content atom: eyebrow row, muted summary, body slot."><p class={cx(rt.text13)}>body snippet slot</p></SectionCard><p class={cx(rt.inkMuted, rt.text125)}>every section on a page</p></div>
-      <div class={cx(rt.col12, rt.panel, rt.grow, rt.scMinW64)}><span class={cx(rt.eyebrowPrimary)}>tone hero · h1</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class={cx(rt.wrap12)}><span class="pill">hero body</span></div></SectionCard><p class={cx(rt.inkMuted, rt.text125)}>the inner-page head (S4.1 unique-h1 law)</p></div>
+      <div class={cx(rt.col12, rt.panel, rt.grow, rt.scMinW64)}><span class={cx(rt.eyebrowPrimary)}>tone hero · h2 (h1 pairs at the route head — S4.1)</span><SectionCard tone="hero" eyebrow="registry:ui" title="The hero head." summary="Clamp-scaled title, foreground summary — one per route."><div class={cx(rt.wrap12)}><span class="pill">hero body</span></div></SectionCard><p class={cx(rt.inkMuted, rt.text125)}>the inner-page head (S4.1 unique-h1 law)</p></div>
     </div>
     </ComponentCanvas>
   </SectionCard></div>

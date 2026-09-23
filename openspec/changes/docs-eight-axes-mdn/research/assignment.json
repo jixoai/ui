@@ -873,8 +873,9 @@
     "marginalia",
     "quill"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "task 97 marginalia 1st PASS (0M/1m/2L); overload closed, captions trued, heading-clone design receipt filed; 2nd = vellum"
   },
   {
    "page": "select",
