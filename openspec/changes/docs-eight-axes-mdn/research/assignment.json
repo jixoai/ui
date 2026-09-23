@@ -165,8 +165,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st vellum T127 PASS 0M/1m/0L/0N; consolidated: :48 cells-union narrowing, FIVE TokenTable source-union seats trued to vocab, cx closed (page + family x4, MIRRORED)."
+   "status": "done",
+   "notes": "CLOSED at scribe's T134 2nd (PASS 0/0/0/0 — Tier 2 confirmed)"
   },
   {
    "page": "checkbox",
@@ -420,8 +420,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st scribe T125 PASS 0M/2m/1L/1N; consolidated: the LAW #19 LIVE duplicate id=usage killed (the 'Name the action once' section re-id'd #naming — the canonical Usage section keeps the id), cx closed both trees (MIRRORED), the 42px stale literal -> 40px measured (both seats, the density-hit lane named), the toc label trued to the section title."
+   "status": "done",
+   "notes": "CLOSED at quill's T133 2nd (PASS 0M/0m/1L/1N — Tier 2; toc label landed)"
   },
   {
    "page": "image",
@@ -496,8 +496,8 @@
     "vellum"
    ],
    "tier": 1,
-   "status": "pass-1st",
-   "notes": "1st vellum T127 PASS 0M/1m/1L/0N; consolidated: the stale listbox bullet trued to the served DOM (bare-disclosure BUTTON + NAV + aria-current anchors), cx closed both trees (MIRRORED)."
+   "status": "done",
+   "notes": "CLOSED at scribe's T134 2nd (PASS 0/0/0/0 — Tier 1 confirmed)"
   },
   {
    "page": "link",
@@ -529,8 +529,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st scribe T125 PASS 0M/2m/0L/1N + THE TAXONOMY RULING: SEVEN control adapters (ItemToggle/Checkbox/Radio/Select/Input/Segmented/Stepper; ItemField is the escape hatch, never a member) — list's hero trued to the shared wording; consolidated: the toc REBUILT 16 sections in DOM order (ten were unrail-ed, types led usage), cx closed, the cpuGlyph dual-copy casts x2, family lane ALL NINE closed (item-end inset declared — cascading to actions/field; item-input labelMode omitted from ControlProps extend; index.ts duplicate ItemVariant/ItemTone re-export trimmed), MIRRORED."
+   "status": "done",
+   "notes": "CLOSED at quill's T133 2nd (PASS 0M/0m/1L/0N — Tier 2; hero pill 5->7 landed)"
   },
   {
    "page": "markdown",
@@ -584,8 +584,9 @@
     "vellum",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st quill T129 PASS; consolidated (cx + alias-export)"
   },
   {
    "page": "native-scroll-area",
@@ -640,8 +641,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st quill T129 NEEDS-WORK; consolidated (dup id killed, 7 cx + trio closed); :93 residual ledgered"
   },
   {
    "page": "pattern-cta",
@@ -661,8 +663,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "1st quill T129 PASS; cx closed; N recorded"
   },
   {
    "page": "pattern-hero-set",
@@ -671,8 +674,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st quill T129 PASS; cx x3 closed; N recorded"
   },
   {
    "page": "pattern-login",
@@ -681,8 +685,9 @@
     "vellum",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st scribe T130 PASS; cx x3 closed"
   },
   {
    "page": "pattern-pricing",
@@ -747,8 +752,9 @@
     "quill",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st scribe T130 PASS; zero-script claim scoped; cx closed"
   },
   {
    "page": "prose",
@@ -757,8 +763,9 @@
     "vellum",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st scribe T130 PASS; cx + null-guard closed"
   },
   {
    "page": "prototype-flex",
@@ -834,8 +841,9 @@
     "quill",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st scribe T130 PASS; cx + NonNullable closed; warning seat ledgered"
   },
   {
    "page": "scaffold-float",
@@ -866,8 +874,9 @@
     "quill",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st marginalia T131 PASS 0M/2m/0L/1N — ledgered next-round"
   },
   {
    "page": "scroll-virtual",
@@ -898,8 +907,9 @@
     "vellum",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st marginalia T131 PASS 0/0/0/0 — zero findings"
   },
   {
    "page": "separator",
@@ -1051,8 +1061,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st marginalia T131 PASS 0M/0m/1L/0N — rename ledgered"
   },
   {
    "page": "text",
@@ -1061,8 +1072,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "needs-work",
+   "notes": "1st marginalia T131 NEEDS-WORK 1M — THE SCANNER FEED; ledgered next-round"
   },
   {
    "page": "textarea",
@@ -1083,8 +1095,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st scribe T125 PASS 0M/1m/1L/1N; consolidated: cx closed both trees + the :227 false-union ternary (MIRRORED), the class:dark axis claim scoped honestly (declared in family, not served by a demo instance), 'four densities'->'four variants' (axis-collision NIT)."
+   "status": "done",
+   "notes": "CLOSED at quill's T133 2nd (PASS 0M/0m/0L/1N — Tier 2 confirmed; the two-channel lockstep fresh axis)"
   },
   {
    "page": "timeline",
