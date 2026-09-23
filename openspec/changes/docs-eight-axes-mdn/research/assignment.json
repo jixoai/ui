@@ -353,7 +353,7 @@
    ],
    "tier": 2,
    "status": "pass-1st",
-   "notes": "1st marginalia T111 NEEDS-WORK 1M/1m/1L consolidated: MAJOR landed page-side (the disclosure demo's lane content gains min-h-0/overflow-hidden — the 0fr track's content-minimum floor removed; SERVED-VERIFIED: .x2lwn1j{min-height:0}+.xb3r6kr{overflow:hidden} on the live div, sample trued same-source; the component-wrap option — every consumer gets the honest animation — ledgered for the Owner); toc rebuilt (grid-workbench rail-ed, the dead #tracks anchor gone, DOM order); cx closed both trees (mirrored). 2nd = vellum/quill pool."
+   "notes": "1st marginalia T111 NEEDS-WORK 1M/1m/1L consolidated: MAJOR landed page-side (the disclosure demo's lane content gains min-h-0/overflow-hidden — the 0fr track's content-minimum floor removed; SERVED-VERIFIED: .x2lwn1j{min-height:0}+.xb3r6kr{overflow:hidden} on the live div, sample trued same-source; the component-wrap option — every consumer gets the honest animation — ledgered for the Owner); toc rebuilt (grid-workbench rail-ed, the dead #tracks anchor gone, DOM order); cx closed both trees (mirrored). 2nd = vellum/quill pool. T122 reassignment: marginalia 2nd (owner scribe codes); vellum preserved."
   },
   {
    "page": "heading",
@@ -1095,8 +1095,8 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st scribe T71 PASS 0M/0m/1L/0N, Tier 2 held; consolidated: the known docs-lint red RESOLVED (live-demo canvas moved below Usage — the skeleton's six keep their order; toc reordered to DOM), the family's THREE type errors closed (dialog:52 + viewport:225 joiners ?? {} ; viewport:878/:885 false-union ternaries), MIRRORED; W-next #7 seventh voice digit reconciled in the ledger (2.81:1 billed -> 1.17:1 measured at the current vintage, both red — no page digit quoted). verify:docs FULLY GREEN at this consolidation."
+   "status": "done",
+   "notes": "CLOSED at marginalia's T119 2nd (PASS 0M/0m/0L/0N — Tier 2 confirmed). All three T71 landed items verified at FOUR layers (the order move incl. dist bytes 25414<28176; family 0 error seats; the digit reconciliation ledger-only — zero contrast hits on the page). Scribe's receipts re-derived TRUE (the MutationObserver census with the +3 queued arithmetic 7-4=3; push-exact 5240/5275 with ghost windows 216/211 vs EXIT_MS 220; FIFO click-promote; density 13/15/12 + the 48rem flip). FRESH AXIS end-to-end: queue-expiry-arms-at-first-visibility — the promoted oldest unmounts at exactly promotion+5000ms of its OWN window; a queued toast never expires unseen. Her port flag (a stale 5245 orchestrator server) verified mine + killed by PID with receipt."
   },
   {
    "page": "toc",
