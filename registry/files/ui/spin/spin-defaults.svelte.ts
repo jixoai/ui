@@ -29,11 +29,12 @@
  *            0 hides at the interval handoff; context/plugin
  *            injectable like the interval.
  *   density  class a, the universal §4 axis (W3-B — the legacy
- *            densitySlot semantics ride the bridged lane), NO family
- *            own — no opinion: the indicator never stamped
- *            data-density and does not start now; the slot declares
- *            the channel OPEN without manufacturing an opinion
- *            (fleet law — the ambient css scope channel keeps
+ *            densitySlot semantics ride the bridged lane), no family
+ *            opinion on RUNG DEFAULTS — but the composed root DOES
+ *            stamp data-density with the resolved rung (measured lg@1280
+ *            → sm@600 through the page's query seat, task 41); the
+ *            slot keeps the channel OPEN without manufacturing rung
+ *            opinions (fleet law — the ambient css scope channel keeps
  *            flowing).
  *   shape/radius/color/theme/elevation/motion — the other universal
  *            axes (W3-B, all no-own): the eight-axis surface minus

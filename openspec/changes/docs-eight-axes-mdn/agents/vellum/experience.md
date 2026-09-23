@@ -1154,3 +1154,26 @@
   fit-content/inline-flex chain measures 13-28px. Seats that need measurable geometry ride
   plain full-width grounds, not canvas stages (second occurrence — T38 chose the stage body,
   T40 had to leave the stage entirely).
+
+## Task 41 — spin (2026-09-23)
+- **Pulse-in-pixels, the motion-surface edition**: the observable channel must be named and
+  everything else receipted as NEGATIVES (spin: opacity oscillates under rAF while
+  transform/background/transition-duration are computed-style zeros/none). Offscreen elements
+  get their animations throttled — scroll the seat into view BEFORE rAF sampling, or the
+  trace reads flat-zero and "disproves" a live animation.
+- **RM emulation receipts pair with the RUN state, not just the kill**: spin needed both
+  directions (reduce → animation-name 'none' + SMIL animationsPaused() true; un-reduce →
+  name back + paused false). A one-direction kill receipt cannot tell a static media kill
+  from a permanently broken animation.
+- **The lanes-vs-passthroughs law fails SILENTLY in dev**: size={query(...)} on a
+  number|string prop typechecks nowhere at runtime — the carrier simply never stamps and the
+  seat measures a neighbor. Typecheck early (page-scoped svelte-check BEFORE probing), grep
+  the family defaults for the recorded lane- adoption contract, and seat on a lane the
+  family actually accepts (spin: density's rung stamp).
+- **query()'s two generics**: query<{ md: DensityLane }, DensityLane>({ md: … }, …) — the
+  cases type must be a Record whose values are the LANE union, or string literals widen to
+  string and miss DensityLane (the alert page was the in-repo precedent — grep sibling pages
+  before inventing a generic).
+- **Never put literal `<style …>` in Svelte prose** — the template parser opens a real
+  style element and the "Expected token </style>" error surfaces only at SSR compile. Write
+  element references as `style[data-jx-spin-frames]` or escape the brackets.

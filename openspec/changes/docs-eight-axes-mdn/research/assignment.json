@@ -914,8 +914,9 @@
     "marginalia",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 41 tier-2; observable channel = opacity only (computed negatives for transform/bg/transition); flat engine negative delay -0.84s idempotent frames; RM measured BOTH channels (frame + svg animationsPaused); root-pinned alias CONFIRMED second family (one of 116 : var( root chains — the W-next #7 census); size rejects query (lanes-vs-passthroughs) — query seat on density; stale family comment fixed MIRRORED (drift #12)"
   },
   {
    "page": "stack",

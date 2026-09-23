@@ -16,6 +16,8 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -183,7 +185,7 @@ export default {
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is NonNullable<(typeof styles)[number]> => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -198,6 +200,90 @@ export default {
 <Spin spinner="dots" label="loading" />`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/spin-universal.svelte', content: universalUsage },
+  ];
+
+  // ── the measured per-axis table (task 41) — every cell measured on
+  // the served DOM (probe) or negative-grepped over ui/spin/ ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "MANAGED STAMP, ZERO-READER CLASS — the resolved rung is stamped on the root (data-density, measured 'sm' under density=\"small\" on both postures) and the ambient scope channel keeps flowing, but NOTHING in the family reads it (grep receipt). THE LIVE CONSUMER is the RULER, not the axis: the absent-size svg edge rides var(--jx-icon), which the ambient density scope scales. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `number | string (the family's own hybrid, §13)`,
+      default: `absent → var(--jx-icon)`,
+      description:
+        "THE HYBRID OWN — a NUMBER is the universal size axis' number lane verbatim (px) and additionally stamps the §1 carrier for descendants; a string is any CSS length (the family's own lane); ABSENT is a STATE: the svg edge rides the density ruler's var(--jx-icon) through an inline style (attrs cannot carry var()). The text posture ignores the slot entirely (it paints var(--jx-text)). Zero size-effective READERS (grep receipt) — the svg's width/height attributes or the ruler inline style are the consumption. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero shape-channel readers (grep receipt: no corner-shape consumer in ui/spin/; a loader glyph has no corners of its own). Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero radius-effective readers (grep receipt); the wrap posture pill uses the family hairline, not the radius axis. Number unit: px.',
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the ink is PINNED to the primary hue (glyph + cursor + inline all read --jx-primary); zero --jx-color-effective readers (grep receipt). The hue axis never reaches the loader — repainting means re-theming --primary, not spinning the color lane. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE ROOT-PINNED ALIAS (the separator find's shape #2, measured) — the ink reads --jx-primary, a :root-declared alias (--jx-primary: var(--primary), one of 116 `: var(` chains in the token table) whose var() substitutes AT THE ROOT: a scoped .dark island re-derives inherited --primary but the ink HELDS the light value (measured frozen), while root-level html.dark re-derives it (measured flip). class:dark stamps for composed descendants. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero elevation-carrier readers (grep receipt); the wrap pill\'s shadow is the family\'s --jx-shadow token, not the axis. Number unit: dp.',
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE FAMILY IS MOTION — and the axis stays SUPPLY-ONLY (zero motion-effective readers, grep receipt): the animation is the flat CSS engine's own (per-frame opacity keyframes, negative-delay phasing; pulse-in-pixels receipts: rAF-sampled opacity oscillates, transform/transition/background are computed-style NEGATIVES), and reduced motion is TWO NAMED CHANNELS measured live — the text frames' static CSS kill (animation: none → frame 0 face) and the svg lane's SMIL clock pause (root.pauseAnimations() on the matchMedia listener). Number unit: coefficient.",
+    },
+  ];
+
+  // the ONE query() case: the DENSITY lane's rung stamp. The size prop
+  // is the family's own hybrid (number | string — a passthrough) and
+  // REJECTS query() by type; the family contract records that the
+  // named/auto/query lanes are not adopted on the loader. The stamp is
+  // the receipt: the rung flips while nothing in the family reads it.
+  const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' }, 'small');
+
+  const queryUsage = `<script lang="ts">
+  import Spin from '@ui/spin';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- the md key is the registered VIEWPORT scale (48rem): below it the
+     small rung stamps, at 48rem+ large wins — data-density flips on
+     the element while nothing in the family reads it (the zero-reader
+     class): the stamp IS the receipt. size itself REJECTS query() —
+     it is the family's own number|string hybrid, not an axis seat. -->
+<Spin spinner="blocks-wave" density={query({ md: 'large' }, 'small')} label="loading" />`;
+
+  const queryFiles: TreeFile[] = [
+    { name: 'spin-query-demo.svelte', content: queryUsage, kind: 'usage' },
   ];
 
 </script>
@@ -230,23 +316,56 @@ export default {
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="install" data-reveal="">
       <DocsInstall name="spin" />
     </div>
 
-    <div id="usage" data-reveal="">
+    <!-- overview -->
+    <div id="overview" data-reveal="">
       <SectionCard
-        family="usage"
-        headerRegion="usage"
-        eyebrow="usage"
-        title="Usage"
-        summary="Import the component, hand it a spinner name — the label is the polite announcement, children flip the wrapping posture."
+        family="overview"
+        headerRegion="overview"
+        eyebrow="overview"
+        title="Overview"
+        summary="A name, two corpora, one flat CSS engine: the union closes at build time, the frames render once each, and reduced motion is two named measured channels — never an assumption."
       >
-        <CodeBlock code={usage} lang="svelte" meta="Spin usage" />
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.para)}>
+            You hand it a NAME, not a cursor. The name lane crosses two corpora: the curated
+            <code class={cx(rt.inkPrimary)}>cli-spinners</code> text catalog (60 names, frames
+            and per-spinner intervals verbatim) and the generated svg artifact (blocks-wave plus
+            the vendored packs — your own loaders through the vite plugin). The artifact lane
+            resolves FIRST, and the union closes at build time: a misspelled spinner is a
+            compile error, never a shipped blank. Both lanes announce through
+            <code class={cx(rt.inkPrimary)}>role=status</code> — polite by construction.
+          </p>
+          <p class={cx(rt.para)}>
+            The text lane is the FLAT CSS ENGINE: every frame renders ONCE as its own grid cell
+            span, phased by a negative animation delay — no element churn, no JS clock; JS only
+            fills the parameters (one shared keyframes rule per timing set). The trail is the
+            opacity animation itself, the box never breathes (the widest frame's advance width
+            holds the cell), and reduced motion is a static media kill landing on the base face:
+            frame 0 alone, LIVE media semantics, zero JS. The svg lane keeps its OWN engine —
+            the SMIL document inside the artwork — frozen through a live matchMedia listener
+            that pauses the clock. Two named channels, measured, never conflated.
+          </p>
+          <p class={cx(rt.para)}>
+            The eight axes are near-zero by measurement: density stamps a managed rung and size
+            is the family's §13 hybrid (numbers stamp the §1 carrier; the ABSENT state rides the
+            density ruler's var(--jx-icon)); shape/radius/color/elevation/motion supply unread —
+            the ink is pinned to the primary hue through the ROOT-PINNED ALIAS chain
+            (--jx-primary: var(--primary)), so a scoped dark island cannot repaint it and
+            root-level dark does. Kinship:
+            <code class={cx(rt.inkPrimary)}>skeleton</code> (the fleet's other motion surface —
+            the pulse beside the spin),
+            <code class={cx(rt.inkPrimary)}>progress</code> (determinate loading),
+            <code class={cx(rt.inkPrimary)}>toast</code> (the completion announcement).
+          </p>
+        </div>
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="live-demo" data-reveal="">
       <ComponentCanvas
         title="spin"
         description="One name, two corpora. The playground drives the lower instance across the name lane; the upper rows are the default text posture and the svg artifact at its size ladder."
@@ -491,37 +610,29 @@ export default {
         </div>
       </SectionCard>
     </div>
+
+    <div id="usage" data-reveal="">
+      <SectionCard
+        family="usage"
+        headerRegion="usage"
+        eyebrow="usage"
+        title="Usage"
+        summary="Import the component, hand it a spinner name — the label is the polite announcement, children flip the wrapping posture."
+      >
+        <CodeBlock code={usage} lang="svelte" meta="Spin usage" />
+      </SectionCard>
+    </div>
   </div>
 </div>
 
 <div class={cx(rt.shellFlush)}>
-  <div id="accessibility" data-reveal="">
-    <SectionCard
-      family="accessibility"
-      headerRegion="accessibility"
-      eyebrow="a11y"
-      title="Accessibility"
-      summary="role=status is polite by construction — loading is never an alert; the scrim stops pointers without disabling anything; both animated lanes go quiet under reduced motion."
-    >
-      <A11yTable
-        keys={[]}
-        aria={[
-          { name: 'role', value: 'status', description: 'Polite live region — announced when the reader is idle, never assertive' },
-          { name: 'aria-label', value: 'label prop', description: 'Announced to assistive tech ("loading", "loading checks"…)' },
-          { name: 'aria-busy', value: '"true"', description: 'On the wrapping container posture' },
-          { name: 'aria-hidden', value: 'true', description: 'On the decorative frames and the svg artwork themselves' },
-        ]}
-      />
-    </SectionCard>
-  </div>
-
   <div id="theming" data-reveal="">
     <SectionCard
       family="theming"
       headerRegion="theming"
       eyebrow="theming"
       title="Theming"
-      summary="One paint word for both lanes: currentColor in the primary hue. The svg posture inherits the text color of its slot; the text frames are mono glyphs; the wrapping badge rides the popover tokens."
+      summary="One paint word for both lanes: currentColor in the primary hue — through the ROOT-PINNED alias (--jx-primary: var(--primary)), so a scoped dark island cannot repaint the ink and root-level dark does (measured). The wrapping badge rides the popover tokens."
     >
       <div class={cx(rt.col24)}>
         <DensityDemo>
@@ -532,32 +643,13 @@ export default {
         </DensityDemo>
         <TokenTable
           tokens={[
-            { name: 'text-primary', default: 'frames + svg paint', source: 'color', description: 'currentColor in the primary hue — the whole indicator, text and svg alike' },
+            { name: 'text-primary', default: 'frames + svg paint', source: 'color', description: 'currentColor in the primary hue through the :root alias --jx-primary → var(--primary) — frozen under a scoped .dark island, re-derived at root-level dark (measured)' },
             { name: 'interval', default: 'per spinner (80-400ms)', source: 'component', description: 'Rides the catalog verbatim (line 130ms, simpleDots 400ms…); the svg lane is clocked by its own SMIL document' },
             { name: 'bg-popover', default: 'status pill fill', source: 'color' },
             { name: '--scrim', default: 'wrap posture dim', source: 'color', description: 'The family scrim token — a modal dim on the wrapping posture, never a hand-mixed tint' },
           ]}
         />
       </div>
-    </SectionCard>
-  </div>
-
-  <div id="universal-props" data-reveal="">
-    <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. §13: size numbers are the axis' number lane VERBATIM (px); the absent state keeps riding the density ruler's --jx-icon."
-    >
-      <ComponentCanvas title="Spin · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}><Spin spinner="blocks-wave" size={28} label="loading" /></div>
-        <div class={cx(rt.panel)}><Spin spinner="dots" label="loading" /></div>
-        <div class={cx(rt.panel)}><Spin spinner="blocks-wave" size={20} color="primary" label="loading" /></div>
-        <div class={cx(rt.panel)}><Spin spinner="dots" size={20} density="small" label="loading" /></div>
-        </div>
-      </ComponentCanvas>
     </SectionCard>
   </div>
 
@@ -584,7 +676,84 @@ export default {
     </SectionCard>
   </div>
 
-  <div data-reveal="">
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="The eight axes on spin"
+      summary="The ZERO-READER CLASS, measured: the family animates by its OWN engine (the flat CSS keyframes + the SMIL clock) and reads NONE of the eight carriers — density stamps a managed rung, size is the family's §13 hybrid (numbers stamp the §1 carrier; ABSENT rides the density ruler's var(--jx-icon)), and shape / radius / color / elevation / motion supply unread. The ink is pinned to the primary hue through the ROOT-PINNED alias — the separator find's shape #2 — frozen under a scoped dark island, re-derived at root-level dark. Reduced motion is two named channels, measured live."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the flat engine (the growVertical seat: 10 frames mounted, ONE shared
+          keyframes rule jx-spin-f10-i120-l120-both inside the single style[data-jx-spin-frames]
+          element — 12 rules accumulated, the dots rule f10-i80-l160-end among them — with
+          per-frame NEGATIVE delays −120ms…−1200ms over a 1200ms cycle), the pulse-in-pixels pair
+          (rAF-sampled opacity of a mid frame oscillates the full range — 7/32 samples nonzero —
+          while transform stays 'none', background transparent, and transition-duration 0s:
+          opacity is the only animated channel), reduced
+          motion measured LIVE on both channels (emulated reduce → frame animation-name 'none' with
+          frame 0's opacity-1 face; the svg instance's animationsPaused() flips true and back), the
+          theme split (the ink HELD the light primary under a scoped .dark island and re-derived at
+          root-level dark; measured), the density stamp (data-density="sm" on the seat panel) and
+          the grep receipts (zero --jx-*-effective readers over ui/spin/) were measured on this
+          page's served DOM (probe, task 41). LAW #19 id landscape: duplicate ids NONE page-wide;
+          the keyed gallery mounts 11/11. The query() seat below rides the md viewport key (48rem)
+          on the density lane's rung stamp.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <!-- the seat rides a FULL-WIDTH ground: shrink-wrapped stages
+             squeeze the strip below measurability (the T40 lesson) -->
+        <div class={cx(rt.mt20, rt.wFull)}>
+          <Spin spinner="blocks-wave" density={responsiveDensity} label="loading" />
+          <p class={cx(rt.mt12, rt.note12, rt.inkMuted70)}>
+            The md key is the registered VIEWPORT scale (48rem): below it the small rung stamps
+            (data-density="sm"); at 48rem and wider large wins ("lg" at a 1280 viewport,
+            measured) — the rung flips on the element while no family rule consumes it (the
+            zero-reader class): the stamp is the receipt. The size prop itself is the family's
+            own number|string hybrid and REJECTS query() — the lanes-vs-passthroughs boundary,
+            typecheck-proven; the named/auto/query lanes are not adopted on the loader.
+          </p>
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="Spin · universal props" stage="fill" files={universalFiles}>
+            <div class={cx(rt.gridSm2)}>
+            <div class={cx(rt.panel)}><Spin spinner="blocks-wave" size={28} label="loading" /></div>
+            <div class={cx(rt.panel)}><Spin spinner="dots" label="loading" /></div>
+            <div class={cx(rt.panel)}><Spin spinner="blocks-wave" size={20} color="primary" label="loading" /></div>
+            <div class={cx(rt.panel)}><Spin spinner="dots" size={20} density="small" label="loading" /></div>
+            </div>
+          </ComponentCanvas>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="role=status is polite by construction — loading is never an alert; the scrim stops pointers without disabling anything; both animated lanes go quiet under reduced motion."
+    >
+      <A11yTable
+        keys={[]}
+        aria={[
+          { name: 'role', value: 'status', description: 'Polite live region — announced when the reader is idle, never assertive' },
+          { name: 'aria-label', value: 'label prop', description: 'Announced to assistive tech ("loading", "loading checks"…)' },
+          { name: 'aria-busy', value: '"true"', description: 'On the wrapping container posture' },
+          { name: 'aria-hidden', value: 'true', description: 'On the decorative frames and the svg artwork themselves' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="spin" />
   </div>
 </div>
