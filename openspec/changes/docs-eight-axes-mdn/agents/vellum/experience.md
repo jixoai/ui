@@ -998,3 +998,27 @@
 - **Surgical edits on a big page beat full rewrites when 600 lines are machinery**
   (the schema dock) — but re-grep the file after external modifications (a
   mid-task edit hit the "file modified" guard; re-read and re-applied cleanly).
+
+## Task 34 — progress (2026-09-22)
+
+- **getComputedStyle lies for engine pseudo-elements**: reading
+  `getComputedStyle(bar, '::-webkit-progress-value')` returned the ELEMENT's own
+  background and `0s` transition in Chromium — the first probe concluded the fill
+  rules were dead. Pixel truth (screenshot the bar, scan the row: saturated fill vs
+  gray track) proved the fill paints brand color fine. When a verdict hinges on a
+  pseudo-element, go to pixels (canvas row-scan), not CSSOM.
+- **Screenshot-diff is the clock for unreadable transitions**: fill-edge position
+  sampled at first-frame after a value jump — identical in normal and reduced modes
+  → the authored 200ms pseudo-width transition is Chromium-inert. Two modes × early
+  frame settles "authored-but-inert" in one run.
+- **The dispatch's duplicate-id lesson as a hard gate**: page-wide id regex scan
+  (section AND non-section ids) with a dups assert before svelte-check — zero-cost,
+  and the only check that would catch a copy-paste section clone.
+- **Density-"managed" families can still be paint-invariant**: a rung attr on the
+  root plus zero kernel-channel reads (fixed --jx-unit height) means the ladder is
+  declared but invisible. Measure ONE stamp (2xs) before writing "CONSUMED" — the
+  honest row here is "managed but paint-invariant".
+- **The frozen-ink seam now has three instances** (menubar open-pose candidate,
+  progress label/track/frame, press-button outline/ghost ink): all share the same
+  root cause — defineVars :root literals the dark scope does not re-declare. Flag
+  instances by family+atom list so one pattern fix can cover them.
