@@ -4,7 +4,8 @@
   bounded quantities. The shell is one bordered row — 1px var(--border),
   radius 0, var(--background) fill, min-height 2.5rem (the 40px family
   law every text-like control shares) — split into two full-height
-  28px-wide stepper buttons (their own 1px borders form the dividers,
+  stepper squares riding the density hit channel (24/28/32/40/48px across
+  the rungs — measured; their own 1px borders form the dividers,
   negative margins overlap the shell border so every line stays 1px)
   around a borderless, centered native <input type="number">. The native
   spinners are hidden (appearance:none) but native behavior is kept:
@@ -94,16 +95,15 @@
   interface Props extends Omit<HTMLInputAttributes, 'size' | 'color'> {
     /** committed quantity; bind:value — undefined renders empty */
     value?: number;
-    /** density policy: explicit, inherited, then default */
     /** density policy: explicit, inherited, then default — the
      *  universal §4 lane (named rungs + the documented small/medium/
      *  large aliases · auto · a coefficient number · query()) */
     density?: DensityLane | QueryResult<DensityLane>;
     /** universal size axis (§1): root font-size — named steps · auto
-     *  (inherit) · a px number · query(). CONSUMED by the family (the
-     *  native element NEVER receives a size attribute from it — the §1
-     *  native collision rule; everything the family does not own still
-     *  rides {...rest}) */
+     *  (inherit) · a px number · query(). SUPPLY-ONLY — zero family
+     *  readers (grep-receipted; the native element NEVER receives a size
+     *  attribute — the §1 native collision rule; everything the family
+     *  does not own still rides {...rest}) */
     size?: SizeLane | QueryResult<SizeLane>;
     /** universal shape axis (§2): corner geometry; auto = inherit */
     shape?: ShapeLane | QueryResult<ShapeLane>;
@@ -111,8 +111,8 @@
      *  broadcast */
     radius?: RadiusLane | QueryResult<RadiusLane>;
     /** universal color axis (§5): the hue axis of the oklch system —
-     *  semantic names · hue degrees · raw values · query(). CONSUMED by
-     *  the family (the native attribute never receives it, §1) */
+     *  semantic names · hue degrees · raw values · query(). SUPPLY-ONLY —
+     *  zero family readers (the native attribute never receives it, §1) */
     color?: ColorLane | QueryResult<ColorLane>;
     /** universal theme axis (§6): light/dark/system; auto = tree
      *  inheritance (the .dark class bridge) */

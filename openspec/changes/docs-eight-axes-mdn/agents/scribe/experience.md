@@ -1059,3 +1059,52 @@
   3 entries (label, density, variant), served 2 — density is
   axis-named and folds into the universal 8. The kbd class, third
   instance.
+
+## Techniques (task 34 additions)
+- **The attribution triangle (sibling noise in a moving tree)**: when a
+  shared gate fails on a key that isn't yours — (1) unfiltered
+  `git status --porcelain` at CLOSURE time (recon-time filtered greps
+  miss work that enters the tree mid-session); (2) `git diff HEAD` +
+  grep for the failing test's marker string; (3) `git log -S <marker>`
+  — empty means never committed, i.e. in-flight; (4) timeline anchor:
+  your own prior green log's mtime vs the HEAD commits'. All four legs
+  landed in task 34 (sheet rework: +282/−108 uncommitted, lawTable
+  never committed, my 08:16 green predates the drift).
+- **The ink/paint-pair read as the standard dark-check**: for every
+  frozen-surface claim, read BOTH the surface color AND the ink color of
+  every text-bearing child in dark — a split-voice composite can freeze
+  the paint while the ink re-derives (number-input's cell ink rode the
+  standard lane, not the cell atom) → white-on-white at contrast 1:1.
+  A screenshot of the dark specimen is the receipt; the computed pair is
+  the mechanism.
+- **Isolate shared-binding artifacts with a bind-only twin**: to prove a
+  demo-seat bounce is the playground's and not the component's, repeat
+  the exact interaction on a specimen with bind:value but no range
+  attached (number-input's RTL seat) — stable empty proves the
+  component's undefined commit is spec-true.
+- **Recount discipline on meta censuses**: count raw keys, then LIST
+  the quoted-duplicate keys before subtracting (number-input: 24 raw −
+  'data-density'/'aria-invalid'/'aria-describedby' = 20 distinct named
+  + rest = 21). My first dedup subtraction was off by one and briefly
+  contradicted the other reviewer — recount by ENUMERATION, not
+  arithmetic.
+- **Registry-mirror pre-check on any family-file fix**: `diff -q
+  registry/files/<family>/<file> apps/www/src/lib/ui/<family>/<file>`
+  before proposing the fix — byte-identical today means a one-sided fix
+  CREATES the divergence; the fix must land mirrored.
+
+## Highlights (task 34)
+- (number-input) The five-rung ladder digit-exact with the 2xs WCAG
+  floor live (24×24/10), and the hold clock captured at ~99ms steady
+  cadence with the off-button release and orphanStep false.
+- (number-input) The frozen-ink seam's FOURTH instance found and
+  screenshot-proven: the dark field's value is white-on-white
+  (contrast 1:1, invisible) — frozen shell atoms + standard-lane ink
+  that re-derives; the page's "cell ink likewise frozen" clause is
+  false-as-served. Attached to W-next #7.
+- (number-input) The PlayRange bounce caught live AND isolated to the
+  playground via the RTL bind-only twin (stable "" = the component's
+  undefined commit is spec-true).
+- (process) The attribution triangle's first full rehearsal: 2 ambient
+  failures keyed to sheet, proven sibling noise on all four legs, zero
+  touches.

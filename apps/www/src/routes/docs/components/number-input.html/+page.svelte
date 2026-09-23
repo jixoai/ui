@@ -182,7 +182,7 @@ ${close}
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        "THE SPLIT VOICE (form-family law, measured per element) — explicit dark rides the .dark class bridge on the field root. RE-DERIVING legacy chains: the well shadow (--shadow-well, black ink → white ink), the focus ring (--ring → the drifted dark primary) and the stepper hover (--muted 0.9551 → 0.2178) all flip. FROZEN :root atom snapshots (stylex defineVars, no tokenScope stamp): the shell background stayed oklch(1 0 0) while --background flipped to oklch(0 0 0); the shell border and cell ink likewise. system/auto = tree inheritance. No number lane.",
+        "THE SPLIT VOICE (form-family law, measured per element) — explicit dark rides the .dark class bridge on the field root. RE-DERIVING legacy chains: the well shadow (--shadow-well, black ink → white ink), the focus ring (--ring → the drifted dark primary) and the stepper hover (--muted 0.9551 → 0.2178) all flip. FROZEN :root atom snapshots (stylex defineVars, no tokenScope stamp): the shell background stayed oklch(1 0 0) while --background flipped to oklch(0 0 0); the shell border likewise — but NOT the cell ink: the cell atom carries no color; the ink rides the standard .jx-html-control-lane and re-derives dark on the frozen white shell — the dark field's value is 1:1-contrast INVISIBLE (the honest cost this split carries; W-next #7's first hard legibility failure, measured with a screenshot receipt). system/auto = tree inheritance. No number lane.",
     },
     {
       name: 'elevation',
@@ -429,7 +429,7 @@ ${close}
       headerRegion="api"
       eyebrow="api"
       title="API"
-      summary="The generated meta carries 22 entries (21 named props + the synthesized rest); the hand table serves the 8 consumer rows — density’s row text is the family’s ambient-scope vocabulary. The universal fold serves the eight axis rows; everything else (name, placeholder, autocomplete…) rides through restProps onto the native input."
+      summary="The generated meta carries 21 entries (20 distinct named props + the synthesized rest — the raw 24 keys include three quoted duplicates); the hand table’s density row folds into the shared universal section beneath (authored 8, served 7 — the fold serves the generic §4 vocabulary; the family’s measurements live in the axes table). Everything else (name, placeholder, autocomplete…) rides through restProps onto the native input."
     >
       <PropsTable
         universal
@@ -492,7 +492,7 @@ ${close}
               <div class={cx(rt.panel)}><NumberInput label="floor rung (2xs)" value={3} min={1} max={8} density="2xs" /></div>
               <div class={cx(rt.panel)}><NumberInput label="large" value={3} min={1} max={8} density="large" /></div>
               <div class={cx(rt.panel)}><NumberInput label="dark field" value={3} min={1} max={8} theme="dark" /></div>
-              <div class={cx(rt.panel)}><NumberInput label="dense" value={3} min={1} max={8} density="large" /></div>
+              <div class={cx(rt.panel)}><NumberInput label="dense" value={3} min={1} max={8} density="sm" /></div>
             </div>
           </ComponentCanvas>
         </div>

@@ -609,8 +609,9 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 32 tier-2; full 5-rung ladder (2xs=WCAG 24px floor); hold clock receipts; same dashed-border defect independently found"
+   "status": "done",
+   "notes": "task 32 tier-2; full 5-rung ladder (2xs=WCAG 24px floor); hold clock receipts; same dashed-border defect independently found",
+   "closure": "#37 — marginalia 1st + scribe 2nd PASS; consolidation: api summary corrected (21/7 + fold note), the false cell-ink clause replaced with the invisible-value disclosure (W-next #7's first hard legibility failure), dense specimen re-runged to sm, family comments fixed MIRRORED (drift #11)"
   },
   {
    "page": "pagination",
@@ -754,8 +755,9 @@
     "quill",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 36 tier-2; rig in stage body; track geometry resolved; each_key_duplicate hydration-abort law candidate; 4 open questions"
   },
   {
    "page": "prototype-waterfall",
