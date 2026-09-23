@@ -1102,3 +1102,22 @@
   size="14" on the element before asserting no size attribute existed. Assert
   against the SERVED artifacts (size-stamped demo fields), or the test proves
   only that your fixture worked.
+- **A PAGE CAN TEACH ITS OWN CONSTRAINT BY BREAKING ITS OWN FRAME** (toc, task
+  69): the AUTO-outline demo could not live in a component canvas — the
+  canvas stamps data-toc-skip (demo headings must never leak into page
+  outlines) and a skipped root derives ZERO, so the exhibit rendered its
+  empty rail forever. Moving the workbench to plain page markup fixed it and
+  became the teaching: placement is part of the API. When a demo silently
+  renders empty, ask what its CONTAINER forbids before debugging the demo.
+- **PROBE FAILURES ARE THE MAP, NOT THE MINEFIELD**: five instrument
+  iterations on the toc probe each caught a wrong assumption of mine (rail
+  census, dual-render link count, --w written on the li not the link, the
+  line-pick boundary rule, extents ending at same-or-higher level) — and the
+  LAST one (derive = 0) surfaced the data-toc-skip discovery. Fix the
+  expectation only after naming WHO is wrong: the page, the family, or the
+  probe. Two of three turn out to be the probe; the third is the story.
+- **SELF-REFERENCE NEEDS STRUCTURAL SEPARATION, NOT A DISCLAIMER**: the toc
+  docs page's channel spine works because the two channels are separated in
+  FILES (+page.ts opt-out document vs the component markup in the page) — a
+  prose disclaimer alone would not survive the next editor. When a page must
+  not confuse two channels, give each channel its own artifact.

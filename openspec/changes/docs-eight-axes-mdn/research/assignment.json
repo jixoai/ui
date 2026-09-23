@@ -1083,8 +1083,9 @@
     "vellum",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 69 tier-2; the self-reference spine structural (every claim names its channel; +page.ts IS the opt-out document); THE FIND: canvas stamps data-toc-skip on its root — the stub's AUTO exhibit derived ZERO structurally; workbench moved to plain markup (derives 5, renders 10 links); the LAW #19 EXHIBIT HALL — the full lib battery in-browser all green (slug mint, twin guard, duplicate -2, skip, CJK fallback, two-tier, idempotent, extents); scrollspy --w 0/0.499/1.000 measured; framework-free claim grep-verified"
   },
   {
    "page": "toggle",
