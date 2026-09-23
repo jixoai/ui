@@ -391,9 +391,9 @@
     "marginalia",
     "quill"
    ],
-   "tier": null,
-   "status": "todo",
-   "notes": "1st reassigned to marginalia (T103) — her queue emptied; quill remains the 2nd"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "task 103 marginalia 1st PASS (0M/2m/2L/1N); the focusable seat served, api count trued, cx + focusout typing closed (mirrored); 2nd = quill"
   },
   {
    "page": "icon",
@@ -440,11 +440,12 @@
    "page": "input",
    "owner": "scribe",
    "reviewers": [
-    "quill",
+    "marginalia",
     "vellum"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "todo",
+   "notes": "1st reassigned to marginalia (T104); vellum remains the 2nd"
   },
   {
    "page": "input-group",

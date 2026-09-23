@@ -53,7 +53,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -112,6 +112,7 @@ ${close}
           <div class={cx(rt.col8)}>
             <p class={cx(rt.fontNav, rt.text13, rt.upper, rt.track12)}>Gaubee — systems</p>
             <p class={cx(rt.text125, rt.inkMuted)}>Component grammar, terminal surfaces, the one-brand-hue law.</p>
+            <p class={cx(rt.text125)}><a href="/docs/components.html" class={cx(rt.inkPrimary, rt.underline, rt.dotted)}>the component index</a> — the card stays while focus crosses onto this link (the focus-crossing grace).</p>
           </div>
         </HoverCard>
         under MIT.
@@ -169,5 +170,5 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Eight props; trigger and children are the two required snippets."><PropsTable universal props={[{ name: 'id', type: 'string', default: 'auto', description: 'Panel id; also derives the CSS anchor name.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The card content — compose freely (headings, links, images).', required: true }, { name: 'trigger', type: 'Snippet', default: '—', description: 'The trigger content; the wrapper span carries the anchoring.', required: true }, { name: 'placement', type: "'top' | 'bottom' | 'left' | 'right'", default: "'bottom'", description: 'Anchored side — bottom (under, like a peek) is the convention.' }, { name: 'openDelay', type: 'number', default: '300', description: 'Hover delay before the card opens (ms).' }, { name: 'closeDelay', type: 'number', default: '200', description: 'Close grace spanned across trigger AND panel (ms).' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint. Defaults: literal slot — own \'auto\', ambient when an axis opens.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the trigger wrapper.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Eight named props plus the eight universal axes (sixteen interface members; the axes fold below per the convention); trigger and children are the two required snippets."><PropsTable universal props={[{ name: 'id', type: 'string', default: 'auto', description: 'Panel id; also derives the CSS anchor name.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The card content — compose freely (headings, links, images).', required: true }, { name: 'trigger', type: 'Snippet', default: '—', description: 'The trigger content; the wrapper span carries the anchoring.', required: true }, { name: 'placement', type: "'top' | 'bottom' | 'left' | 'right'", default: "'bottom'", description: 'Anchored side — bottom (under, like a peek) is the convention.' }, { name: 'openDelay', type: 'number', default: '300', description: 'Hover delay before the card opens (ms).' }, { name: 'closeDelay', type: 'number', default: '200', description: 'Close grace spanned across trigger AND panel (ms).' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint. Defaults: literal slot — own \'auto\', ambient when an axis opens.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the trigger wrapper.' }]} /></SectionCard></div>
 </div>

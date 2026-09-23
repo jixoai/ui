@@ -66,7 +66,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -211,7 +211,10 @@
 
   /** inside = trigger wrapper OR the card panel — exits of one that
    *  land in the other are crossings, not dismissals */
-  function inside(node: Node | null): boolean {
+  function inside(target: EventTarget | Node | null): boolean {
+    // focusout's relatedTarget is EventTarget | null (not Node) — contains
+    // needs a Node; the guard is typing-only (runtime clean, task 103)
+    const node = target instanceof Node ? target : null;
     return !!node && ((anchorEl?.contains(node) ?? false) || (panel?.contains(node) ?? false));
   }
 
