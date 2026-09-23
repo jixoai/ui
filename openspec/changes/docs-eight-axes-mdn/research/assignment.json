@@ -926,8 +926,8 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 48 marginalia 1st PASS (0M/0m/2L/1N); the mutation proof (stamp 18 keeps 8px gap; doc root 16-to-32 moves it 8-to-16); LOW1 landed — the size row now documents the non-scaling"
+   "status": "done",
+   "notes": "CLOSED #46 (quill 33 + marginalia 48 1st + scribe 59 2nd PASS, zero new); mutation envelope reproduced exactly (root 16-to-32 moves gap 8-to-16, stamp voice never moves); source chain receipted (gap atom -> var(--space-N) -> calc(var(--jx-unit)*N/4), --jx-unit 0.25rem); record note: the eaches are UNKEYED static literals (1st review's keyed label wrong, conclusion unchanged)"
   },
   {
    "page": "statistic",

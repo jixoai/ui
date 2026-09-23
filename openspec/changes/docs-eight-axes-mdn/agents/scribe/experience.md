@@ -1500,3 +1500,37 @@
   by name; 4 SSR data-theme hits = canvas-stage chrome, not family vocabulary.
 - Gates: ambient 284/284 rc0; universal 110/110; svelte-check page 0 (family :115
   8 warnings pre-existing). 831fbadb = the +5/−3 readout edit, verified.
+
+## Task 59 — stack (2nd review, PASS 0M/0m/0 new + carried LOW settled, NIT record note)
+
+### Banked lessons
+- **Baseline posture ≠ box-bottom equality**: align-items: baseline aligns TEXT
+  baselines — box bottoms/tops differ by design; the receipt is the computed
+  align-items + differing box tops, not bottom equality.
+- **The universal marker's honest query**: data-jx-props-table-universal (the
+  PropsTable's own marker element, per verify-docs-universal-manifest.mjs) — guessed
+  names like [data-universal-section] read false zero.
+- **Read each clauses VERBATIM before calling them keyed**: `{#each [...] as x}` is
+  unkeyed; only `as x (key)` keys. "Keyed-each clean" and "keyed each" are different
+  claims — the safety conclusion (no each_key_duplicate surface) holds trivially for
+  unkeyed static literals, but the label goes in the record accurately.
+- **Token-chain receipts read across three files**: gap atom → tokens['--jx-space-N']
+  → var(--space-N) → calc(var(--jx-unit) * N/4) with --jx-unit: 0.25rem
+  (jixoai.css :1233) — one source read beats guessing the calc form.
+
+### Receipts (task 59)
+- Mutation proof both directions (the landed LOW-1 sentence, 6a330296): root
+  16→32px moves gap 8→16px and back; the stamped 18px voice never moves; root
+  restored exactly.
+- Bare census: class="x78zum5" + data-jx-stack ONLY; gap/align-items normal.
+- Ladder 4/12/24/48px distinct; closed vocabulary via real selects (column/48/
+  baseline/space-between and column/2/center/flex-start); 3 pills stable.
+- Merge law: `--jx-radius-effective: 12px; border-radius: 3px` co-exist, corner 3px;
+  rest-replace order [class, data-probe-inner, data-jx-stack, style].
+- Universal marker ×1 at #api (appendix placement); never-ambient basis:
+  StackDefaults 8 paint slots, zero structural entries.
+- LAW #18: zero keyed eaches (verbatim grep), mounted 4/14/3, zero console noise.
+  LAW #19: 80 ids 0 twins. SSR: toc 9 ×2 surfaces, marker ×1, sm rung served,
+  data-jx-stack ×17 attributes.
+- Gates: ambient 284/284 rc0; universal 110/110; svelte-check page 0 (family :179
+  8 warnings pre-existing).
