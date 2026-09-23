@@ -1,8 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton, { pulse, rainbow, ripple, shimmer, type PressEffect } from '$lib/ui/press-button/press-button.svelte';
   import { pressEffect } from '$lib/ui/press-button/press-effect-runtime';
@@ -61,7 +65,7 @@ ${close}
 <PressButton variant="outline" {@attach pressEffect(rainbow())}>upgrade</PressButton>
 <PressButton variant="fill" {@attach pressEffect(ripple({ duration: 800 }))}>deploy</PressButton>
 
-<!-- href renders an anchor instead; hrefs outside "/" open a new tab -->
+<!-- href renders an anchor; ONLY an absolute http(s) URL opens a new tab -->
 <PressButton variant="fill" href="/docs.html">read the docs</PressButton>`;
   const usage = `${usageHead}
 <PressButton variant="fill">deploy</PressButton>${usageTail}`;
@@ -144,7 +148,8 @@ ${close}
   let effectValue: PressEffect | undefined = $state(undefined);
   function onCanvasValue(key: string, value: unknown): void {
     if (key === 'attach') {
-      effectValue = value === 'none' ? undefined : effectBuilders[value as EffectName]();
+      const build = effectBuilders[value as EffectName];
+      effectValue = value === 'none' || !build ? undefined : build();
     }
   }
 
@@ -311,7 +316,7 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -329,6 +334,84 @@ ${close}
 <PressButton radius="auto">concentric auto</PressButton>`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/press-button-universal.svelte', content: universalUsage },
+  ];
+
+  // ── the measured per-axis table (task 33) — every cell measured on the
+  // served DOM (probe) or negative-grepped over ui/press-button/ ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "CONSUMED — the press geometry rides the kernel channels: min-height, the square pose's width, the voice (--jx-text 13px), inline padding (--jx-inset 12px) and the composed gap. Measured ladder 2xs→lg: hit 24/28/32/40/48px, voice 10/11/12/13/15px, padding 8/8/8/12/16px. THE FLOOR: the 2xs rung puts the button at exactly 24px — the WCAG 2.5.8 target-size minimum. Ambient (attr null, measured) the channels cascade from the ancestor scope; an explicit lane stamps the rung attr and the global scope selector re-scopes in place. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "ROOT ECHO, THE VOICE FOLLOWS — the §11 stamp lands INLINE on the button root, so it outranks the --jx-text atom and the label voice moves with it (measured 18px at size=\"large\" on a large-density seat); hit/width geometry stays the density hit channel. Zero --jx-size-effective readers (grep receipt). Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "CONSUMED TWICE — corner-shape reads --jx-shape-effective (measured superellipse(1) ambient, superellipse(2) at squircle) AND the §14 per-shape factor multiplies the radius in the same consumed calc (the ×2 squircle law measured: radius 10 + squircle → 20px). Ambient round with no supplying ancestor resolves the root 0px invariants. Number unit: none.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "CONSUMED — THE CONCENTRIC WIRING: auto (the default) reads §3's max(0px, radius-effective − inset-effective) × the §14 factor against the nearest supplying ancestor (measured 6px live on the dock's driven seat: 20px radius − 14px inset); an explicit lane supplies instead AND resets the inset to 0 (measured radius medium → 8px; radius 10 + squircle → 20px with the ×2 factor); a bare button falls to the root sheet's 0px invariants (measured). Number unit: px.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "CONSUMED THROUGH THE SEAM — the family re-declares --jx-fill/--jx-fill-ink/--jx-tonal ON the element from --jx-color-effective (the canvas-bug law: a :root-substituted token would never see an inline carrier), so an explicit hue lane re-tints fill/tonal live; --jx-outline does NOT follow (its historic ground is --border). Call-site hue/pair utilities outrank the axis default (the state-paint law: destructive = fill + jx-pair-destructive, measured black/white). Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "SPLIT WITHIN THE LADDER (measured per element under .dark) — the PAINT re-derives: the site's dark scope re-declares the four seam tokens as live chains, so fill re-tints to the drifted dark primary (measured oklch(0.6489 0.237 47) → oklch(0.7044 0.1872 43)) and outline's frame flips to the dark border (white). The outline/ghost LABEL INK stays frozen — tokens['--jx-foreground'] is a defineVars :root literal the dark scope does not re-declare (measured oklch(0 0 0) on both sides). system/auto = tree inheritance. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "CONSUMED AT REST — a resolved lane's pair re-points --jx-press-shadow (the press law's GROUND); hover/active keep the family's own anchored signatures (the axis steps the ground, the press law stays the physics). Ghost's none-trio and the flat pose outrank it by css source order — quiet rungs never grow a shadow from the axis. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SHEET CONSTANTS, AXIS UNREAD — the press transitions ride the .jx-press law (150ms ease-out on translate/box-shadow/background/border/color, measured) with the prefers-reduced-motion kill; --jx-motion-effective has zero readers in ui/press-button/ (grep receipt). Number unit: coefficient.',
+    },
+  ];
+
+  // the ONE query() case: responsive density — a string lane takes both
+  // generics; md = 48rem (the registered VIEWPORT_SCALE — cite the key).
+  const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' }, 'small');
+
+  const queryUsage = `<script lang="ts">
+  import PressButton from '@ui/press-button.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- below 48rem the base (small) applies; at 48rem+ the md case (large)
+     wins — 32px hits become 48px, the press law unchanged -->
+<PressButton density={query({ md: 'large' }, 'small')}>deploy</PressButton>`;
+
+  const queryFiles: TreeFile[] = [
+    { name: 'press-button-query-demo.svelte', content: queryUsage, kind: 'usage' },
   ];
 
 </script>
@@ -363,7 +446,61 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <!-- install (the archetype's install anchor; chrome — out of the toc) -->
+    <div id="install" data-reveal="">
+      <DocsInstall name="press-button" />
+    </div>
+
+    <!-- overview -->
+    <div id="overview" data-reveal="">
+      <SectionCard
+        family="overview"
+        headerRegion="overview"
+        eyebrow="overview"
+        title="Overview"
+        summary="One physics for every surface: the press law is elevation-only, the ladder is prominence, semantic hue injects through tokens, and four opt-in effect loops ride the attachment channel."
+      >
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.para)}>
+            The press law is the theme's shared <code class={cx(rt.inkPrimary)}>.jx-press</code> class,
+            measured here end to end: rest carries the xs shadow, hover grows it to sm — the body
+            never moves — and active translates the body 1px into the page while the shadow's
+            offsets counter-shrink 1px, so the shadow paint stays anchored on screen. Ghost's
+            none-trio removes all three shadows (the press vector remains, measured 1px with zero
+            shadow), the flat pose (raised=false) swaps the active shadow for the engrave-tier
+            inset and nulls the move entirely, and every transition is 150ms ease-out with a
+            prefers-reduced-motion kill. The variant ladder is prominence, never color: fill for
+            the one action, tonal supporting, outline default, ghost quiet, link the interaction
+            exception — no frame, no press shadow, hover underline.
+          </p>
+          <p class={cx(rt.para)}>
+            Semantic hue is injection, never a variant: destructive is fill +
+            <code class={cx(rt.inkPrimary)}>jx-pair-destructive</code> (fill and ink in one class,
+            measured black/white), the copied transient is tonal + success. The family re-declares
+            the fill/tonal seams ON the element from the color-effective carrier (the canvas-bug
+            law), so an explicit color lane re-tints live and the call-site utilities outrank the
+            axis default. The popovertarget prop is the native popover invoker, button-only —
+            declared, forwarded, and measured opening and toggling a panel with zero component
+            listeners; anchors cannot invoke popovers (the platform's own exclusion).
+          </p>
+          <p class={cx(rt.para)}>
+            The eight axes split by role (all measured in the axes table): density is the hit
+            ladder landing on the WCAG 24px floor at 2xs; radius is the full concentric wiring
+            (measured 6px live from a 20px-radius, 14px-inset seat); shape multiplies it (the §14
+            ×2 squircle law, measured 10 → 20px); color re-tints through the seam; the theme is
+            split WITHIN the ladder — paint re-derives under .dark while the outline/ghost label
+            ink stays a frozen literal; elevation steps only the rest ground; size echoes on the
+            root (the inline stamp outranks the atom, so the label voice follows); motion rides
+            the sheet constants. Kinship:
+            <code class={cx(rt.inkPrimary)}>button-group</code> (the zone and the join),
+            <code class={cx(rt.inkPrimary)}>icon-button</code> (the square idiom's consumer),
+            <code class={cx(rt.inkPrimary)}>toggle-group</code> (the pressed state family).
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="live-demo" data-reveal="">
       <ComponentCanvas
         title="press-button"
         description="The press-law button: hover grows the shadow only (xs → sm, the body never moves); active presses the body +1px into the page while the shadow layer stays anchored. The playground rows render from the generated component schema (meta → toJSONSchema); reset returns the schema defaults."
@@ -543,7 +680,7 @@ ${close}
         headerRegion="anchors"
         eyebrow="demo"
         title="Button or anchor"
-        summary="href switches the element from button to anchor — internal hrefs navigate in place, anything else opens a new tab with noreferrer automatically. The label is a snippet, so icons compose inline with the component's own gap."
+        summary="href switches the element from button to anchor. The external law (#5, link.svelte's codified rule): ONLY an absolute http(s) URL is external — app routes and same-document anchors navigate in place; an external href opens a new tab with noreferrer automatically. The label is a snippet, so icons compose inline with the component's own gap."
       >
         <div class={cx(rt.col20)}>
           <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gapX8, rt.gapY20)}>
@@ -660,9 +797,11 @@ ${close}
               <code class={cx(rt.inkAccent)}>distance</code>, …), modeled on the animation-svelte
               reference</span></li>
           <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-            <span><code class={cx(rt.inkAccent)}>href</code> switches the element to an anchor;
-              hrefs not starting with <code class={cx(rt.inkAccent)}>/</code> open a new tab with
-              <code class={cx(rt.inkAccent)}>noreferrer</code> automatically</span></li>
+            <span><code class={cx(rt.inkAccent)}>href</code> switches the element to an anchor; the
+              external law is a codified regex — ONLY an absolute http(s) URL opens a new tab (with
+              <code class={cx(rt.inkAccent)}>noreferrer</code>): app routes and same-document
+              anchors keep the same-tab default, so a <code class={cx(rt.inkAccent)}>#section</code>
+              press-button never spawns a tab</span></li>
           <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span><code class={cx(rt.inkAccent)}>loading</code> is the async pose with an explicit anchor
               contract: <code class={cx(rt.inkAccent)}>aria-disabled="true"</code> (focusable — tab order
@@ -731,29 +870,19 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="usage" data-reveal="">
-    <SectionCard eyebrow="usage" title="Compose a button" summary="Use the semantic variant and add one typed effect only when the action needs extra attention.">
-      <CodeBlock code={usage} lang="svelte" meta="usage" />
-    </SectionCard>
-  </div>
-
-  <div id="accessibility" data-reveal="">
-    <SectionCard eyebrow="a11y" title="Keyboard and semantics" summary="Native buttons and anchors retain their platform behavior; labels and focus rings remain part of the contract.">
-      <A11yTable
-        keys={[{ key: 'Tab', action: 'Move focus to the button or link' }, { key: 'Enter / Space', action: 'Activate a button' }, { key: 'Enter', action: 'Follow an href rendered as an anchor' }]}
-        aria={[{ name: 'aria-label', value: 'optional', description: 'Names icon-only or otherwise unlabeled controls.' }, { name: 'aria-disabled', value: 'true while loading', description: 'The anchor contract: the element stays focusable (tab order unchanged) while pointer, keyboard, and href activation are suppressed.' }, { name: 'href', value: 'optional', description: 'Switches the root from button to anchor semantics.' }, { name: 'prefers-reduced-motion', value: 'supported', description: 'Disables press transitions and effect loops; freezes the loading spinner on its first frame.' }]}
-      />
-    </SectionCard>
-  </div>
-
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Compose a button" summary="Use the semantic variant and add one typed effect only when the action needs extra attention — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="PressButton usage" /></SectionCard></div>
   <div id="theming" data-reveal="">
     <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one scope change updates every instance together. The canvas dock's density select (xs / sm / default / lg) is the live proof — it re-scopes only the stage; the DensityDemo four-copy hack is retired by it.">
       <div class={cx(rt.col20)}>
         <p class={cx(rt.bodyMuted)}>
           flip the dock's density select above to <code class={cx(rt.inkAccent)}>sm</code> — the workbench
           canvas re-densifies its own stage (the density scope lands on the stage element only),
-          never the docs chrome around it. Both theme seats work the same way.
+          never the docs chrome around it. Both theme seats work the same way. The scope ladder
+          below renders the whole rung set, floor included.
         </p>
+        <DensityDemo scopes={['2xs', 'xs', 'sm', 'default', 'lg']}>
+          <PressButton variant="fill">deploy</PressButton>
+        </DensityDemo>
         <TokenTable tokens={[
           { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum interactive height and width.' },
           { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density', description: 'Inline button padding.' },
@@ -768,25 +897,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="PressButton usage" /></SectionCard></div>
-  <div id="universal-props" data-reveal="">
-    <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. radius auto is the §3 concentric consumption — inside a radius-supplying ancestor the corner computes max(0px, R − inset); with none it falls to the root sheet's 0px invariants (the button's own rest look, unchanged)."
-    >
-      <ComponentCanvas title="PressButton · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}><PressButton size={14} density="small">size 14 · density small</PressButton></div>
-        <div class={cx(rt.panel)}><PressButton size="large" radius="medium" density="large">size large · radius medium</PressButton></div>
-        <div class={cx(rt.panel)}><PressButton shape="squircle" radius={10}>shape squircle · radius 10</PressButton></div>
-        <div class={cx(rt.panel)}><PressButton radius="auto" color="primary">radius auto (concentric)</PressButton></div>
-        </div>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
+
 
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The public contract is intentionally small: semantic paint, optional navigation, and the rest lane every arbitrary attribute — the component-tag attachment included — rides to the root.">
@@ -797,7 +908,9 @@ ${close}
         { name: '…rest', type: 'HTMLAttributes<HTMLElement>', default: '—', description: 'The rest lane: arbitrary attributes land verbatim on the root (button or anchor) — the same lane the component-tag attachment rides.' },
         { name: 'href', type: 'string', default: '—', description: 'Renders an anchor and navigates to the target.' },
         { name: 'loading', type: 'boolean', default: 'false', description: 'The async pose: aria-disabled=true, pointer AND keyboard activation suppressed, href navigation blocked, spinner glyph in the leading lane. Press law holds unchanged. Pair with the one-shot flash() helper (bind:this) on settle.' },
-        { name: 'external', type: 'boolean', default: 'auto', description: 'Opens non-internal hrefs in a new tab.' },
+        { name: 'disabled', type: 'boolean', default: 'false', description: 'The native inert pose: the disabled attribute drops the button from the tab order and suppresses activation; on the anchor form it maps to the loading pose\u2019s contract instead (aria-disabled + blocked navigation) — disabled is not an anchor attribute. The button\u2019s paint rides unchanged: no authored disabled face exists (measured).' },
+        { name: 'popovertarget', type: 'string', default: '—', description: 'The native popover invoker association — declared and forwarded on the button form (verified live: click opens and toggles the target panel with zero component listeners); anchors cannot invoke popovers, so the anchor form drops it. Composers set aria-haspopup themselves — it names the panel\u2019s role, not this button\u2019s.' },
+        { name: 'external', type: 'boolean', default: 'auto', description: 'Overrides the derived flag. The DEFAULT derives from the href itself (the #5 law): only an absolute http(s) URL is external — app routes and same-document anchors keep the same-tab default. External opens a new tab with noreferrer.' },
         { name: 'onclick', type: '() => void', default: '—', description: 'Runs for button activation.' },
         { name: 'type', type: "'button' | 'submit'", default: "'button'", description: 'Native button type.' },
         { name: 'ariaLabel', type: 'string', default: '—', description: 'Accessible name override for icon-only use.' },
@@ -806,5 +919,73 @@ ${close}
         { name: 'children', type: 'Snippet', required: true, description: 'Button label and optional inline icon content.' },
       ]} />
     </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="The eight axes on press-button"
+      summary="Density is the hit ladder down to the WCAG 24px floor at 2xs; radius is the full concentric wiring (measured 6px from a 20px/14px seat); shape multiplies it (the §14 ×2 squircle law, measured 10 → 20px); color re-tints fill/tonal live through the on-element seam; the theme splits WITHIN the ladder (paint re-derives under .dark, outline/ghost label ink stays a frozen literal); elevation steps only the rest ground; size echoes and the voice follows; motion rides the sheet constants."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the press ladder (rest xs → hover sm with the body static → active translate
+          1px 1px with the offsets counter-shrunk), the ghost none-trio (shadow none at rest AND
+          active, the press vector retained), the flat engrave swap (inset + translate none), the
+          density ladder (24/28/32/40/48px; the 2xs stamp measured in place and restored), the
+          concentric seat (radius-effective 20px − inset 14px → 6px computed), the ×2 squircle
+          (radius 10 → 20px, superellipse(2)), the seam re-tint and the .dark split (fill
+          oklch(0.6489 47) → oklch(0.7044 43) while the outline ink stayed oklch(0 0 0)), the
+          forced-colors trio (link → LinkText; fill → ButtonFace/ButtonText) and the popovertarget
+          open/toggle were measured on this page's served DOM (probe, task 33); the unread-axis and
+          zero-reader rows carry grep receipts over ui/press-button/. The query() seat below rides
+          the md viewport key (48rem) on the consumed density lane.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="press-button · query()" files={queryFiles}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+              <PressButton density={responsiveDensity}>deploy</PressButton>
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 48rem the base (small — 32px hit, 12px voice)
+                applies; at 48rem and wider the md case wins (large — 48px hit, 15px voice). The
+                string lane takes both generics. Resize across 48rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="PressButton · universal props" stage="fill" files={universalFiles}>
+            <div class={cx(rt.gridSm2)}>
+            <div class={cx(rt.panel)}><PressButton size={14} density="small">size 14 · density small</PressButton></div>
+            <div class={cx(rt.panel)}><PressButton size="large" radius="medium" density="large">size large · radius medium</PressButton></div>
+            <div class={cx(rt.panel)}><PressButton shape="squircle" radius={10}>shape squircle · radius 10</PressButton></div>
+            <div class={cx(rt.panel)}><PressButton radius="auto" color="primary">radius auto (concentric)</PressButton></div>
+            <div class={cx(rt.panel)}><PressButton square>+</PressButton></div>
+            <div class={cx(rt.panel)}><PressButton raised={false} variant="outline">flat · engraved</PressButton></div>
+            </div>
+          </ComponentCanvas>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="accessibility" data-reveal="">
+    <SectionCard eyebrow="a11y" title="Keyboard and semantics" summary="Native buttons and anchors keep their platform behavior; the loading pose is the aria-disabled contract (focusable, opaque to why it is inert); every rung carries a forced-colors degradation and the 2px Highlight focus ring; the hit ladder bottoms at the WCAG 24px floor.">
+      <A11yTable
+        keys={[{ key: 'Tab', action: 'Move focus to the button or link — loading keeps the tab stop (aria-disabled, never the disabled attribute)' }, { key: 'Enter / Space', action: 'Activate a button — native buttons synthesize click from both, so the activation lock covers pointer and keyboard at one seam' }, { key: 'Enter', action: 'Follow an href rendered as an anchor; while loading the navigation itself is blocked (preventDefault)' }]}
+        aria={[{ name: 'aria-label', value: 'optional', description: 'Names icon-only or otherwise unlabeled controls (the ariaLabel prop or the plain attribute — composed, never clobbered).' }, { name: 'aria-disabled', value: 'true while loading', description: 'The anchor contract: the element stays focusable (tab order unchanged) and opaque to why it is inert, while pointer, keyboard, and href activation are suppressed.' }, { name: 'disabled', value: 'native attribute (button form)', description: 'The native inert pose — dropped from the tab order by the platform; the paint rides unchanged (measured: full fill colors at opacity 1, no authored disabled face).' }, { name: 'popovertarget', value: 'panel id (button form)', description: 'The native invoker association — opens and toggles the popover with zero listeners; anchors cannot invoke popovers. Set aria-haspopup on the composing family.' }, { name: 'forced-colors', value: 'per-rung degradation', description: 'fill → ButtonFace/ButtonText, tonal/outline/ghost → Canvas/CanvasText (link → LinkText — measured), and the focus law pins to a 2px Highlight ring at offset 2, never removed.' }, { name: 'hit target', value: 'the density hit channel', description: '40px at the default rung; the 2xs pro-tool rung lands at exactly the WCAG 2.5.8 24px minimum (measured).' }, { name: 'prefers-reduced-motion', value: 'supported', description: 'Drops the press transitions and effect loops; freezes the loading spinner on its first frame.' }]}
+      />
+    </SectionCard>
+  </div>
+
+  <!-- see-also (chrome — out of the toc) -->
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="press-button" />
   </div>
 </div>

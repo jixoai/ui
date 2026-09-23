@@ -700,8 +700,9 @@
     "quill",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 33 tier-2; duplicate id=usage fixed; W-next #5 truth update (explicit path live — auto-wire clobber stands); 4 open questions incl. the frozen-ink seam second instance"
   },
   {
    "page": "progress",

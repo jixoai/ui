@@ -464,11 +464,12 @@ ${close}
           ("007" → 7, 99 → 16 under max=16, empty → undefined), the theme split (--background
           flipped to oklch(0 0 0) while the shell stayed oklch(1 0 0); --shadow-well/--ring/--muted
           all flipped) and the bare-chrome strip were measured on this page's served DOM (probe,
-          task 32); the unread/supply-only rows carry grep receipts over ui/number-input/. One
-          measured seam, filed: the error state's dashed border is authored as an atom but the
-          solid border class wins the atom-order cascade in the served DOM (the error WIRING —
-          aria-invalid + described-by — is fully live). The query() seat below rides the md
-          viewport key (48rem) on the consumed density lane.
+          task 32); the unread/supply-only rows carry grep receipts over ui/number-input/. The
+          error state's shell renders the dashed DESTRUCTIVE border through the family's unlayered
+          attribute carve-out (border-style dashed + --jx-destructive — the atom-vs-atom cascade
+          kill, fixed family-side after task 32 flagged it; re-measured dashed here), and the
+          error WIRING — aria-invalid + described-by — is fully live. The query() seat below rides
+          the md viewport key (48rem) on the consumed density lane.
         </p>
         <div class={cx(rt.mt20)}>
           <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />

@@ -972,3 +972,29 @@
   the density-kernel move — both numbers now measurable lies on scoped rungs. Grep
   the page copy for bare px claims tied to geometry and re-measure each against the
   served DOM.
+
+## Task 33 — press-button (2026-09-22)
+
+- **Cascade-kill triage is cheap when the atom map is honest**: press-button's
+  VARIANT_CLASS was collision-free by construction (frame = geometry only; each rung
+  owns all three paint channels; state paint rides css seams) — one read of the
+  atom table + the css hook list clears the suspicion. Contrast: number-input's
+  shellInvalid tied on border-style and needed the unlayered carve-out. The check:
+  list every conditional class/attr, diff its properties against the base atoms.
+- **emulateMedia({ forcedColors: 'active' }) verifies forced-colors laws live**:
+  link → LinkText resolved rgb(0,0,159) in the probe — no need to trust the css
+  block's comment.
+- **Light-theme "black" can BE the destructive value**: this theme's light
+  --destructive is oklch(0 0 0) (dark: white). Before reporting "the destructive
+  color didn't apply — it's black", read the token's light value.
+- **Custom-property seams flip instantly; computed properties transition**: probe-1
+  measured a "frozen" well shadow that was just a 150ms transition at t≈0 (banked in
+  task 32); press-button's fill re-tint needed the same 350ms-settle discipline.
+- **python splices with read-back asserts catch my own planning errors**: the
+  section-reorder script's trio assertion failed on the first pass (I moved the
+  wrong block) — the assert fired AFTER the write, so the fix was a second
+  verified splice, not a silent wrong order. Keep asserts on the ORDER, not just
+  the inventory.
+- **Surgical edits on a big page beat full rewrites when 600 lines are machinery**
+  (the schema dock) — but re-grep the file after external modifications (a
+  mid-task edit hit the "file modified" guard; re-read and re-applied cleanly).

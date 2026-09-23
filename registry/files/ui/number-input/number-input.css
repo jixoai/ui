@@ -74,3 +74,13 @@
 .jx-num[data-chrome='bare'] .jx-num-btn:disabled {
   opacity: 0.5;
 }
+
+/* invalid-shell carve-out (docs-eight-axes-mdn, the atom-vs-atom cascade
+ * kill): the shellInvalid atom (border-style: dashed) ties with the base
+ * solid atom and loses to lexicographic sheet order. This rule is
+ * unlayered — it beats the components.stylex.* layers by layering, the
+ * same carve-out the family's other plain rules use. */
+.jx-num[data-jx-num-invalid] {
+  border-style: dashed;
+  border-color: var(--jx-destructive);
+}

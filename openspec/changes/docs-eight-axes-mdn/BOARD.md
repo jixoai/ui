@@ -1,7 +1,7 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| vellum | 33 | press-button (OWN) | CODE | in-flight |
+| vellum | 34 | progress (OWN) | CODE | in-flight |
 | quill | 30 | scroll-virtual (OWN) | CODE | in-flight |
 | scribe | 33 | menubar (vellum's) | REVIEW (2nd) | in-flight |
 | marginalia | 36 | number-input (vellum's) | REVIEW (1st) | in-flight |
@@ -14,6 +14,7 @@
 - boot-splash: coded Tier-2 (marginalia 34 — the DEAD WORKBENCH fixed (rendered instance + bind-back, replay proven); clock receipts 797/454/531/430ms per mode; controlled theme pair with LAW #16 named on both; 3 open questions: manual no-cap api row, instant-under-RM family question, animationend latency quoting) → reviews QUEUED
 - reference: coded Tier-2 (quill 28 — THE INHERITANCE POLE: kbd's contrast measured in two contexts (13.5px pure inheritance / 18px stamped); density STAMP-ONLY; theme bridge-only with NOTHING reading it (cascade-passive by contract); the numbered-domain rig discovery (Figure referenceable only inside a numbered SectionCard — the old universal demo had the latent flaw); SSR edge claims 5 prerendered) → reviews QUEUED
 - number-input: coded Tier-2 (vellum 32 — the full 5-rung ladder with 2xs landing exactly at the WCAG 24px target-size minimum, rendered live; hold-clock receipts (80ms step / 300ms plateau / 100ms cadence); theme split with the transition-SETTLED correction; commit semantics spec-proven; the SAME dashed-border defect independently found — now fixed family-side; 4 open questions) → reviews QUEUED
+- press-button: coded Tier-2 (vellum 33 — Step 0 re-trued number-input's error copy against the FIXED family (dashed+destructive live); DUPLICATE id="usage" deduped (invalid DOM); 3 stale external-law spots corrected; press ladder rest-xs→hover-sm→active-1px measured; hit ladder 24/28/32/40/48 with 2xs=WCAG minimum live; radius wiring (dock 20−14→6 / medium 8 / 10+squircle superellipse(2)); theme split WITHIN the ladder (fill re-tints, outline frame flips, outline/ghost label ink FROZEN — the frozen-ink seam SECOND instance, menubar's triggerOpen was first); forced-colors LinkText emulated-verified (the law's citation); W-next #5 truth update: the EXPLICIT popovertarget path is live (opens+toggles, zero listeners) — the AUTO-WIRE clobber (unset prop) stands as quill measured, #5 KEPT pending reviewer adjudication; 4 open questions) → reviews QUEUED
 
 ## RULINGS: a11y floor (24 = WCAG 2.5.8 AA minimum; 28 = fleet default exceeding) · toc/See-also: chrome, OUT of the toc · component fixes: three-strikes → fix now (EXTRA lane, hardening pins, structural arm precedents) · reviewer page-edits: flag-only, route through owner/orchestrator
 
