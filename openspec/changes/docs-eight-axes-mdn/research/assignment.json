@@ -915,8 +915,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 62 scribe 1st PASS (0M/0m/1L/0N); opacity-only 85 rAF samples; negative delay LADDER -1200 to -120 receipt; RM both channels bidirectional; alias L/C invariant (hue clock: her 154, his 178); LOW: hydration_html_changed warning (svgInstanceSeq SSR-vs-mount divergence -> drift #14); 2nd review adjudicates paint-vs-var on the root-dark flip"
+   "status": "done",
+   "notes": "CLOSED #50 (vellum 41 + scribe 62 1st + marginalia 65 2nd PASS); THE ADJUDICATION SETTLED: FLEET-WIDE FROZEN for the root-pinned-alias class (A/B same-session: spin glyph AND separator fill hold at the element while html vars re-derive — scribe's FLIP was an html-level read); five seats corrected; drift #14 both faces (console + SSR hash census, 7 lines/request); SMIL verified at the API (animationsPaused on all 16)"
   },
   {
    "page": "stack",
