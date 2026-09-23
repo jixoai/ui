@@ -23,6 +23,8 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import Transfer from '$lib/ui/transfer/transfer.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -205,7 +207,7 @@ let typesTitledValue = $state<string[]>(['done']);
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((s): s is NonNullable<(typeof s)> => Boolean(s))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -216,9 +218,70 @@ let typesTitledValue = $state<string[]>(['done']);
       .join(' ');
 
   // ---- the universal props demo (explicit-props W3-D3) --------------------
-  const universalUsage = `<Transfer {options} size={18} density="small" />`;
+  const universalUsage = `<Transfer {options} size={18} density="small" theme="dark" />`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/transfer-universal.svelte', content: universalUsage },
+  ];
+
+  // ── the measured per-axis table (task 46) — every cell measured on
+  // the served DOM (probe) or negative-grepped over ui/transfer/ ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "THE ONE CONSUMED AXIS — the rows read the --jx-text kernel lane (coefficient-scaled), so a rung stamp rescales every option row; data-density lands on the root (in-flow — no portal, the scope covers both panels). The legend/search chrome rides static label steps. Measured: the row font flips across rungs. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY for the family's paint — zero --jx-size-effective readers over ui/transfer/ (grep receipt); the carrier's font-size lands on the root, so composed recipe content scales while the rows stay pinned to the kernel/text tokens. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero --jx-shape-effective readers (grep receipt). Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — the panels keep the static --jx-radius token corner; zero --jx-radius-effective readers over ui/transfer/ (grep receipt). Number unit: px.',
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero --jx-color-effective readers (grep receipt); the ink is the pinned token set (panels --jx-card/--jx-border, rows --jx-foreground, the mover hover lean --primary). Number unit: hue degrees.',
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE ALIAS-FROZEN GROUND + SCOPE-RE-DERIVED LEANS (measured, probe): panels/rows/search paint through :root-pinned alias tokens (--jx-card/--jx-border/--jx-foreground/--jx-background — frozen under a scoped island, re-derived at root-level dark, stratum #2), while the hover/focus leans ride the base tokens (--muted/--ring/--primary) that the .dark scopes re-declare (stratum #3) — an island flips the leans but holds the grounds. class:dark stamps the in-flow ROOT, so the island covers both panels — no portal severance here. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — zero elevation-carrier readers (grep receipt); the panels keep the static --jx-shadow-2xs chip shadow. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'MOTIONLESS BY DESIGN — zero transition declarations in the family css and zero --jx-motion-effective readers (grep receipts); the hover/focus poses flip instantly (native checkbox semantics need no tween). Number unit: coefficient.',
+    },
   ];
 
 </script>
@@ -254,20 +317,54 @@ let typesTitledValue = $state<string[]>(['done']);
     </SectionCard>
   </div>
 
-  <!-- install -->
   <div id="install" data-reveal="">
+    <DocsInstall name="transfer" />
+  </div>
+
+  <!-- overview -->
+  <div id="overview" data-reveal="">
     <SectionCard
-      family="install"
-      headerRegion="install"
-      eyebrow="install"
-      title="Install"
-      summary="One zero-dependency item; the recipes below add press-button for the batch controls."
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="The two-panel selector: each side is a real fieldset of real checkbox rows (grouping, labeling and toggling all native), the middle buttons batch-move every checked row, and value — the bindable TARGET list — is the answer."
     >
-      <CodeBlock code={`npx jixoai-ui add transfer`} lang="sh" meta="install" />
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          The state model is three facts. ONE: placement derives — the panels are complements of
+          the same option set (source = not in value, target = in value), so an option lives on
+          exactly one side at every instant; there is no transit state where a key exists in both
+          lists. TWO: moves are batch and atomic — every checked row crosses in one value
+          assignment, then the checkbox selection clears (checked is a transient moving state,
+          never the value). THREE: disabled rows render but never move; the movers disable
+          themselves when nothing movable is checked.
+        </p>
+        <p class={cx(rt.para)}>
+          Both lists render from keyed each blocks keyed on option.value — with the complement
+          partition above, a key is unique across the UNION of the two lists, not just per list
+          (the LAW #18 double-weight surface, measured on the served DOM: mounted-children census
+          after every move class). Per-panel search filters its own list by label substring; the
+          legends are footers of truth ({'"'}n/total visible{'"'}), and a name wires the target
+          values into FormData as multi-entries through the jx-form-field bridge.
+        </p>
+        <p class={cx(rt.para)}>
+          The eight axes: a FIRST-TIME NO-OWN container surface — density is the ONE consumed
+          axis (the rows read the --jx-text kernel lane; measured rung flip), theme rides the
+          :root-pinned alias inks (frozen under a scoped island, re-derived at root-level dark)
+          with the hover/focus leans on the scope-re-derived base tokens, and
+          size/shape/radius/color/elevation/motion carry the supply chain (zero effective
+          readers, grep receipts; the family is motionless by design — no transition
+          declarations). Kinship: <code class={cx(rt.inkPrimary)}>checkbox</code> (the row
+          primitive), <code class={cx(rt.inkPrimary)}>table</code> (the selection recipe suite),
+          <code class={cx(rt.inkPrimary)}>tags-input</code> (the other keyed list-shuttle, one
+          field wide).
+        </p>
+      </div>
     </SectionCard>
   </div>
 
-  <div id="transfer-demo" data-region="transfer-demo" data-family="transfer-demo" data-reveal="">
+  <div id="live-demo" data-region="live-demo" data-family="live-demo" data-reveal="">
     <ComponentCanvas
       title="transfer"
       description="Check rows on either side, then fire the middle mover — every checked row crosses at once and the selection clears. The echo footer shows the target list."
@@ -391,7 +488,6 @@ let typesTitledValue = $state<string[]>(['done']);
       {/snippet}
     </ComponentCanvas>
   </div>
-
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Transfer variants" summary="Plain source/target panels by default; titled panels rename the fieldsets, and disabled rows render but never move.">
     <ComponentCanvas title="transfer · variants" stage="fill" files={transferTypesFiles}>
       <div class={cx(rt.trGrid)}>
@@ -400,8 +496,9 @@ let typesTitledValue = $state<string[]>(['done']);
       </div>
     </ComponentCanvas>
   </SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Grouping, labeling and toggling are all native — each panel is a real fieldset of real checkbox rows."><A11yTable keys={[{ key: 'Tab', action: 'Walk the fieldsets, checkbox rows, search lanes and mover buttons' }, { key: 'Space', action: 'Toggle the focused checkbox row (native input)' }]} aria={[{ name: 'fieldset / legend', value: 'native', description: 'Each panel is a real fieldset; the legend shows visible/total counts.' }, { name: 'aria-label (movers)', value: 'move selected to {side}', description: 'Names each middle mover button.' }, { name: 'aria-label (search)', value: 'filter {panel}', description: 'Names each per-panel search lane.' }, { name: 'aria-live', value: 'polite (recipe)', description: 'The one-way rejection counter and granted readout announce without stealing focus.' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Rows, movers and search lanes paint through theme colors; the panels stack under a 480px container query."><div class={cx(rt.col20)}><DensityDemo><Transfer options={typesPlain} bind:value={typesPlainValue} /></DensityDemo><TokenTable tokens={[{ name: '--jx-scrollbar-thin', default: 'stable gutter', source: 'component', description: 'List padding reserves the scrollbar lane when gutters are stable.' }, { name: 'panel surface', default: 'var(--card) + shadow-2xs', source: 'color', description: 'Each fieldset panel.' }, { name: 'hover / focus', default: '--muted / --ring / --primary', source: 'color', description: 'Row hover, search focus outline, mover hover lean.' }, { name: 'stacking law', default: 'max-width 480px', source: 'structural', description: 'Container query: panels stack, movers center between them.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Row and mover targets inside the density scope.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The target list binds both ways; a name wires the values into FormData through the jx-form-field bridge."><div class={cx(rt.col32)}><PropsTable universal props={[{ name: 'options', type: 'TransferOption[]', default: '—', description: 'The full option set; placement derives from value.', required: true }, { name: 'value', type: 'string[]', default: '[]', description: 'Values living on the TARGET side.', bindable: true }, { name: 'name', type: 'string', default: '—', description: 'Form field name — target values submit as multi-entry FormData.' }, { name: 'sourceTitle', type: 'string', default: "'source'", description: 'Source fieldset legend.' }, { name: 'targetTitle', type: 'string', default: "'target'", description: 'Target fieldset legend (the recipes derive it from committed state).' }, { name: 'searchPlaceholder', type: 'string', default: "'filter…'", description: 'Search lane placeholder.' }, { name: 'onchange', type: '(value: string[]) => void', default: '—', description: 'Fires after each batch move with the new target list — the oneWay recipe guards through it.' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the root.' }]} /><PropsTable title="TransferOption" props={[{ name: 'value', type: 'string', default: '—', description: 'The submit value.', required: true }, { name: 'label', type: 'string', default: '—', description: 'Row label.', required: true }, { name: 'disabled', type: 'boolean', default: '—', description: 'Row renders but never moves.' }]} /></div></SectionCard></div>
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
@@ -410,29 +507,39 @@ let typesTitledValue = $state<string[]>(['done']);
       title="Universal props"
       summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The dual-list composite is a FIRST-TIME no-own container surface — one number moves both panes; the fieldsets, search inputs and mover chips are family parts riding the ambient chain."
     >
-      <ComponentCanvas title="Transfer · universal props" stage="fill" files={universalFiles}>
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the LAW #18 double weight (both lists keyed option.value; the complement
+          partition makes each key unique across the UNION of the two lists — an option lives on
+          exactly one side at every instant; moves are ONE atomic value assignment, so there is
+          no transit state where a key exists in both lists; mounted-children census matched the
+          value list after every move class — single move, batch move, return move — probe,
+          task 46), the mutation-diff discipline (+1 per single move, +N per batch, −N per
+          return, selection cleared after each), the search filter (per panel, label substring,
+          case-insensitive — the legends track visible/total), the disabled-row law (renders,
+          checks nothing, never crosses; the movers disable at zero movable), the FormData bridge
+          (a name submits the target values as multi-entries) and LAW #19 (duplicate ids NONE
+          page-wide) were measured on this page's served DOM (probe, task 46). The theme split
+          (alias-frozen grounds + scope-re-derived leans — the measured island seat) and the
+          density rung flip (the ONE consumed axis) close the battery. One capture receipt: the
+          served demos sit inside component-canvas stages whose data-theme="light" pin
+          (stratum #3, attribute-scoped re-declaration) holds the ground for its subtree — under
+          root-level dark the --jx-card alias re-derives at :root (1.0 → 0.3211, measured) while
+          a pinned stage's panel holds the light value.
+        </p>
+        <div class={cx(rt.mt20, rt.wFull)}>
+          <ComponentCanvas title="Transfer · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.panel)}><Transfer {options} size={18} density="small" /></div>
 <div class={cx(rt.panel)}><Transfer {options} size="medium" radius="large" /></div>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
-
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="The target list binds both ways; a name wires the values into FormData through the jx-form-field bridge."><div class={cx(rt.col32)}><PropsTable universal props={[{ name: 'options', type: 'TransferOption[]', default: '—', description: 'The full option set; placement derives from value.', required: true }, { name: 'value', type: 'string[]', default: '[]', description: 'Values living on the TARGET side.', bindable: true }, { name: 'name', type: 'string', default: '—', description: 'Form field name — target values submit as multi-entry FormData.' }, { name: 'sourceTitle', type: 'string', default: "'source'", description: 'Source fieldset legend.' }, { name: 'targetTitle', type: 'string', default: "'target'", description: 'Target fieldset legend (the recipes derive it from committed state).' }, { name: 'searchPlaceholder', type: 'string', default: "'filter…'", description: 'Search lane placeholder.' }, { name: 'onchange', type: '(value: string[]) => void', default: '—', description: 'Fires after each batch move with the new target list — the oneWay recipe guards through it.' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the root.' }]} /><PropsTable title="TransferOption" props={[{ name: 'value', type: 'string', default: '—', description: 'The submit value.', required: true }, { name: 'label', type: 'string', default: '—', description: 'Row label.', required: true }, { name: 'disabled', type: 'boolean', default: '—', description: 'Row renders but never moves.' }]} /></div></SectionCard></div>
-
-  <div id="see-also" data-reveal="">
-    <SectionCard
-      family="see-also"
-      headerRegion="see-also"
-      eyebrow="see also"
-      title="See also"
-      summary="The families around the two-panel mover."
-    >
-      <div class={cx(rt.wrap12)}>
-        <a class="pill" href="/docs/components/checkbox.html">checkbox — the panel rows</a>
-        <a class="pill" href="/docs/components/press-button.html">press-button — the batch controls</a>
-        <a class="pill" href="/docs/components/table.html">table — the selection recipe suite</a>
-        <a class="pill" href="/docs/components/toggle-group.html">toggle-group — facet selection</a>
+<div class={cx(rt.panel)}><Transfer {options} theme="dark" /></div>
+          </ComponentCanvas>
+        </div>
       </div>
     </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Grouping, labeling and toggling are all native — each panel is a real fieldset of real checkbox rows."><A11yTable keys={[{ key: 'Tab', action: 'Walk the fieldsets, checkbox rows, search lanes and mover buttons' }, { key: 'Space', action: 'Toggle the focused checkbox row (native input)' }]} aria={[{ name: 'fieldset / legend', value: 'native', description: 'Each panel is a real fieldset; the legend shows visible/total counts.' }, { name: 'aria-label (movers)', value: 'move selected to {side}', description: 'Names each middle mover button.' }, { name: 'aria-label (search)', value: 'filter {panel}', description: 'Names each per-panel search lane.' }, { name: 'aria-live', value: 'polite (recipe)', description: 'The one-way rejection counter and granted readout announce without stealing focus.' }]} /></SectionCard></div>
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="transfer" />
   </div>
 </div>

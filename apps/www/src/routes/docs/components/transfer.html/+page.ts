@@ -1,21 +1,23 @@
 // Route-level toc policy (firstpaint era, 2026-08-24): the sections
 // ship as PAGE DATA — the layout owns the toc in the scaffold's chrome
 // snippet, SSR-rendered in its final grid cell.
-// 2026-08-30 (table-grid-toolbar): install + examples + the two recipes.
+// Order follows the page DOM (MDN archetype, docs-eight-axes-mdn task 46;
+// install + see-also stay chrome OUT, the trio (theming → api → the
+// eight axes → accessibility) closes the rail).
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'install', label: 'Install' },
-  { id: 'transfer-demo', label: 'live demo' },
+  { id: 'overview', label: 'Overview' },
+  { id: 'live-demo', label: 'Live demo' },
   { id: 'usage', label: 'Usage' },
   { id: 'examples', label: 'Examples' },
-  { id: 'transfer-one-way', label: 'with one-way moves' },
-  { id: 'transfer-select-all', label: 'with batch select-all' },
-  { id: 'types', label: 'Transfer variants' },
-  { id: 'accessibility', label: 'Accessibility' },
+  { id: 'transfer-one-way', label: 'One-way moves' },
+  { id: 'transfer-select-all', label: 'Batch select-all' },
+  { id: 'types', label: 'Types' },
   { id: 'theming', label: 'Theming' },
   { id: 'api', label: 'API' },
-  { id: 'see-also', label: 'See also' },
+  { id: 'universal-props', label: 'The eight axes' },
+  { id: 'accessibility', label: 'Accessibility' },
 ];
 
 export const load = () => ({ toc });

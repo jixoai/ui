@@ -1134,8 +1134,9 @@
     "marginalia",
     "quill"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 46 (coder label Tier B) — VELLUM'S CODE QUEUE COMPLETE; LAW #18 double weight (complement sets, union-unique keys, atomic moves, no transit state; mounted census after every move class); the page-level CAPTURE find (canvas pin holds --card light while root dark re-derives — both measured in one render); three family flags: role=status legend candidate, dev-mode duplicate-value warning, root-dark demos mount outside the stage"
   },
   {
    "page": "tree-view",

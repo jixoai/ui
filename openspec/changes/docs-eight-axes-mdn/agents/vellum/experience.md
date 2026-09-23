@@ -1280,3 +1280,28 @@
   spotlight hole is a sibling at root scope: the card can run a dark island while the
   spotlight stays on the page theme. Delivery-shape lenses must enumerate the WHOLE part
   list, not just the panel.
+
+## 2026-09-22 — T46 transfer (task 46-transfer.md, last CODE page)
+
+- **A pin beats the root flip for its subtree — probe the CAPTOR, not just the claim** — the
+  transfer panel "didn't flip" under html.dark; two easy stories (probe bug / family drift)
+  were both wrong. The micro-probe split the chain: `--jx-card` re-derived at :root (1.0 →
+  0.3211) while holding at the panel; the captor was the component-canvas stage's
+  `data-theme="light"` pin. When a state reads differently at two elements in one render,
+  walk the ancestor chain for a scope re-declaration BEFORE wording any frozen-vs-flip claim.
+- **Union-key uniqueness can be structural** — the transfer's two keyed lists render
+  complements of one option set, and a move is one atomic assignment: the classic shuttle bug
+  (a key in both lists mid-transit) is impossible by construction. When the architecture
+  gives you the guarantee for free, the receipt is the partition proof + census, not a
+  defensive fix.
+- **Write-half AND read-half** — an axis "consumed" needs both a stamp writer and a css
+  reader (T45's drift #15); a theme "flips" needs the declaring scope AND the substitution
+  point. Both halves or it isn't a receipt.
+- **Server launchers must cd themselves** — cwd resets between tool calls; a bare `npx vite`
+  from the repo root fails with "command not found" and a confusing http=000. The
+  self-cd wrapper script (write once per task under /tmp) is the stable pattern; record the
+  wrapper AND listener PIDs, kill both.
+- **aria-live is a recipe-side composition here** — the transfer announces moves through
+  native fieldset/checkbox semantics + count labels; the live readouts live in the page
+  recipes. Naming what carries the announcement (and what deliberately doesn't) is part of
+  the battery, not an afterthought.
