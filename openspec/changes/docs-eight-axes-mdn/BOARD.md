@@ -1,7 +1,7 @@
 # BOARD — current assignments
 | agent | task | page | type | status |
 |---|---|---|---|---|
-| quill | 82 | website-scaffold (OWN) | REVIEW (1st) | in-flight |
+| (queued) | 82 | website-scaffold (quill's — row mislabel fixed: coder never reviews own 1st; pool = scribe/vellum/marginalia) | REVIEW (1st) | queued |
 | vellum | 79 | toc (quill's) | REVIEW (1st) | in-flight |
 | marginalia | 106 | tooltip (scribe's, REASSIGNED) | REVIEW (1st) | in-flight |
 | scribe | 71 | toast (vellum's) | REVIEW (1st) | in-flight |
