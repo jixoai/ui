@@ -743,8 +743,9 @@
     "marginalia",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 35 tier-2; the rig wired end-to-end; forwarder axes (zero-translation); query lanes-vs-passthroughs boundary; 4 open questions"
   },
   {
    "page": "prototype-grid",

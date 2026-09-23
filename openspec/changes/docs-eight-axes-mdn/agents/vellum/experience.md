@@ -1022,3 +1022,23 @@
   progress label/track/frame, press-button outline/ghost ink): all share the same
   root cause — defineVars :root literals the dark scope does not re-declare. Flag
   instances by family+atom list so one pattern fix can cover them.
+
+## Task 35 — prototype-flex (2026-09-22)
+
+- **ComponentCanvas mounts the playground snippet LAZILY**: controls inside
+  `{#snippet playground()}` are absent from the DOM until the pane opens — a rig
+  built there measures as nonexistent (0 selects on the page). Primary interactive
+  demos belong in the STAGE BODY; the playground snippet is for help text and
+  drawer-bound controls.
+- **query() boundary is real and type-enforced**: the eight axis lanes accept
+  QueryResult; native passthrough props do not (gap: number | string rejects it).
+  Don't plan a query seat on a passthrough prop — pick an axis lane, and teach the
+  boundary as a feature ("lanes take query(); passthroughs don't").
+- **Rig wiring receipts are three reads**: baseline computed style → change a
+  control → computed style again, per control. A rig that claims to edit flex
+  direction but only re-renders a label fails this; the receipts take one page load.
+- **Alpha/token-free families flip the measurement plan**: with no family paint,
+  the axes table's evidence is STAMPS (attr presence, style-attr carriers, class
+  bridge) not computed paint values. Say "no paint to measure is itself the
+  measured finding" — and answer dispatch hypotheses (gap-tokens) with the family's
+  own law when they contradict.
