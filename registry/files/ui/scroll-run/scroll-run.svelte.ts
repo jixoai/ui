@@ -226,6 +226,12 @@ export function createScrollStamp(options: ScrollStampOptions): ScrollStamp {
     }
     // WRITE pass
     run.setAttribute('data-jx-scroll-state', state);
+    // keyboard reachability (WCAG 2.1.1 scrollable-region class,
+    // math-block 1st review task 89): the run joins the tab order exactly
+    // when the verdict arms it — a none verdict needs no keyboard entry,
+    // and SSR (no verdict) stays untouched
+    if (state === 'none') run.removeAttribute('tabindex');
+    else run.setAttribute('tabindex', '0');
     host?.style.setProperty(progressVar, max > 1 ? String(pos / max) : '0');
     for (const { t, s, e } of rows) {
       stamp(t, '--jx-edge-start', s);

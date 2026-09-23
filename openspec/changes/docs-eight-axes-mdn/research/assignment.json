@@ -537,8 +537,9 @@
     "marginalia",
     "quill"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "task 89 marginalia 1st PASS (0M/2m); tabindex landed family-wide at the scroll-run write point (live-verified incl. real-Tab reach); the :5199 orphan killed, km gate GREEN 9/9; 2nd = quill"
   },
   {
    "page": "math-inline",
