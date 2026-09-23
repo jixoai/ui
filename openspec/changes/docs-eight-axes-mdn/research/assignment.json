@@ -830,8 +830,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 50 scribe 1st PASS (0M/0m/0L/2N); every mechanism receipted at INVARIANT FORM (thumb fraction == client/scroll; the 0.333 dispatch digit was viewport-relative); data-thumb-live lives on the FAMILY HOLDER (52ms arm, 716ms post-blur drop); chrome matrix 6/10/14 resting + infinity serialization; frozen-ink negative both directions"
+   "status": "done",
+   "notes": "CLOSED #47 (vellum 38 + scribe 50 1st + marginalia 63 2nd PASS); frozen-ink negative verified AT THE PAINT (element's computed backgroundColor, both directions); the 9-cell radius x width matrix receipted per cell; family MINOR -> W-next #12: module-level nextViewportId drifts across SSR requests (warm-reload byte-identity fails; the source comment's 'SSR unique + stable' half-true; fix shape $props.id())"
   },
   {
    "page": "scroll-run",
