@@ -78,7 +78,7 @@
   <!-- nine variable-height cards; break-inside is yours -->
 </PrototypeWaterfall>`);
   const resolveRigUsage = (file: TreeFile): string =>
-    file.name.endsWith('rig.svelte') ? rigUsageLive : file.content;
+    file.name.endsWith('prototype-waterfall-usage.svelte') ? rigUsageLive : file.content;
 
   // ---- the universal props demo (explicit-props W3-D2) --------------------
   const universalUsage = `<PrototypeWaterfall columns={3} size={18} density="small">…</PrototypeWaterfall>`;
@@ -410,7 +410,8 @@ ${close}
             column-count/column-width AND the laid-out count from where the cards land (distinct
             offsetLeft columns): the count form held 3 columns at every width; the "14rem" floor
             form laid 3 columns at 1400px and 2 at 760px as the viewport narrowed past the floors;
-            the reflow settled within the frame (no JS reflow to wait for) — task 37; the density
+            the reflow settled by the first animation frame (the same-task read is stale at
+            Svelte's flush boundary; no JS reflow to wait for) — task 37; the density
             rung stamp (data-density=lg explicit, null ambient), the size carrier
             (font-size: var(--jx-size-effective, 1rem), computed 18px at size={'{'}18{'}'}) and the
             dark class bridge were measured on this page's served DOM; the zero-reader rows carry
@@ -431,9 +432,11 @@ ${close}
                 </PrototypeWaterfall>
                 <p class={cx(rt.para)}>
                   Media keys are min-width: below 48rem the base (13px root) applies; at 48rem and
-                  wider the md case wins (18px) — and because the column floor is REM-based, the
-                  '14rem' columns re-scale with the stamp. The number lane goes bare. Resize
-                  across 48rem.
+                  wider the md case wins (18px) — and the column floor does NOT follow that stamp:
+                  the §11 stamp is element-level, the '14rem' floor reads the DOCUMENT root
+                  (two-direction probe: stamp 18px → the 224px floor unchanged; document root
+                  16→20px → 280px). The number lane goes bare. Resize across 48rem and watch the
+                  TYPE move while the tracks hold.
                 </p>
               </div>
             </ComponentCanvas>
