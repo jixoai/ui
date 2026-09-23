@@ -117,7 +117,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'auto' | number`,
       default: `'auto'`,
       description:
-        "INHERITED ECHO, PARTIAL — the §1 stamp sets the root font-size and the FREE text follows it: the © line and the column links inherit (measured 30px under a 30px stamp), while the ghost ignores it (clamp(3rem, 11vw, 9rem) is viewport/root-relative, measured unmoved) and the column-title/copyright voices ride fixed promoted label steps (11px/12.5px, measured constant). Zero --jx-size-effective readers (grep receipt). Number unit: px.",
+        "INHERITED ECHO, FREE TEXT ONLY — the §1 stamp sets the root font-size; NOTHING the family renders follows it: the © line, the column links and the titles all ride the metaRow atom's fixed --jx-text-small step (12.5/12.5/11px, measured CONSTANT under an 18px stamp — the earlier 30px receipt was the root font-size itself, not the © line). Only consumer-authored FREE text outside the family atoms inherits; the ghost ignores it too (clamp(3rem, 11vw, 9rem) viewport/root-relative, measured unmoved). Zero --jx-size-effective readers (grep receipt). Number unit: px.",
     },
     {
       name: 'shape',
@@ -145,7 +145,7 @@ ${close}
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        "DECLARATIVE, AND THE HOST DECIDES — the family split: unlike the terminal bezel twins (header/card, whose shell-theme literal owns the name), the footer carries NO theme literal; theme=\"dark\" only stamps the .dark class on the root. What re-derives is split and measured: the ghost's stroke rides color-mix over var(--border), so it re-derives under a .dark scope (1px oklab(0 0 0 / 0.55) → oklab(1 0 0 / 0.55)) while the meta/title ink keeps its light --jx-muted-foreground (the --jx-* set is :root-only — frozen). And the host lesson: inside a component-canvas stage a data-theme=\"light\" island re-pins the light profile, so the served demo stays black-stroked under page-dark — the SAME rendered footer moved to body level re-derives white. Location decides; system/auto = tree inheritance. No number lane.",
+        "DECLARATIVE, AND THE HOST DECIDES — the family split: unlike the terminal bezel twins (header/card, whose shell-theme literal owns the name), the footer carries NO theme literal; theme=\"dark\" only stamps the .dark class on the root. What re-derives is split and measured: the ghost's stroke rides color-mix over var(--border), so it re-derives under a .dark scope (1px oklab(0 0 0 / 0.55) → oklab(1 0 0 / 0.55)) while the meta/title ink keeps its light --jx-muted-foreground under the scope (the island tier of the alias-theme law — and at root-level dark the UNPINNED ink re-derives, the body-level clone reading the dark 0.8452). And the host lesson, pin site named: the component-canvas stage div[data-theme=\"light\"].jx-light re-pins the light profile, so the served demo stays black-stroked under page-dark — the SAME rendered footer moved to body level re-derives white. Location decides; system/auto = tree inheritance. No number lane.",
     },
     {
       name: 'elevation',

@@ -1011,8 +1011,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 67 tier-2; THE HOST LAYER find: theme-split location beats the prop (canvas stage data-theme=light + .jx-light re-pins the profile; same footer at body level re-derives; component .dark stamp re-derives in place; stroke re-derives while --jx-muted-foreground ink freezes); ghost clamp measured; hover seam motion-150 RM-safe; EXTRA nuance: attribute-transparent not rest-less"
+   "status": "pass-1st",
+   "notes": "task 75 vellum 1st PASS (0M/1m/2L/1N); the host layer verified with the pin site named; MINOR landed: the size row's inherit clause FALSIFIED (12.5px constant under 18px — the metaRow atom blocks; the 30px was the root font-size); LOWs landed: three-tier alignment + pin-site naming; the atom-table arbitration double-evidenced"
   },
   {
    "page": "terminal-header",

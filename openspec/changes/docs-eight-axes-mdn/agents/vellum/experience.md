@@ -1328,3 +1328,22 @@
   on the layer while the head block's bridge matches an ancestor: the classList contains
   dark and the paint stays light, both measurable. A controlled pair (prop-alone vs host
   bridge) is the cleanest LAW #16 instrument I've run.
+
+## 2026-09-22 — T75 first review terminal-footer (review lanes)
+
+- **The axis table's two halves can contradict each other** — the size row claimed "the © line
+  and the column links inherit (measured 30px)" AND "title/copyright ride fixed steps
+  (measured constant)". The © line IS the copyright voice; both cannot hold. The metaRow
+  atom's fixed --jx-text-small step blocks inheritance for every family-rendered text —
+  measured 12.5px constant under an 18px stamp. When a row's halves disagree, the atom table
+  arbitrates; the reproducible half is the claim.
+- **The demo scope wrapper owns the density rung** — DensityDemo stamps data-density on its
+  wrapper (the §4 scope half), not on the component root; a paint-invariance probe must point
+  at the wrapper→component pair, not hunt the attr on the component.
+- **Contaminate your own dark test and it lies twice** — an own-dark-stamp probe run inside a
+  lingering html.dark injection reads white before AND after (no delta, no information). State
+  cleanup between probe segments is not hygiene; it is validity.
+- **First review verdict shape**: a false "measured" claim in the axes table = MINOR (one
+  clause) not NEEDS-WORK, when the rest of the measured battery reproduces digit-exact and the
+  defect is a wording fix riding closure — with the non-reproducing measurement named, the
+  reproducible numbers quoted, and the structural reason (the atom step) cited.
