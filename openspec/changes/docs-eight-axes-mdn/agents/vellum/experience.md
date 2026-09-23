@@ -1598,3 +1598,32 @@
   oklab(… −0.236964 …) vs her 0.135938: the brand rotation moves the hue channel while
   the alpha law (0.18) and the box arithmetic (0.05em/0.25em) stand. Cite the
   INVARIANT channels when re-deriving rotated-palette receipts.
+
+## T144 (finale walkthrough B) — overlay-shell capture + honest-state probes
+
+- **fullPage is a lie on this site**: the app shell scrolls `.jx-shell-body`
+  internally, so Playwright fullPage captures exactly one viewport (900px).
+  The honest full-page instrument is stepped shell-scroll captures
+  (scrollHeight ÷ clientHeight steps + settles, which also mounts the lazy
+  IntersectionObserver sections before any census). 133 shots this task.
+- **Judge state with computed values, then look**: the dispatch's named check
+  ("the CLOSED 34px state") settled in one probe — grid-template-rows 34px at
+  rest / 124px open / 34px re-collapsed; min-height:0 is proven by the
+  arithmetic (a surviving min-content floor would hold the track tall).
+  Screenshots alone had made the lane read "open".
+- **Hit-tests beat eyeballs for occlusion**: the toast annotation card covers
+  burst ×5 entirely — but only elementFromPoint at the button center proved it
+  (card wins the hit-test; rects alone just suggested it). Card is static,
+  in flow, painting over the row — overlap persists at 420.
+- **Census scope discipline, again**: `main svg path` found 1113 "spines"
+  (lucide icons); the family hook `[data-jx-spine]`/`[data-jx-tl-spine]` found
+  the honest 42 hosts. Zero-length paths on 1-item timelines are the correct
+  degenerate case — check item count before calling a degenerate spine broken.
+- **Shell overflow-x at 420 is per-page behavior, not platform law**: timeline
+  scrolls sideways 55px (uncontained drawer code, no overflowX container up the
+  chain) while grid's identical-looking spans clip with zero shell scroll.
+  Wide tables everywhere are auto+scrollable — the mobile "clipping" in
+  captures is contained scroll, not breakage.
+- Mid-campaign build races: hold the preview-only protocol, cite the
+  orchestrator's single-writer build receipts, and own the fact that zero edits
+  means zero new gates needed.

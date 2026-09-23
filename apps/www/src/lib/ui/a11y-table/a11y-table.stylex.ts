@@ -23,6 +23,11 @@ export const a11yTableStyles = stylex.create({
     fontSize: 'var(--jx-text)',
   },
   table: { width: '100%', borderCollapse: 'collapse', textAlign: 'left' },
+  // the horizontal overflow lane (PropsTable's scroller idiom): the
+  // reference tables document long attribute values — at narrow shells
+  // the table grows past its box and must scroll INSIDE, never pan the
+  // page shell (the docs-eight-axes finale sweep's 6-page finding)
+  scroller: { width: '100%', overflowX: 'auto' },
   headRow: {
     borderBottomWidth: tokens['--jx-hairline'],
     borderBottomStyle: 'solid',

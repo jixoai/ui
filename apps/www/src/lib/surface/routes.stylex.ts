@@ -514,6 +514,11 @@ export const rt = stylex.create({
   grid760b: {
     display: 'grid',
     gap: tokens['--jx-space-16'],
+    // the base track is minmax(0,1fr), never auto: an auto track sizes
+    // to the widest item's max-content, so a code-bearing panel panned
+    // the shell at narrow viewports (the finale sweep's code-card +
+    // inline-code finding)
+    gridTemplateColumns: 'minmax(0, 1fr)',
     '@media (min-width: 760px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
   },
   // `grid gap-4 min-[760px]:grid-cols-3` z14
@@ -2696,6 +2701,10 @@ export const rt = stylex.create({
   dpgGrid: {
     display: 'grid',
     gap: tokens['--jx-space-16'],
+    // minmax base, never auto (an auto track sizes to the widest
+    // child's max-content — the detection lab panned the shell at
+    // narrow viewports; the finale sweep's code-card finding)
+    gridTemplateColumns: 'minmax(0, 1fr)',
     '@media (min-width: 980px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
   },
   dpgSpan2: { '@media (min-width: 980px)': { gridColumn: 'span 2 / span 2' } }, // min-[980px]:col-span-2

@@ -32,6 +32,12 @@
     letter-spacing: 0;
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    /* the art never wraps — the run scrolls in place at narrow shells
+       (the code-block pattern) instead of panning the page. A non-
+       visible overflow also zeroes the automatic minimum, so the bar
+       row's 1fr track can shrink under its content (finale sweep) */
+    max-width: 100%;
+    overflow-x: auto;
   }
 
   /* ---- the opt-in table fallback: hidden from the eye, real to AT -- */

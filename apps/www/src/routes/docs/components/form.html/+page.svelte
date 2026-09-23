@@ -266,7 +266,8 @@ ${close}
             <p class={cx(rt.para)}>
               No <code class={cx(rt.inkAccent)}>TextField</code>/<code class={cx(rt.inkAccent)}>NumberField</code>
               forks: <code class={cx(rt.inkAccent)}>type</code> lands on the element verbatim
-              (text/password/email/number/search/url/tel/date/time/file/hidden…), and every other
+              (text/<wbr />password/<wbr />email/<wbr />number/<wbr />search/<wbr />url/<wbr />tel/<wbr />date/<wbr />time/<wbr />file/<wbr />hidden…),
+              and every other
               attribute (placeholder, min/max/step, accept, autocomplete…) rides through
               restProps. If the platform grows a new type tomorrow, this component already
               supports it.

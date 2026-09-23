@@ -165,7 +165,7 @@
       "name": "list-item",
       "type": "registry:ui",
       "title": "List item",
-      "description": "The list row as a system (F7 coverage, shadcn composition): AUTO-VARIANT chrome — standalone rows carry their own terminal surface, ItemGroup owns the frame (native section+ul, default/muted/plain modes, optional label, divider policy: 38% auto hairlines structurally exclusive with full-strength ItemDivider). The ItemEnd lane hosts after/actions/chevron; the grid presence matrix stays four bits (:has()-driven, no implicit tracks). ItemField wires settings rows (label[for], describedby chains, icon glyph inline-start of the label) and seven thin adapters — ItemToggle/ItemCheckbox/ItemRadio/ItemSelect/ItemInput/ItemSegmented/ItemStepper — compose the existing controls without reimplementing them (segmented rides native radio ToggleGroup semantics, stepper rides NumberInput with typing first-class). layout=media rides custom properties; narrow groups wrap the end lane at 30rem via container query.",
+      "description": "The list row as a system (F7 coverage, shadcn composition): AUTO-VARIANT chrome — standalone rows carry their own terminal surface, ItemGroup owns the frame (native section+ul, default/muted/plain modes, optional label, divider policy: 38% auto hairlines structurally exclusive with full-strength ItemDivider). The ItemEnd lane hosts after/actions/chevron; the grid presence matrix stays four bits (:has()-driven, no implicit tracks). ItemField wires settings rows (label[for], describedby chains, icon glyph inline-start of the label) and seven thin adapters — ItemToggle / ItemCheckbox / ItemRadio / ItemSelect / ItemInput / ItemSegmented / ItemStepper — compose the existing controls without reimplementing them (segmented rides native radio ToggleGroup semantics, stepper rides NumberInput with typing first-class). layout=media rides custom properties; narrow groups wrap the end lane at 30rem via container query.",
       "files": [
         {
           "path": "registry/files/ui/list-item/item.svelte",
@@ -3734,7 +3734,7 @@
       "name": "system-dialog",
       "type": "registry:ui",
       "title": "System dialog",
-      "description": "The confirmation dialog as a composed family (shadcn-shaped on the native <dialog>): Root (bind:open/onconfirm) + Trigger/Content/Title/Description/Actions/Action(variant: fill with the destructive pair injected by default | tonal | outline)/Cancel — focus lands on Cancel (the safe default), Escape cancels, confirm runs then closes. No Overlay/Portal parts (the dialog element IS the overlay) — recorded divergence.",
+      "description": "The confirmation dialog as a composed family (shadcn-shaped on the native <dialog>): Root (bind:open/onconfirm) + Trigger / Content / Title / Description / Actions / Action(variant: fill with the destructive pair injected by default | tonal | outline) / Cancel — focus lands on Cancel (the safe default), Escape cancels, confirm runs then closes. No Overlay/Portal parts (the dialog element IS the overlay) — recorded divergence.",
       "files": [
         {
           "path": "registry/files/ui/system-dialog/system-dialog-action.svelte",

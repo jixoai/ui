@@ -125,53 +125,57 @@
   {#if keys.length > 0}
     <div>
       <h4 class="jx-a11y-heading {cx(a11yTableStyles.heading)}">Keyboard</h4>
-      <table class={cx(a11yTableStyles.table)}>
-        <thead>
-          <tr class={cx(a11yTableStyles.headRow)}>
-            <th class={cx(a11yTableStyles.headCell)}>Key</th>
-            <th class={cx(a11yTableStyles.headCell)}>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- site-polish F10: the key is NAME+INDEX — a component
-               legitimately documents the SAME attribute on several
-               elements (dialog's two aria-label rows), and a keyed each
-               over the bare name threw each_key_duplicate on hydration,
-               collapsing whole pages to their last sections (the
-               "gutted dialog/sheet" misdiagnosis) -->
-          {#each keys as entry, i (entry.key + ':' + i)}
-            <tr class={cx(a11yTableStyles.bodyRow)}>
-              <td class={cx(a11yTableStyles.cell)}>
-                <kbd class={cx(a11yTableStyles.kbd)}>{entry.key}</kbd>
-              </td>
-              <td class={cx(a11yTableStyles.cell)}>{entry.action}</td>
+      <div class={cx(a11yTableStyles.scroller)}>
+        <table class={cx(a11yTableStyles.table)}>
+          <thead>
+            <tr class={cx(a11yTableStyles.headRow)}>
+              <th class={cx(a11yTableStyles.headCell)}>Key</th>
+              <th class={cx(a11yTableStyles.headCell)}>Action</th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            <!-- site-polish F10: the key is NAME+INDEX — a component
+                 legitimately documents the SAME attribute on several
+                 elements (dialog's two aria-label rows), and a keyed each
+                 over the bare name threw each_key_duplicate on hydration,
+                 collapsing whole pages to their last sections (the
+                 "gutted dialog/sheet" misdiagnosis) -->
+            {#each keys as entry, i (entry.key + ':' + i)}
+              <tr class={cx(a11yTableStyles.bodyRow)}>
+                <td class={cx(a11yTableStyles.cell)}>
+                  <kbd class={cx(a11yTableStyles.kbd)}>{entry.key}</kbd>
+                </td>
+                <td class={cx(a11yTableStyles.cell)}>{entry.action}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
     </div>
   {/if}
   {#if aria.length > 0}
     <div>
       <h4 class="jx-a11y-heading {cx(a11yTableStyles.heading)}">ARIA</h4>
-      <table class={cx(a11yTableStyles.table)}>
-        <thead>
-          <tr class={cx(a11yTableStyles.headRow)}>
-            <th class={cx(a11yTableStyles.headCell)}>Attribute</th>
-            <th class={cx(a11yTableStyles.headCell)}>Value</th>
-            <th class={cx(a11yTableStyles.headCell)}>Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each aria as entry, i (entry.name + ':' + i)}
-            <tr class={cx(a11yTableStyles.bodyRow)}>
-              <td class={cx(a11yTableStyles.cellMono)}>{entry.name}</td>
-              <td class={cx(a11yTableStyles.cellMonoSecondary)}>{entry.value}</td>
-              <td class={cx(a11yTableStyles.cell)}>{entry.description}</td>
+      <div class={cx(a11yTableStyles.scroller)}>
+        <table class={cx(a11yTableStyles.table)}>
+          <thead>
+            <tr class={cx(a11yTableStyles.headRow)}>
+              <th class={cx(a11yTableStyles.headCell)}>Attribute</th>
+              <th class={cx(a11yTableStyles.headCell)}>Value</th>
+              <th class={cx(a11yTableStyles.headCell)}>Description</th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {#each aria as entry, i (entry.name + ':' + i)}
+              <tr class={cx(a11yTableStyles.bodyRow)}>
+                <td class={cx(a11yTableStyles.cellMono)}>{entry.name}</td>
+                <td class={cx(a11yTableStyles.cellMonoSecondary)}>{entry.value}</td>
+                <td class={cx(a11yTableStyles.cell)}>{entry.description}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
     </div>
   {/if}
 </div>

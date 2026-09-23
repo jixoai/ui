@@ -673,7 +673,7 @@ let cardOpen = $state(false);
           <PressButton onclick={() => (cardOpen = true)}>start the custom-card tour</PressButton>
           <span class={cx(rt.noteSmall)}>targets live in the workbench above — scroll up if they left the viewport</span>
         </div>
-        <pre class={cx(rt.note12, rt.lead5)}>TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125;</pre>
+        <pre class={cx(rt.note12, rt.lead5, rt.oxAuto)}>TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125;</pre>
       </div>
     </SectionCard>
   </div>

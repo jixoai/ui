@@ -363,7 +363,7 @@ ${close}
       summary="The surfaces around the notice."
     >
       <div class={cx(rt.wrap12)}>
-        <a class="pill" href="/docs/components/toast.html">toast — the transient overlay sibling (same live-region law)</a>
+        <a class="pill" href="/docs/components/toast.html">toast — the transient overlay sibling</a>
         <a class="pill" href="/docs/components/system-dialog.html">system-dialog — the modal surface</a>
         <a class="pill" href="/docs/universal-props.html">universal props — the eight-axis grammar</a>
       </div>

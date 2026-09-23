@@ -467,7 +467,8 @@ ${close}
     >
       <div class={cx(rt.wrap12)}>
         <span class="pill">streaming-first · keyed blocks (L1–L4)</span>
-        <span class="pill">AST → blockquote · heading · list · text · link · inline-code · separator · table · code-card</span>
+        <span class="pill">AST → blockquote · heading · list · text · link</span>
+        <span class="pill">AST → inline-code · separator · table · code-card</span>
         <span class="pill">html:false security floor</span>
         <span class="pill">components override seam</span>
         <span class="pill">stream-markdown-parser core</span>
@@ -867,7 +868,7 @@ ${close}
       <h2 class={cx(rt.mdHero)}>See Also</h2>
       <p class={cx(rt.mt8, rt.inkMuted, rt.text125)}>The families the mapping vocabulary composes with.</p>
       <ul class={cx(rt.mt12, rt.row8, rt.wrap)}>
-        <li><a class="pill" href="/docs/components/blockquote.html">blockquote — the quote mapping target (GitHub alerts land here)</a></li>
+        <li><a class="pill" href="/docs/components/blockquote.html">blockquote — the quote mapping target</a></li>
         <li><a class="pill" href="/docs/components/text.html">text — the paragraph and marks mapping target</a></li>
         <li><a class="pill" href="/docs/components/table.html">table — the GFM table mapping target</a></li>
         <li><a class="pill" href="/docs/components/code-card.html">code-card — the fenced-code mapping target</a></li>

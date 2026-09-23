@@ -29,8 +29,13 @@ export const densityDemoStyles = stylex.create({
     gap: 'var(--jx-gap)',
   },
   // ── the equal-share cell, floored so four rungs stay readable ──
+  // (the basis RIDES the floor: at narrow shells a 0% basis let all
+  // four cells share one line — wrap armed but never triggered, the
+  // floored min-widths then panned the shell 900px-wide. Equal basis +
+  // equal grow keeps the desktop result identical; the finale sweep's
+  // input-otp finding)
   cell: {
-    flex: '1 1 0%',
+    flex: '1 1 calc(var(--jx-unit) * 50)',
     minWidth: 'calc(var(--jx-unit) * 50)',
   },
   // ── the scope label: the eyebrow voice ──
@@ -50,5 +55,10 @@ export const densityDemoStyles = stylex.create({
     borderStyle: 'solid',
     borderColor: 'color-mix(in oklab, var(--border) 50%, transparent)',
     padding: 'var(--jx-inset)',
+    // a rung's child can be intrinsically wider than the floored cell
+    // (input-otp's slot row at lg ≈ 900px — slots are hit-floored and
+    // cannot shrink); the box scrolls its content instead of panning
+    // the shell (the finale sweep's finding)
+    overflowX: 'auto',
   },
 });

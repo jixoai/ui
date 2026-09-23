@@ -439,7 +439,7 @@ ${close}
         <div class={cx(rt.wrap12)}>
           <span class="pill">hover: shadow only</span>
           <span class="pill">active: anchored press</span>
-          <span class="pill">raised={false}: flat — the press is an inset, the body never moves</span>
+          <span class="pill">raised={false}: flat — inset press, body still</span>
           <span class="pill">shimmer · pulse · rainbow · ripple</span>
           <span class="pill">motion-reduce safe</span>
         </div>

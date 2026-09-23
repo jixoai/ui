@@ -17,7 +17,6 @@
   import { query } from '$lib/universal-props-query.svelte';
   import type { DensityLane } from '$lib/defaults.svelte';
   import { createToastStore } from '$lib/toast-store';
-  import { PlayFields, PlayHelp } from '$lib/playground';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import toastViewportSource from '$lib/ui/toast/toast-viewport.svelte?raw';
@@ -409,14 +408,10 @@ const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' 
           expandable → dialog
         </PressButton>
       </div>
-      {#snippet playground()}
-        <PlayFields>
-          <PlayHelp>
-            the store is deliberately DOM-free — anything (a worker, a server event bridge) can
-            push through the api handle. The viewport is the only DOM half, mounted once.
-          </PlayHelp>
-        </PlayFields>
-      {/snippet}
+      <p class={cx(rt.textSm, rt.inkMuted)}>
+        the store is deliberately DOM-free — anything (a worker, a server event bridge) can
+        push through the api handle. The viewport is the only DOM half, mounted once.
+      </p>
     </ComponentCanvas>
   </div>
 
