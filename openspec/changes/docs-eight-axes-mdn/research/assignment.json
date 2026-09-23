@@ -1011,8 +1011,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 75 vellum 1st PASS (0M/1m/2L/1N); the host layer verified with the pin site named; MINOR landed: the size row's inherit clause FALSIFIED (12.5px constant under 18px — the metaRow atom blocks; the 30px was the root font-size); LOWs landed: three-tier alignment + pin-site naming; the atom-table arbitration double-evidenced"
+   "status": "done",
+   "notes": "CLOSED #56 (quill 67 + vellum 75 1st + marginalia 81 2nd PASS, zero new); the MINOR verified fixed at BOTH stamps (12.5/12.5/11px constant under 18px AND 13px); HER LAW REFINEMENT: the alias-theme law classifies per CHAIN, not per element (one footer: the direct var(--border) stroke flips, the :root-alias ink freezes)"
   },
   {
    "page": "terminal-header",

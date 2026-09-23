@@ -924,3 +924,10 @@
 - **The docs shell scrolls an inner container**: window.scrollY is always 0. scrollIntoView receipts must read element visibility (getBoundingClientRect against innerHeight), not window scroll.
 - **A "frozen ink at N:1" claim can rest on a translucent face** — when the only fills are alpha layers over the page, the contrast ratio is ground-dependent by construction. Receipt the layers and the composite arithmetic, flag the single number as unreproducible-without-a-pinned-ground, and let the concordance read settle where the number came from.
 - Reopen-gap A/B in one session (fresh open sampled, Escape, reopen sampled) is the deterministic receipt form — the same opener, two mount paths, var cadence tells the whole story.
+
+## T81 (terminal-footer 2nd) — paint invariance is a METRICS receipt, not a height receipt
+
+- **Height is a layout property; paint is the invariance claim.** My first density pass compared footer heights page-wide and "found" 442/267/290 — different-width containers wrapping the same paint (a 144px wordmark in a 203px rail cell wraps into a tall column). The invariance receipt is the metrics: ghost font-size, meta font-size, padding, max-width — identical at every rung. When a claim says "paint-invariant", measure the paint channels, never a geometry consequence.
+- **Two chains can split inside ONE element group**: the ghost stroke reads var(--border) directly (site token — re-derives with any scope) while the meta ink reads the --jx-muted-foreground :root alias (frozen) — a footer can be half-re-deriving and half-frozen under the same .dark scope. The tier classification is per-CHAIN, not per-element.
+- **Token-injection hover sampling**: set the motion token to 2s on the root, real-hover, sample mid-flight — the interpolated oklab (brand hue components appearing) proves a live ramp, and RM emulation then shows whether the transition survives reduce. Three receipts (authored / injected / RM) from one drive.
+- The §1 size stamp moves the HOST font-size; "nothing renders follows it" is verified by reading the rendered text tiers under TWO different stamps (18 and 13 here) — a constant at one stamp proves nothing.
