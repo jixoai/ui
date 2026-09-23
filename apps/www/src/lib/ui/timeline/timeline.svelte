@@ -363,16 +363,20 @@
         <path data-jx-tl-base="" d={geometry.runPath}></path>
         <defs>
           <!-- objectBoundingBox units: the gradient maps onto each
-               referencing path's own box, so one shared def id serves
-               every instance identically (axis-keyed per render) -->
+               referencing path's own box — but SVG def ids are
+               DOCUMENT-global and first-def-wins: a page hosting vertical
+               and horizontal beams together would resolve both to the
+               first branch's axis. The id is axis-keyed (the dot mask's
+               uid precedent, scoped to what actually differs); same-axis
+               beams share one def legitimately -->
           {#if geometry.axis === 'vertical'}
-            <linearGradient id="jx-tl-beam-grad" x1="0" y1="0" x2="0" y2="1">
+            <linearGradient id={`jx-tl-beam-grad-${geometry.axis}`} x1="0" y1="0" x2="0" y2="1">
               <stop offset="0" style="stop-color: var(--border); stop-opacity: 0" />
               <stop offset="0.5" style="stop-color: var(--primary)" />
               <stop offset="1" style="stop-color: var(--border); stop-opacity: 0" />
             </linearGradient>
           {:else}
-            <linearGradient id="jx-tl-beam-grad" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id={`jx-tl-beam-grad-${geometry.axis}`} x1="0" y1="0" x2="1" y2="0">
               <stop offset="0" style="stop-color: var(--border); stop-opacity: 0" />
               <stop offset="0.5" style="stop-color: var(--primary)" />
               <stop offset="1" style="stop-color: var(--border); stop-opacity: 0" />
@@ -382,7 +386,7 @@
         <path
           data-jx-tl-beam=""
           d={geometry.flowPath}
-          stroke="url(#jx-tl-beam-grad)"
+          stroke={`url(#jx-tl-beam-grad-${geometry.axis})`}
           mask="url(#{dotMaskId})"
           stroke-dasharray="{beamLen} {pathLength}"
           style="--jx-tl-run: {pathLength}px; --jx-tl-beam-len: {beamLen}px; --jx-tl-beam-park: -{geometry.nodeRadius}px"

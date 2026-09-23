@@ -1077,8 +1077,9 @@
     "vellum",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "task 100 marginalia 1st PASS (0M/1m/1L/1N); both svelte errors + both unkeyed twins closed, beam def ids axis-keyed (mirrored); 2nd = vellum"
   },
   {
    "page": "toast",

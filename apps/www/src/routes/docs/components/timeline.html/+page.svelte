@@ -77,7 +77,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -772,7 +772,7 @@ ${close}
     <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">animation="view"</span>
     <div class="max-h-64 overflow-y-auto border border-border p-6">
       <Timeline animation="view">
-        {#each ['alpha', 'beta', 'rc', 'ga'] as phase}
+        {#each ['alpha', 'beta', 'rc', 'ga'] as phase (phase)}
           <TimelineItem>
             <TimelineDot variant="round" />
             <TimelineContent><TimelineTitle>{phase}</TimelineTitle></TimelineContent>
@@ -1524,7 +1524,7 @@ ${close}
               <span class="tl-eyebrow">animation="view"</span>
               <div class="tl-frame {cx(tlDocs.maxH64, tlDocs.oyAuto, tlDocs.p24)}">
                 <Timeline animation="view">
-                  {#each ['alpha', 'beta', 'rc', 'ga'] as phase}
+                  {#each ['alpha', 'beta', 'rc', 'ga'] as phase (phase)}
                     <TimelineItem>
                       <TimelineDot variant="round" />
                       <TimelineContent><TimelineTitle>{phase}</TimelineTitle></TimelineContent>
@@ -1541,7 +1541,7 @@ ${close}
     <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Timeline anatomy" summary="Timeline is composition-first: header, item, dot (the 9-grid node), content, time, title and free-form body remain independent parts; the spine is a measured layer, never authored markup. The value contract and the per-item pending flag are ATTRIBUTE paint — the parts stay stateless."><ComponentCanvas title="timeline · anatomy" stage="start" files={timelineAnatomyFiles}><div class={cx(tlDocs.measure28)}><Timeline><TimelineHeader>release train</TimelineHeader><TimelineItem><TimelineDot>{#snippet blockStart()}<span>today</span>{/snippet}</TimelineDot><TimelineContent><TimelineTime datetime="2026-09-01">today</TimelineTime><TimelineTitle>released</TimelineTitle><p>Build promoted.</p></TimelineContent></TimelineItem></Timeline></div></ComponentCanvas></SectionCard></div>
     <div id="usage" data-reveal=""><SectionCard summary="The composition contract in one sample: import the family from the registry barrel (@ui/timeline/index — per-part targets exist per file), author one TimelineItem per entry with the parts you need. There is no items[] prop and no body snippet — the body is plain children. The value contract rides the root: defaultValue seeds, value controls, decimals included." eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
     <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'ol', value: 'timeline list', description: 'Preserves chronological list semantics (role=list survives list-none).' }, { name: 'time', value: 'datetime', description: 'Provides machine-readable event time.' }, { name: 'aria-hidden', value: 'spine svg · dot · floor line', description: 'The drawn spine, the dots and the floor lines are decoration — the svg layer is pointer-transparent too. The cutout SLOTS are readable content — they carry text and are never hidden. The progress stroke is the same decorative layer: the value it paints is state, exposed through data-completed semantics on the items, never through the stroke alone.' }, { name: 'data-completed', value: 'step ≤ value', description: 'The value contract\'s discrete paint — a completed milestone is legible with styles off (the attribute is on the li), and the in-flight pending flag stays the louder per-item channel.' }] } /></SectionCard></div>
-    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Timeline defaultValue={2}><TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>event</TimelineTitle></TimelineContent></TimelineItem></Timeline></DensityDemo><div class={cx(tlDocs.mt20)}><TokenTable tokens={[{ name: '--jx-tl-stroke-w', default: '1px', source: 'stroke-alignment law (r5): the spine strokes and the dot border share ONE weight' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }] } /></div></SectionCard></div>
+    <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Timeline defaultValue={2}><TimelineItem><TimelineDot /><TimelineContent><TimelineTitle>event</TimelineTitle></TimelineContent></TimelineItem></Timeline></DensityDemo><div class={cx(tlDocs.mt20)}><TokenTable tokens={[{ name: '--jx-tl-stroke-w', default: '1px', source: 'component', description: 'stroke-alignment law (r5): the spine strokes and the dot border share ONE weight' }, { name: '--jx-icon', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }] } /></div></SectionCard></div>
     <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
