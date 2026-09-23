@@ -171,7 +171,7 @@
   import { inputStyles } from './input.stylex';
   import './input.css';
 
-  interface Props extends Omit<HTMLInputAttributes, 'size' | 'color'> {
+  interface Props extends Omit<HTMLInputAttributes, 'size' | 'color' | 'onselect'> {
     /** any native input type (default 'text') */
     type?: string;
     /** density policy: explicit, inherited, then default — the
@@ -267,6 +267,10 @@
     locale?: string;
     /** fires when the custom picker commits a value */
     onselect?: (value: string) => void;
+    /** frame posture: explicit ?? the integration ambient ?? 'frame'
+     *  (the control-chrome axis — a frame-owning row declares its
+     *  controls bare; the family's OWN css paints the bare state) */
+    chrome?: ControlChrome;
     /** fine-grained panel content — takes precedence over the embedded
         default panel. Renders inside the popover; ctx = value/commit/close */
     picker?: Snippet<[PickerCtx]>;
@@ -320,7 +324,7 @@
     /** frame posture: explicit ?? the integration ambient ?? 'frame'
      *  (the control-chrome axis — a frame-owning row declares its
      *  controls bare; the family's OWN css paints the bare state) */
-    chrome: chromeProp = undefined,
+    chrome: chromeProp,
     locale,
     onselect,
     picker,
@@ -649,7 +653,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -754,7 +758,7 @@
             class="jx-input-prefix-icon-button"
             data-jx-step-minus
             aria-label="decrease"
-            disabled={rest.disabled}
+            disabled={rest.disabled ?? undefined}
             onpointerdown={beginHold.bind(null, -1)}
           ><Icon name="minus" /></button>
         {/if}
@@ -802,7 +806,7 @@
             class="jx-input-suffix-icon-button"
             data-jx-step-plus
             aria-label="increase"
-            disabled={rest.disabled}
+            disabled={rest.disabled ?? undefined}
             onpointerdown={beginHold.bind(null, 1)}
           ><Icon name="plus" /></button>
         {/if}
@@ -830,7 +834,7 @@
             class="jx-input-reveal"
             aria-pressed={revealed}
             aria-label={revealed ? 'hide password' : 'show password'}
-            disabled={rest.disabled}
+            disabled={rest.disabled ?? undefined}
             onclick={() => (revealed = !revealed)}
           >
             <Icon name={revealed ? 'eyeOff' : 'eye'} />
@@ -900,7 +904,7 @@
               bind:this={timeStepperRef}
               value={timeValue}
               oncommit={(v) => commitFromPanel(v)}
-              disabled={rest.disabled}
+              disabled={rest.disabled ?? undefined}
               idPrefix="{id}-ptime"
             />
           {:else}
@@ -931,7 +935,7 @@
                 bind:this={timeStepperRef}
                 value={timeValue}
                 oncommit={(v) => commitFromPanel(`${datePart ?? todayIso()}T${v}`)}
-                disabled={rest.disabled}
+                disabled={rest.disabled ?? undefined}
                 idPrefix="{id}-ptime"
               />
             {/if}

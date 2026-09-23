@@ -443,9 +443,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo",
-   "notes": "1st reassigned to marginalia (T104); vellum remains the 2nd"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "task 104 marginalia 1st PASS (0M/2m/3L); toc rebuilt, radius zero-reader taught, five family type errors closed (mirrored); 2nd = vellum"
   },
   {
    "page": "input-group",
@@ -506,11 +506,12 @@
    "page": "list",
    "owner": "scribe",
    "reviewers": [
-    "quill",
-    "vellum"
+    "marginalia",
+    "quill"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "todo",
+   "notes": "1st reassigned to marginalia (T105); quill remains the 2nd"
   },
   {
    "page": "list-item",

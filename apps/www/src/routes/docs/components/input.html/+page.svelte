@@ -302,7 +302,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -778,7 +778,7 @@ ${close}
       <div class={cx(rt.col24)}>
         <p class={cx(rt.bodyMuted)}>
           the shell, label, and error rhythm are pure density-scope tokens — flip the canvas
-          dock's density select (xs / sm / default / lg) above to re-scope the workbench stage
+          dock's density select (auto / small / medium / large — the lane vocabulary) above to re-scope the workbench stage
           alone; the docs chrome and every other canvas keep their seats. The four-copy
           DensityDemo row is retired by that select.
         </p>
@@ -800,7 +800,7 @@ ${close}
       headerRegion="universal-props"
       eyebrow="axes"
       title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule). Radius is STAMPED, NEVER CONSUMED (measured, task 104): the field stamps --jx-radius-effective while the shell hardcodes border-radius: 0 and no family sheet reads any --jx-radius-* var — the demo lane below teaches the stamp, the paint stays square by the field law (the color-picker #19 class)."
     >
       <ComponentCanvas title="input · universal props" stage="fill" files={universalFiles}>
         <div class={cx(rt.gridSm2)}>
@@ -817,7 +817,7 @@ ${close}
       headerRegion="api"
       eyebrow="api"
       title="API"
-      summary="Props extend the native HTML input attributes; the entries below are the component-owned additions. Everything else (placeholder, name, min/max, accept…) rides through restProps."
+      summary="Props extend the native HTML input attributes; the entries below are the component-owned additions — plus the eight universal axes (the fold below per the convention) and the chrome posture. Everything else (placeholder, name, min/max, accept…) rides through restProps."
     >
       <PropsTable
         universal

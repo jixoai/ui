@@ -1976,12 +1976,6 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
 }
 
-.jx-html-radio:indeterminate::before {
-  opacity: 1;
-  transform: rotate(0deg);
-  clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
-}
-
 .jx-html-radio::after {
   content: '';
   position: absolute;
@@ -2003,10 +1997,16 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border-color: var(--primary);
 }
 
-.jx-html-radio:checked, .jx-html-radio:indeterminate {
+.jx-html-radio:checked {
   background: var(--primary);
   border-color: var(--primary);
 }
+/* radio :indeterminate deliberately UNSTYLED (radio 1st review, task 94): per
+   the HTML spec a radio matches :indeterminate whenever NO member of its
+   name-group is checked — a RESTING group, not a selection state. The
+   checkbox-derived pair above painted every all-unchecked group as solid
+   brand blobs (measured on both universal seats). Checkbox keeps its
+   authored tri-state; radios have no authored indeterminate. */
 
 .jx-html-radio:focus-visible {
   outline: 1px solid var(--ring);

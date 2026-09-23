@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-23T12:01:32.254Z",
+  "generatedAt": "2026-09-23T14:18:18.228Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -1140,8 +1140,8 @@
           "source": "registry/files/ui/input/input.svelte",
           "mirror": "apps/www/src/lib/ui/input/input.svelte",
           "target": "@ui/input/input.svelte",
-          "sourceSha": "ab1b5b55e90dc40dfdf848937b9217646878185ad94bdf39b2019932604619c1",
-          "mirrorSha": "ab1b5b55e90dc40dfdf848937b9217646878185ad94bdf39b2019932604619c1"
+          "sourceSha": "1993b72194cc955f8a023b2069daca6a8c8288b99fa417828d3fdb370bf27b4b",
+          "mirrorSha": "1993b72194cc955f8a023b2069daca6a8c8288b99fa417828d3fdb370bf27b4b"
         },
         {
           "source": "registry/files/ui/input/input.css",
@@ -3783,8 +3783,8 @@
           "source": "registry/files/ui/hover-card/hover-card.svelte",
           "mirror": "apps/www/src/lib/ui/hover-card/hover-card.svelte",
           "target": "@ui/hover-card/hover-card.svelte",
-          "sourceSha": "f4d1a78f02cb610a6af56ddb2e231024a1d8b5c79c037157edfaeff5a787c772",
-          "mirrorSha": "f4d1a78f02cb610a6af56ddb2e231024a1d8b5c79c037157edfaeff5a787c772"
+          "sourceSha": "2f6398f1f275472684bd139bdaa19e55b25ca542a0440278d7c5322380469972",
+          "mirrorSha": "2f6398f1f275472684bd139bdaa19e55b25ca542a0440278d7c5322380469972"
         },
         {
           "source": "registry/files/ui/hover-card/index.ts",
@@ -3882,8 +3882,8 @@
           "source": "registry/files/ui/toggle-group/toggle-group-item.svelte",
           "mirror": "apps/www/src/lib/ui/toggle-group/toggle-group-item.svelte",
           "target": "@ui/toggle-group/toggle-group-item.svelte",
-          "sourceSha": "36b71f8862fc8c15ad49b61741f7e2d0a7a62167c12b9ef836dd046737048e2e",
-          "mirrorSha": "36b71f8862fc8c15ad49b61741f7e2d0a7a62167c12b9ef836dd046737048e2e"
+          "sourceSha": "0bb5a49d1e6ec9949575e746b7fc75589e42f2ef839f7d87a38736a42882a127",
+          "mirrorSha": "0bb5a49d1e6ec9949575e746b7fc75589e42f2ef839f7d87a38736a42882a127"
         },
         {
           "source": "registry/files/ui/toggle-group/toggle-group.svelte",
