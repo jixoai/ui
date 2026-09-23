@@ -283,6 +283,9 @@ ${close}
           <code class={cx(rt.inkPrimary)}>Toc</code> root plus
           <code class={cx(rt.inkPrimary)}>TocList / TocItem / TocLink</code> parts. THIS route
           exports no load: its aside rail is the component in manual mode, demoing the real thing.
+          A load may also return <code class={cx(rt.inkPrimary)}>{`{ toc: 'outline' }`}</code> — the
+          layout rail then self-derives from #main; that third form is the layout seat's
+          capability, not yet any route's practice (the fleet's 107 authored rails are all arrays).
           When you read "the rail" below, it means the component; when you read "the layout rail",
           it means the page-data channel.
         </p>
@@ -368,7 +371,9 @@ ${close}
           <section id="toc-engine" class={cx(rt.flex, rt.col, rt.gap16)}>
             <h2 data-doc-demo-heading="" class={cx(rt.fontNav, rt.tcHeading, rt.trackTight)}>the engine</h2>
             <p class={cx(rt.tcPara)}>
-              toc-engine.ts is framework-free, and the family talks to it entirely through the DOM:
+              toc-engine.ts is framework-free (no framework imports — the engine owns the scroll/resize
+              listener pair; the derivation lib toc-outline.ts is the listener-free half: DOM in,
+              plain data out), and the family talks to it entirely through the DOM:
               the root re-queries its own subtree per update (no registration — keyed reorders and
               conditional links just work), derives each link's target from its href fragment, and
               synthesizes heading-to-heading extents for the engine. Scrollspy, aria-current, and
@@ -427,7 +432,9 @@ ${close}
       <div class={cx(rt.col20)}>
         <PropsTable props={axisRows} title="" />
         <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
-          Receipts: the channel census (8 component rails on this page — every demo specimen is a
+          Receipts: the channel census (six authored instances → nine served roots on this page —
+          the DensityDemo multiplies the density sample across its scope wrappers; every demo
+          specimen is a
           Toc root; the aside rail's composed tree renders twice by design, desktop spine + mobile
           viewport) and the scrollspy (weights 0 → 1 per link as --w, the pick's aria-current
           following the shell scroller, the spine fill --jx-progress live) were measured on this

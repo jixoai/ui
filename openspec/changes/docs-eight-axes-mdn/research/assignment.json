@@ -319,7 +319,7 @@
    ],
    "tier": 2,
    "status": "pass-1st",
-   "notes": "task 86 marginalia 1st NEEDS-WORK (1M/3m); consolidation landed by orchestrator — the geometry MAJOR root-caused to TWO mechanisms (reveal CB hijack W-next #19 + fit-content first-layout staleness W-next #20) + the corner-lane contest filed (#21); usage twin deduped, toc 8/8, elevation claims trued (#18 third family); BR column stack verified end-to-end; 2nd = vellum"
+   "notes": "task 86 marginalia 1st NEEDS-WORK (1M/3m); consolidation landed by orchestrator — the geometry MAJOR root-caused to TWO mechanisms (reveal CB hijack W-next #19 + fit-content first-layout staleness W-next #20) + the corner-lane contest filed (#21); usage twin deduped, toc 8/8, elevation claims trued (#18 third family); BR column stack verified end-to-end; 2nd = vellum T110 batch 1: vellum 2nd in flight."
   },
   {
    "page": "form",
@@ -596,7 +596,7 @@
    ],
    "tier": 1,
    "status": "pass-1st",
-   "notes": "task 90 marginalia 1st PASS (0M/2m); MINOR 1 retracted-with-receipt (real path verified dev+dist), MINOR 2 filed W-next #22; 2nd = vellum"
+   "notes": "task 90 marginalia 1st PASS (0M/2m); MINOR 1 retracted-with-receipt (real path verified dev+dist), MINOR 2 filed W-next #22; 2nd = vellum T110 batch 1: vellum 2nd in flight."
   },
   {
    "page": "navigation-menu",
@@ -641,7 +641,7 @@
    ],
    "tier": 1,
    "status": "pass-1st",
-   "notes": "task 91 marginalia 1st PASS (0M/0m/0L/1N — the borrowed hover claim); hedge + gate-zero landed; 2nd = vellum"
+   "notes": "task 91 marginalia 1st PASS (0M/0m/0L/1N — the borrowed hover claim); hedge + gate-zero landed; 2nd = vellum T110 batch 1: vellum 2nd in flight."
   },
   {
    "page": "pattern-faq",
@@ -682,7 +682,7 @@
    ],
    "tier": 1,
    "status": "pass-1st",
-   "notes": "task 92 marginalia 1st PASS (0M/1m/1N); the card-half hedged to the column-only law (no css mechanism existed); tonal pose note filed; 2nd = vellum"
+   "notes": "task 92 marginalia 1st PASS (0M/1m/1N); the card-half hedged to the column-only law (no css mechanism existed); tonal pose note filed; 2nd = vellum T110 batch 1: vellum 2nd in flight."
   },
   {
    "page": "popconfirm",
@@ -791,7 +791,7 @@
    ],
    "tier": 1,
    "status": "pass-1st",
-   "notes": "task 94 marginalia 1st NEEDS-WORK (1M/3m/1L); full consolidation landed: the resting-group indeterminate blob killed in jixoai.css (spec-true), density seat scoped+valued, digits trued, error seat served; 2nd = vellum"
+   "notes": "task 94 marginalia 1st NEEDS-WORK (1M/3m/1L); full consolidation landed: the resting-group indeterminate blob killed in jixoai.css (spec-true), density seat scoped+valued, digits trued, error seat served; 2nd = vellum T110 batch 1: vellum 2nd in flight."
   },
   {
    "page": "range",
@@ -802,7 +802,7 @@
    ],
    "tier": 2,
    "status": "pass-1st",
-   "notes": "task 95 marginalia 1st PASS (0M/1m — the overload clone); landed; six contract families digit+pixel verified; 2nd = vellum"
+   "notes": "task 95 marginalia 1st PASS (0M/1m — the overload clone); landed; six contract families digit+pixel verified; 2nd = vellum T110 batch 1: vellum 2nd in flight."
   },
   {
    "page": "reference",
@@ -1102,9 +1102,9 @@
     "vellum",
     "marginalia"
    ],
-   "tier": 2,
-   "status": "coded",
-   "notes": "T79 re-dispatched (lost across session boundary); vellum 1st in flight."
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "1st vellum T79 PASS 0M/0m/3L/2N, tier-1 ratify; consolidated: engine framework-free scoping clause (outline lib = listener-free half, engine owns scroll/resize pair), census trued 6 authored -> 9 served (DensityDemo multiplies), 'outline' third form annotated as layout capability not yet any route's practice (107 fleet rails all arrays) — one-route migration ledgered as lull option. Channel split + opt-out trio + LAW#19 battery 8/8 + scrollspy all verified."
   },
   {
    "page": "toggle",
