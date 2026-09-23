@@ -900,3 +900,30 @@
   Click with force (label-anchored), key the trace off the first frame where
   the target exists, and assert a moving-window (intermediate pixels +
   monotonic) instead of a mid-index guess.
+
+## Techniques (mine, added 2026-09-23, task 32 — code skeleton)
+- **DEAD UTILITY STRINGS IN DEMO PANELS STAGE ZERO-HEIGHT BLOCKS**: a demo
+  panel that hand-writes `class="h-4 w-2/3"` renders NOTHING in the
+  tailless tree — no producer exists for those class names, so the block
+  computes 527x0 and the demo silently misrenders. The catch was the
+  geometry assertion reading the rect, not the eye. Fix: re-host demo
+  blocks on the family's real atoms (rt.skBar/skW32). Suspect siblings:
+  any docs panel with rendered h-*/w-*/size-* literals (corpus sweep
+  offered).
+- **PULSE PROBES: SAMPLE computedStyle OPACITY THROUGH rAF, COUNT EPISODES**:
+  the brightness oscillation is only visible in a trace — 120 samples over
+  2s caught oMin 0.45/oMax 1 against the keyframe trough, and computed
+  animationName/duration pinned the law (jx-skeleton-pulse 1.4s infinite).
+  Assert trough + full cycle, never a single-frame reading. Under
+  prefers-reduced-motion the same instrument proves the freeze: animation
+  none + two samples 350ms apart identical.
+- **THE MERGE LAW IS TWO ASSERTIONS, NOT ONE**: carriers JOIN the consumer
+  style attr — assert BOTH halves (the --jx-radius-effective stamp AND the
+  consumer's border-radius declaration in the same attribute) PLUS the
+  computed winner (consumer 3px). One assertion would miss half the law:
+  stamp-without-join or join-without-winner.
+- **LAW #19 GUARD VERIFICATION IS A TWO-PAGE DIFF**: the twin guard's effect
+  is only visible against a pre-guard receipt — sheet measured 6 H2-twin
+  ids pre-guard, skeleton measured zero post-guard, same probe pattern. The
+  audit asserts "zero twins OR H2-twin mechanism only", so it stays green
+  either side of the guard landing and names the mechanism either way.
