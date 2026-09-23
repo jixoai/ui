@@ -28,6 +28,8 @@
   import Table from '$lib/ui/table/table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { CATALOG } from '$lib/catalog';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -243,7 +245,7 @@ let cardOpen = $state(false);
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((s): s is NonNullable<(typeof s)> => Boolean(s))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -256,9 +258,71 @@ let cardOpen = $state(false);
   // ---- the universal props demo (explicit-props W3-D3) --------------------
   let uniTourOpen = $state(false);
   let uniTourOpen2 = $state(false);
-  const universalUsage = `<Tour bind:open size={18} density="small" steps={[…]} />`;
+  let uniTourOpen3 = $state(false);
+  const universalUsage = `<Tour bind:open size={18} density="small" theme="dark" elevation="level4" steps={[…]} />`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/tour-universal.svelte', content: universalUsage },
+  ];
+
+  // ── the measured per-axis table (task 45) — every cell measured on
+  // the served DOM (probe) or negative-grepped over ui/tour/ ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "RUNG-STAMPED, CARD-PAINT-UNREAD — data-density lands on the CARD root (self-carried through the promotion, measured seat) and the composed controls' rhythm follows it, but the card's own voices ride STATIC steps (--jx-text-base 13px / --text-label — zero coefficient readers in the card paint, grep receipt). Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY for the family's paint — zero --jx-size-effective readers over ui/tour/ (grep receipt); the carrier's font-size lands on the card root so composed card-snippet content scales, while the default card's title/description stay pinned to their token steps. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero --jx-shape-effective readers over ui/tour/ (grep receipt). Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE §3/§14 POPOVER-DIALECT STAMP — the card root composes --jx-radius-consumed per render (explicit: radius-effective × the §14 factor; auto: the concentric max(0px, R − P) calc — tour.svelte:226-230). Measured on the served DOM (probe, task 45); the visible consumption story lives with the card's surface paint. Number unit: px.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — zero --jx-color-effective readers over ui/tour/ (grep receipt); the card's ink is the popover token set + the Next chip's brand lean (--jx-primary). Omitted from rest (the §1 interception — Props extends Omit<HTMLAttributes, 'color'>). Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE SPLIT ISLAND (measured, probe): the carriers stamp the CARD root — class:dark makes the card its own .dark scope THROUGH the popover promotion, the ground re-derives there (the level table's dark side via the jx-surface fill chain), while the :root-pinned ink aliases (--jx-foreground/--jx-muted-foreground) hold the root's values, and the HOLE — the panel's SIBLING — keeps the ROOT scope entirely, so the spotlight always follows the page theme, never the card's island. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'level2' · Own default, not ambient`,
+      description:
+        "OWN level2, CONSUMED — the anchored card's menu rung (3dp, the popover/dropdown-menu law): elevationSurfaceOf stamps --jx-elevation-shadow/--jx-elevation-surface/--jx-surface-solid-fill on the card root and the SHARED surface law reads them as the fill chain's HEAD (jixoai.css .jx-surface-body) + the WAAPI shadow child. Number lane: exact dp snapped DOWN to the table rung.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE FAMILY OWNS THE MOTION, AXIS UNREAD — open/close ride the shared WAAPI surface-motion kernel (--jx-p 0→1 at showPopover/hidePopover, the real shadow child in lockstep; step moves are pure CSS anchor repositioning, NO JS animation); reduced-motion neutralizes the kernel in one place (the jx-waapi law). Zero --jx-motion-effective readers (grep receipt). Number unit: coefficient.",
+    },
   ];
 </script>
 
@@ -292,20 +356,60 @@ let cardOpen = $state(false);
     </SectionCard>
   </div>
 
-  <!-- install -->
   <div id="install" data-reveal="">
+    <DocsInstall name="tour" />
+  </div>
+
+  <!-- overview -->
+  <div id="overview" data-reveal="">
     <SectionCard
-      family="install"
-      headerRegion="install"
-      eyebrow="install"
-      title="Install"
-      summary="One item — the card, the hole and the lease ship together; the recipes below add press-button triggers."
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="The guided walkthrough: targets stay behavior-domain data, the spotlight is pure CSS anchor geometry over a reversible anchor-name lease, and the card is a non-modal popover=manual dialog that lands its focus on Next and restores the invoker's on finish."
     >
-      <CodeBlock code={`npx jixoai-ui add tour`} lang="sh" meta="install" />
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          A tour step is one target plus metadata; the component owns the lifecycle. The LEASE:
+          each step's target takes the panel's anchor-name (its prior inline value saved), and
+          on advance, close, or unmount the exact prior state is restored — a reversible lease,
+          capability wiring, never style authoring. The SPOTLIGHT: the hole is a target-sized
+          transparent window cut by anchor-size() with one huge box-shadow tint — zero geometry
+          JS; engines without anchor positioning degrade to a full-viewport tint with no hole,
+          and the panel falls back to a centered fixed card, never silently misplaced.
+        </p>
+        <p class={cx(rt.para)}>
+          The card is NON-MODAL by contract: popover="manual" + role="dialog" +
+          aria-modal="false" — no focus trap, no inert, the page (and any inner scrollbox)
+          stays live, and the tint is pointer-events:none. FOCUS: open lands focus on the Next
+          button and re-lands it on EVERY step change (the named dialog announces the new
+          step's title as focus arrives — the per-step announcement is the focus move, the
+          "1 / n" counter stays aria-hidden decoration); Escape or Skip finishes and the
+          invoker's focus is restored. Targets re-resolve every step: invalid selectors are
+          caught, missing or hidden targets are UNAVAILABLE and skipped deterministically in
+          the travel direction, and a target merely out of view is scrolled to with
+          scrollIntoView(nearest) — never a scroll clamp.
+        </p>
+        <p class={cx(rt.para)}>
+          Delivery shape: a SELF-CARRIED PROMOTION — the card rides popover="manual" into the
+          top layer, so the axis carriers stamp the CARD root itself; the hole is the panel's
+          SIBLING and keeps the ROOT scope, so a theme island on the card never reaches the
+          spotlight (measured). The keys: the tour renders ONE card — there is no step-list DOM
+          (the LAW #18 surface is empty by construction); the recipe dots each keys the index.
+          The eight axes: elevation is OWN level2 and consumed as the jx-surface fill chain's
+          head, radius composes the §3/§14 popover-dialect stamp on the card root, density rung
+          + theme island stamp self-carried, and size/shape/color/motion carry the supply
+          chain. Kinship: <code class={cx(rt.inkPrimary)}>popover</code> (the anchored-panel
+          law), <code class={cx(rt.inkPrimary)}>system-dialog</code> (the modal interruption
+          the tour refuses to be), <code class={cx(rt.inkPrimary)}>steps</code> (the static
+          progress analog).
+        </p>
+      </div>
     </SectionCard>
   </div>
 
-  <div id="tour-workbench" data-region="tour-workbench" data-reveal="">
+  <div id="live-demo" data-region="live-demo" data-reveal="">
     <ComponentCanvas
       title="tour"
       description="The default card: start it — the first demo card takes the lease (inspect its style), the hole+tint frame it. Next advances (←/→ also work), the last step's button reads Finish, Escape or Skip ends with focus back on the opener. No card snippet — the default card renders the steps' title/description metadata."
@@ -573,7 +677,6 @@ let cardOpen = $state(false);
       </div>
     </SectionCard>
   </div>
-
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Tour variants" summary="Card types over the same lifecycle: the default card renders the steps' title/description metadata; the card(api) snippet authors the whole interior (the indicators recipe lives here).">
     <ComponentCanvas title="tour · variants" stage="fill" files={tourTypesFiles}>
       <div class={cx(rt.tourGrid)}>
@@ -582,8 +685,9 @@ let cardOpen = $state(false);
       </div>
     </ComponentCanvas>
   </SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Non-modal by contract — no focus trap, the page stays scrollable, and finishing restores the invoker's focus."><A11yTable keys={[{ key: '→', action: 'Advance to the next enterable step' }, { key: '←', action: 'Go back one step' }, { key: 'Enter', action: 'Next (the focused button’s default path)' }, { key: 'Escape', action: 'End the tour — focus returns to the opener' }]} aria={[{ name: 'role', value: 'dialog', description: 'The card panel; landing focus sits on Next (or the panel with a custom card).' }, { name: 'aria-modal', value: 'false', description: 'Non-modal: no trap, no inert, the page scrolls.' }, { name: 'popover', value: 'manual', description: 'Top-layer card + tint; the scrim is pointer-events:none.' }, { name: 'aria-label', value: 'step.title', description: 'The dialog is named by the current step.' }, { name: 'aria-hidden', value: 'true (recipe)', description: 'Indicator dots stay decoration; the named dialog carries progress.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The hole is sized by anchor-size() with zero geometry JS; the panel rides the shared surface-motion kernel."><div class={cx(rt.col20)}><DensityDemo><PressButton onclick={() => (open = true)}>start</PressButton></DensityDemo><TokenTable tokens={[{ name: '--jx-tour-{id}', default: 'anchor-name lease', source: 'component', description: 'Per-instance lease set on the current target; restored on advance/close/unmount.' }, { name: '--jx-tour-gap', default: '12px', source: 'component', description: 'Panel offset from the leased target — the placement recipes reuse it as the margin term.' }, { name: 'tint', default: 'background 55%', source: 'color', description: 'The hole tint: color-mix(in oklab, var(--background) 55%, transparent).' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Shared surface-motion kernel driving open/close.' }, { name: 'hole border', default: '1px solid var(--primary)', source: 'structural', description: 'The anchored hole outlines the leased target.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Trigger target through the composed control.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The hole is sized by anchor-size() with zero geometry JS; the panel rides the shared surface-motion kernel."><div class={cx(rt.col20)}><DensityDemo><PressButton onclick={() => (open = true)}>start</PressButton></DensityDemo><TokenTable tokens={[{ name: '--jx-tour-{id}', default: 'anchor-name lease', source: 'component', description: 'Per-instance lease set on the current target; restored on advance/close/unmount.' }, { name: '--jx-tour-gap', default: '12px', source: 'component', description: 'Panel offset from the leased target — the placement recipes reuse it as the margin term.' }, { name: 'tint', default: 'var(--scrim)', source: 'color', description: 'The hole tint: the scrim family token (dims black in light, lifts white in dark) — the anchored form re-places the fill with a transparent hole + one 100vmax box-shadow.' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'Shared surface-motion kernel driving open/close (step moves ride the live anchor axis — no JS geometry).' }, { name: 'hole border', default: '1px solid var(--primary)', source: 'structural', description: 'The anchored hole outlines the leased target.' }, { name: '--jx-radius-consumed', default: '§3/§14 composition', source: 'structural', description: 'The card root\u2019s radius stamp: explicit lane = radius-effective × the factor; auto = the concentric max(0px, R − P) calc.' }, { name: 'elevation own', default: 'level2', source: 'structural', description: 'The anchored card\u2019s menu rung — the pair feeds the jx-surface fill chain head + the WAAPI shadow child.' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Trigger target through the composed control.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125; — the card snippet's whole surface. No placement prop (composed as page CSS — the recorded followup); no modal mode (non-modal is the contract)."><div class={cx(rt.col32)}><PropsTable universal props={[{ name: 'steps', type: 'TourStep[]', default: '—', description: 'Targets + title/description metadata (behavior-domain data).', required: true }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state — the tour runs while true.', bindable: true }, { name: 'startAt', type: 'number', default: '0', description: 'Zero-based first step; skipped-forward past unavailable ones.' }, { name: 'onfinish', type: '(index: number) => void', default: '—', description: 'Fires when the tour finishes (end reached, skipped, or all steps unavailable).' }, { name: 'onstep', type: '(index: number) => void', default: '—', description: 'Step change notification (analytics/progress).' }, { name: 'card', type: 'Snippet<[TourApi]>', default: '—', description: 'Replaces the default card interior; receives TourApi — the indicators recipe composes here.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface variant for the card. Defaults: literal slot — own \'auto\', ambient when an axis opens (the dialog/sheet grammar).' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the card panel.' }]} /><PropsTable title="TourStep" props={[{ name: 'target', type: 'string | () => HTMLElement | null', default: '—', description: 'CSS selector for the step’s target, or a resolver; invalid selectors read as unavailable.', required: true }, { name: 'title', type: 'string', default: '—', description: 'Metadata for the default card (a custom card renders or ignores it).' }, { name: 'description', type: 'string', default: '—', description: 'Metadata for the default card.' }]} /></div></SectionCard></div>
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
@@ -592,32 +696,43 @@ let cardOpen = $state(false);
       title="Universal props"
       summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The card rides popover='manual' (a top-layer promotion), so the carriers stamp the CARD root itself — self-carried across the promotion (the batch C portal law); elevation carries the family own level2 (the anchored card's menu rung). Open a demo card to see the lanes live."
     >
-      <ComponentCanvas title="Tour · universal props" stage="fill" files={universalFiles}>
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the SELF-CARRIED PROMOTION (popover="manual" puts the card in the top layer,
+          so the carriers stamp the CARD root — data-density, class:dark, the elevation pair,
+          the radius composition; a trigger ancestor's CSS carriers never span the promotion),
+          the focus law (open lands focus on Next and re-lands it on every step; Escape/Skip/
+          Finish all restore the invoker's focus — measured on real interactions, probe task
+          45), the LEASE receipts (the target's style.anchor-name carries the panel's
+          per-instance lease while its step runs and the prior inline value — or none — is
+          restored verbatim on advance and close), the placement receipts (the card's
+          top/left track the leased target's anchor() box — bottom default = target bottom +
+          the 12px gap; the four quadrant recipes ride page-level overrides of the SAME
+          expressions), the scroll-into-view receipt (an out-of-view target is brought to
+          view with scrollIntoView(nearest) on lease), the announcement discipline (the named
+          dialog re-announces the step title through the focus move; the "1 / n" counter and
+          the recipe dots are aria-hidden), the theme split (the card's island vs the hole's
+          root scope — measured) and LAW #19 (duplicate ids NONE page-wide) were measured on
+          this page's served DOM (probe, task 45). KEYED-EACH: the tour renders ONE card —
+          there is no step-list DOM; the indicator dots each keys the index (unique by
+          construction). LAW #19 id landscape: duplicate ids NONE page-wide.
+        </p>
+        <div class={cx(rt.mt20, rt.wFull)}>
+          <ComponentCanvas title="Tour · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.panel)} id="uni-tour-a"><p>step one's target</p></div>
 <div class={cx(rt.panel)}><Tour bind:open={uniTourOpen} size={18} density="small" steps={[{ target: '#uni-tour-a', title: 'axes joined', description: 'one number moves the walkthrough card' }]} /></div>
 <div class={cx(rt.panel)}><Tour bind:open={uniTourOpen2} size="medium" radius="large" steps={[{ target: '#uni-tour-a', title: 'named steps', description: 'medium/large resolve through the alias-ladder vars' }]} /></div>
-<div class={cx(rt.panel)}><PressButton variant="outline" onclick={() => (uniTourOpen = true)}>open tour · size 18</PressButton> <PressButton variant="outline" onclick={() => (uniTourOpen2 = true)}>open tour · named steps</PressButton></div>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
-
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="TourApi = &#123; index, total, step: TourStep, next(), prev(), skip() &#125; — the card snippet's whole surface. No placement prop (composed as page CSS — the recorded followup); no modal mode (non-modal is the contract)."><div class={cx(rt.col32)}><PropsTable universal props={[{ name: 'steps', type: 'TourStep[]', default: '—', description: 'Targets + title/description metadata (behavior-domain data).', required: true }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state — the tour runs while true.', bindable: true }, { name: 'startAt', type: 'number', default: '0', description: 'Zero-based first step; skipped-forward past unavailable ones.' }, { name: 'onfinish', type: '(index: number) => void', default: '—', description: 'Fires when the tour finishes (end reached, skipped, or all steps unavailable).' }, { name: 'onstep', type: '(index: number) => void', default: '—', description: 'Step change notification (analytics/progress).' }, { name: 'card', type: 'Snippet<[TourApi]>', default: '—', description: 'Replaces the default card interior; receives TourApi — the indicators recipe composes here.' }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface variant for the card. Defaults: literal slot — own \'auto\', ambient when an axis opens (the dialog/sheet grammar).' }, { name: 'class', type: 'string', default: "''", description: 'Extra classes on the card panel.' }]} /><PropsTable title="TourStep" props={[{ name: 'target', type: 'string | () => HTMLElement | null', default: '—', description: 'CSS selector for the step’s target, or a resolver; invalid selectors read as unavailable.', required: true }, { name: 'title', type: 'string', default: '—', description: 'Metadata for the default card (a custom card renders or ignores it).' }, { name: 'description', type: 'string', default: '—', description: 'Metadata for the default card.' }]} /></div></SectionCard></div>
-
-  <div id="see-also" data-reveal="">
-    <SectionCard
-      family="see-also"
-      headerRegion="see-also"
-      eyebrow="see also"
-      title="See also"
-      summary="The surfaces a tour composes with."
-    >
-      <div class={cx(rt.wrap12)}>
-        <a class="pill" href="/docs/components/press-button.html">press-button — the tour triggers</a>
-        <a class="pill" href="/docs/components/popover.html">popover — the anchored-panel law</a>
-        <a class="pill" href="/docs/components/dropdown-menu.html">dropdown-menu — the anchored menu law</a>
-        <a class="pill" href="/docs/components/steps.html">steps — the static progress analog</a>
+<div class={cx(rt.panel)}><Tour bind:open={uniTourOpen3} theme="dark" elevation="level4" steps={[{ target: '#uni-tour-a', title: 'dark island · level4', description: 'the carriers ride the promotion; the hole stays on the page theme' }]} /></div>
+<div class={cx(rt.panel)}><PressButton variant="outline" onclick={() => (uniTourOpen = true)}>open tour · size 18</PressButton> <PressButton variant="outline" onclick={() => (uniTourOpen2 = true)}>open tour · named steps</PressButton> <PressButton variant="outline" onclick={() => (uniTourOpen3 = true)}>open tour · dark island</PressButton></div>
+          </ComponentCanvas>
+        </div>
       </div>
     </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Non-modal by contract — no focus trap, the page stays scrollable, and finishing restores the invoker's focus."><A11yTable keys={[{ key: '→', action: 'Advance to the next enterable step' }, { key: '←', action: 'Go back one step' }, { key: 'Enter', action: 'Next (the focused button’s default path)' }, { key: 'Escape', action: 'End the tour — focus returns to the opener' }]} aria={[{ name: 'role', value: 'dialog', description: 'The card panel; landing focus sits on Next (or the panel with a custom card).' }, { name: 'aria-modal', value: 'false', description: 'Non-modal: no trap, no inert, the page scrolls.' }, { name: 'popover', value: 'manual', description: 'Top-layer card + tint; the scrim is pointer-events:none.' }, { name: 'aria-label', value: 'step.title', description: 'The dialog is named by the current step.' }, { name: 'aria-hidden', value: 'true (recipe)', description: 'Indicator dots stay decoration; the named dialog carries progress.' }]} /></SectionCard></div>
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="tour" />
   </div>
 </div>
 

@@ -1252,3 +1252,31 @@
   tonal hue re-derives (the `:root, .jx-light, .dark` selector-list re-declaration in
   jixoai.css), popover/foreground aliases stay :root-frozen — one card, both mechanisms.
   The frozen-outline-ink-on-dark-island case fails AA (2.81:1) — filed as drift #14.
+
+## 2026-09-22 — T45 tour (task 45-tour.md)
+
+- **Focus claims need focus-real interactions** — programmatic `el.click()` activates without
+  focusing, so the tour's invoker-focus restore "failed" until I drove the trigger with a real
+  Playwright click. Synthetic activation is not user navigation; any focus-management receipt
+  must come from clicks/keys that actually move focus.
+- **Dispatched events don't reach handlers on elements outside the dispatch path** — a
+  document-dispatched Escape never fires the tour panel's own onkeydown. Cleanup drivers must
+  use the surface's real controls (its Skip button), or keyboard events targeted at the
+  focused element (which IS inside the panel after the landing focus).
+- **Sample the channel the kernel animates** — the surface kernel tweens the registered
+  `--jx-p` custom property (translate/filter/blur are downstream formulas); my first instrument
+  read opacity on the body and concluded "no motion". Read the source for the ACTUATED
+  property, then instrument that.
+- **A recorded "race" can be a deterministic outcome** — the tour's known `{#if}` exit gap
+  ("can race the 460ms window") measures as: first open tweens, EVERY reopen snaps (`--jx-p`
+  pinned at 1 — the exit never lands lastP=0). Don't parrot a source comment's hedged
+  mechanism when one measurement pins the behavior down.
+- **A stamp without a reader is drift you can measure** — the tour composes
+  `--jx-radius-consumed` on its card root and nothing in its css chain reads it: computed
+  radius 0px with "calc(10px * 1)" stamped. The popconfirm/float-button/card families each
+  carry the reader in their own css; grep BOTH halves (writer + reader) before calling an
+  axis consumed.
+- **The island-vs-sibling split** — the tour's theme carriers stamp the CARD root, but the
+  spotlight hole is a sibling at root scope: the card can run a dark island while the
+  spotlight stays on the page theme. Delivery-shape lenses must enumerate the WHOLE part
+  list, not just the panel.
