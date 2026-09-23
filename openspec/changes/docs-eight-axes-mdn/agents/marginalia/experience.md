@@ -961,3 +961,10 @@
 - **Alignment claims are per-corner**: the END-aligned expectation on a bottom-LEFT demo needs the LEFT edges; and when NEITHER edge aligns, print both deltas plus the rects — 276/408 displacement is a different finding than a mirrored alignment.
 - **The elevation finding now has three family confirmations** (dialog ladder, transfer-adjacent tour radius, float-button recipe): the pattern is the STAMP reaching the element (--jx-elevation-effective=6) while the RECIPE var ships empty and no shadow channel paints. The audit form: read the stamp var AND the recipe var AND every paint channel — the gap between the first two is the finding.
 - Warm-reload strip-style refinement held on its second page (raw differs, stripped identical) — the dev-CSS order artifact is stable across families; keep the stripped compare as the standard receipt.
+
+## T87 (form hub 1st) — data-driven ids defeat source grep; hub pages need the archetype waived, not applied
+
+- **Dynamic ids (`id={group.id}` through an each) are invisible to source grep** — my first section census read 7 sections and nearly filed three dead anchors; the LIVE census found all 10 resolving. The toc census instrument must run in the browser, never on source text, for any page that renders sections from data.
+- **Hub pages waive the eight-axes archetype by their own declaration** ("NOT a registry item itself") — applying the universal-props/axes-table checklist to a hub would manufacture findings. The tier proposal says so explicitly and grades by the hub's OWN claims (the density ladder digits, the catalog pill, the law explainer).
+- **Closed popovers are 0×0 and immune to the reveal-CB hazard by construction** (top-layer promotion escapes any transform containing block) — the census receipt is "7 closed dock menus, nothing to measure", not a near-miss finding.
+- verify:docs against the orchestrator's dist can go red on an in-flight SIBLING's page (toast's skeleton order) — receipt the seat, confirm your page's lint line is clean, and don't chase; the dispatch's fresh-build note exists precisely so staleness and sibling noise are distinguishable.
