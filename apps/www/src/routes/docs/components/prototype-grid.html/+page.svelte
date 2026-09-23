@@ -325,6 +325,13 @@ ${close}
             form is deliberately a single verbatim string in v0 (an array-join convenience is a
             recorded future enhancement, not guessed).
           </p>
+          <p class={cx(rt.para)}>
+            The layout trio, cross-referenced:
+            <a class="pill" href="/docs/components/prototype-flex.html">prototype-flex — the row</a>
+            <span class="pill">prototype-grid — the tracks</span>
+            <a class="pill" href="/docs/components/prototype-waterfall.html">prototype-waterfall — the columns</a>
+            — one contract, three engines.
+          </p>
         </div>
       </SectionCard>
     </div>

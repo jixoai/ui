@@ -1063,3 +1063,23 @@
 - **Sibling in-flight files move DURING your task**: ambient was green at baseline
   and failed 2/284 at gate time — sheet.html modified mid-flight by quill.
   Re-run, attribute by git status (modified + untracked = whose), report keyed, move on.
+
+## Task 37 — prototype-waterfall (2026-09-22)
+
+- **The laid-out column count is countable without CSSOM**: multicol containers
+  report authored values via computed style (column-count/column-width), but the
+  RESOLVED column count comes from the children — distinct offsetLeft values among
+  the items = the real column count. Works for the count form AND the auto-width
+  floor form, at any viewport.
+- **"Is there JS reflow to wait for?" is answerable by grep before probing**: a
+  family with zero transition declarations and no measurement code (no
+  ResizeObserver/setTimeout) settles in one frame — the layout-settling question
+  collapses to reading the family source first.
+- **REM-based geometry makes the size axis geometry-relevant**: a column floor
+  ('14rem') re-reads the root font the §11 stamp moves — so "size = root echo only"
+  is FALSE for this family (count-form columns are the scale-blind exception). The
+  forwarder tables must be measured per family, not templated.
+- **Trio cross-pollination is now live**: the three prototype pages carry pill
+  cross-references in law-notes (page-side; retires if DocsSeeAlso grows
+  family grouping). The rig harness (state block + PlayRow set + live-mirror
+  usage file + resolve callback) proved copy-adaptable three times running.

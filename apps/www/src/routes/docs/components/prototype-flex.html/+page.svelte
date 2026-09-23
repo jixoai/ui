@@ -262,6 +262,13 @@ ${close}
             "column-reverse" flip the VISUAL order against the DOM order — screen readers follow
             the DOM, so reserve the reversed rungs for genuinely reversed contexts.
           </p>
+          <p class={cx(rt.para)}>
+            The layout trio, cross-referenced:
+            <span class="pill">prototype-flex — the row</span>
+            <a class="pill" href="/docs/components/prototype-grid.html">prototype-grid — the tracks</a>
+            <a class="pill" href="/docs/components/prototype-waterfall.html">prototype-waterfall — the columns</a>
+            — one contract, three engines.
+          </p>
         </div>
       </SectionCard>
     </div>

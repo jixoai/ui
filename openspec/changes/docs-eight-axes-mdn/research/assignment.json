@@ -746,7 +746,7 @@
    ],
    "tier": 2,
    "status": "coded",
-   "notes": "task 35 tier-2; the rig wired end-to-end; forwarder axes (zero-translation); query lanes-vs-passthroughs boundary; 4 open questions"
+   "notes": "task 35 tier-2; the rig wired end-to-end; forwarder axes (zero-translation); query lanes-vs-passthroughs boundary; 4 open questions + trio loop pills added (task 37)"
   },
   {
    "page": "prototype-grid",
@@ -757,7 +757,7 @@
    ],
    "tier": 2,
    "status": "coded",
-   "notes": "task 36 tier-2; rig in stage body; track geometry resolved; each_key_duplicate hydration-abort law candidate; 4 open questions"
+   "notes": "task 36 tier-2; rig in stage body; track geometry resolved; each_key_duplicate hydration-abort law candidate; 4 open questions + trio loop pills added (task 37)"
   },
   {
    "page": "prototype-waterfall",
@@ -766,8 +766,9 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 37 tier-2; trio loop implemented; the 14rem floor end-to-end; size-stamp rem nuance; LAW #18 receipts; 4 open questions"
   },
   {
    "page": "radio",
