@@ -957,8 +957,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 34+35: coded t2, anchor fix landed + SSR-crash repaired (TDZ — LAW #20), anchored rise live (center-aligned below trigger, 12px gap), width-atom split -> W-next #8 second repro; reviews QUEUED"
+   "status": "pass-1st",
+   "notes": "task 58 marginalia 1st PASS (0M/1m/0L/0N); anchored rise live (center-x delta 0, 12px gap); imperative trio exactly-once; WIDTH SPLIT pinned deeper: no served stylesheet sets the 24rem cap — the atom never ships (544.5px/max-width none + a 1440 stretch form); MINOR landed: token row trued + overview disclosure added"
   },
   {
    "page": "table",

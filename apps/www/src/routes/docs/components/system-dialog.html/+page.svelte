@@ -199,7 +199,7 @@ ${close}
     { name: '--scrim', default: '::backdrop', source: 'color' as const, description: 'Alert-grade scrim — semi-transparent black (light) / white (dark), never a brand tint.' },
     { name: '--jx-p', default: 'the kernel timeline', source: 'structural' as const, description: 'The surface-motion progress driving open/close; the exit rides the discrete display window.' },
     { name: 'the split strip', default: 'flex over the group grid', source: 'component' as const, description: 'flex: 1 1 0 equalizes + fills the cells, min-width: max-content floors the label, justify-content centers it — the carved action band.' },
-    { name: 'the viewport measure', default: 'min(24rem, 100vw − 2rem)', source: 'structural' as const, description: 'The anchored panel\u0029s width; engines without the full anchored set take the authored viewport-center fallback (margin auto !important).' },
+    { name: 'the viewport measure', default: 'min(24rem, 100vw − 2rem) — AUTHORED, NOT SERVED', source: 'structural' as const, description: 'The authored width cap. MEASURED DEFECT (W-next #8, second family repro): the served anchored panel computes 544.5px with max-width none — no rule in any served stylesheet sets the 24rem cap (the atom exists in the stylex source of record and never ships; a 1440px stretch form also observed). Mechanism-agnostic: the anchor is proven correct, the width loss is independent. Engines without the full anchored set take the authored viewport-center fallback (margin auto !important).' },
   ];
 
   // ---- the universal props demo (explicit-props W3-C) --------------------
@@ -290,7 +290,13 @@ ${close}
             of clipping it, and <code>anchors-visible</code> hides it if the
             trigger scrolls away. The system trio's
             <code>pose="center"</code> drops the chain and lets the UA's own
-            popover centering own the panel (measured dead-center).
+            popover centering own the panel (measured dead-center). One
+            measured defect rides the family ledger rather than this page's
+            claims: the anchored panel's authored width cap
+            (<code>min(24rem, 100vw − 2rem)</code>) does not reach the
+            served panel (544.5px at max-width none; no served stylesheet
+            rule sets the cap — W-next #8's second family repro,
+            mechanism-agnostic: the anchor itself is proven correct).
           </p>
         </div>
       </SectionCard>
