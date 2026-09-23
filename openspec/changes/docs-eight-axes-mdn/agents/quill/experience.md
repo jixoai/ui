@@ -1121,3 +1121,25 @@
   FILES (+page.ts opt-out document vs the component markup in the page) — a
   prose disclaimer alone would not survive the next editor. When a page must
   not confuse two channels, give each channel its own artifact.
+- **THE DOCS SHELL DOCUMENTING ITSELF NEEDS SURFACE NAMING IN THE PROSE, NOT
+  JUST IN THE PROBE** (website-scaffold, task 70): the page lives in the
+  component it documents, so every claim was written as "the LIVE shell
+  (this page's own chrome)" vs "a bounded demo instance (probe fixture,
+  intentionally not rendered)" — the no-nest ruling (a second 100svh overlay
+  scroll plane traps the page) and the measured embeddability (a 480px host
+  runs the narrow form) are BOTH true because they describe different
+  surfaces. Self-reference pages fail when one surface's fact is stated as
+  the family's universal; name the surface in the sentence.
+- **MEASURE THE PLATFORM TOKENS, NOT THE ELEMENT'S USED VALUES**: the
+  scaffold's grid-template-columns interleaves named lines ([rail-start]
+  256px …) — a naive split-and-parse "fails" on values that are correct.
+  Filter numerics; read grid-template-areas off the element that DECLARES
+  them (.jx-top-layer), not its subgrid children (they read 'none' by
+  design); read --w through getComputedStyle when the engine writes it on an
+  ancestor. The value pipeline (who writes, who inherits, who resolves) is
+  part of the instrument.
+- **UNMOUNTED-AFTER-BOOT MARKERS ARE SSR RECEIPTS**: the boot splash ships in
+  the served HTML (data-jx-splash="layer") and the live DOM unmounts the
+  layer while the head-carried STYLE tag persists by design — so "is it
+  there?" needs both channels: fetch the SSR for the ship-receipt, query the
+  DOM for the unmount-receipt. One channel alone reads as a defect.

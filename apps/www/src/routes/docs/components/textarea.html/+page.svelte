@@ -173,7 +173,7 @@ ${close}
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        'DECLARATIVE STAMP, AND THE HOST DECIDES — three strata, measured. L1 page bridge: under prefers-dark the SITE'S THEME SYNC adds html.dark (the mechanism — not the media query alone) and --border flips oklch(0 0 0) → oklch(1 0 0) page-wide and a body-level field re-derives. L2 host island: inside a component-canvas stage a data-theme="light" island re-pins the light profile — the served demo does NOT re-derive (island beats page). L3 component stamp: theme="dark" stamps the .dark class on the field root — the closest scope wins over the island. The invalid signal stays monochrome at every stratum (a dashed border is shape, not hue). system/auto = tree inheritance. No number lane.',
+        'DECLARATIVE STAMP, AND THE HOST DECIDES — three strata, measured. L1 page bridge: under prefers-dark the SITE\'S THEME SYNC adds html.dark (the mechanism — not the media query alone) and --border flips oklch(0 0 0) → oklch(1 0 0) page-wide and a body-level field re-derives. L2 host island: inside a component-canvas stage a data-theme="light" island re-pins the light profile — the served demo does NOT re-derive (island beats page). L3 component stamp: theme="dark" stamps the .dark class on the field root — the closest scope wins over the island. The invalid signal stays monochrome at every stratum (a dashed border is shape, not hue). system/auto = tree inheritance. No number lane.',
     },
     {
       name: 'elevation',

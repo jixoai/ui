@@ -1156,8 +1156,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 70 tier-2 — THE CAMPAIGN'S LAST CODE TASK; self-reference at maximum (every claim names where it was read; the live shell carries the structural receipts; the embeddable claim fixture-measured but deliberately not rendered — the no-nest ruling); the RO correction lands on the DECLARING scope; EXTRA's strictest verdict: snippet-composed AND rest-less; two authoring canaries caught pre-gate"
   }
  ]
 }
