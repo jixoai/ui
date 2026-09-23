@@ -329,7 +329,7 @@
     "quill"
    ],
    "tier": 1,
-   "status": "pass-1st",
+   "status": "pass-1st-2nd-inflight",
    "notes": "task 87 marginalia 1st PASS (0M/0m/0L/1N — the --jx-text digit); NIT + :149 overload landed by orchestrator (gates green, fresh build, form passes the lint); Tier 1 hub-waiver; 2nd = quill"
   },
   {
@@ -392,7 +392,7 @@
     "quill"
    ],
    "tier": 2,
-   "status": "pass-1st",
+   "status": "pass-1st-2nd-inflight",
    "notes": "task 103 marginalia 1st PASS (0M/2m/2L/1N); the focusable seat served, api count trued, cx + focusout typing closed (mirrored); 2nd = quill"
   },
   {
@@ -403,7 +403,7 @@
     "marginalia"
    ],
    "tier": 1,
-   "status": "pass-1st",
+   "status": "pass-1st-2nd-inflight",
    "notes": "task 88 marginalia 1st PASS (0M/1m — the toc rail entry); landed + gate-zero; the icon family lane 0 ERRORs; 2nd = quill"
   },
   {
@@ -541,7 +541,7 @@
     "quill"
    ],
    "tier": 1,
-   "status": "pass-1st",
+   "status": "pass-1st-2nd-inflight",
    "notes": "task 89 marginalia 1st PASS (0M/2m); tabindex landed family-wide at the scroll-run write point (live-verified incl. real-Tab reach); the :5199 orphan killed, km gate GREEN 9/9; 2nd = quill"
   },
   {
@@ -1134,9 +1134,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo",
-   "notes": "T106 reassignment: marginalia 1st (owner scribe codes); vellum preserved as 2nd."
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st marginalia T106 PASS 0M/0m/2L/0N; consolidated: Escape attribution trued (platform gives top layer + manual semantics; the family wires its own window keydown), cx clone #13 page+twin closed (mirrored), :762 relatedTarget instanceof-Node guard. RECORD CORRECTION banked: her T103/104/105 'axes omitted as rows' findings withdrawn — PropsTable universal renders the second axis table ([9,8]/[18,8]/[8,8]/[8,8] census); input/hover-card/list landings audited: all phrasing-level, no duplication, all kept."
   },
   {
    "page": "tour",
@@ -1175,12 +1175,12 @@
    "page": "website-scaffold",
    "owner": "quill",
    "reviewers": [
-    "scribe",
+    "marginalia",
     "vellum"
    ],
    "tier": 2,
    "status": "coded",
-   "notes": "task 70 tier-2 — THE CAMPAIGN'S LAST CODE TASK; self-reference at maximum (every claim names where it was read; the live shell carries the structural receipts; the embeddable claim fixture-measured but deliberately not rendered — the no-nest ruling); the RO correction lands on the DECLARING scope; EXTRA's strictest verdict: snippet-composed AND rest-less; two authoring canaries caught pre-gate"
+   "notes": "T108 reassignment: marginalia 1st (owner quill codes — the lost task-82 BOARD row had mislabeled quill as his own 1st reviewer); vellum preserved as 2nd."
   }
  ]
 }

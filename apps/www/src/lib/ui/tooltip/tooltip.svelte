@@ -153,7 +153,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -759,7 +759,7 @@
   onfocusout={(e) => {
     // focus moving BETWEEN the wrapper's own children must not flicker
     // the tip (only a real exit closes)
-    if (!e.currentTarget.contains(e.relatedTarget)) close();
+    if (!(e.relatedTarget instanceof Node && e.currentTarget.contains(e.relatedTarget))) close();
   }}
 >
   {@render children()}

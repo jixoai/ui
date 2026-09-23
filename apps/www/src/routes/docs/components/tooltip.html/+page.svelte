@@ -78,7 +78,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -168,7 +168,7 @@ ${close}
       headerRegion="tooltip-base"
       eyebrow="W3C foundation"
       title="What the platform gives, what intent adds"
-      summary="The Popover API gives the top layer, Escape plumbing and manual semantics; CSS Anchor Positioning gives placement with zero JS geometry. The intent model — hover delay, close grace, focus immediacy — is the component's entire reason to exist."
+      summary="The Popover API gives the top layer and manual semantics — Escape becomes the component's job (manual popovers skip the native Esc path; the family wires its own window keydown); CSS Anchor Positioning gives placement with zero JS geometry. The intent model — hover delay, close grace, focus immediacy — is the component's entire reason to exist."
     >
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
