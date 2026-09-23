@@ -1258,3 +1258,19 @@ pagination's press-shadow adjacent reads): compare oklch L/C channels for identi
 hue digits as environment receipts. (5) Named-step coincidences (size={16} vs medium=16px)
 make demo pairs that cannot show what they teach — a demo-coherence nit class worth one
 look on every composed universal seat.
+
+## 2026-09-22 · T133 theme-toggle/icon-button/list-item 2nds — the gate cwd slip and the last-seat rule
+
+(1) verify:docs/verify:docs-universal live at the REPO ROOT — after any `cd apps/www`
+(the ONE svelte-check run's natural cwd) the gate invocation "Missing script" reds;
+the red-to-cwd check costs one `tail` and saves a false new-information call. (2) The
+"last seat" rule for count-word rulings: a taxonomy fix that lands in the meta, the
+summary, AND the sibling page can still miss the page's own hero PILL (list-item's
+"ItemField + 5 adapters" survived three correct landings) — verify every seat with an
+SSR-payload grep, not an in-page scope sample (the h1's closest div misses the pill
+wrap). (3) Theme families with a dual channel (axis paint vs global flip) will NOT move
+class:dark when the global control is pressed — the separation IS the teaching; measure
+both channels before asserting lockstep. (4) The tooltip/hover machinery ignored even a
+REAL mouse at the composed button root this round — receipt inconclusive against an
+unchanged surface rather than guessing at wrapper-vs-root; her :popover-open instrument
+with page.hover() on the wrapper is the next attempt.

@@ -1250,3 +1250,31 @@
 - Assertion hygiene in Tab-walk probes: key stop identities off tagName+id
   (MAIN#main), and remember the skip link has no id — check the raw stop strings,
   not a label that assumes one.
+
+## T131 (4-page batch — scroll-run/select/terminal-header/text, 2026-09-24)
+
+- **Runtime-composed Tailwind classes need a feed that actually feeds.** The text
+  modifier playground emits correct class strings whose utilities exist NOWHERE —
+  not dev, not prod, twice-built. The in-file scanner-feed comment block (the
+  "app.css jx-html block precedent" cited in its own comment) is not being read by
+  the scan. Receipts that made it un-arguable: a raw injected div with the class
+  computes nothing + a full sheet walk finds zero matching rules + dist greps across
+  two builds. When a demo renders no change, check the SHEET for the class before
+  blaming the component logic.
+- **vite build vs vite dev on one .svelte-kit = ENOENT race** (manifest-full.js).
+  Kill my dev server before building; a retry heals the partial dist. And a partial
+  build still writes dist files — check dist mtimes after ANY failed build before
+  trusting gates.
+- **Probe locator clicks in canvas demos**: the `[data-jx-canvas-dock]` playground
+  aside intercepts pointers over demo controls at 1280×900 — route demo-control
+  drives through DOM clicks (dispatch the same event) instead of burning 30s
+  timeouts; and force `scroll-behavior: auto` before programmatic scroller
+  assignments (the machine's own trick).
+- **Read the machine's stamped attribute, not my recomputation**: my vertical-run
+  "max" read used the inline axis (0) while the stamped verdict said start-closed —
+  the component's own stamp is the primary source; my geometry re-derivation is the
+  fallback.
+- **In-flight sibling edits 500 pages transiently**: vellum's playground fix batch
+  (play-row $props.id() placement) briefly 500'd select.html mid-save; the file was
+  healed on re-read. On a 500 in a shared tree, check git status for dirty sibling
+  files before filing anything — diagnose, wait, retry.

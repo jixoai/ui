@@ -91,7 +91,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -227,7 +227,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="usage" data-reveal="">
+  <div data-reveal="">
     <SectionCard eyebrow="usage" title="Render a page window" summary="Use pageRange for the pure window calculation, then map its page numbers and ellipsis tokens to composed pagination parts.">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

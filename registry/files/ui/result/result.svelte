@@ -102,7 +102,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -129,13 +129,13 @@
   // status → atom groups (module scope, pure lookup): success paints
   // the brand voice (no green in this language), error the
   // destructive hue, the neutrals stay --border / the inheriting ink
-  const iconBorder: Record<Props['status'], string> = {
+  const iconBorder: Record<NonNullable<Props['status']>, string> = {
     success: cx(resultStyles.iconBox, resultStyles.borderPrimary),
     error: cx(resultStyles.iconBox, resultStyles.borderDestructive),
     warning: cx(resultStyles.iconBox, resultStyles.borderNeutral),
     info: cx(resultStyles.iconBox, resultStyles.borderNeutral),
   };
-  const glyphColor: Record<Props['status'], string> = {
+  const glyphColor: Record<NonNullable<Props['status']>, string> = {
     success: cx(resultStyles.inkPrimary),
     error: cx(resultStyles.inkDestructive),
     warning: '',

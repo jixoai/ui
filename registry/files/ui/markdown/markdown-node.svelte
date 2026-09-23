@@ -113,9 +113,15 @@
   }
 
   /** Scalar-only text extraction (labels, unknown-node fallback) — never renders structure. */
+  function isNodeSequence(candidate: ParsedNode | readonly ParsedNode[] | undefined): candidate is readonly ParsedNode[] {
+    return Array.isArray(candidate);
+  }
+
   function extractText(nodes: ParsedNode | readonly ParsedNode[] | undefined): string {
     if (nodes === undefined) return '';
-    if (Array.isArray(nodes)) return nodes.map(extractText).join('');
+    // Array.isArray cannot narrow a `readonly ParsedNode[]` member (the
+    // predicate drops it from the union where the bare call cannot)
+    if (isNodeSequence(nodes)) return nodes.map(extractText).join('');
     switch (nodes.type) {
       case 'text':
       case 'html_block':
@@ -183,6 +189,25 @@
 
 {#if Override}
   <Override {node} />
+{:else if isAccordionGroup(node)}
+  <!-- the merged consecutive-details run (design §8.3): ONE accordion
+       group — the frame and seams the pile of bare <details> lacks.
+       The root escapes the face so its own summary/details rules
+       never fight the accordion's W3C-first paint; `<details open>`
+       carries through to the item. HEAD POSITION (task 132): the
+       guard narrows MarkdownNodeInput's AccordionGroupNode member
+       OUT of the union — it is not a ParsedNode (no `raw`), so every
+       later isNodeType call needs it gone to typecheck -->
+  <Accordion class="no-jx-pure">
+    {#each node.items as item, i (i)}
+      <AccordionItem open={item.open}>
+        {#snippet summary()}
+          {#each item.summary as child, j (j)}<MarkdownNode node={child} {components} />{/each}
+        {/snippet}
+        {#each item.children as child, j (j)}<MarkdownNode node={child} {components} />{/each}
+      </AccordionItem>
+    {/each}
+  </Accordion>
 {:else if isNodeType(node, 'code_block')}
   <!-- the neutral carrier div owns the RHYTHM (boxed chrome's own m-0
        utility would kill a root-level margin; the wrapper carries none,
@@ -358,22 +383,6 @@
   <Checkbox bare checked={node.checked} disabled />
 {:else if isNodeType(node, 'label_open') || isNodeType(node, 'label_close')}
   <!-- plugin wrapper tokens render nothing -->
-{:else if isAccordionGroup(node)}
-  <!-- the merged consecutive-details run (design §8.3): ONE accordion
-       group — the frame and seams the pile of bare <details> lacks.
-       The root escapes the face so its own summary/details rules
-       never fight the accordion's W3C-first paint; `<details open>`
-       carries through to the item -->
-  <Accordion class="no-jx-pure">
-    {#each node.items as item, i (i)}
-      <AccordionItem open={item.open}>
-        {#snippet summary()}
-          {#each item.summary as child, j (j)}<MarkdownNode node={child} {components} />{/each}
-        {/snippet}
-        {#each item.children as child, j (j)}<MarkdownNode node={child} {components} />{/each}
-      </AccordionItem>
-    {/each}
-  </Accordion>
 {:else if isNodeType(node, 'html_block')}
   <!-- the html equivalence law at BLOCK position (design §8.2): owned
        tags route to their markdown equivalents; everything else keeps

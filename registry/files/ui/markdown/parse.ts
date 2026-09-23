@@ -525,20 +525,51 @@ const GITHUB_ALERT_MARKER = /^\[!(note|tip|important|warning|caution)\]\s*$/i;
  * and the digest already ran over the ORIGINAL node before any
  * component saw it.
  */
+// ---- the Extract-based node guards (the renderer's isNodeType
+// pattern, parse-side): the UnknownNode catch-all member survives
+// manual `.type` narrowing and its Record<string, unknown> index
+// turns every field read `unknown` — the predicates drop it where
+// the literal matches a known member -------------------------------
+
+function isParagraphNode(candidate: ParsedNode): candidate is ParagraphNode {
+  return candidate.type === 'paragraph';
+}
+
+// the defensive `inline` wrapper is a RUNTIME shape the package's
+// ParsedNode union does not admit (no InlineNode member — a type
+// predicate over it is unnameable) — ONE documented structural
+// widening, the html-inline attrs precedent (:htmlInlineAttrs)
+type InlineWrapper = { type: 'inline'; children: ParsedNode[] };
+
+function isTextNode(candidate: ParsedNode): candidate is TextNode {
+  return candidate.type === 'text';
+}
+
+function isHtmlBlockNode(candidate: ParsedNode): candidate is HtmlBlockNode {
+  return candidate.type === 'html_block';
+}
+
 export function detectBlockquoteAlert(
   node: BlockquoteNode,
 ): { kind: GithubAlertKind; children: ParsedNode[] } | null {
+  // the Extract-based guards (the renderer's isNodeType pattern): the
+  // UnknownNode catch-all ({ type: string } & Record<string, unknown>)
+  // survives manual `.type ===` narrowing and poisons every field read
+  // (`children` resolves `unknown` through its index signature) — the
+  // predicates DROP the catch-all where the literal matches a member.
   const paragraph = node.children[0];
-  if (!paragraph || paragraph.type !== 'paragraph') return null;
+  if (!paragraph || !isParagraphNode(paragraph)) return null;
 
   // one level of wrapper tolerance: inline > text probed the same way
   const wrapper = paragraph.children[0];
   const inline =
-    wrapper !== undefined && wrapper.type === 'inline' && wrapper.children[0] !== undefined
-      ? wrapper
+    wrapper !== undefined &&
+    wrapper.type === 'inline' &&
+    (wrapper as InlineWrapper).children[0] !== undefined
+      ? (wrapper as InlineWrapper)
       : undefined;
   const text = inline ? inline.children[0] : wrapper;
-  if (!text || text.type !== 'text') return null;
+  if (!text || !isTextNode(text)) return null;
 
   const newlineIndex = text.content.indexOf('\n');
   const firstLine = newlineIndex === -1 ? text.content : text.content.slice(0, newlineIndex);
@@ -567,7 +598,7 @@ export function detectBlockquoteAlert(
       paragraphChildren = paragraph.children.slice(1);
     }
   } else {
-    const strippedText: ParsedNode = { ...text, content: stripped };
+    const strippedText: TextNode = { ...text, content: stripped };
     paragraphChildren = inline
       ? [
           { ...inline, children: [strippedText, ...inline.children.slice(1)] },
@@ -653,8 +684,8 @@ export function htmlAttrsToRecord(
 /** A summary-less details renders the UA's default disclosure label. */
 const DEFAULT_SUMMARY: readonly ParsedNode[] = [{ type: 'text', content: 'Details' }];
 
-function isHtmlDetails(node: ParsedNode): boolean {
-  return node.type === 'html_block' && node.tag === 'details';
+function isHtmlDetails(node: ParsedNode): node is HtmlBlockNode {
+  return isHtmlBlockNode(node) && node.tag === 'details';
 }
 
 /** details node → accordion item payload (exported: the nested-details
@@ -663,7 +694,9 @@ function isHtmlDetails(node: ParsedNode): boolean {
 export function detailsToAccordionItem(node: ParsedNode): AccordionItemPayload {
   if (!isHtmlDetails(node)) throw new Error('[jixoai markdown] accordion item expects a details node');
   const children = node.children ?? [];
-  const summaryNode = children.find((child) => child.type === 'html_block' && child.tag === 'summary');
+  const summaryNode = children.find(
+    (child): child is HtmlBlockNode => isHtmlBlockNode(child) && child.tag === 'summary',
+  );
   const summary =
     summaryNode && summaryNode.children && summaryNode.children.length > 0
       ? summaryNode.children

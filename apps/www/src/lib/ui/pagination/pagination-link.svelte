@@ -6,7 +6,7 @@
   is a lie to every input mode). `isActive` paints the current chip
   and sets aria-current="page".
 
-  child({ props }) contract (design.md): ANCHOR-form only — the
+  child({ props: linkProps }) contract (design.md): ANCHOR-form only — the
   escape renders exclusively on the href branch (single concrete
   element-kind law, Codex impl-r1 P1-4). The onclick-only button is
   not replaceable (a link that goes nowhere is a lie to every input
@@ -58,7 +58,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -69,7 +69,7 @@
   // geometry is the chip atom, the press channel poses + hover/focus
   // pseudos live in pagination.css keyed on the data hooks
 
-  const props = $derived({
+  const linkProps = $derived({
     'data-jx-page': '',
     'data-jx-page-current': isActive ? '' : undefined,
     class: cn(
@@ -82,13 +82,13 @@
     href,
     onclick,
     ...rest,
-  });
+  } as HTMLAnchorAttributes & { class: string });
 </script>
 
 {#if child && href !== undefined}
-  {@render child({ props })}
+  {@render child({ props: linkProps })}
 {:else if href !== undefined}
-  <a {...props} href={href}>{#if children}{@render children()}{:else}{page}{/if}</a>
+  <a {...linkProps} href={href}>{#if children}{@render children()}{:else}{page}{/if}</a>
 {:else}
-  <button type="button" {...props}>{#if children}{@render children()}{:else}{page}{/if}</button>
+  <button {...(linkProps as Record<string, string>)} type="button">{#if children}{@render children()}{:else}{page}{/if}</button>
 {/if}

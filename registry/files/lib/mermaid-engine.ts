@@ -71,7 +71,8 @@
  * ─────────────────────────────────────────────────────────────────────────
  */
 
-import type { MermaidConfig } from 'mermaid';
+import type { MermaidConfig as MermaidConfigBase } from 'mermaid';
+export type { MermaidConfigBase as MermaidConfig };
 import { formatColor, parseColor } from '$lib/color-utils';
 
 /** 'auto' follows the live document theme; 'light'/'dark' pin the sheet. */
@@ -441,7 +442,7 @@ export function deriveThemeVariables(tokens: ThemeTokens, theme: 'light' | 'dark
 
 // ── the initialize payload ladder (§3.3) ─────────────────────────────────
 
-type MergedConfig = MermaidConfig & Record<string, unknown>;
+type MergedConfig = MermaidConfigBase & Record<string, unknown>;
 
 /**
  * Field-level precedence, highest first:
@@ -453,7 +454,7 @@ type MergedConfig = MermaidConfig & Record<string, unknown>;
 function buildInitializePayload(
   tokens: ThemeTokens,
   theme: 'light' | 'dark',
-  config: MermaidConfig | undefined,
+  config: MermaidConfigBase | undefined,
 ): MergedConfig {
   const merged = deepMerge({}, config ?? {}) as MergedConfig;
   merged.themeVariables = {

@@ -278,7 +278,7 @@
         ([prop, value]) => `${prop}:${value}`,
       ),
     );
-    if (style !== undefined) parts.push(style);
+    if (style != null) parts.push(style);
     return parts.length > 0 ? parts.join(';') : undefined;
   });
 </script>

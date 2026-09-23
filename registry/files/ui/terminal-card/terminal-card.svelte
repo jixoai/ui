@@ -156,7 +156,7 @@
           ? style
           : style === undefined
             ? ''
-            : Object.entries(style).flatMap(([key, value]) =>
+            : Object.entries(style ?? {}).flatMap(([key, value]) =>
                 key !== '$$css' && typeof value === 'string' ? [value] : [],
               ).join(' '),
       )

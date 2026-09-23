@@ -194,7 +194,7 @@ ${close}
     styles
       .filter((style): style is { readonly [key: string]: string | object } => Boolean(style))
       .map((style) =>
-        Object.entries(style).flatMap(([key, value]) =>
+        Object.entries(style ?? {}).flatMap(([key, value]) =>
           key !== '$$css' && typeof value === 'string' ? [value] : [],
         ).join(' '),
       )

@@ -135,7 +135,10 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+          : // the `?? {}` is load-bearing (the dialog.svelte r-fix): the
+            // undefined arm reaches Object.entries' parameter type —
+            // filter(Boolean) does NOT narrow
+            Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -270,5 +273,5 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root props control lifecycle and matching; item props provide the searchable command contract."><PropsTable universal title="Command" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Bindable dialog open state.', bindable: true }, { name: 'hotkey', type: 'boolean', default: 'false', description: 'Opt into ⌘K / Ctrl+K handling.' }, { name: 'match', type: 'CommandMatch', description: 'Visibility-only matching predicate.' }, { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close after a successful item selection.' }, { name: 'label', type: 'string', default: "'command palette'", description: 'Accessible dialog and combobox label.' }]} /><div class={cx(rt.mt20)}><PropsTable title="CommandItem" props={[{ name: 'label', type: 'string', required: true, description: 'Match text and accessible name.' }, { name: 'keywords', type: 'string', description: 'Additional match text.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Renders but never walks or activates.' }, { name: 'onselect', type: '() => void', description: 'Runs once when selected.' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Root props control lifecycle and matching; item props provide the searchable command contract."><PropsTable universal title="Command" props={[{ name: 'open', type: 'boolean', default: 'false', description: 'Bindable dialog open state.', bindable: true }, { name: 'hotkey', type: 'boolean', default: 'false', description: 'Opt into ⌘K / Ctrl+K handling. On THIS docs site the key is shared: the site search palette also opens on ⌘K (window-level, both handlers fire) — the demo palette takes focus and closes on select; the site search stays until dismissed. Consumers embedding the palette elsewhere own their key without the collision.' }, { name: 'match', type: 'CommandMatch', description: 'Visibility-only matching predicate.' }, { name: 'closeOnSelect', type: 'boolean', default: 'true', description: 'Close after a successful item selection.' }, { name: 'label', type: 'string', default: "'command palette'", description: 'Accessible dialog and combobox label.' }]} /><div class={cx(rt.mt20)}><PropsTable title="CommandItem" props={[{ name: 'label', type: 'string', required: true, description: 'Match text and accessible name.' }, { name: 'keywords', type: 'string', description: 'Additional match text.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Renders but never walks or activates.' }, { name: 'onselect', type: '() => void', description: 'Runs once when selected.' }]} /></div></SectionCard></div>
 </div>

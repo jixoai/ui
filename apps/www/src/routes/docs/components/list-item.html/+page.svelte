@@ -636,7 +636,7 @@ ${close}
           <span class="pill">auto-variant chrome</span>
           <span class="pill">native ul/li groups</span>
           <span class="pill">ItemEnd trailing lane</span>
-          <span class="pill">ItemField + 5 adapters</span>
+          <span class="pill">ItemField + 7 adapters</span>
           <span class="pill">grid + :has() presence matrix</span>
         </div>
       </SectionCard>
