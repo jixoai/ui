@@ -1080,3 +1080,25 @@
   `{...rest}` (spread notation as PROSE) reads as an expression opener and
   500s the route. Spread-as-prose needs rewording ("spreads the rest onto")
   or an HTML-escaped brace.
+- **REST-LESS VS ATTRIBUTE-TRANSPARENT IS A SPECTRUM — MEASURE THE FORWARDING
+  BY NAME** (textarea, task 68): progress drops the residual (rest-less);
+  terminal-footer and textarea spread it (attribute-transparent). Inside
+  "transparent" there are three verdicts per attribute: forwarded BY NAME
+  with a job (textarea's maxlength drives the count readout; rows defaults
+  4; oninput fires after the family syncs), forwarded verbatim (spellcheck,
+  wrap, name — read back off the element), and withheld (the color ATTRIBUTE
+  Omitted; a caller data-density captured by the axis stamp). The §1
+  collision rule is testable: size-stamped fields must carry no size
+  attribute on the native element. Read the destructuring list before
+  writing the api summary — the rest treatment is the api section's thesis.
+- **ANNOUNCEMENT DISCIPLINE IS A MEASURABLE GRADIENT**: the count readout's
+  aria-live is OFF until 90% of maxlength, then polite, then off again when
+  the count drops — three states, all assertable (dispatch input events, read
+  the attribute). The error line by contrast is a STATIC describedby target
+  (no live region — it would chatter per keystroke). "No chatter" and
+  "announces when it matters" are both probe-able claims, not prose.
+- **PROBE SELF-TESTS MUST NOT SET THE STATE THEY ASSERT AGAINST**: my §1
+  collision check failed the first run because the fixture itself set
+  size="14" on the element before asserting no size attribute existed. Assert
+  against the SERVED artifacts (size-stamped demo fields), or the test proves
+  only that your fixture worked.
