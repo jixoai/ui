@@ -1347,3 +1347,22 @@
   clause) not NEEDS-WORK, when the rest of the measured battery reproduces digit-exact and the
   defect is a wording fix riding closure — with the non-reproducing measurement named, the
   reproducible numbers quoted, and the structural reason (the atom step) cited.
+
+## 2026-09-22 — T77 first review textarea (review lanes)
+
+- **Point the hysteresis probe at a capped field** — the count readout has two source modes
+  (N with maxlength, plain N without); the aria-live flip only ARMS with a cap. My first run
+  measured the workbench (no maxlength) and read all-off — correct behavior, wrong target.
+  Read which mode the seat runs before testing mode-dependent behavior.
+- **The two-read protocol has a settle clause** — custom properties flip synchronously but
+  PAINTED properties transition; a var/paint "divergence" read mid-transition is the
+  instrument's fault. Wait past the transition (T73's first-frame lesson, now twice confirmed)
+  before declaring var-vs-paint splits.
+- **Quoted density numbers can be rows-projections** — 60/90px at 2xs/lg reproduce only at
+  the family default rows=4; the served sample was rows-3 (45/68, exactly rows × voice ×
+  1.5). When a quoted number misses, check the formula's implicit inputs (rows, scale,
+  viewport) before judging the claim false.
+- **Integration deltas between the CODE probe and the served page are review findings' raw
+  material** — quill's maxlength=10/spellcheck/wrap probes live-mounted instances; the
+  integrated page caps at 280 and never exercises spellcheck/wrap. Her receipts were true;
+  the page-level residue (serve what the headline measures) became my LOW 1.

@@ -33,7 +33,7 @@
 
 <!-- rows pass through (default 4); resize locks to the vertical axis;
      every other attribute rides through restProps -->
-<Textarea label="bio" rows={3} placeholder="multiline, maxlength rides through…" maxlength={280} />`;
+<Textarea label="bio" rows={3} placeholder="multiline, maxlength rides through…" maxlength={280} spellcheck={false} wrap="hard" />`;
 
   const slotUsage = `<!-- textarea · 6 slots — inner rows sit behind 1px hairlines -->
 <Textarea label="notes" rows={6} maxlength={280} count bind:value={text}>
@@ -138,7 +138,7 @@ ${close}
       type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
       default: `'auto'`,
       description:
-        "NO-OPINION AND REACTIVE — the family owns no density paint (every Defaults slot is the no-opinion axis slot), so the AMBIENT scope channels flow straight through the field: --jx-text/--jx-line/--jx-inset/--jx-hit move the voice and the height (measured 10px voice / 60px height at the 2xs stamp vs 15px / 90px at lg). The rung attr stamps the field root (data-density). Zero --jx-density-effective readers (grep receipt) — the channels are plain density-scope custom properties, not axis carriers. Number unit: coefficient.",
+        "NO-OPINION AND REACTIVE — the family owns no density paint (every Defaults slot is the no-opinion axis slot), so the AMBIENT scope channels flow straight through the field: --jx-text/--jx-line/--jx-inset/--jx-hit move the voice and the height (measured 10px voice / 60px height at the 2xs stamp vs 15px / 90px at lg (rows-4 projections: height = rows × voice × 1.5 — the served rows-3 sample reads 45/68, the same arithmetic)). The rung attr stamps the field root (data-density). Zero --jx-density-effective readers (grep receipt) — the channels are plain density-scope custom properties, not axis carriers. Number unit: coefficient.",
     },
     {
       name: 'size',
@@ -173,7 +173,7 @@ ${close}
       type: `'light' | 'dark' | 'system' | 'auto'`,
       default: `'auto'`,
       description:
-        'DECLARATIVE STAMP, AND THE HOST DECIDES — three strata, measured. L1 page bridge: under prefers-dark (system theme) --border flips oklch(0 0 0) → oklch(1 0 0) page-wide and a body-level field re-derives. L2 host island: inside a component-canvas stage a data-theme="light" island re-pins the light profile — the served demo does NOT re-derive (island beats page). L3 component stamp: theme="dark" stamps the .dark class on the field root — the closest scope wins over the island. The invalid signal stays monochrome at every stratum (a dashed border is shape, not hue). system/auto = tree inheritance. No number lane.',
+        'DECLARATIVE STAMP, AND THE HOST DECIDES — three strata, measured. L1 page bridge: under prefers-dark the SITE'S THEME SYNC adds html.dark (the mechanism — not the media query alone) and --border flips oklch(0 0 0) → oklch(1 0 0) page-wide and a body-level field re-derives. L2 host island: inside a component-canvas stage a data-theme="light" island re-pins the light profile — the served demo does NOT re-derive (island beats page). L3 component stamp: theme="dark" stamps the .dark class on the field root — the closest scope wins over the island. The invalid signal stays monochrome at every stratum (a dashed border is shape, not hue). system/auto = tree inheritance. No number lane.',
     },
     {
       name: 'elevation',
@@ -466,7 +466,7 @@ ${close}
       headerRegion="theming"
       eyebrow="theming"
       title="Density and tokens"
-      summary="The shell, lane padding, and label/error rhythm are pure density-scope tokens — the field is density-REACTIVE (measured 10px voice / 60px height at the 2xs stamp vs 15px / 90px at lg) — and resize the scope and the whole field stack follows."
+      summary="The shell, lane padding, and label/error rhythm are pure density-scope tokens — the field is density-REACTIVE (measured 10px voice / 60px height at the 2xs stamp vs 15px / 90px at lg (rows-4 projections: height = rows × voice × 1.5 — the served rows-3 sample reads 45/68, the same arithmetic)) — and resize the scope and the whole field stack follows."
     >
       <div class={cx(rt.col24)}>
         <DensityDemo scopes={['2xs', 'xs', 'sm', 'default', 'lg']}>
