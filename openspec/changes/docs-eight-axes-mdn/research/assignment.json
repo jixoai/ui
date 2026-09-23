@@ -830,8 +830,9 @@
     "vellum",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "task 96 marginalia 1st PASS (0M/2m/1L); import trued+mirrored, 4th overload clone closed, pos row served; the #21 lane map reproduced digit-exact; 2nd = vellum"
   },
   {
    "page": "scroll-area",

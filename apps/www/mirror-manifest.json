@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-23T07:51:15.763Z",
+  "generatedAt": "2026-09-23T11:12:29.679Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -124,8 +124,8 @@
           "source": "registry/files/theme/jixoai.css",
           "mirror": "apps/www/src/lib/jixoai.css",
           "target": "@lib/jixoai.css",
-          "sourceSha": "e201e46279a41a4e2a70cb741920a8b8a2945ddb7c87db95c0bccb952890e9a0",
-          "mirrorSha": "e201e46279a41a4e2a70cb741920a8b8a2945ddb7c87db95c0bccb952890e9a0"
+          "sourceSha": "032a1afb89b14af560c2ae757e5b38b15b8b503383a8517780d194c73aa7031c",
+          "mirrorSha": "032a1afb89b14af560c2ae757e5b38b15b8b503383a8517780d194c73aa7031c"
         }
       ]
     },
@@ -1271,8 +1271,8 @@
           "source": "registry/files/ui/scaffold-float/scaffold-float.svelte",
           "mirror": "apps/www/src/lib/ui/scaffold-float/scaffold-float.svelte",
           "target": "@ui/scaffold-float/scaffold-float.svelte",
-          "sourceSha": "8d6d4d886701346ed867a504585acb3c02836039fa790644c883d18458844690",
-          "mirrorSha": "8d6d4d886701346ed867a504585acb3c02836039fa790644c883d18458844690"
+          "sourceSha": "f2f9b906ce5ca5d5205b6bf3d30d9dd226d4cdb5191a3d2b97619894869a5e48",
+          "mirrorSha": "f2f9b906ce5ca5d5205b6bf3d30d9dd226d4cdb5191a3d2b97619894869a5e48"
         },
         {
           "source": "registry/files/ui/scaffold-float/index.ts",
@@ -5407,8 +5407,8 @@
           "source": "registry/files/ui/scroll-run/scroll-run.svelte.ts",
           "mirror": "apps/www/src/lib/ui/scroll-run/scroll-run.svelte.ts",
           "target": "@ui/scroll-run/scroll-run.svelte.ts",
-          "sourceSha": "051ef8d51235173b891d4f803ff093a9a3042a6562abbb719f28fd7c7edaae3b",
-          "mirrorSha": "051ef8d51235173b891d4f803ff093a9a3042a6562abbb719f28fd7c7edaae3b"
+          "sourceSha": "9a5674d25519be42d2b9c797bc076ec32ec2862b09758276a249fa070aad2a9f",
+          "mirrorSha": "9a5674d25519be42d2b9c797bc076ec32ec2862b09758276a249fa070aad2a9f"
         },
         {
           "source": "registry/files/ui/scroll-run/scroll-run-defaults.svelte.ts",

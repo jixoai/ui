@@ -47,7 +47,10 @@
     type ThemeLane,
   } from '$lib/defaults.svelte';
   import { ScaffoldFloatDefaults } from './scaffold-float-defaults.svelte';
-  import type { TopLayerArea, TopLayerApi } from './website-scaffold.svelte';
+  // contract import trued (scaffold-float 1st review, task 96): the types
+// live in the website-scaffold family one directory up — './…' was a
+// Cannot-find-module rot the erased type import hid from the build
+import type { TopLayerArea, TopLayerApi } from '../website-scaffold/website-scaffold.svelte';
 
   interface Props {
     children: Snippet;
