@@ -1378,3 +1378,48 @@
 - (skeleton) The RM freeze pixel-still (animation none, one constant
   opacity across a 1s watch); zero dead-utility elements vs 40 live
   blocks; 62 ids zero duplicates; ambient 284/284 clean.
+
+## Techniques (task 50 additions)
+- **The kit-boundary grep triangle**: for a "shared kit" claim — (1)
+  grep the kit dir for every axis-carrier var (zero reads = behavior
+  only); (2) grep the CONSUMER names of each kit part (adapter vs
+  capability styles vs core) — disjoint consumption proves the
+  split-by-concern law; (3) grep the named mechanism (resolveThemeScope)
+  across the fleet — its consumer set IS the boundary receipt.
+- **The verdict-gated chrome**: auto-hide chrome gated by a verdict
+  attr (start-closed) is INVISIBLE to naive at-top probes — scroll the
+  region to open the verdict before reading the thumb, and dump the
+  FULL attribute sets (the verdict/liveness attrs live on the family
+  HOLDER, not the thumb or track).
+- **The pins armed-watcher**: arm a rAF watcher for the attribute,
+  engage the pin (focus/hover/drag), read the appearance time, HOLD
+  past the idle timer, disengage, read the disappearance — plus the
+  opacity pair (track → 0, thumb's own stays 1) for the fades-never-
+  the-thumb receipt.
+- **Instance-finder discipline**: multi-instance pages anchor probes on
+  aria-label or data-testid, never copy text — 'line one' matched a
+  static size={18} panel and cost two runs before the aria-label-anchored
+  'sync' seat verified the query claim (13@600 ↔ 18@1280, live both
+  directions).
+- **The substring gate trap**: grep -c 'scroll-area.html' counts
+  native-scroll-area.html too — quote the full path in page-scoped
+  gate receipts.
+
+## Highlights (task 50)
+- (scroll-area) The thumb contract at invariant form: aria-valuenow 50
+  at mid-travel, thumb fraction == client/scroll digit-exact at my own
+  geometry (0.180), the verdict vocabulary dumped (start-closed/none +
+  data-chrome/data-width on the holder).
+- (scroll-area) The pins timeline armed-watcher receipt: data-thumb-live
+  on the family holder at 52ms after focus, held past 1.3s, gone 716ms
+  after blur, the TRACK fading to 0 while the thumb's own opacity stays 1.
+- (scroll-area) The radius owned-name collision digit-exact: the px lane
+  double-stamps (--jx-radius-effective: 20px + --jx-scroll-thumb-radius:
+  20px) and the auto Card computes 6px; the 'full' capsule serializes
+  3.35544e+07px.
+- (scroll-area) The frozen-ink watch NEGATIVE with the positive direction
+  instrumented: bare .dark moves nothing; the stage text re-theme moves
+  the chrome (and restores).
+- (scroll-area) The query seat LIVE both directions (13@600 fresh +
+  reload ↔ 18@1280 live), the fresh +page.ts matching the served DOM
+  14/14.
