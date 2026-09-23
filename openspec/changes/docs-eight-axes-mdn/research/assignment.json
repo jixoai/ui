@@ -794,7 +794,7 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "coded",
+   "status": "pass-1st",
    "notes": "task 28 tier-2; the inheritance pole (kbd's contrast); bridge-only measured; numbered-domain rig discovery"
   },
   {
@@ -844,8 +844,9 @@
     "vellum",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 30 tier-2; engine-wrapper stamps; the radius seam find (named steps die; number = ScrollArea thumb chrome, NOT the axis); 3 open questions"
   },
   {
    "page": "section-card",

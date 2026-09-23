@@ -834,3 +834,34 @@
   the stamped bar — the simplest delivery, plain inheritance across the
   top-layer promotion). Classify a popover family by asking: where does
   the stamp land, and what stands between it and the panel?
+
+## Techniques (mine, added 2026-09-23, task 30 — code scroll-virtual)
+- **CSSOM SERIALIZES LARGE PX IN SCIENTIFIC NOTATION**: the virtual spacer's
+  inline style reads `block-size: 4e+06px` for 4,000,000px once the browser
+  re-serializes the attribute — a regex on the style string fails while the
+  layout is perfect. Assert geometry with getBoundingClientRect().height,
+  never by parsing the style attribute; expect the scientific form if you
+  must read it.
+- **ALIGN-START FIRST ROW IS window-start MINUS OVERSCAN**: scrollToIndex(N,
+  align:'start') puts scrollTop at N×estimate exactly, but the first SERVED
+  row is N−overscan (rows render before the anchor). Assert the anchor row's
+  rect-top against the viewport top (delta 0) and firstIdx ≈ N−overscan;
+  asserting firstIdx ≈ N fails a correct implementation.
+- **STAMP VOCABULARY ≠ PROP VOCABULARY (the §4 legacy bridge)**: density=
+  "small" stamps data-density="sm" — the legacy rung set is what today's CSS
+  keys on, and densityRungOf passes rungs verbatim. Write page claims and
+  probe assertions in the measured stamp vocabulary, or the claim reads as
+  falsified when the family is behaving exactly per contract.
+- **ENGINE-WRAPPER IS THE FOURTH DELIVERY SHAPE**: nav-menu stamps a bar and
+  the panel inherits (promotion-away), popconfirm self-carries, menubar
+  wraps in place — scroll-virtual owns NO root at all and FORWARDS the
+  resolved lanes to a composed region (the region stamps, supplies and
+  anchors). The probe proves it three ways: stamps land on the composed
+  root, engine internals (spacer/rows) carry nothing, and the wrapper greps
+  zero --jx-* readers.
+- **FORWARD SEAMS CAN EAT LANES**: scroll-virtual passes radius through as
+  `typeof d.radius === 'number' ? d.radius : undefined` — named steps die
+  silently, and the surviving number lands as the W3-D2 THUMB chrome param
+  (--jx-scroll-thumb-radius), not a corner axis. Read the composed target's
+  contract before writing "FORWARDED" claims; the seam and the destination
+  can each rename or drop a lane.
