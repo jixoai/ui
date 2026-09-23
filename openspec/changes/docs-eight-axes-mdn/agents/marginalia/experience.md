@@ -938,3 +938,10 @@
 - **Checkbox sets have default value="on"** — keying a transfer/checkbox-group census on input.value reads "on" for every row. Key on row label text (and account for empty-state placeholder li's, which enter/leave label counts and mimic lost rows).
 - **Movers that disable on empty selection will crash a scripted drive** (no enabled button left after a move clears picks). The crash IS the law working — re-check rows before each move class and log the clicked button's text so the transcript is auditable.
 - rest-LESS verification is a two-liner: the Props interface extends nothing + no spread in the component. Don't over-probe what source settles.
+
+## T84 (textarea 2nd) — settled reads; count instances without caps render bare counts; snippet items are text, not DOM
+
+- **"Settled-paint" means wait out the transitions**: the shell law carries color transitions — my first L3 read sampled oklab transition frames. Settled = 1.5s past the injection; the restored read then lands exact.
+- **A count readout with no maxlength renders the bare count** ("251", not "251 / 280") — the family renders maxLen conditionally. Boundary drives must census the instances first (maxlength attr + readout text) and drive one WITH the cap; the bare-count instance teaches a different law (maxLen null → countNear never fires).
+- **Snippet "completions" are code-text items**: a landed "the usage snippet now carries X" verifies by reading the served code block's text, not by hunting a live instance. Check the code block first; a rendered demo may not exist.
+- **The L3 ink consequence is the chain map's punchline**: shell face flips (base tokens) while the typed text stays alias-frozen — black-on-black under theme="dark". The chain split is the audit; the frozen-text-on-flipped-ground consequence is the same #14-family pattern as toast/tour. Read the TEXT element's color separately from the shell's.
