@@ -265,10 +265,17 @@ ${close}
                 <CodeBlock code="p = m · v" lang="ts" meta="eq r" />
               </Figure>
               <SectionCard id="sec-methods" title="Methods" headerRegion="methods">the procedure</SectionCard>
-              <SectionCard id="sec-unnumbered" title="Notation" headerRegion="notation">the glossary</SectionCard>
             </div>
           </SectionCard>
         </NumberingProvider>
+        <div class={cx(rt.col16, rt.text135, rt.mt12)}>
+          <SectionCard id="sec-unnumbered" title="Notation" headerRegion="notation">the glossary</SectionCard>
+          <p class={cx(rt.note12, rt.inkMuted70)}>
+            the join rule: an undeclared card INSIDE a domain joins it and numbers by structure —
+            the bare-title fallback needs a domain-less target, which is why this one lives outside
+            the provider (the route registry still resolves it).
+          </p>
+        </div>
         </div>
         {#snippet playground()}
           <p class={cx(rt.text12, rt.inkMuted)}>

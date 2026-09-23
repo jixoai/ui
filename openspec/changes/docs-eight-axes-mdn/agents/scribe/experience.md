@@ -1108,3 +1108,43 @@
 - (process) The attribution triangle's first full rehearsal: 2 ambient
   failures keyed to sheet, proven sibling noise on all four legs, zero
   touches.
+
+## Techniques (task 35 additions)
+- **The warm-reload law (the cold-server trap's hydration face)**: a
+  cold first visit can leave the app UNHYDRATED while vite compiles —
+  no resolution, no degradation, no warns, everything frozen at the SSR
+  shape. For any hydration-dependent machine (settle criteria, clocks,
+  registrations), visit once to warm the module graph, RELOAD, then
+  measure. My probe1's all-frozen matrix was this artifact, not the
+  page's.
+- **SSR registration order census**: same-pass registration is
+  synchronous at component init, so an SSR byte census of two-state
+  components splits by MARKUP ORDER — targets earlier in the pass
+  render RESOLVED in SSR, later/missing ones render the fallback form.
+  Count both forms before trusting a single "prerendered N" number
+  (reference: 11 edge claims = 5 ??-fallbacks + 6 resolved-in-SSR).
+- **The demo-lane test for posture demos**: a specimen NAMED for a
+  posture must RENDER that posture — if the surrounding domain changes
+  what it renders (the numbered-domain join), the lane is unserved;
+  prefer moving the target outside the influencing scope (safe when the
+  registry is route-page-wide) over rewording the label.
+- **Comment-tolerant SSR regexes**: Svelte hydration comments
+  (`<!--[-1-->`) sit INSIDE rendered elements — `[^<]*` patterns fail
+  on them; match `(?:<!--[^>]*-->|\s)*` or locate the enclosing tag by
+  rfind + </tag> containment.
+
+## Highlights (task 35)
+- (reference) The inheritance pole digit-exact in both contexts:
+  13.5px-in-13.5px with the style attribute ABSENT at byte level vs
+  18px-in-16px with the §11 stamp verbatim — the kbd contrast's other
+  pole, measured.
+- (reference) The theme bridge NOTHING-DECLARES verified by real .dark
+  injection (on-root + ancestor island, restored): nothing moved — the
+  fleet's only family with no css to activate.
+- (reference) The edge machine end-to-end: Eq (1.1)/§ 1.1 resolved, the
+  loud span with edge released, both settle warns once per episode —
+  and the SSR duality refined: 11 edge claims = 5 fallbacks + 6
+  resolved-in-SSR (same-pass-earlier registration), correcting the
+  "0 resolved labels in SSR" half of the record.
+- (process) The warm-reload lesson banked after my own frozen first
+  visit; the sheet sibling noise re-attributed fresh on all four legs.
