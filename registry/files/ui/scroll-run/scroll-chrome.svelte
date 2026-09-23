@@ -67,7 +67,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -209,7 +209,6 @@
   // component's grid dialect; the old vertical shadow substitution
   // retired — the two effects must read differently on either axis)
   const veil = $derived(scrollEffect.type === 'shadow' || scrollEffect.type === 'progressBlur');
-  const veilIsLadder = $derived(scrollEffect.type === 'progressBlur');
 </script>
 
 {#if veil}
@@ -218,7 +217,7 @@
        axis (the host's --jx-scroll-progress drives it), gated by the
        scroll-state verdict (the unlayered rules in scroll-run.css) -->
   <div class={cx('jx-scroll-veil-layer', scrollChromeStyles.veilLayer)}>
-    {#if veilIsLadder}
+    {#if scrollEffect.type === 'progressBlur'}
       <!-- hold = 50: with snap retired there is no flush lane to cover —
            the ramp owns half the band and the peak the other half;
            the positions ride the axis (inline start/end, block
