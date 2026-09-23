@@ -1290,3 +1290,18 @@ not just the inner punctuation (the first rules built fine and matched nothing);
 comment-vs-rule: "the comment block guarantees the scanner sees them" was the app.css
 block's own self-description and it was wrong about the mechanism — the RULES are the
 feed, comments are documentation. Empirics over self-descriptions.
+
+## 2026-09-22 · T140 markdown/command 2nds — the surviving-dialog read and the page-growth census
+
+(1) Multi-dialog pages (command + the site search) make every `dialog[open]` read a
+WHICH-dialog question first — label the survivors before reading state; vellum's 132
+ground truth was exactly that identification, and my drives confirmed her collision
+law live (Meta+K opens both; Enter closes the palette; the site search persists).
+(2) The active pointer in listbox patterns is DUAL-instrument: the dialog-scoped
+[role=option][aria-selected] AND the input's aria-activedescendant must AGREE — an
+out-of-dialog aria-selected (the canvas file-tree) will masquerade otherwise.
+(3) A page-growth window makes point-in-time censuses drift upward (no-jx-pure 42→45
+between her pass and mine) — file the per-tag SHAPE as the stable receipt, the count
+as the environment line. (4) A 1st reviewer's owned fault ledger is a probe-spec for
+the 2nd: I re-hit her streaming-checkbox trap anyway — transcribe the exclusions into
+the probe BEFORE the first run.

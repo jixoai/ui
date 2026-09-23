@@ -1301,3 +1301,18 @@
   PB degraded-path question both became my measured receipts — reading the 1st
   report's open questions before picking the fresh axis doubles the value of the
   pass.
+
+## T141 (mechanical queue verification, 2026-09-24)
+
+- **Unsound casts diagnose themselves**: when a `as SomeType` error says "neither
+  type sufficiently overlaps", the fix is never the double-cast — it's structural
+  (split the derived per branch). The pagination button branch had ALSO been
+  spreading anchor-typed rest onto a <button> (invalid HTML laundered by the cast)
+  — a type error pointing at a semantic wart is a gift; enumerate instead of cast.
+- **Hit-test the demo seat before blaming hover wiring**: elementFromPoint at the
+  target's center in 5 seconds settles "the hover doesn't work" vs "an overlay eats
+  the pointer" — quill's T133 tooltip mystery and my two dock interceptions were the
+  same canvas-dock geometry. The scale-up-viewport trick (1720×1400) re-seats the
+  button clear of the dock and the real-mouse path works.
+- **Grep for split-markup phrases**: "Components pill" never matches
+  `<em>Components</em> pill` — search the distinctive WORD, then read the line.
