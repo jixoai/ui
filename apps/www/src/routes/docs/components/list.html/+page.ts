@@ -6,6 +6,8 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 const toc: TocSection[] = [
   { id: 'usage', label: 'Usage' },
   { id: 'shapes', label: 'The two shapes' },
+  { id: 'markers', label: 'The marker matrix' },
+  { id: 'nav', label: 'Nav mode' },
   { id: 'task-items', label: 'Task lists' },
   { id: 'accessibility', label: 'Accessibility' },
   { id: 'universal-props', label: 'Universal props' },

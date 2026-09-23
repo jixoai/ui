@@ -509,9 +509,9 @@
     "marginalia",
     "quill"
    ],
-   "tier": null,
-   "status": "todo",
-   "notes": "1st reassigned to marginalia (T105); quill remains the 2nd"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st marginalia T105 PASS 0M/2m/2L/1N; consolidated: nav demo split (in-scope B8-defeat seat + standalone Contents default seat, escape no-jx-pure named+sourced), toc 8/8 DOM order, API rest-row caveat + nav-row standalone conditional, hero conditional, cx ?? {} page+component (mirrored). NIT-1 'five control adapters' recorded for list-item's review."
   },
   {
    "page": "list-item",
@@ -1131,11 +1131,12 @@
    "page": "tooltip",
    "owner": "scribe",
    "reviewers": [
-    "quill",
+    "marginalia",
     "vellum"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "todo",
+   "notes": "T106 reassignment: marginalia 1st (owner scribe codes); vellum preserved as 2nd."
   },
   {
    "page": "tour",
