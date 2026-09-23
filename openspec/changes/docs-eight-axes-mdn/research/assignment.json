@@ -881,8 +881,9 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 40 tier-2; SELF-STAMP taxonomy base case named; the SECOND frozen-ink mechanism shape (root-pinned alias: --jx-border var(--border) substitutes at :root — W-next #7 sixth voice); ghost auto-adaptivity exact per 0.5C+0.25 both ends; old toc missed universal-props entirely (now 11 true DOM order); three probe faults caught pre-conclusion"
   },
   {
    "page": "sheet",

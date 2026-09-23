@@ -17,6 +17,9 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -32,6 +35,19 @@
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import separatorSource from '$lib/ui/separator/separator.svelte?raw';
+  import type { SeparatorVariant } from '$lib/ui/separator/separator-defaults.svelte';
+
+  // the ink-engine gallery ladder — variant names typed to the family's
+  // own literal union (the each key is the variant name, unique)
+  const INK_GALLERY: readonly (readonly [SeparatorVariant, string])[] = [
+    ['fused', 'the contrast ghost (default)'],
+    ['solid', 'the plain-fill escape — var(--border), ghost off'],
+    ['dashed', '6/4 dashes'],
+    ['dense', '3/3 dense dashes'],
+    ['dotted', 'a chain of dots'],
+    ['wavy', 'the SVG sine mask'],
+    ['fade', 'blend: transparent → dark → transparent'],
+  ];
 
   // single usage sample: the drawer file and the body CodeBlock share it
   const usage = `<Separator />                        <!-- hr: the contrast ghost -->
@@ -175,7 +191,7 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is NonNullable<(typeof styles)[number]> => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -190,6 +206,87 @@ ${close}
 <Separator size={14} variant="dashed" />`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/separator-universal.svelte', content: universalUsage },
+  ];
+
+  // ── the measured per-axis table (task 40) — every cell measured on
+  // the served DOM (probe) or negative-grepped over ui/separator/ ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "MANAGED STAMP, ZERO-READER CLASS (the stack structural class) — the resolved rung is stamped on the element (data-density, measured 'sm' under density=\"small\") and the ambient scope channel keeps flowing for composed descendants, but NOTHING in the family reads it: zero density-carrier readers in ui/separator/ (grep receipt), the strip's 1px is engine-fixed. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "ROOT STAMP, ZERO-READER — the §11 carrier stamps --jx-size-effective on the element and the query() seat below rides THAT STAMP as its live receipt (13px → 18px across 48rem, measured); the strip itself never scales (blockSize 1px, engine-fixed) and zero size-effective readers exist (grep receipt). Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero shape-channel readers (grep receipt: no corner-shape or factor consumer in ui/separator/). Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero radius-effective readers (grep receipt); the masks do their own geometry (the dotted chain, the SVG wave) and a 1px strip has no corner to round. Number unit: px.',
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "ZERO-READ BY RULING — the INK LAW (Owner, 2026-09-01): a separator paints no COLOR, border-color is for borders. Six of seven variants read no token AT ALL (subtraction/blend physics); solid is the one token read in the family — the additive exception's var(--border) fill (grep receipt: tokens['--jx-border'] ×2 in the atoms, everything else token-free). Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE MECHANISM SPLIT, MEASURED (the frozen-ink seam's separator instance) — SIX variants are MECHANISM-FREE physics: the contrast ghost and the masks read the BACKDROP, not a token (auto-adaptive, flips nothing, freezes nothing), and the blend fade inverts by physics. ONE variant rides the TOKEN layer, and the ride is SCOPED: solid's fill is --jx-border, a :root-declared alias (--jx-border: var(--border)) whose var() substitutes AT THE ROOT — the light oklch(0 0 0) propagates pre-resolved, so a mid-tree .dark island CANNOT re-derive it (measured: the island flipped inherited --border to oklch(1 0 0) while the fill held oklch(0 0 0) — frozen); only root-level dark re-derives the alias (html.dark → oklch(1 0 0), measured). Root-pinned values cannot re-derive mid-tree — the W-next #7 shape. The resolved dark theme still stamps class:dark for composed descendants. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero elevation-carrier readers (grep receipt); a 1px strip carries no shadow tier. Number unit: dp.',
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY, STATIC INK — zero motion-carrier readers (grep receipt); the family authors no animation and no transition (the ink is instantaneous physics — nothing to tween). Number unit: coefficient.',
+    },
+  ];
+
+  // the ONE query() case: responsive size — on a zero-reader family the
+  // STAMP is the receipt: the resolved lane flips on the element's own
+  // style attr across 48rem while no family rule consumes it.
+  const responsiveSize = query({ md: 18 }, 13);
+
+  const queryUsage = `<script lang="ts">
+  import Separator from '@ui/separator.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- the md key is the registered VIEWPORT scale (48rem): below it the
+     base (13px) stamps, at 48rem+ the md case (18px) wins — the
+     carrier flips on the element while nothing in the family reads
+     it (the zero-reader class): the stamp IS the receipt -->
+<Separator size={query({ md: 18 }, 13)} />`;
+
+  const queryFiles: TreeFile[] = [
+    { name: 'separator-query-demo.svelte', content: queryUsage, kind: 'usage' },
   ];
 
 </script>
@@ -226,7 +323,63 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <!-- install (the archetype's install anchor; chrome — out of the toc) -->
+    <div id="install" data-reveal="">
+      <DocsInstall name="separator" />
+    </div>
+
+    <!-- overview -->
+    <div id="overview" data-reveal="">
+      <SectionCard
+        family="overview"
+        headerRegion="overview"
+        eyebrow="overview"
+        title="Overview"
+        summary="Two postures, one ink law, zero color: the platform carries the semantics, the family paints physics, and the eight axes ride along unread — the fleet's zero-reader class, measured."
+      >
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.para)}>
+            The postures are the platform's. Horizontal renders the native
+            <code class={cx(rt.inkPrimary)}>&lt;hr&gt;</code> — thematic-break semantics and the
+            separator announcement for free, zero ARIA authored; only the vertical posture has no
+            native element, so it takes the WAI-ARIA route: a div with
+            <code class={cx(rt.inkPrimary)}>role=separator</code> and
+            <code class={cx(rt.inkPrimary)}>aria-orientation</code> the component owns (landed
+            AFTER the attribute spread — not overridable). Length stays your layout's job on
+            purpose: block-stretch horizontal, inline-peer vertical, no length API.
+          </p>
+          <p class={cx(rt.para)}>
+            The ink paints no color (Owner ruling, 2026-09-01). The default variant is NAMED
+            fused — the backdrop's own CONTRAST GHOST, a <code>backdrop-filter: contrast(0.5)</code> strip
+            that reads as a tonal shift over any ground; dashed (6/4), dense (3/3), dotted and
+            wavy are MASKS over that same strip; fade rides the BLEND engine — an alpha-ramped
+            white gradient under <code>mix-blend-mode: difference</code>, peak α capped at 0.6
+            (the exact-mid blind spot is difference's, and documented, not fixable); solid is the
+            ONE additive exception — ghost off, plain <code>var(--border)</code> (Owner amendment,
+            2026-09-08). Six of seven variants therefore read NO token at all — theme-free by
+            mechanism, adaptive over any ground in any scope. Solid is the family's only token
+            read, and its alias is ROOT-PINNED: <code>--jx-border: var(--border)</code> resolves
+            at the root, so the light ink oklch(0 0 0) propagates pre-substituted — a scoped
+            .dark island cannot re-derive it (measured frozen), while root-level dark flips it
+            to oklch(1 0 0) (measured). Physics vs pinned tokens — measured, not assumed.
+          </p>
+          <p class={cx(rt.para)}>
+            The eight axes are the fleet's ZERO-READER CLASS (the stack structural class,
+            measured): density is a managed stamp, size stamps
+            <code>--jx-size-effective</code> with nothing behind it reading, and shape / radius /
+            color / elevation / motion supply unread (grep receipts over
+            <code>ui/separator/</code>) — the supply chain to composed descendants is the point,
+            not consumption. Kinship: <code class={cx(rt.inkPrimary)}>stack</code> (gaps instead
+            of rules — the layout alternative),
+            <code class={cx(rt.inkPrimary)}>menu</code> and
+            <code class={cx(rt.inkPrimary)}>button-group</code> (the strip living inside grouped
+            chrome), <code class={cx(rt.inkPrimary)}>timeline</code> (the ruled scale).
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <div id="live-demo" data-reveal="">
       <ComponentCanvas
         title="separator"
         description="Horizontal renders the native hr; vertical renders the ARIA div and stretches its container's cross axis."
@@ -269,7 +422,7 @@ ${close}
         <ComponentCanvas title="separator · ink engine" stage="fill" files={separatorInkFiles}>
           <div class={cx(rt.col24)}>
             <div class={cx(rt.col16, rt.wFull, rt.maxWLg)}>
-              {#each [['fused', 'the contrast ghost (default)'], ['solid', 'the plain-fill escape — var(--border), ghost off'], ['dashed', '6/4 dashes'], ['dense', '3/3 dense dashes'], ['dotted', 'a chain of dots'], ['wavy', 'the SVG sine mask'], ['fade', 'blend: transparent → dark → transparent']] as [v, label]}
+              {#each INK_GALLERY as [v, label] (v)}
                 <div class={cx(rt.flex, rt.col, rt.gap6)}>
                   <span class={cx(rt.eyebrowPrimary)}>{v}</span>
                   <Separator variant={v} />
@@ -347,26 +500,72 @@ ${close}
     </ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="One prop, no length API on purpose — length is your layout's job."><CodeBlock code={usage} lang="svelte" meta="Separator usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Horizontal needs no ARIA at all — the browser announces hr natively; vertical carries the WAI-ARIA separator pattern."><A11yTable keys={[]} aria={[{ name: 'hr', value: 'native', description: 'Announced as a separator/thematic break by the platform — zero wiring owed' }, { name: 'role', value: 'separator', description: 'On the vertical path only (component-owned, not overridable)' }, { name: 'aria-orientation', value: '"vertical"', description: 'Set with the role on the vertical path' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No color decision of its own — the ink is physics, not palette: the contrast ghost adapts to whatever ground it crosses, the blend fade inverts it, and the one plain fill (solid) simply reads the --border token. Length comes from layout."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.sepRow8)}><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: 'contrast ghost', default: 'backdrop-filter: contrast(0.5)', source: 'ink engine', description: 'The default ink — the backdrop\'s own tonal shift, over any ground' }, { name: 'blend fade', default: 'mix-blend-mode: difference', source: 'ink engine', description: 'The alpha-ramped gradient inverts the backdrop toward mid: transparent → light → dark → light → transparent' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="No color decision of its own — the ink is physics, not palette: the contrast ghost adapts to whatever ground it crosses, the blend fade inverts it, and the one plain fill (solid) simply reads the --border token. Length comes from layout."><div class={cx(rt.col24)}><DensityDemo><div class={cx(rt.sepRow8)}><span>a</span><Separator orientation="vertical" /><span>b</span></div></DensityDemo><TokenTable tokens={[{ name: 'contrast ghost', default: 'backdrop-filter: contrast(0.5)', source: 'structural', description: 'The default ink — engine physics, no token read: the backdrop\'s own tonal shift over any ground (theme-free by mechanism)' }, { name: 'masks (dashed/dense/dotted/wavy)', default: 'mask over the ghost strip', source: 'structural', description: 'Geometry over the same contrast strip — no color token anywhere (theme-free by mechanism)' }, { name: 'blend fade', default: 'mix-blend-mode: difference', source: 'structural', description: 'The alpha-ramped gradient (peak α 0.6) inverts the backdrop toward mid: transparent → light → dark → light → transparent (theme-free by mechanism)' }, { name: 'solid fill', default: 'var(--border)', source: 'color', description: 'The ONE token read in the family (the additive exception) — and its alias is ROOT-PINNED: --jx-border: var(--border) substitutes at :root, so the light oklch(0 0 0) holds under a scoped .dark island (measured frozen) and re-derives only at root-level dark (html.dark → oklch(1 0 0), measured)' }]} /></div></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable universal props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div. The mask axis swaps with it.' }, { name: 'variant', type: "'fused' | 'solid' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade'", default: "'fused' · Own default, not ambient", description: 'The ink geometry: fused is the bare contrast ghost (the named default); dashed (6/4), dense (3/3), dotted and wavy are masks over it; fade rides the blend engine; solid is the plain-fill var(--border) escape — the subtraction-ink exception (Owner 2026-09-08). Own default, not ambient (ink geometry is never a paint-zone rung).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: 'style', type: 'string | null', default: '—', description: 'Inline style passthrough, composed AFTER the family\'s carrier stamp (the #4 seam law: never clobbered, never dropped).' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
       headerRegion="universal-props"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. A strip consumes little of the paint surface — the supply chain is the point: the resolved lanes flow to sibling content through the broadcast."
+      title="The eight axes on separator"
+      summary="The fleet's ZERO-READER CLASS, measured (the stack structural class): density is a managed stamp (data-density, nothing reads it), size stamps --jx-size-effective with no consumer behind it, and shape / radius / color / elevation / motion supply unread — grep receipts over ui/separator/. The one token read in the whole family is solid's var(--border) fill (the additive exception), and the theme split is BY MECHANISM, measured: six variants are physics (theme-free everywhere), one is a root-pinned alias — frozen under a scoped .dark island, re-derived only at root-level dark. The supply chain to composed descendants is the point, not consumption."
     >
-      <ComponentCanvas title="Separator · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}><Separator density="small" /></div>
-        <div class={cx(rt.panel)}><Separator density="large" /></div>
-        <div class={cx(rt.panel)}><Separator variant="dashed" /></div>
-        <div class={cx(rt.panel)}><Separator orientation="vertical" radius="medium" /></div>
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the omission census (the component's bare hr carries data-jx-separator="fused"
+          + data-orientation + class only — no density attr, no style attr, no role; vertical
+          lands role=separator + aria-orientation AFTER the spread, not overridable), the managed
+          stamp (data-density="sm" under density="small"), the variant
+          ladder (blockSize 1px base / 2px dotted / 6px wavy; backdrop-filter contrast(0.5) on
+          the ghost and its masks, none on solid and fade; difference blend on fade only), the
+          ghost's auto-adaptivity (the strip pixel = contrast(0.5) of its ground, EXACT at both
+          ends: ground 218 → strip 173 on a light ground (−45) and ground 58 → strip 93 on a
+          dark ground (+35) — the fixed-point law 0.5C + 0.25 to the digit, sign flip
+          pixel-measured at two device scale factors), the theme split (under a scoped .dark island
+          the inherited --border flipped to oklch(1 0 0) while solid's fill HELD oklch(0 0 0) —
+          the :root alias substitutes before inheritance — and html.dark re-derived it to
+          oklch(1 0 0); the ghost's backdrop-filter byte-identical across both) and the query
+          seat (the --jx-size-effective carrier flips 18px → 13px across the 48rem viewport key
+          on the element's own style attr — the seat rides a full-width ground so the stamp is
+          measurable at page scale) were measured on this page's served DOM
+          (probe, task 40); the unread rows carry grep receipts over ui/separator/.
+          LAW #19 id landscape: duplicate ids NONE page-wide; the keyed variants gallery mounts
+          7/7. The query() seat below rides the md viewport key (48rem) on the size lane.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
         </div>
-      </ComponentCanvas>
+        <!-- the seat rides a FULL-WIDTH ground, not a shrink-wrapped
+             canvas stage, so the strip is measurable at page scale -->
+        <div class={cx(rt.mt20, rt.wFull)}>
+          <Separator size={responsiveSize} />
+          <p class={cx(rt.mt12, rt.note12, rt.inkMuted70)}>
+            The md key is the registered VIEWPORT scale (48rem): below it the base (13px) stamps;
+            at 48rem and wider the md case wins (18px at a 1280 viewport, measured) — the carrier
+            flips on the element's style attr while no family rule consumes it (the zero-reader
+            class): the stamp is the receipt. The number lane goes bare.
+          </p>
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="Separator · universal props" stage="fill" files={universalFiles}>
+            <div class={cx(rt.gridSm2)}>
+            <div class={cx(rt.panel)}><Separator density="small" /></div>
+            <div class={cx(rt.panel)}><Separator density="large" /></div>
+            <div class={cx(rt.panel)}><Separator variant="dashed" /></div>
+            <div class={cx(rt.panel)}><Separator orientation="vertical" radius="medium" /></div>
+            </div>
+          </ComponentCanvas>
+        </div>
+      </div>
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the Separator Props interface — everything else rides through as native hr attributes."><PropsTable universal props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'horizontal renders the native hr; vertical renders the role=separator div. The mask axis swaps with it.' }, { name: 'variant', type: "'fused' | 'solid' | 'dashed' | 'dense' | 'dotted' | 'wavy' | 'fade'", default: "'fused' · Own default, not ambient", description: 'The ink geometry: fused is the bare contrast ghost (the named default); dashed (6/4), dense (3/3), dotted and wavy are masks over it; fade rides the blend engine; solid is the plain-fill var(--border) escape — the subtraction-ink exception (Owner 2026-09-08). Own default, not ambient (ink geometry is never a paint-zone rung).' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough — width/height/margin live here, by design.' }, { name: '...rest', type: 'HTMLAttributes<HTMLHRElement>', default: 'spread', description: 'Every other attribute lands on the element (vertical spreads onto the div).' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Horizontal needs no ARIA at all — the browser announces hr natively; vertical carries the WAI-ARIA separator pattern."><A11yTable keys={[]} aria={[{ name: 'hr', value: 'native', description: 'Announced as a separator/thematic break by the platform — zero wiring owed' }, { name: 'role', value: 'separator', description: 'On the vertical path only (component-owned, not overridable)' }, { name: 'aria-orientation', value: '"vertical"', description: 'Set with the role on the vertical path' }]} /></SectionCard></div>
+</div>
+
+<!-- see-also (chrome — out of the toc) -->
+<div id="see-also" data-reveal="">
+  <DocsSeeAlso name="separator" />
 </div>

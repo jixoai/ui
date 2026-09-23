@@ -1129,3 +1129,28 @@
   probe route was tracked-clean at HEAD and pinned by the routes stylex map — not mine,
   referenced, so the disposition is "leave + key for the orchestrator", not a deletion.
   Check `git log -- <path>` + grep the surface map before touching fleet leftovers.
+
+## Task 40 — separator (2026-09-23)
+- **Custom-property aliases freeze at their DECLARING element**: `--jx-border: var(--border)`
+  on :root substitutes var() at :root — the resolved light value inherits PRE-RESOLVED
+  tree-wide, so a mid-tree .dark island flips --border while --jx-border (and anything
+  reading it) stays frozen; only root-level dark re-derives. Second mechanism shape of the
+  frozen-ink seam (after stylex defineVars pins). When a token alias must track mid-tree
+  re-themes, read the target var at the USE SITE, never through a root-declared alias.
+- **page.screenshot clips are DOCUMENT-space; getBoundingClientRect is VIEWPORT-space** — a
+  clip aimed from an un-adjusted rect samples whatever sits scrollY away from the target.
+  Anchor with y + window.scrollY (and x + scrollX), or assert the sampled ground matches the
+  expected ground before trusting the trace.
+- **Probe selectors must scope past the SCAFFOLD**: the docs header/toc components stamp
+  their own --jx-size-effective (13px/11px ambient rungs) — a bare
+  `[style*="--jx-size-effective"]` matched the header button, not my seat, and produced a
+  confident, wrong "no flip" for two probe rounds. Scope seat queries to the section id, and
+  print the matched element's section/parent chain before believing it.
+- **1px strips need subpixel-proof sampling**: a 1px rule on a fractional raster line
+  blends its filtered pixel with neighboring ground rows — sample at deviceScaleFactor 3
+  and take the strip's own device rows, or a single-row probe reads pure ground and
+  "disproves" a real effect.
+- **Shrink-wrap kills viewport-invisible geometry AND seats**: a full-width element inside a
+  fit-content/inline-flex chain measures 13-28px. Seats that need measurable geometry ride
+  plain full-width grounds, not canvas stages (second occurrence — T38 chose the stage body,
+  T40 had to leave the stage entirely).
