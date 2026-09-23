@@ -2,7 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | quill | 70 | website-scaffold (OWN) | CODE | in-flight |
-| vellum | 77 | toast 2nd (scribe 1sted) | REVIEW (2nd) | in-flight |
+| vellum | 77 | textarea (quill's) | REVIEW (1st) | in-flight |
 | marginalia | 76 | tabs 2nd (quill's lane freed) | REVIEW (2nd) | in-flight |
 | scribe | 71 | toast (vellum's) | REVIEW (1st) | in-flight |
 
