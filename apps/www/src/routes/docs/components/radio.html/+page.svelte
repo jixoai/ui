@@ -109,7 +109,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -120,7 +120,7 @@ ${close}
   <title>Radio · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai radio component: pure-CSS selector — appearance-none + 16px circle, :checked turns the border primary and pops an 8px dot from scale(0) to scale(1). Same-name groups keep native arrow-key walking; error wiring identical to checkbox."
+    content="The jixoai radio component: pure-CSS selector — appearance-none; the ring rides the --jx-icon ladder (16/18/20/24px across rungs — 20px at the default, measured), :checked turns the border primary and pops the dot from scale(0) to scale(1) (14px at the default); the ring is corner-shape bevel at radius 50% (the shared corner law — a beveled circle, measured). Same-name groups keep native arrow-key walking; error wiring identical to checkbox."
   />
 </svelte:head>
 
@@ -139,7 +139,7 @@ ${close}
       headingLevel={1}
       tone="hero"
       eyebrow="registry:ui · Data Entry"
-      title="radio — 16px circle, scaled dot"
+      title="radio — the icon-ladder ring, scaled dot"
       summary={heroSummary}
     >
       <div class={cx(rt.wrap12)}>
@@ -168,6 +168,7 @@ ${close}
         <Radio label="node" name="canvas-radio" value="node" bind:group={canvasGroup} labelSide={canvasLabelSide} disabled={canvasDisabled} />
         <Radio label="bun" name="canvas-radio" value="bun" bind:group={canvasGroup} labelSide={canvasLabelSide} disabled={canvasDisabled} />
         <Radio label="deno" name="canvas-radio" value="deno" bind:group={canvasGroup} labelSide={canvasLabelSide} disabled={canvasDisabled} />
+                <Radio label="edge (error wiring)" name="canvas-radio" value="edge" bind:group={canvasGroup} labelSide={canvasLabelSide} error="edge requires the nightly channel" disabled={canvasDisabled} />
       </div>
       {#snippet playground()}
         <PlayFields>
@@ -203,7 +204,7 @@ ${close}
     >
       <div class={cx(rt.col20)}>
         <p class={cx(rt.para)}>
-          :checked turns the border primary and pops an 8px dot from
+          :checked turns the border primary and pops the dot (14px at the default rung — the 16/18/20/24 ladder) from
           <code class={cx(rt.inkAccent)}>scale(0)</code> to
           <code class={cx(rt.inkAccent)}>scale(1)</code> (150ms ease-out). Same-name radios keep
           native arrow-key walking — tab into the group and use the arrows.
@@ -236,7 +237,7 @@ ${close}
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give every option the same name and bind the selected value when the parent needs it."><CodeBlock code={usage} lang="svelte" meta="Radio usage" /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Native radio grouping supplies arrow-key walking and form semantics; the component adds explicit validation wiring."><A11yTable keys={[{ key: 'Arrow keys', action: 'Move selection within same-name radio group' }, { key: 'Space', action: 'Select the focused radio' }]} aria={[{ name: 'aria-invalid', value: 'true', description: 'Set when error is present' }, { name: 'aria-describedby', value: '{id}-error', description: 'References the validation message' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The ring, dot, and label all consume the shared density scale."><div class={cx(rt.col20)}><DensityDemo><Radio label="density sample" name="density-radio" /></DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The ring, dot, and label all consume the shared density scale."><div class={cx(rt.col20)}><DensityDemo>{#snippet childrenScoped(scope)}<Radio label={`density sample (${scope})`} name={`density-radio-${scope}`} value="sample" />{/snippet}</DensityDemo><TokenTable tokens={[{ name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-icon', default: '16 / 18 / 20 / 24px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-line', default: '16 / 18 / 20 / 24px', source: 'density' }]} /></div></SectionCard></div>
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"

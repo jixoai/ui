@@ -786,8 +786,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "task 94 marginalia 1st NEEDS-WORK (1M/3m/1L); full consolidation landed: the resting-group indeterminate blob killed in jixoai.css (spec-true), density seat scoped+valued, digits trued, error seat served; 2nd = vellum"
   },
   {
    "page": "range",
