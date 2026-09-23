@@ -36,7 +36,15 @@
   import { DensityDemoDefaults } from './density-demo-defaults.svelte';
 
   interface Props {
-    children: Snippet;
+    /** plain clone form — omit when childrenScoped is given (id-bearing
+     *  seats must use the scoped form, never this one) */
+    children?: Snippet;
+    /** scope-aware render: when given, each rung renders THIS snippet with
+     *  its scope key — the id-bearing-seat law (popover 1st review, LAW
+     *  #19 class): a zero-arg snippet cloned across rungs mints duplicate
+     *  ids/anchor-names (the popover page's density-pop ×4 measured);
+     *  seats that stamp ids adopt this form and compose per-rung ids */
+    childrenScoped?: Snippet<[('2xs' | 'xs' | 'sm' | 'default' | 'lg')]>;
     scopes?: ('2xs' | 'xs' | 'sm' | 'default' | 'lg')[];
     /** density policy: the universal §4 lane (named rungs + the
      *  documented small/medium/large aliases · auto · a coefficient
@@ -70,6 +78,7 @@
 
   let {
     children,
+    childrenScoped,
     scopes = ['xs', 'sm', 'default', 'lg'],
     density,
     size,
@@ -131,7 +140,11 @@
         {scope}
       </span>
       <div data-density={scope} class={cx(densityDemoStyles.scopeBox)}>
-        {@render children()}
+        {#if childrenScoped}
+            {@render childrenScoped(scope)}
+          {:else if children}
+            {@render children()}
+          {/if}
       </div>
     </div>
   {/each}

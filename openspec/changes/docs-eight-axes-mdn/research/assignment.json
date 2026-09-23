@@ -700,8 +700,9 @@
     "quill",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "task 93 marginalia 1st NEEDS-WORK (2M/4m/2L/1N); full consolidation landed: DensityDemo childrenScoped (LAW #19 guard, live-verified), zero-script claims trued ×4, strategy/toc/density/gate/focus/reopen seats all trued; 2nd = scribe"
   },
   {
    "page": "press-button",

@@ -4,11 +4,11 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
+  { id: 'usage', label: 'Usage' },
   { id: 'popover-menu', label: 'menu type' },
   { id: 'popover-card', label: 'card type' },
   { id: 'popover-base', label: 'NativeHTML base' },
   { id: 'types', label: 'Types' },
-  { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },
   { id: 'theming', label: 'Theming' },
   { id: 'universal-props', label: 'Universal props' },
