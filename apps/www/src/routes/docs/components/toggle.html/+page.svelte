@@ -9,6 +9,8 @@
   import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -33,7 +35,7 @@
   // these ids with the SectionCard data-family extents + header
   // data-region leaves rendered in this page.
 
-  const usage = `<!-- label reads on the LEFT of the control; checked is $bindable -->
+  const usage = `<!-- the label renders as a sibling label[for] above the control; checked is $bindable -->
 <Toggle label="notifications" bind:checked />
 
 <!-- density controls the rail through the shared control aliases -->
@@ -206,7 +208,7 @@ ${close}
   <title>Toggle · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai toggle component: a checkbox in inline-end posture — label on the left, a rounded rail on the right, a slide instead of a glyph. A visually-hidden checkbox drives the rail through the sibling selector; sizes keep the rail proportional (sm 28×16, md 36×20, lg 44×24); checked is $bindable."
+    content="The jixoai toggle component: a native checkbox painted as a switch — ONE element, the input IS the rounded rail (the standard layer's jx-html-switch utility draws the capsule and its ::before knob). Checked slides the knob by width − track (20px at the default rung) and flips it to primary-foreground over 200ms; the label renders as a sibling label[for]; the rail rides the density lanes (xs 32×16 · sm 36×18 · default 40×20 · lg 48×24); checked is $bindable."
   />
 </svelte:head>
 
@@ -225,24 +227,32 @@ ${close}
       headingLevel={1}
       tone="hero"
       eyebrow="registry:ui · Data Entry"
-      title="toggle — checkbox in inline-end posture"
+      title="toggle — the native checkbox, painted as a switch"
       summary={heroSummary}
     >
       <div class={cx(rt.wrap12)}>
-        <span class="pill">pure CSS · zero icon deps</span>
+        <span class="pill">one element — the input is the rail</span>
         <span class="pill">knob slide · 200ms</span>
-        <span class="pill">sm / md / lg rails</span>
+        <span class="pill">xs → lg rail rungs</span>
         <span class="pill">checked is $bindable</span>
         <span class="pill">label[for] + aria wiring</span>
       </div>
     </SectionCard>
   </div>
 
+  <!-- install (the docs-site skeleton: Intro → Install → Usage → …) -->
+  <div id="install" data-reveal="">
+    <DocsInstall name="toggle" />
+  </div>
+
+  <!-- usage (the skeleton law: Usage precedes the demos) -->
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Use bind:checked for controlled state; a named toggle remains a native checkbox field in forms."><CodeBlock code={usage} lang="svelte" meta="Toggle usage" /></SectionCard></div>
+
   <!-- component canvas (site-polish F10): the standard opening — live demo + PLAYGROUND -->
   <div data-reveal="">
     <ComponentCanvas
       title="toggle"
-      description="a checkbox in inline-end posture — label left, rounded rail right, a slide instead of a glyph; the visually-hidden native input keeps keyboard toggling and form participation."
+      description="a native checkbox painted as a switch — the label renders as a sibling label[for], and the input IS the rounded rail: the standard layer's jx-html-switch utility draws the capsule and its ::before knob, so keyboard toggling and form participation are the platform's own."
       sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/toggle/toggle.svelte"
       files={canvasFiles}
       stage="center"
@@ -266,7 +276,7 @@ ${close}
               bind:value={canvasDensity}
               options={[
                 { value: 'sm', label: 'sm' },
-                { value: 'default', label: 'md' },
+                { value: 'default', label: 'default' },
                 { value: 'lg', label: 'lg' },
               ]}
             />
@@ -275,30 +285,35 @@ ${close}
             <PlayToggle bind:value={canvasDisabled} />
           </PlayRow>
           <PlayHelp>
-            the rail slides instead of morphing a glyph — the hidden checkbox carries
-            :checked, so the platform owns every state transition.
+            the input carries :checked itself — the slide is its own ::before transform
+            (the standard layer paints the capsule onto the element), so the platform
+            owns every state transition.
           </PlayHelp>
         </PlayFields>
       {/snippet}
     </ComponentCanvas>
   </div>
 
-  <!-- the selectors, redrawn in pure CSS -->
+  <!-- the switch, painted by the standard layer (the native-contract fusion) -->
   <div id="demo" data-reveal="">
     <SectionCard
       family="demo"
       headerRegion="demo"
       eyebrow="toggle"
-      title="The selector, redrawn in pure CSS"
-      summary="A control where the paint deserved its own drawing code — the label reads on the left, the control lands on the right. Zero icon fonts, zero SVG, zero dependencies; the native input underneath keeps form participation, keyboard toggling, and :checked state."
+      title="The switch, painted by the standard layer"
+      summary="One element carries the whole control: the native input IS the rounded rail — the jx-html-switch utility paints the capsule on the element and its ::before knob, so form participation, keyboard toggling, and :checked state stay the platform's own."
     >
       <div class={cx(rt.col20)}>
         <p class={cx(rt.para)}>
-          A visually-hidden checkbox drives a rounded rail through the sibling selector:
-          unchecked is a muted rail with a muted-foreground knob; checked slides the knob by
-          <code class={cx(rt.inkAccent)}>width − height</code> (16px at md) over a primary rail —
-          200ms cubic-bezier(0.22, 1, 0.36, 1). Sizes keep the rail proportional:
-          sm 28×16, md 36×20, lg 44×24.
+          The rail geometry rides the density lanes —
+          <code class={cx(rt.inkAccent)}>--jx-toggle-track</code> is
+          <code class={cx(rt.inkAccent)}>var(--jx-line)</code>, the width is twice the
+          track, and the knob is the track minus one unit — measured on this page:
+          xs 32×16, sm 36×18, default 40×20, lg 48×24. Checked slides the knob by
+          <code class={cx(rt.inkAccent)}>width − track</code> (20px at the default rung)
+          and flips it to primary-foreground over the primary ring — 200ms
+          cubic-bezier(0.22, 1, 0.36, 1). The label renders as a sibling
+          <code class={cx(rt.inkAccent)}>label[for]</code> above the control.
         </p>
         <CardGrid min="220px">
           <div class={cx('demo-cell', rt.rowC12)} data-no-subgrid>
@@ -371,8 +386,7 @@ ${close}
 
 <div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toggle variants" summary="Choose a density for rail geometry, then bind checked when state must stay in sync."><ComponentCanvas title="toggle · variants" stage="fill" files={toggleTypesFiles}><div class={cx(rt.gridSm3, rt.wFull)}><div class={cx(rt.panel)}><Toggle label="off" name="types-off" /></div><div class={cx(rt.panel)}><Toggle label="on" name="types-on" checked /></div><div class={cx(rt.panel)}><Toggle label="disabled" name="types-disabled" disabled /></div></div></ComponentCanvas></SectionCard></div>
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Use bind:checked for controlled state; a named toggle remains a native checkbox field in forms."><CodeBlock code={usage} lang="svelte" meta="Toggle usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The hidden native checkbox stays keyboard reachable and the visible rail receives the focus indication."><A11yTable keys={[{ key: 'Space', action: 'Toggle the focused switch' }, { key: 'Tab', action: 'Move focus to or past the switch' }]} aria={[{ name: 'role', value: 'checkbox', description: 'Native input semantics are preserved' }, { name: 'aria-checked', value: 'native', description: 'State is exposed by the checkbox input' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native input keeps keyboard reachability and paints the focus indication on the visible rail itself."><A11yTable keys={[{ key: 'Space', action: 'Toggle the focused switch' }, { key: 'Tab', action: 'Move focus to or past the switch' }]} aria={[{ name: 'role', value: 'switch', description: 'On the native checkbox input — the switch pattern over native semantics' }, { name: 'aria-checked', value: 'native', description: 'State is exposed by the checkbox input' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The shared density scope controls label rhythm and the proportional rail geometry."><div class={cx(rt.col20)}><DensityDemo><Toggle label="density sample" name="density-toggle" /></DensityDemo><TokenTable tokens={[{ name: '--jx-toggle-track', default: 'var(--jx-line)', source: 'component' }, { name: '--jx-toggle-width', default: 'calc(var(--jx-toggle-track) * 2)', source: 'component' }, { name: '--jx-toggle-knob', default: 'calc(var(--jx-toggle-track) - var(--jx-unit))', source: 'component' }, { name: '--jx-toggle-knob-border', default: '1px', source: 'component' }, { name: '--jx-toggle-knob-border-color', default: 'var(--primary)', source: 'component' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-gap', default: '8 / 8 / 12 / 16px', source: 'density' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }]} /></div></SectionCard></div>
   <div id="universal-props" data-reveal="">
     <SectionCard
@@ -394,4 +408,10 @@ ${close}
   </div>
 
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend native HTML input attributes; these additions define the toggle contract."><PropsTable universal props={[{ name: 'checked', type: 'boolean', default: 'false', description: 'Bindable on/off state.', bindable: true }, { name: 'label', type: 'string', default: '—', description: 'Text rendered before the rail.' }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables interaction and mutes the control.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'name', type: 'string', default: '—', description: 'Form field name passed to the native input.' }]} /></SectionCard></div>
+
+  <!-- the skeleton's closing section: related components, derived from
+       the docs reading chain (data, not a hand list) -->
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="toggle" />
+  </div>
 </div>

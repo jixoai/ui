@@ -1138,8 +1138,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "done",
+   "closure": "marginalia 147 (owner round, reviewers scribe/vellum pending) — Tier 1 alignment landed: DocsInstall + DocsSeeAlso served (the skeleton's missing halves), Usage reordered before the demos (the six-keep-order law), toc 9 == DOM == rail, and every mechanism claim trued to the native-contract-fusion family (ONE input[role=switch]; the input IS the rail via the standard layer's jx-html-switch capsule + ::before knob; measured rungs xs 32×16 / sm 36×18 / default 40×20 / lg 48×24 — width = 2×track, track = --jx-line; slide = width − track = 20px at default over 200ms cubic-bezier; label = sibling label[for] stacked inline-start). The pre-fusion copy (visually-hidden checkbox, sibling-selector rail, 28×16/36×20/44×24 literals, inline-end posture, role:checkbox) retired from the page, head meta, canvas description, PlayHelp, a11y rows AND the registry.json item description. 420 laws hold (tglGrid900 minmax(0,1fr) pair pre-dated; no overflow at 420). Gates: fresh build rc=0, verify:docs rc=0 (zero toggle mentions — the backlog entries are theme-toggle/toggle-group), universal 110/110, smoke 200, LAW #19 82/0."
   },
   {
    "page": "toggle-group",

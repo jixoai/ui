@@ -2085,7 +2085,7 @@
       "name": "toggle",
       "type": "registry:ui",
       "title": "Toggle",
-      "description": "Checkbox in inline-end posture: sr-only checkbox + label-wrapped track (36×20 md / 28×16 sm / 44×24 lg), knob slides 200ms cubic-bezier, checked = $bindable, label reads on the LEFT of the control.",
+      "description": "Native checkbox painted as a switch: ONE element — the input is the rail (the standard layer's jx-html-switch utility draws the capsule and its ::before knob). Rail geometry rides the density lanes (xs 32×16 · sm 36×18 · default 40×20 · lg 48×24); checked slides the knob by width − track and flips it to primary-foreground over 200ms cubic-bezier; checked = $bindable; the label renders as a sibling label[for].",
       "files": [
         {
           "path": "registry/files/ui/toggle/toggle.svelte",
