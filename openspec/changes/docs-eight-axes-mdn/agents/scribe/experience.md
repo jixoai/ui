@@ -976,3 +976,35 @@
   announced-text-vs-textContent class. Both are "the page teaches X,
   the DOM serves Y" checks — one for CSS, one for the accessibility
   tree. The "!" mark is the fleet's first announced-text receipt.
+
+## Techniques (task 32 additions)
+- The cold-server trap re-bitten on my own probes: a fresh vite start
+  needs FIRST-200 + 10-15s settle before the first read — three
+  contradictory negative reads (empty --jx-* vars, 16px fallbacks,
+  missing rules) were all one cold compile. A sanity token read before
+  the battery, and a window flag to prove no mid-probe reload, are now
+  standard pre-flight.
+- Re-verify reviews read the FIX first (vocabulary sweep + served
+  enumeration), then re-derive the STANDING claims fresh — the fix
+  verification and the regression sweep are different passes with
+  different receipts, and both belong in the report.
+- max()/calc() lane claims: read the leg arithmetic at the element
+  (computed custom props) before reading the computed result — the
+  computed value cannot tell you WHICH leg won; the legs can.
+- A "root == glyph" family (standalone Kbd) makes "the stamp moves the
+  root but the voice stays put" incoherent at the rendered-size frame;
+  the coherent frames are the kernel channel value (constant) vs the
+  rendered size (follows the inline mirror). Name the frame before
+  judging the sentence.
+
+## Highlights (task 32)
+- (kbd) The typed-REDECLARED vs typed-ROOT-ONCE taxonomy verified live
+  on my own probe: --jx-tonal inside a .dark island reads
+  oklch(0.7044 0.1872 calc(118 - 4)) — the re-declared stream with the
+  -4° drift arithmetic in the calc — the exact counter-example to
+  combobox's frozen --jx-border. Declaration coverage, not emission
+  form, is the flip determinant.
+- (kbd) The stamped-but-ignored receipt in its cleanest form: carriers
+  8px/squircle stamped inline on the SAME element whose computed corner
+  is 2px via var(--kbd-radius, 2px) — supply and seam on one element,
+  zero ambiguity.

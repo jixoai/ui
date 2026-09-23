@@ -811,3 +811,26 @@
   post-settle DOM releases the edge on missing targets (the loud span).
   curl the SSR AND probe the live DOM; either alone mis-describes the
   family.
+
+## Techniques (mine, added 2026-09-23, task 29 — review menubar)
+- **SYNTHETIC CLICKS DON'T FOCUS — KEYBOARD PROBES NEED REAL CLICKS**:
+  el.click() toggles a popover without moving focus, so keyboard.press
+  events dispatch to BODY and every downstream assertion reads dead.
+  page.click(selector) (real hit-testing) focuses the button and the
+  bar's keydown handler receives the arrows — the glide then measures
+  exactly. The sibling lesson: page.click File → ArrowRight (one hop:
+  next panel + inside-focus) → ArrowRight ×2 (dead) → Escape (closes +
+  focus restores). Assert focus by tag/text/inPanel, never by "something
+  is focused".
+- **LEFTOVER UI STATE POISONS NEGATIVE PROBES**: "hover opened no panel"
+  is only provable after closing every panel a previous step opened — a
+  stale open panel reads as a hover-open cascade. Close-and-assert-zero
+  before the negative probe, or run negative probes on a fresh load.
+- **THE THIRD DOM SHAPE COMPLETES THE DELIVERY TAXONOMY**: stamp delivery
+  to a floating panel now has three named shapes — promotion-away
+  (nav-menu: bar stamps, .jx-pop reads through inheritance), self-carried
+  portal (popconfirm: anchor and panel are siblings, the panel stamps
+  itself), and wrap-IN-PLACE (menubar: the panel is a DOM descendant of
+  the stamped bar — the simplest delivery, plain inheritance across the
+  top-layer promotion). Classify a popover family by asking: where does
+  the stamp land, and what stands between it and the panel?

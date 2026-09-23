@@ -471,8 +471,9 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 30 tier-2; inheritance caption falsified (density-kernel own voice); typed-LITERAL vs typed-STREAM theme split; EXTRA channel limitation recorded; 3 open questions"
+   "status": "done",
+   "notes": "task 30 tier-2; inheritance caption falsified (density-kernel own voice); typed-LITERAL vs typed-STREAM theme split; EXTRA channel limitation recorded; 3 open questions",
+   "closure": "#34 — quill 1st NEEDS-WORK (captions survived in two surfaces; vocabulary-grep law) fixed by orchestrator; scribe 2nd PASS (purge verified clean, all claims re-derived, adjudications concurred ×3)"
   },
   {
    "page": "language-switcher",
@@ -678,8 +679,9 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 24 tier-2; DEAD-TRIGGER defect found+fixed page-side (PressButton claimed-prop clobber); family flag W-next #5; siblings-not-carriers (panel self-carried)"
+   "status": "done",
+   "notes": "task 24 tier-2; DEAD-TRIGGER defect found+fixed page-side (PressButton claimed-prop clobber); family flag W-next #5; siblings-not-carriers (panel self-carried)",
+   "closure": "#35 — marginalia 1st + 2nd PASS (self-continuation, reproduce-don't-trust + drift audit); dead-trigger workaround documented; W-next #5 carries the family fix"
   },
   {
    "page": "popover",
