@@ -318,8 +318,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 86 marginalia 1st NEEDS-WORK (1M/3m); consolidation landed by orchestrator — the geometry MAJOR root-caused to TWO mechanisms (reveal CB hijack W-next #19 + fit-content first-layout staleness W-next #20) + the corner-lane contest filed (#21); usage twin deduped, toc 8/8, elevation claims trued (#18 third family); BR column stack verified end-to-end; 2nd = vellum T110 batch 1: vellum 2nd in flight."
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/0/0): the MAJOR-1 menu geometry verified FIXED — panel END-aligned minus exactly the documented 12px --jx-gap; usage-id, toc 8==8, shadow-hedge all landed."
   },
   {
    "page": "form",
@@ -597,8 +597,8 @@
     "vellum"
    ],
    "tier": 1,
-   "status": "pass-1st",
-   "notes": "task 90 marginalia 1st PASS (0M/2m); MINOR 1 retracted-with-receipt (real path verified dev+dist), MINOR 2 filed W-next #22; 2nd = vellum T110 batch 1: vellum 2nd in flight."
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/1/0/0): marginalia's retraction INDEPENDENTLY VERIFIED at the real path (inline color-scheme flips live with the OS signal); her carried LOW (the page cx overload :286) closed at consolidation."
   },
   {
    "page": "navigation-menu",
@@ -642,8 +642,8 @@
     "marginalia"
    ],
    "tier": 1,
-   "status": "pass-1st",
-   "notes": "task 91 marginalia 1st PASS (0M/0m/0L/1N — the borrowed hover claim); hedge + gate-zero landed; 2nd = vellum T110 batch 1: vellum 2nd in flight."
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/0/0): PlayHelp hedge SERVED (TreeWalker receipt); copy CTA re-derived end-to-end incl. restore; clipboard payload exact."
   },
   {
    "page": "pattern-faq",
@@ -683,8 +683,8 @@
     "marginalia"
    ],
    "tier": 1,
-   "status": "pass-1st",
-   "notes": "task 92 marginalia 1st PASS (0M/1m/1N); the card-half hedged to the column-only law (no css mechanism existed); tonal pose note filed; 2nd = vellum T110 batch 1: vellum 2nd in flight."
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/1/0): hedge served (2+/2-, zero attribute changes); column law re-derived; her census correction recorded — recommended cells are 4 in the live DOM, not 13 (byte-greps count prose; element census the honest instrument — against report 92, not the page)."
   },
   {
    "page": "popconfirm",
@@ -791,9 +791,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": 1,
-   "status": "pass-1st",
-   "notes": "task 94 marginalia 1st NEEDS-WORK (1M/3m/1L); full consolidation landed: the resting-group indeterminate blob killed in jixoai.css (spec-true), density seat scoped+valued, digits trued, error seat served; 2nd = vellum T110 batch 1: vellum 2nd in flight."
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/0/0): ALL FIVE landed verified — 6 match :indeterminate with 0 paint primary, childrenScoped x4 distinct names (hydration flip gone), meta reworded, cx closed, the error seat s4 landed."
   },
   {
    "page": "range",
@@ -803,8 +803,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 95 marginalia 1st PASS (0M/1m — the overload clone); landed; six contract families digit+pixel verified; 2nd = vellum T110 batch 1: vellum 2nd in flight."
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/0/0): cx closed 0 diagnostics; keyboard re-derived (ArrowRight/Home/End -> aria-valuetext '100')."
   },
   {
    "page": "reference",
