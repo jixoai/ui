@@ -294,12 +294,14 @@ ${close}
       </ComponentCanvas>
       <div class={cx(rt.mt20)} data-rig-readout="">
         <p class={cx(rt.note12, rt.inkMuted70)}>
-          resolved tracks, measured live against this served container (probe, task 36): cols=3 →
+          resolved tracks, measured live against this served container (probe, task 36; px
+          receipts name their seat — re-measures match to the rounding only at the named
+          widths): cols=3 →
           three equal tracks (240px each at 1400px viewport, style declaration
           repeat(3, minmax(0px, 1fr))); the auto-fit form shrinks its tracks to the 140px floor
           (measured 145px at a 760px viewport) and re-counts past it; "1fr 2fr 1fr" resolves a
-          1:2:1 px ratio (180/361/180); rows=2 pins two equal row tracks; gap 30 → 30px
-          column-gap (the tracks absorb it, 240 → 228px).
+          1:2:1 px ratio (180/361/180 at 1400px); rows=2 pins two equal row tracks; gap 30 →
+          30px column-gap (the tracks absorb it, 240 → 228px at 1400px).
         </p>
       </div>
     </div>
