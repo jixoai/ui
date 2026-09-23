@@ -627,7 +627,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'auto' | number`,
       default: `'auto'`,
       description:
-        "STAMPED, SILHOUETTE DEFECT (W-next): the lane stamps --jx-radius-effective on the frame (measured 12px), but the silhouette currently paints the static --jx-radius atom (measured 8px) — the zero-specificity consumed rule is outranked by the atom. The stamped supply is correct; the painted corner needs the family's atom to read the consumed var. Number unit: px.",
+        "STAMPED AND CONSUMED (fixed in-campaign): the lane stamps --jx-radius-effective on the frame and the atom reads var(--jx-radius-consumed, var(--jx-radius)) — measured post-fix: explicit 12 → corner 12px; 'large' → 10px; auto stamps nothing and the site fallback paints 8px. (The pre-fix defect — the atom bound the base token, computed 8px always — is receipted in the CODE report and the ledger's in-campaign fix note.) Number unit: px.",
     },
     {
       name: 'color',

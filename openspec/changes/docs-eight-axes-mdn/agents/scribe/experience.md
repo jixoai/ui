@@ -1534,3 +1534,45 @@
   data-jx-stack ×17 attributes.
 - Gates: ambient 284/284 rc0; universal 110/110; svelte-check page 0 (family :179
   8 warnings pre-existing).
+
+## Task 60 — table (1st review, PASS 1 MINOR — the stale radius row)
+
+### Banked lessons
+- **When a family fix lands AFTER the CODE receipts, re-audit the PAGE TEXT too**:
+  quill's radius row still taught the defect ("currently paints 8px") after d3ff3f11
+  fixed the atom — the served behavior (12px) contradicted the row one section above
+  the measurement panels. The probe-carry flips the family; every doc surface quoting
+  the defect needs the same flip (row text, ledger entry, open questions).
+- **Playground control element map**: PlayToggle → ONE input[role=switch] (the Toggle's
+  native input IS the control, no button wrapper); the Checkbox family →
+  input[type=checkbox]; identical demo buttons across canvases need canvas-scoped
+  locators (strict mode catches the second "sort by title").
+- **Baseline alignment redux**: align-items: baseline ≠ box-bottom equality (tops
+  differ by font size by design) — same lesson as task 59's, now on table cells.
+- **scrollWidth is real on overflow-x:auto frames** (646>558 digit-stable across runs)
+  — the task-56 ambiguity was overflow:VISIBLE children; scroll containers are honest.
+- **The rowId uid collision signature**: a module-level `++uid.seq` counter restarts
+  per lazily-mounted subtree — cross-canvas id twins minted as `jx-play-row-1-label`
+  in two canvases. Salt with the canvas/section identity (the owner fix), and page
+  LAW #19 censuses will keep catching it until then.
+
+### Receipts (task 60)
+- THE RADIUS FIX FLIP: r12 → corner 12px (consumed stamped, factor 1); named large →
+  10px via var(--jx-radius-large); auto → 8px site fallback with NO stamp. Both halves
+  live; quill's 8px defect superseded.
+- MINOR filed: the page's radius axis row still teaches the fixed defect — one-row edit
+  owed, ledger flip ready.
+- Frame-width law both ends: 646>558 wide (sticky z3), 240 narrow (thead none,
+  ::before "Consumer", head surface first cell); stack=off keeps the table form
+  (data-stack=off) with pins container-gated ≥30rem.
+- A11y: aria-sort asc→desc via button only (th text inert; third press clears; column
+  move); live region 0→1→2→6→0 of 6; header indeterminate law full walk; 14/14 captions.
+- Density own sm (figure+table) / lg override; size voice split 18px frame / 12px cells.
+- W-next #10 dense-no-op-at-sm reproduced (gap==inset 8px); #11 rowId twins reproduced
+  and PAIRED (workbench "frame width" vs tasks "page size", both jx-play-row-1-label).
+- Theme split at the token layer: dark panel locals re-voice (surface 0 0 0, head
+  0.2178) vs light (1 0 0 / 0.9551).
+- LAW #18 clean (zero console noise through sorts/toggles); LAW #19: 195 ids, the one
+  dup is #11's pair. Page 0 diagnostics; family :181 7 warns (density absent — kernel
+  law visible) + :80/:213 errors pre-existing. Gates: ambient 284/284, universal
+  110/110. d3ff3f11 verified as the fix commit.
