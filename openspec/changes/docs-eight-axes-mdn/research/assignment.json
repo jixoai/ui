@@ -714,7 +714,7 @@
     "quill"
    ],
    "tier": 2,
-   "status": "coded",
+   "status": "needs-work-1st",
    "notes": "task 34 tier-2; inert fill transition finding; frozen-ink seam third instance; 4 open questions"
   },
   {
@@ -798,8 +798,9 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 28 tier-2; the inheritance pole (kbd's contrast); bridge-only measured; numbered-domain rig discovery"
+   "status": "done",
+   "notes": "task 28 tier-2; the inheritance pole (kbd's contrast); bridge-only measured; numbered-domain rig discovery",
+   "closure": "#38 — marginalia 1st + scribe 2nd PASS; consolidation: the unnumbered specimen MOVED outside every domain + the join-rule note; the SSR census corrected (5 fallbacks + 6 resolved-label — pre-settle, not blind); the spec implicit-any fixed"
   },
   {
    "page": "result",
