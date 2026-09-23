@@ -197,7 +197,7 @@ ${close}
       type: `'small' | 'medium' | 'large' | 'auto' | number`,
       default: `'auto'`,
       description:
-        "STAMP-ONLY, VOICE — the §11 pair (--jx-size-effective + font-size) lands on the root (measured 18px computed on the size demo) and the children inherit it through plain cascade — one number moves the whole stack. Number unit: px.",
+        "STAMP-ONLY, VOICE — the §11 pair (--jx-size-effective + font-size) lands on the root (measured 18px computed on the size demo) and the children inherit it through plain cascade — one number moves the whole stack's TYPE; the gap rungs stay rem-of-document-root and do NOT follow it (mutation-proven: stamp 18px keeps the 8px gap; document root 16→32px moves it 8→16px). Number unit: px.",
     },
     {
       name: 'shape',

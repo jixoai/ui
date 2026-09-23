@@ -852,7 +852,7 @@
    ],
    "tier": 2,
    "status": "pass-1st",
-   "notes": "task 40 marginalia 1st PASS (0M/1m/2L/1N); LAW #19 triple-axis clean (48 ids zero dupes, guard observed adopting); MINOR rides closure: served toc 8/13 + dead +page.ts data (live-demo vs virtual-demo); LOW family typing debt recorded"
+   "notes": "task 40 marginalia 1st PASS (0M/1m/2L/1N); LAW #19 triple-axis clean (48 ids zero dupes, guard observed adopting); MINOR rides closure: served toc 8/13 + dead +page.ts data (live-demo vs virtual-demo); LOW family typing debt recorded; MINOR ADJUDICATED by orchestrator live fetch: dead-data half NOT REPRODUCIBLE (served toc == data.toc, 8/8 ids live, zero live-demo anywhere); navigability half BY CONVENTION (explicit-array toc lists majors; h3 children only when listed)"
   },
   {
    "page": "section-card",
@@ -903,8 +903,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 46 marginalia 1st PASS (0M/0m/1L/1N); full concordance — every headline number reproduced to the pixel; the no-gradient instrument proves the pulse negative; re-hosted demos clean by LIVE-DOM query (SSR regex hits were escaped drawer text); NIT instrument note: pulse readout is scroller-scoped"
+   "status": "done",
+   "notes": "CLOSED #41 (quill 32 + marginalia 46 1st + scribe 49 2nd PASS, zero findings); three-way concordance — three instruments converge on the pulse envelope (120/2s, 100/1.65s, 91/1.5s); dead-selector honesty scan: zero elements on ten retired selectors"
   },
   {
    "page": "spin",
@@ -924,8 +924,8 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "task 33 tier-2; omission transparency (bare Stack stamps nothing); gap ladder rem-based calcs not literals (size lane never scales gaps — documented); closed vocabulary live; merge law consumer-wins; universal marker moved to api table; LAW #19 holding zero twins"
+   "status": "pass-1st",
+   "notes": "task 48 marginalia 1st PASS (0M/0m/2L/1N); the mutation proof (stamp 18 keeps 8px gap; doc root 16-to-32 moves it 8-to-16); LOW1 landed — the size row now documents the non-scaling"
   },
   {
    "page": "statistic",

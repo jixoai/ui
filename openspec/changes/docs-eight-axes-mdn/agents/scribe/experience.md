@@ -1351,3 +1351,30 @@
   (each page links the other two, renders itself as a span); LAW #18
   receipts on all 8 roots (41 mounted children); 64 ids zero
   duplicates; ambient 284/284 clean.
+
+## Techniques (task 49 additions)
+- **The pulse-envelope sampler**: rAF-collect opacity over > one full
+  cycle and quote min/max against the keyframes' trough/peak (0.450/
+  1.000 exact) — plus the background-image:none negative to separate a
+  brightness pulse from a shimmer sweep (a sweep needs a gradient to
+  move; none means the whole effect is the opacity channel).
+- **The merge-law read in one attribute**: co-existence is proven by
+  BOTH declarations appearing in the style attr (carrier + consumer)
+  and the computed property naming the winner — one element read,
+  two laws.
+- **The dead-selector honesty scan**: query the live DOM for the
+  RETIRED utility classes over an expanded selector list; zero hits
+  against a counted live-block population is the re-hosting receipt —
+  SSR text hits are escaped drawer code, not rendered classes.
+
+## Highlights (task 49)
+- (skeleton) The pulse verified as the third converging instrument:
+  91 rAF samples/1.5s, opacity min 0.450 / max 1.000, background-image
+  none — brightness oscillation, never a shimmer.
+- (skeleton) The merge law visible in one attribute (--jx-radius-
+  effective: 12px + border-radius: 3px, computed 3px) and the
+  never-manufactures law pixel-exact (128×12 and 40×40 unchanged under
+  an 18px voice).
+- (skeleton) The RM freeze pixel-still (animation none, one constant
+  opacity across a 1s watch); zero dead-utility elements vs 40 live
+  blocks; 62 ids zero duplicates; ambient 284/284 clean.
