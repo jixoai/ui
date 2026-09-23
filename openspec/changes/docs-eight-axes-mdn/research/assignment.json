@@ -978,8 +978,9 @@
     "marginalia",
     "quill"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 42 tier-2; ARIA chain on REAL keys (roving tabindex, End-skip-disabled APG, exactly-one aria-selected); indicator 9 mid-travel rAF positions over 240ms, RM 0s+jump; root-pinned alias THIRD family; SIXTH THEMING MECHANISM discovered: canvas stages pin data-theme=light (ancestor-scope ground); two nonexistent rt atoms fixed; zero-byte truncation recovered by asserted replay"
   },
   {
    "page": "tags-input",

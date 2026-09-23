@@ -1,5 +1,9 @@
 <script lang="ts">
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
@@ -421,7 +425,7 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is NonNullable<(typeof styles)[number]> => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -431,12 +435,90 @@ ${close}
       )
       .join(' ');
 
-  // ---- the universal props demo (explicit-props W3-D3) --------------------
-  let uniTab = $state('connect');
+  // ── the measured per-axis table (task 42) — every cell measured on
+  // the served DOM (probe) or negative-grepped over ui/tabs/ ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "MANAGED AND CONSUMED — the one axis the family reads, through the DENSITY KERNEL: the root stamps data-density (measured lg/sm on the query seat) AND the triggers ride the scope lanes (--jx-hit/--jx-inset/--jx-gap/--jx-text), so the hit height, insets and label size scale with the rung (measured through the DensityDemo). The root also PROVIDES density to the family (inherit-then-provide: the panel's own prop beats it); the legacy lane narrows at the bridged edge (number/query carry no legacy rung — the rung stays ambient). Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "ROOT ECHO, PARTIALLY PINNED — the §1 carrier lands on the root, but the root is display:contents (box-tree transparent) and the triggers PIN their label to var(--jx-text), so the density kernel wins the cascade on the visible label while non-pinned descendants inherit the root font-size (both measured). Zero size-effective readers (grep receipt). Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero shape-channel readers (grep receipt over ui/tabs/). Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the concentric broadcast for nested parts (a card inside a panel consumes it); the strip's own geometry rides the indicator material, not the axis (grep receipt). Number unit: px.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the inks are PINNED (selected = --jx-foreground, idle = --jx-muted-foreground, the line bar = var(--primary)); zero --jx-color-effective readers (grep receipt). Repainting means re-theming, not the hue lane. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE ROOT-PINNED ALIAS (the separator/spin shape #2, measured) — every ink (selected/idle label, the line bar's var(--primary), the host hairline --jx-border) rides :root alias chains, so a scoped .dark island re-derives inherited --foreground but the inks HOLD the light values (measured frozen), while root-level html.dark re-derives them (measured). class:dark stamps for composed descendants. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero elevation-carrier readers (grep receipt); the strip is flat by design (the glass material paints its own frost, not a shadow tier). Number unit: dp.',
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE FAMILY'S OWN TRANSITION, AXIS UNREAD — the indicator travels 240ms cubic-bezier(0.2, 0.8, 0.2, 1) (transform/width/height, computed receipt) and prefers-reduced-motion kills the travel (transition: none — the bar JUMPS, measured): the motion axis stays supply-only (zero readers, grep receipt) while the family ships its own single transition. Number unit: coefficient.",
+    },
+  ];
+
+  // the ONE query() case: the DENSITY lane's rung stamp — the one axis
+  // tabs consumes, through the kernel scope lanes.
+  const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' }, 'small');
+
+  const queryUsage = `<script lang="ts">
+  import Tabs from '@ui/tabs.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- the md key is the registered VIEWPORT scale (48rem): below it the
+     small rung stamps, at 48rem+ large wins — data-density flips AND
+     the kernel lanes rescale the triggers (the one axis tabs reads) -->
+<Tabs density={query({ md: 'large' }, 'small')}>…</Tabs>`;
+
+  const queryFiles: TreeFile[] = [
+    { name: 'tabs-query-demo.svelte', content: queryUsage, kind: 'usage' },
+  ];
+
   const universalUsage = `<Tabs size={18} density="small">…</Tabs>`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/tabs-universal.svelte', content: universalUsage },
   ];
+  let uniTab = $state('connect');
 </script>
 
 <svelte:head>
@@ -467,6 +549,54 @@ ${close}
         <span class="pill">sliding indicator · 5 materials + none</span>
         <span class="pill">icon lanes · icon-only · stack</span>
         <span class="pill">inline · grow · scroll · wrap</span>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="install" data-reveal="">
+    <DocsInstall name="tabs" />
+  </div>
+
+  <!-- overview -->
+  <div id="overview" data-reveal="">
+    <SectionCard
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="Composition-first APG: the root owns one value, the family shares it through context, and the keyboard contract — roving tabindex, automatic activation, hidden panels — rides real key events, measured."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          The pattern is the WAI-ARIA tabs contract, composition-first: the root owns ONLY the
+          selected value and hands it to the family through context — the
+          <code class={cx(rt.inkPrimary)}>role=tablist</code> strip, the
+          <code class={cx(rt.inkPrimary)}>role=tab</code> triggers and the
+          <code class={cx(rt.inkPrimary)}>role=tabpanel</code> panels lay out anywhere in the
+          subtree (sidebar + panel grid, inline docs switches). Ids are deterministic — the
+          trigger's id pairs the panel's aria-labelledby — so lazy panels pair without a
+          registration handshake, and background panels are
+          <code>hidden</code> — attribute, not CSS: inert, no leaking interactions.
+        </p>
+        <p class={cx(rt.para)}>
+          The keyboard surface is real key events, not simulated attributes: ←/→ (or ↑/↓ on the
+          vertical axis — RTL flips the reading) walk the enabled triggers with a ROVING
+          tabindex — exactly one tab stop, following focus; Home/End jump the ends; the walk
+          wraps and skips disabled triggers. Activation is AUTOMATIC by default (focus moves
+          select — terminal immediacy); <code>activation="manual"</code> moves focus only and
+          lets Enter/Space commit. The tablist itself sits at tabindex="−1": Tab leaves the
+          strip entirely — focus is never trapped.
+        </p>
+        <p class={cx(rt.para)}>
+          Selection paint lives in the indicator engine — ONE shared element measured to the
+          active trigger and translated between positions (240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+          reduced motion kills the travel and the bar jumps). The eight axes are near-zero by
+          measurement: density is the ONE consumed axis (the kernel lanes scale the triggers),
+          the inks ride the ROOT-PINNED alias chains (frozen under a scoped dark island,
+          re-derived at root-level dark), and shape/radius/color/elevation/motion supply unread.
+          Kinship: <code class={cx(rt.inkPrimary)}>button-group</code> (the strip edge system
+          tabs borrows), <code class={cx(rt.inkPrimary)}>segmented</code> (the outline feel).
+        </p>
       </div>
     </SectionCard>
   </div>
@@ -926,8 +1056,8 @@ ${close}
           <TabsList>
             {#snippet indicator(geo)}
               <div
-                class={cx(rt.tabsPillPaint, rt.tabsGradPill)}
-                style="opacity: {Math.max(0.15, 0.55 - geo.w / 300)}"
+                class={cx(rt.tabsPillPaint)}
+                style="opacity: {Math.max(0.15, 0.55 - geo.w / 300)}; background: linear-gradient(90deg, var(--primary), var(--accent))"
               ></div>
             {/snippet}
             <TabsTrigger value="nodes">nodes</TabsTrigger>
@@ -941,25 +1071,80 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Activation and orientation" summary="Tabs use automatic activation by default; vertical lists change the navigation axis."><ComponentCanvas title="tabs · activation" stage="fill" files={tabsActivationFiles}><div class={cx(rt.grid, rt.gap16, rt.tabsMd2)}><Tabs value="one"><TabsList><TabsTrigger value="one">automatic</TabsTrigger></TabsList><TabsContent value="one">Focus selects this panel.</TabsContent></Tabs></div></ComponentCanvas></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Activation and orientation" summary="Tabs use automatic activation by default; vertical lists change the navigation axis."><ComponentCanvas title="tabs · activation" stage="fill" files={tabsActivationFiles}><div class={cx(rt.gridSm2)}><Tabs value="one"><TabsList><TabsTrigger value="one">automatic</TabsTrigger></TabsList><TabsContent value="one">Focus selects this panel.</TabsContent></Tabs></div></ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard eyebrow="usage" title="Usage"><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between enabled tabs.' }, { key: 'Home / End', action: 'Move to the first or last tab.' }, { key: 'Enter / Space', action: 'Select a focused tab in manual mode.' }]} aria={[{ name: 'role', value: 'tablist, tab, tabpanel', description: 'Exposes the APG tabs pattern.' }, { name: 'aria-selected', value: 'boolean', description: 'Marks the selected trigger.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs each trigger with its panel.' }, { name: 'aria-label', value: 'icon-only triggers', description: 'The accessible name when the snippet is the only content — the indicator materials stay decorative.' }]} /></SectionCard></div>
+  
+  
+  
+
+  
   <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Tabs value="token"><TabsList><TabsTrigger value="token">tab</TabsTrigger></TabsList><TabsContent value="token">panel</TabsContent></Tabs></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-hit', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-glass-radius / --jx-glass-saturate', default: "'2px' / 1.6 (liquid indicator)", source: 'component', description: 'The liquid indicator\'s frost tuning through the shared glass law sheet — ONE effect object through the data-jx-effect stamp channel. The lens itself rides the glass item\'s liquidGlass attachment (the component\'s OWN internal material mount); the old hand-composed liquid filter var and its feTurbulence noise SVG are retired.' }, { name: '--jx-tabs-veil', default: 'calc(var(--jx-inset) * 6)', source: 'component', description: 'The edge-veil band width — the chevron lane (inset·2, where snap parks content blank) plus the ramp that must reach the parked label. The width knob on progressBlur()/shadow() overrides it inline on the host.' }, { name: '--jx-tabs-progress', default: 'JS-stamped 0–1', source: 'component', description: 'The run\'s normalized inline travel (RTL-true), stamped by the scroll handler — the one number the chevron fade and the veil entrance calc from.' }, { name: '--jx-tabs-chevron-size', default: 'var(--jx-text-secondary)', source: 'component', description: 'The chevron glyph size — the family\'s icon token, never a hardcoded px.' }, { name: '--jx-tabs-chevron-inline-start', default: 'lucide chevron-left svg', source: 'component', description: 'Context-swappable chevron glyphs (mask boxes) — the lucide geometry, stroke 2, same source as the icon vocabulary; override per context by resetting the var.' }, { name: '--jx-tabs-chevron-inline-end', default: 'lucide chevron-right svg', source: 'component', description: 'The far side\'s glyph — same law, mirrored path.' }]} /></div></SectionCard></div>
+
+<div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Three halves of one family: the root owns the value, the list owns the keyboard walk and the indicator engine, the trigger owns the anatomy. The keyboard surface is unchanged by every row below."><div class={cx(rt.col24)}><PropsTable universal title="Tabs props" props={[{ name: 'value', type: 'string', default: "''", description: 'Selected tab value.', bindable: true }, { name: 'activation', type: "'automatic' | 'manual'", default: "'automatic'", description: 'Selection behavior while moving focus.' }, { name: 'onchange', type: '(value: string) => void', description: 'Receives selection changes.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /><PropsTable title="TabsList props" props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Axis of travel: horizontal ←/→, vertical ↑/↓ with the indicator on the right edge.' }, { name: 'indicator', type: "'line' | 'pill' | 'outline' | 'glass' | 'liquid' | 'none' | Snippet", default: "'line'", description: 'The selection paint — one shared element measured to the active trigger and animated between positions. A snippet block (indicator(geo), receiving x/y/w/h/orientation in list-local px) replaces the paint while the engine keeps the measured wrapper.' }, { name: 'layout', type: "'inline' | 'grow' | 'scroll' | 'wrap'", default: "'inline'", description: 'inline is content-sized; grow stretches triggers to equal widths (the Material full-bleed bar); scroll declares a horizontal overflow run; wrap flows rows instead of scrolling. Every horizontal strip degrades to a hidden-scrollbar scroll run when content outgrows the container, with on-demand DOM chevron buttons overlaying the open direction. Composes with any material.' }, { name: 'scrollEffect', type: 'ramp() | progressBlur() | shadow()', default: 'ramp()', description: 'Edge treatment while the run scrolls, built by the typed builders (the press-button effect convention). ramp({ opacity, blur, translate, distance, radius }) is the ONE member-ramp builder — every toggle defaults ON; each trigger ramps by its clipped fraction as it crosses an edge (scroll-following, consumed squared, every engine), and a toggle turned off never pays its property (ramp({ blur: false }) is the cheapest posture, the old slide). progressBlur({ blurLevels, width }) veils both edges with the progressive-blur ladder; shadow({ width }) is the single-layer contrast ghost — backdrop-filter contrast() subtracts color toward mid tone (light dims, dark lifts), never adds black. Both veils enter by scroll-driven translate; width overrides the band width.' }, { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes.' }, { name: '...rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'Every other attribute lands on the tablist element.' }]} /><PropsTable title="TabsTrigger props" props={[{ name: 'value', type: 'string', default: '—', description: 'The tab identity — pairs with the same value on a TabsContent.', required: true }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Skipped by the arrow walk and the roving tab stop.' }, { name: 'icon', type: 'Snippet', default: '—', description: 'Leading icon lane — replaces the start padding (the slot-vs-padding law); with no label text this is the icon-only form.' }, { name: 'iconEnd', type: 'Snippet', default: '—', description: 'Trailing icon lane — replaces the end padding.' }, { name: 'stack', type: 'boolean', default: 'false', description: 'The Material stacked tab: icon over label in a centered column.' }, { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes.' }, { name: '...rest', type: 'HTMLButtonAttributes', default: 'spread', description: 'Every other button attribute rides through — aria-label lands here for icon-only triggers.' }]} /></div></SectionCard></div>
+
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
       headerRegion="universal-props"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The root div carries the surface; the indicator machinery (the sliding bar, the veils, the chevrons) is untouched by the migration, density rides the root's bridged provider lane, and the list/trigger/panel parts ride the ambient chain."
+      title="The eight axes on tabs"
+      summary="Density is the ONE consumed axis — managed on the root and read through the kernel scope lanes (--jx-hit/--jx-inset/--jx-gap/--jx-text rescale the triggers), with the root PROVIDING density to the family (inherit-then-provide). The other seven supply unread: the inks ride the ROOT-PINNED alias chains (frozen under a scoped dark island, re-derived at root-level dark — measured), the indicator's 240ms travel is the family's own transition (killed by reduced motion — the bar jumps), and shape/radius/color/elevation carry the supply chain to nested parts."
     >
-      <ComponentCanvas title="Tabs · universal props" stage="fill" files={universalFiles}>
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the APG surface on real key events (ArrowRight from the selected trigger moves
+          focus AND flips aria-selected — exactly one true per tablist; the roving tabindex follows
+          focus; the walk wraps and skips the disabled trigger; Home/End jump the ends; inactive
+          panels render inert through the hidden attribute with their content unmounted), the
+          indicator's transition-frame (rAF-sampled transform passes through DISTINCT mid-travel
+          positions over the 240ms cubic-bezier — and JUMPS under reduced motion, the transition
+          killed), the density seat (data-density lg → sm across the 48rem viewport key AND the
+          kernel rescale visible in the trigger's hit height — the one consumed axis), the theme
+          split (three states measured on the seat's token chain: light --jx-foreground =
+          --foreground = oklch(0 0 0); under a scoped .dark island --foreground flipped to
+          oklch(1 0 0) while --jx-foreground HELD — the :root alias substitutes before
+          inheritance; root-level dark re-derived the alias — plus the canvas stages' own
+          data-theme="light" scope, which keeps in-page demos on their authored ground under site
+          dark BY SCOPE, the third theming mechanism) and the grep receipts (zero --jx-*-effective
+          readers over ui/tabs/) were measured on this page's served DOM (probe, task 42).
+          LAW #19 id landscape: duplicate ids NONE page-wide; the keyed layout runs mount their
+          letter triggers 12/12. The query() seat below rides the md viewport key (48rem) on the
+          density lane.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20, rt.wFull)}>
+          <Tabs density={responsiveDensity} value="seat">
+            <TabsList>
+              <TabsTrigger value="seat">seat</TabsTrigger>
+              <TabsTrigger value="scope">scope</TabsTrigger>
+            </TabsList>
+            <TabsContent value="seat">data-density flips lg → sm across 48rem; the kernel rescales the triggers (the one consumed axis).</TabsContent>
+            <TabsContent value="scope">the supply chain rides for nested parts — the panels inherit the rung.</TabsContent>
+          </Tabs>
+          <p class={cx(rt.mt12, rt.note12, rt.inkMuted70)}>
+            The md key is the registered VIEWPORT scale (48rem): below it the small rung stamps
+            (data-density="sm"); at 48rem and wider large wins ("lg" at a 1280 viewport,
+            measured) — and because density is the consumed axis, the triggers rescale with it
+            (the kernel lanes). Resize across 48rem.
+          </p>
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="Tabs · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.panel)}><Tabs bind:value={uniTab} size={18} density="small"><TabsList><TabsTrigger value="connect">connect</TabsTrigger><TabsTrigger value="build">build</TabsTrigger><TabsTrigger value="ship">ship</TabsTrigger></TabsList><TabsContent value="connect">one number moves the family</TabsContent><TabsContent value="build">children inherit the root font-size</TabsContent><TabsContent value="ship">the indicator engine stays untouched</TabsContent></Tabs></div>
 <div class={cx(rt.panel)}><Tabs bind:value={uniTab} size="medium" radius="large"><TabsList><TabsTrigger value="connect">connect</TabsTrigger><TabsTrigger value="build">build</TabsTrigger></TabsList><TabsContent value="connect">named steps resolve through the alias ladder</TabsContent><TabsContent value="build">auto radius consumes the broadcast</TabsContent></Tabs></div>
-      </ComponentCanvas>
+          </ComponentCanvas>
+        </div>
+      </div>
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="API" summary="Three halves of one family: the root owns the value, the list owns the keyboard walk and the indicator engine, the trigger owns the anatomy. The keyboard surface is unchanged by every row below."><div class={cx(rt.col24)}><PropsTable universal title="Tabs props" props={[{ name: 'value', type: 'string', default: "''", description: 'Selected tab value.', bindable: true }, { name: 'activation', type: "'automatic' | 'manual'", default: "'automatic'", description: 'Selection behavior while moving focus.' }, { name: 'onchange', type: '(value: string) => void', description: 'Receives selection changes.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /><PropsTable title="TabsList props" props={[{ name: 'orientation', type: "'horizontal' | 'vertical'", default: "'horizontal'", description: 'Axis of travel: horizontal ←/→, vertical ↑/↓ with the indicator on the right edge.' }, { name: 'indicator', type: "'line' | 'pill' | 'outline' | 'glass' | 'liquid' | 'none' | Snippet", default: "'line'", description: 'The selection paint — one shared element measured to the active trigger and animated between positions. A snippet block (indicator(geo), receiving x/y/w/h/orientation in list-local px) replaces the paint while the engine keeps the measured wrapper.' }, { name: 'layout', type: "'inline' | 'grow' | 'scroll' | 'wrap'", default: "'inline'", description: 'inline is content-sized; grow stretches triggers to equal widths (the Material full-bleed bar); scroll declares a horizontal overflow run; wrap flows rows instead of scrolling. Every horizontal strip degrades to a hidden-scrollbar scroll run when content outgrows the container, with on-demand DOM chevron buttons overlaying the open direction. Composes with any material.' }, { name: 'scrollEffect', type: 'ramp() | progressBlur() | shadow()', default: 'ramp()', description: 'Edge treatment while the run scrolls, built by the typed builders (the press-button effect convention). ramp({ opacity, blur, translate, distance, radius }) is the ONE member-ramp builder — every toggle defaults ON; each trigger ramps by its clipped fraction as it crosses an edge (scroll-following, consumed squared, every engine), and a toggle turned off never pays its property (ramp({ blur: false }) is the cheapest posture, the old slide). progressBlur({ blurLevels, width }) veils both edges with the progressive-blur ladder; shadow({ width }) is the single-layer contrast ghost — backdrop-filter contrast() subtracts color toward mid tone (light dims, dark lifts), never adds black. Both veils enter by scroll-driven translate; width overrides the band width.' }, { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes.' }, { name: '...rest', type: 'HTMLAttributes<HTMLDivElement>', default: 'spread', description: 'Every other attribute lands on the tablist element.' }]} /><PropsTable title="TabsTrigger props" props={[{ name: 'value', type: 'string', default: '—', description: 'The tab identity — pairs with the same value on a TabsContent.', required: true }, { name: 'disabled', type: 'boolean', default: 'false', description: 'Skipped by the arrow walk and the roving tab stop.' }, { name: 'icon', type: 'Snippet', default: '—', description: 'Leading icon lane — replaces the start padding (the slot-vs-padding law); with no label text this is the icon-only form.' }, { name: 'iconEnd', type: 'Snippet', default: '—', description: 'Trailing icon lane — replaces the end padding.' }, { name: 'stack', type: 'boolean', default: 'false', description: 'The Material stacked tab: icon over label in a centered column.' }, { name: 'class', type: 'string', default: "''", description: 'Appended to the composed classes.' }, { name: '...rest', type: 'HTMLButtonAttributes', default: 'spread', description: 'Every other button attribute rides through — aria-label lands here for icon-only triggers.' }]} /></div></SectionCard></div>
+<div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable keys={[{ key: 'Arrow keys', action: 'Move between enabled tabs.' }, { key: 'Home / End', action: 'Move to the first or last tab.' }, { key: 'Enter / Space', action: 'Select a focused tab in manual mode.' }]} aria={[{ name: 'role', value: 'tablist, tab, tabpanel', description: 'Exposes the APG tabs pattern.' }, { name: 'aria-selected', value: 'boolean', description: 'Marks the selected trigger.' }, { name: 'aria-controls', value: 'panel id', description: 'Pairs each trigger with its panel.' }, { name: 'aria-label', value: 'icon-only triggers', description: 'The accessible name when the snippet is the only content — the indicator materials stay decorative.' }]} /></SectionCard></div>
+
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="tabs" />
   </div>
+</div>
 </div>

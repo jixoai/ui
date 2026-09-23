@@ -1177,3 +1177,26 @@
 - **Never put literal `<style …>` in Svelte prose** — the template parser opens a real
   style element and the "Expected token </style>" error surfaces only at SSR compile. Write
   element references as `style[data-jx-spin-frames]` or escape the brackets.
+
+## Task 42 — tabs (2026-09-23)
+- **A verification line can BE the destruction**: my receipts-note check ran
+  `chk = open(p, 'w') and open(p).read()` — mode 'w' TRUNCATES at open. The file went to
+  zero bytes between two probe runs. Rules hardened: (1) never open-for-write inside a
+  read-only verification — verify with open(p) default mode only; (2) scripted multi-edit
+  replays against a git-restored base beat incremental hand-edits for recoverability, but
+  only if EVERY transform asserts and the write is the LAST statement.
+- **Non-greedy block extraction needs nearest-closer semantics**: extracting
+  `<div id="universal-props">…` with a first-match `</SectionCard></div>` closer swallowed
+  the whole api section (caught by a PropsTable-count assertion, restored verbatim). When
+  splicing sibling sections, try every closer shape and take the EARLIEST hit — or better,
+  cut between unique NEXT-section markers instead of closers.
+- **The third theming mechanism: attribute-scoped re-declaration** — ComponentCanvas demo
+  stages pin data-theme="light", so site-dark cannot repaint in-canvas specimens BY SCOPE
+  (measured: --muted-foreground 0.3211 inside the canvas, 0.8452 above it, simultaneously).
+  Theme receipts have three possible shapes now: defineVars pins, root-pinned aliases, and
+  ancestor attribute scoping — walk the token chain down from html BEFORE classifying.
+- **Offscreen/throttled rendering invalidates transition-frame probes**: an immediate
+  post-keypress transform read measured NOTHING (pre-render), and earlier rAF runs measured
+  flat-zero on offscreen elements. The working recipe: scrollIntoView + settle + rAF sampling
+  DURING the interaction (9 distinct mid-travel transforms over the authored 240ms), plus
+  the RM contrast (transition-duration 0s → single position).
