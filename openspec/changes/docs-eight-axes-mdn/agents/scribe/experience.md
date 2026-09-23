@@ -1186,3 +1186,43 @@
   seats (11 served + rest/style)" matches the file key-for-key.
 - (boot-splash) W-next candidate: no family spec locks the
   dead-replay fix — a boot-splash.spec would pin the machine.
+
+## Techniques (task 41 additions)
+- **The closure-verification battery (reviewer #2's job)**: for each
+  landed clause — (1) mirror integrity by diff -q across EVERY family
+  file, not a spot file; (2) the new wording greped in both copies +
+  the old wording's ZERO-REMnant check; (3) the caveat's cited source
+  read (does jixoai.css :32-45 actually say that?); (4) the LIVE
+  re-measurement of the claim the wording replaced.
+- **The third-sample wall-clock receipt**: a hue-rotation caveat gains
+  force from independent re-observation — 129 (1st pass) → 125
+  (closure) → 137 (this review) with L/C (0.7044, 0.1872) invariant.
+  One sample is a number, two is a correction, three is the law.
+- **The ?raw module endpoint receipt**: when a drawer's content renders
+  client-side (absent from SSR), verify its data path via the vite
+  transform endpoint — `curl /src/.../file.svelte?raw` returns the
+  exact bytes the bundler inlines. The build-time import is the
+  guarantee; the endpoint is its receipt.
+- **L/C extraction across color spaces**: Chromium serializes some
+  computed colors as oklab — convert C = hypot(a, b) before comparing
+  signatures; and read BOTH sides at the same instant to expose the
+  drift calc (dark hue − light hue ≈ −4° live).
+- **The native-invoker probe**: to prove attribute forwarding without a
+  specimen, inject the attribute on the rendered root + a synthetic
+  popover target, then click twice — :popover-open true→false is the
+  zero-listener contract, end to end.
+
+## Highlights (task 41)
+- (press-button) All four closure clauses verified landed: the 42px
+  drift fixed MIRRORED (7 files byte-identical, zero remnants, the
+  ?raw module endpoint carries "40.0px measured at"), the theme row
+  quoting the L/C signature + an accurate hue-runtime cite, the
+  fill-ink seam named at the loudest rung (oklch(0 0 0) both sides,
+  measured), and the popovertarget contract re-proven post-closure
+  (open + toggle, zero listeners).
+- (press-button) The hue wall-clock extended to a third runtime sample
+  (125 → 137 post-closure) — the signature form is now empirically the
+  only reproducible receipt, with dark − light ≈ −4° at one instant.
+- (press-button) The api census by name: 15 authored → 14 served
+  (density folds), the universal 8 intact; toc 12/12; page 0
+  diagnostics; ambient 284/284 clean — the re-pinned matrix holds.
