@@ -1305,3 +1305,26 @@
   native fieldset/checkbox semantics + count labels; the live readouts live in the page
   recipes. Naming what carries the announcement (and what deliberately doesn't) is part of
   the battery, not an afterthought.
+
+## 2026-09-22 — T73 second review boot-splash (review lanes, 1st)
+
+- **Write the cross-check from the reports, never from anticipation** — I drafted the
+  concordance section before opening the two prior reports and had to rewrite it; the
+  pre-written version asserted "full concordance" as an expectation, not a finding. The
+  independence law cuts both ways: findings BEFORE, cross-check AFTER — in that order,
+  with real reads on both sides.
+- **A "layer at load" that isn't your page's** — the site scaffold dogfoods boot-splash
+  (SSR-shipped in jx-shell-host, self-dismissed ~1s), so splash probes race the host's own
+  component. Two of my passes disagreed before I identified the captor. On dogfooded
+  surfaces, identify WHOSE instance you're measuring first (aria-label + host chain).
+- **noscript content is unparsed text under JS-on** — verifying a noscript escape via
+  querySelector false-negatives by design; the honest instrument is the raw served bytes
+  (curl) plus the noscript element's textContent. The delivery mechanism looks like an
+  absence to the parsed DOM.
+- **toc rails render twice (desktop + mobile modes)** — dedupe [data-jx-toc-link] anchors
+  before comparing rail == DOM, and never scope the rail to nav/aside by assumption (this
+  round the container matched neither).
+- **The theme-prop can't repaint a pre-paint head block** — boot-splash's class:dark lands
+  on the layer while the head block's bridge matches an ancestor: the classList contains
+  dark and the paint stays light, both measurable. A controlled pair (prop-alone vs host
+  bridge) is the cleanest LAW #16 instrument I've run.
