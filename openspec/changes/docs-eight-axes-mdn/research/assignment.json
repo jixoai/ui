@@ -401,8 +401,9 @@
     "vellum",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "task 88 marginalia 1st PASS (0M/1m — the toc rail entry); landed + gate-zero; the icon family lane 0 ERRORs; 2nd = quill"
   },
   {
    "page": "icon-button",
