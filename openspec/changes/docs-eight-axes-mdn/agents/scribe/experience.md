@@ -1268,3 +1268,51 @@
 - (process) A fourth in-flight sibling edit (system-dialog) entered the
   tree mid-session; the 4 ambient failures keyed exactly to it and were
   attributed on the same protocol — zero prototype-flex keys.
+
+## Techniques (task 45 additions)
+- **The modal wheel-frozen finding (three instruments converge)**: with
+  a modal dialog in the top layer, the docs scroller (.jx-shell-body) is
+  wheel-frozen at EVERY hit target — bare backdrop, non-scrollable cell,
+  genuinely-scrollable cell wheeled past its boundary, dialog padding —
+  while the same wheel with the dialog closed scrolls fine. Chaining
+  into inert scrollers is blocked, so "the document's own scroll is not
+  locked" is true about LOCK and false about WHEEL. The honest disclosure
+  names the wheel-user behavior, not the lock.
+- **Find the real scroller before any wheel claim**: window.scrollY is
+  the wrong instrument on this site — the scroller is .jx-shell-body
+  (scrollHeight 9790 / clientHeight 720; documentElement fits the
+  viewport). Walk the tree for scrollHeight > clientHeight + overflow,
+  target it by CLASS (a generic find matches stray inline anchors), and
+  sanity-prove the instrument by scrolling the page with the component
+  CLOSED before measuring the open state.
+- **Boundary test rigor**: a "scroll cell at its overscroll boundary"
+  claim requires the cell to be GENUINELY scrollable first (inject tall
+  content until scrollHeight > clientHeight), wheel to its own max, then
+  keep wheeling and read the ANCESTOR scroller — a content-fits cell
+  never reaches a boundary and proves nothing.
+- **Programmatic clicks cannot test focus restore**: el.click() never
+  moves focus, so the restore target reads BODY — an artifact of the
+  probe, not the page. Real trusted clicks (Playwright locator.click())
+  focus the trigger; only then does Escape's restore verify.
+- **rAF single-evaluate timing beats interval sampling**: arm a
+  requestAnimationFrame sampler inside ONE evaluate, dispatch the
+  trigger inside it, and read the whole (t, x, open, .closing) trace —
+  every intermediate frame lands (1050/986/947/911/903/899) and the
+  claimed waypoints fall inside.
+
+## Highlights (task 45)
+- (sheet) The wheel clause falsified at its second half by the
+  scrollable-cell boundary test — the shell pinned at every hit target
+  while the sheet is open (backdrop, cell, boundary, padding); the
+  first half (backdrop swallowed) reproduced. The honest wheel-user
+  sentence rides closure.
+- (sheet) The full timing battery digit-exact: entry waypoints
+  1051/947/911/899/896 settled ~182ms, .closing inside the open window,
+  Escape gone at 225ms, focus restored to the trigger on a real click,
+  RM docked immediately and gone in 19ms.
+- (sheet) The four-lane stamps on one top-layered root (sm/dark/12px/
+  18px), the width workaround live (384@896, 288@992), 47 ids zero
+  duplicates, meta 16 named, ambient 284/284 clean.
+- (process) Three sibling edits cycled through the tree during this
+  task (system-dialog ×2, the matrix fixture); each ambient state was
+  attributed fresh and the final gate ran clean.

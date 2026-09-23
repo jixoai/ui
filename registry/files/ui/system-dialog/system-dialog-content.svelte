@@ -153,7 +153,7 @@
   const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
   const anchorStyle = pose === 'center'
     ? 'margin: auto'
-    : 'position-anchor: --{api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem)';
+    : `position-anchor: --${api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem)`;
 
   // the payload's own join (separator's serialize law): every
   // stylex.create member is an OBJECT in dev and the joined string in

@@ -254,11 +254,11 @@ ${close}
             last CSS-keyframe overlay pending its WAAPI kernel migration;
             and the modal contract is about focus, not scroll — the page
             behind is inert to focus and pointer interaction goes to the
-            top layer, but the document's own scroll is not locked for you
-            (wheel over the bare backdrop does not chain to it — the top
-            layer swallows the default; chaining happens through the
-            panel's own scroll cell at its overscroll boundary. Lock it in
-            your app shell if the drawer's content demands it).
+            top layer, and wheel is swallowed at every hit target while
+            the sheet is open (the page does not scroll; the scroller
+            itself is never locked — programmatic scroll still works,
+            nothing authors a lock). Lock it in your app shell if the
+            drawer's content demands it.
           </p>
         </div>
       </SectionCard>
