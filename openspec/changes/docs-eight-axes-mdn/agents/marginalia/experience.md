@@ -916,3 +916,11 @@
 - **Unawaited promise in page.evaluate logging prints `{}`** (JSON of a Promise) — looks like an empty result, silently discards the data. Every locator/evaluate helper that returns a promise gets `await` at the call site, not just inside.
 - **When a stamped attr matches both a static demo and the live seat, keying on the attr alone reads the wrong element** (first-match won the static lg demo). Read ALL stamped roots at both viewport ends and take the one whose value CHANGES — the static becomes the control and the receipt gets self-proving.
 - Family type-debt classes to keep separating in gates receipts: the Object.entries-undefined overload (kernel-adjacent, harmless) vs a `Cannot find name` (a missing import — type-layer only while the runtime strips types, but it's a one-line real fix; name it distinctly in the report).
+
+## T78 (tour 1st) — read the ATOMS, not the root; unavailable-target tours auto-finish under you
+
+- **Theme-split ink reads belong on the ink ATOMS, not the card root**: the tour card root's `color` read white under its own dark island (the site `.dark` rule paints the root with the re-derived site token) while the title/desc atoms' computed colors stayed frozen black via the :root aliases. One element higher = the opposite conclusion. Find the element whose stylex rule carries the token before reading "the ink".
+- **A tour with unavailable targets opens, tweens, and auto-finishes mid-probe** (the end-via-onfinish path) — my first focus-law drive chased a card that was already gone. Pick an instance with live targets (the multi-step demo) and census the lease to confirm the drive landed.
+- **The docs shell scrolls an inner container**: window.scrollY is always 0. scrollIntoView receipts must read element visibility (getBoundingClientRect against innerHeight), not window scroll.
+- **A "frozen ink at N:1" claim can rest on a translucent face** — when the only fills are alpha layers over the page, the contrast ratio is ground-dependent by construction. Receipt the layers and the composite arithmetic, flag the single number as unreproducible-without-a-pinned-ground, and let the concordance read settle where the number came from.
+- Reopen-gap A/B in one session (fresh open sampled, Escape, reopen sampled) is the deterministic receipt form — the same opener, two mount paths, var cadence tells the whole story.
