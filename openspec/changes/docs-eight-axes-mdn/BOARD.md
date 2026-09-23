@@ -2,6 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | (queued) | 82 | website-scaffold (quill's — row mislabel fixed: coder never reviews own 1st; pool = scribe/vellum/marginalia) | REVIEW (1st) | queued |
+| quill | 107 | form · icon · math-block · hover-card (batch) | REVIEW (2nd ×4) | in-flight |
 | vellum | 79 | toc (quill's) | REVIEW (1st) | in-flight |
 | marginalia | 106 | tooltip (scribe's, REASSIGNED) | REVIEW (1st) | in-flight |
 | scribe | 71 | toast (vellum's) | REVIEW (1st) | in-flight |
