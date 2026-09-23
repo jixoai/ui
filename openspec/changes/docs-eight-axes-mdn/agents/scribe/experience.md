@@ -1576,3 +1576,42 @@
   dup is #11's pair. Page 0 diagnostics; family :181 7 warns (density absent — kernel
   law visible) + :80/:213 errors pre-existing. Gates: ambient 284/284, universal
   110/110. d3ff3f11 verified as the fix commit.
+
+## Task 62 — spin (1st review, PASS 0M/0m/1L — hydration noise, family lane)
+
+### Banked lessons
+- **Brand-hue wall-clock discipline, third application**: assert the oklch L/C
+  invariants, never the literal hue — her 154 / my 178 are the same ink sampled at
+  different clock ticks (the +24 drift matches my press-button samples). Any receipt
+  quoting a hue digit needs the wall-clock caveat or the L/C form.
+- **stylex hashes defeat .panel selectors AGAIN** (task 56's lesson, re-bitten): anchor
+  posture probes on data attributes or parentElement walks, never hashed class names.
+- **emulateMedia reduced-motion is LIVE**: the matchMedia listener fires on flip —
+  both RM channels (CSS animation-name + SMIL animationsPaused()) verify in one page
+  session without reloading.
+- **SSR text mentions masquerade as element counts**: grep hits for
+  `data-jx-spin-frames` in the payload were the drawer's css COMMENT and the receipts
+  prose, not a style element — print raw contexts before counting elements.
+- **{@html} + module counter = hydration_html_changed**: a module-level instance seq
+  (svgInstanceSeq) diverges between SSR order and lazy client mounts; Svelte keeps the
+  server nodes (benign visually, noisy in console). Same salt-the-counter shape as
+  table's W-next #11.
+
+### Receipts (task 62)
+- Opacity-only: 85 rAF samples min 0 max 1 (15 nonzero, the 'both' shape), transform
+  none / bg transparent / transition 0s on the same element.
+- Flat engine: ONE style[data-jx-spin-frames], 12 rules (grow + dots among them),
+  10 frames, delays −1200→−120ms over 1200ms, name jx-spin-f10-i120-l120-both, 1.2s,
+  linear, infinite; cursor white-space: pre.
+- RM both channels live: animation-name none + frame-0 face + svg animationsPaused()
+  true under reduce; both restored on un-reduce.
+- Root-pinned alias: scoped .dark island re-derived --primary (0.7044 0.1872) while
+  ink HELD 0.6489/0.237/178; root dark flipped ink; restored exactly.
+- Query seat: density lg@1280 → sm@600 live; size hybrid rejects query (source).
+- Census: bare inline = [data-jx-spin-inline, class, role, aria-label]; ruler
+  var(--jx-icon) inline; pinned width attr; §1 carrier on number size; zero
+  effective-readers (6 files).
+- Drift #12: spin-defaults comment fixed + 4 mirrors byte-identical (diff).
+- SSR: 230 prerendered frame spans, keyframes style client-only, toc 11 ×2, marker ×1.
+- LAW #18: gallery 11/11 keyed; LAW #19: 81 ids 0 dups. Page 0 diagnostics; family
+  warns/errors pre-existing. Gates: ambient 284/284, universal 110/110.
