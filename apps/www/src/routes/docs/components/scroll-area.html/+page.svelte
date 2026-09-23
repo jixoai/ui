@@ -4,12 +4,14 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import ScrollArea from '$lib/ui/scroll-area/scroll-area.svelte';
   import Card from '$lib/ui/card/card.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import Toc from '$lib/ui/toc/toc.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { createTocEngine } from '$lib/toc-engine';
   import { deriveTocOutline } from '$lib/toc-outline';
@@ -21,12 +23,6 @@
   import scrollAreaCssSource from '$lib/ui/scroll-area/scroll-area.css?raw';
 
   const close = '</' + 'script>';
-
-  // THIS PAGE is the outline-mode dogfood: no tocSections literal, no
-  // data-region/data-family markup — the rail derives itself from the h2
-  // tree under #sa-content on hydration (the reveal philosophy: prerendered
-  // output shows the rail empty, then it fills).
-  const pageOutline = { root: '#sa-content', levels: [2] };
 
   // ---- canvas playground (the standard opening) — REWORKED 2026-09-15:
   // the scrollbar variant prop retired; the chrome is always hand-drawn ---
@@ -43,20 +39,19 @@
     canvasPad = canvasInitial.pad;
   }
 
-  const canvasUsage = $derived(
+  const canvasUsageText = (orientation: ScrollOrientationOpt, pad: number): string =>
     [
       '<ScrollArea',
       '  label="config demo"',
-      `  orientation="${canvasOrientation}"`,
-      `  pad="${canvasPad}rem"`,
+      `  orientation="${orientation}"`,
+      `  pad="${pad}rem"`,
       '  class="h-40"',
       '>',
       '  …scrolling content…',
       '</ScrollArea>',
-    ]
-      .flat()
-      .join('\n'),
-  );
+    ].join('\n');
+
+  const canvasUsage = $derived(canvasUsageText(canvasOrientation, canvasPad));
 
   // stable named resolver: the usage file tracks live playground state
   const resolveScrollAreaUsage =
@@ -67,7 +62,7 @@
     { name: 'registry/files/ui/scroll-area/scroll-area.svelte', content: scrollAreaSource },
     { name: 'registry/files/ui/scroll-area/scroll-area.css', content: scrollAreaCssSource },
     // initial snapshot only — resolveScrollAreaUsage serves the live state
-    { name: 'src/lib/ui/scroll-area-usage.svelte', content: canvasUsage },
+    { name: 'src/lib/ui/scroll-area-usage.svelte', content: canvasUsageText(canvasInitial.orientation, canvasInitial.pad) },
   ];
 
   // ---- toc-metadata demo: the inner scroller linkage, engine-direct ----
@@ -193,7 +188,7 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is NonNullable<(typeof styles)[number]> => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -206,6 +201,85 @@ ${close}
   const universalUsage = `<ScrollArea size={18} density="small">…</ScrollArea>`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/scroll-area-universal.svelte', content: universalUsage },
+  ];
+
+  // ── the measured per-axis table (task 38) — the styled chrome paints
+  // currentColor under the scrollbar-token law, and every axis is a
+  // FORWARDER: the family manufactures no axis opinion of its own. ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "FORWARDER — the rung stamps data-density on the region root (measured data-density=lg explicit; null ambient) for descendants that read the kernel channels; the drawn chrome's width is the width prop's tier table (8/12/16px), not the density ladder. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "FORWARDER, ROOT ECHO — the §11 stamp scales the region root (measured 18px computed at size={18}); the drawn lane is px-tiered and does not follow it. Zero --jx-size-effective readers (grep receipt). Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero shape-channel readers in ui/scroll-area/ (grep receipt); the chrome corners are the radius prop\u2019s jurisdiction. Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE OWNED NAME (the family's one collision ruling) — radius here is the THUMB's chrome param (px or the 'full' capsule via --jx-scroll-thumb-radius; measured 0px square-cut ambient, 6px at radius={6}, calc(infinity * 1px) at 'full' → the engine caps it to a capsule), NOT the region's concentric corner; the axis record deliberately omits the radius slot (W3-D2), and a px number lane double-stamps as the universal radius anchor for descendants (the §13 analogy, census-recorded). Number unit: px.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "FORWARDER — the chrome paints CURRENTCOLOR under the scrollbar-token law, so it follows the region's inherited text color rather than the axis carrier (zero --jx-color-effective readers, grep receipt): re-theme the stage's text color and the chrome re-themes with it (measured). Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "FORWARDER WITH A PRECISE EDGE (measured) — dark rides the .dark class bridge, but a bare .dark on the region alone re-declares token VALUES without re-theming the chrome: the thumb paints inherited currentColor, which only moves when the stage actually re-themes text color (the scrollbar-token law — 'dark stages restyle for free' means stages that restyle their text). The kit's resolveThemeScope scope-walk is the NATIVE sibling's scheme observer fuel, not this family's. system/auto = tree inheritance. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description: 'FORWARDER — carrier stamp only; zero elevation readers (grep receipt); the chrome carries no shadow tier. Number unit: dp.',
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "CONSUMED AS A FLOOR, NOT A CHANNEL — prefers-reduced-motion (checked by both the css and the kit's adapter) kills the fade transition and keeps the chrome statically visible — the adapter never even schedules the fade; --jx-motion-effective has zero readers (grep receipt). Number unit: coefficient.",
+    },
+  ];
+
+  // the ONE query() case: responsive size — the number lane goes bare;
+  // md = 48rem (the registered VIEWPORT_SCALE — cite the key). Lanes
+  // take query(); the chrome params (radius/width/pad) are passthroughs.
+  const responsiveSize = query({ md: 18 }, 13);
+
+  const queryUsage = `<script lang="ts">
+  import ScrollArea from '@ui/scroll-area.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- below 48rem the base (13px root) applies; at 48rem+ the md case
+     (18px) wins — the §11 stamp scales the region root -->
+<ScrollArea label="sync" size={query({ md: 18 }, 13)} class="h-40">…</ScrollArea>`;
+
+  const queryFiles: TreeFile[] = [
+    { name: 'scroll-area-query-demo.svelte', content: queryUsage, kind: 'usage' },
   ];
 
 </script>
@@ -221,12 +295,6 @@ ${close}
 <div
   class={cx(rt.shell)}
 >
-  <!-- outline-mode rail: no sections literal below — it derives itself from
-       #sa-content's h2 tree on hydration (this page is the dogfood) -->
-  <aside class="jx-toc-aside" aria-label="On this page">
-    <Toc outline={pageOutline} title="on this page" scrollRoot=".jx-shell-body" />
-  </aside>
-
   <div id="sa-content" class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
@@ -246,8 +314,65 @@ ${close}
     </SectionCard>
   </div>
 
-  <!-- component canvas (the standard opening): live demo + PLAYGROUND -->
-  <div data-reveal="">
+  <!-- install (chrome — out of the toc) -->
+  <div id="install" data-reveal="">
+    <DocsInstall name="scroll-area" />
+  </div>
+
+  <!-- overview -->
+  <div id="overview" data-reveal="">
+    <SectionCard
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="What this family adds beyond the platform: the always-hand-drawn capsule — four testable auto-hide pins, a thumb with its own scrollbar contract, and chrome params — over the shared scroll-area-kit core."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          The component IS a native scroll container — wheel, touch momentum, keyboard,
+          scroll-snap and overscroll chaining stay platform behavior — and the scrollbar is ALWAYS
+          HAND-DRAWN: the 2026-09-15 rework retired the dual-mode scrollbar prop entirely (no mode
+          branch exists; breaking). What the family ADDS beyond the platform path is the drawn
+          chrome and its behavior: a capsule-or-square thumb on the scrollbar-token law
+          (currentColor family — themes and dark stages restyle it without a line of JS), the
+          ~700ms idle fade with FOUR separately probe-asserted pins (region focus-within, thumb
+          focus, active drag, hover — measured: live at 1.1s focused, faded by 1.75s after blur),
+          edge-anchored hover growth, drag pinning, a keyboard-draggable thumb, and track-click
+          paging. The chrome params are geometry you own: width tiers (thin 8 / auto 12 / wide
+          16px) and the radius prop (square-cut 0 by default; px; the 'full' capsule).
+        </p>
+        <p class={cx(rt.para)}>
+          The kit-shaped sharing law applies verbatim: the scroll-area-kit lib item splits by
+          concern so the siblings share the CORE (overflow verdict, thumb geometry math, the RTL
+          inline-engine funnel, theme-scope resolution — zero paint, zero ARIA) and never each
+          other's halves. THIS family consumes the hand-drawn INTERACTION ADAPTER (the pins, the
+          fade, the thumb's a11y contract mounted on bare nodes); the native sibling consumes the
+          CAPABILITY STYLES and drives its scheme observer from the kit's resolveThemeScope. The
+          floors are environmental, not modes: content that fits draws nothing (the none verdict
+          gates the chrome — four fitted regions visible on this very page), coarse pointers keep
+          the platform's momentum bars, no-JS output shows the platform bar until hydration
+          upgrades it, and prefers-reduced-motion keeps the chrome statically visible.
+        </p>
+        <p class={cx(rt.para)}>
+          The eight axes are forwarders (all no-own — the family manufactures no axis opinion):
+          the chrome paints currentColor, so color arrives through inheritance rather than a
+          carrier; the radius NAME belongs to the thumb's chrome param (the one deliberate
+          collision, with the px number lane double-stamping as the universal radius anchor);
+          motion arrives as a floor — reduced-motion keeps the chrome statically visible. Measured
+          in the axes table below. Kinship:
+          <code class={cx(rt.inkPrimary)}>native-scroll-area</code> (the platform path — its own
+          registry item),
+          <code class={cx(rt.inkPrimary)}>scroll-virtual</code> (the windowed-list sibling),
+          <code class={cx(rt.inkPrimary)}>toc-outline</code> (the metadata consumer of
+          getViewport()).
+        </p>
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- live demo (the standard opening): live demo + PLAYGROUND -->
+  <div id="live-demo" data-reveal="">
     <ComponentCanvas
       title="scroll-area"
       description="the component IS a native scroll container — wheel, touch momentum, keyboard and scroll-snap stay platform behavior; the chrome is the hand-drawn capsule on the token law."
@@ -300,7 +425,7 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div data-reveal="">
+  <div id="capsule" data-reveal="">
     <SectionCard
       family="scroll-capsule"
       headerRegion="scroll-capsule"
@@ -523,25 +648,78 @@ ${close}
     </div></ComponentCanvas>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Give it a height, a label, and pad for the thumb lane; the rest is a native scroll container."><div class={cx(rt.col16)}><CodeBlock code={basicUsage} lang="svelte" meta="basic" /><CodeBlock code={horizontalUsage} lang="svelte" meta="horizontal" /><CodeBlock code={tocUsage} lang="ts" meta="toc-outline" /></div></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The WAI scrollable-region pattern, PLUS the thumb's own scrollbar contract — mounted by the kit's adapter."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the scrollable area (the region, then the thumb)' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'arrows / PgUp / PgDn / Home / End on the thumb', action: 'Keyboard-drag the thumb itself — steps, pages, jumps (role=scrollbar contract)' }, { key: 'pointer drag / track click', action: 'The thumb drags with pointer capture; a track click pages toward the click' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern' }, { name: 'role (thumb)', value: 'scrollbar', description: 'The thumb\'s contract: aria-controls → the viewport, aria-valuenow tracking 0..100, aria-orientation, focusable, keyboard-draggable' }, { name: 'the four pins', value: 'focus-within / thumb focus / drag / hover', description: 'Each suspends the idle fade; while any pin holds the thumb stays in the accessibility tree ("AT-engaged" is not a detectable platform state and is deliberately not a pin)' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The capsule look rides the scrollbar-token law: currentColor family, no JS."><div class={cx(rt.col24)}><DensityDemo><ScrollArea class={cx(rt.saStage36)} label="density sample" pad="0.75rem"><ol class={cx(rt.col8)}>{#each Array(10) as _, i (i)}<li class={cx(rt.frame40, rt.bgMuted40, rt.px12, rt.py6, rt.text125)}>item {i + 1}</li>{/each}</ol></ScrollArea></DensityDemo><TokenTable tokens={[{ name: '--scrollbar-thumb / -hover / -active', default: 'currentColor steps', source: 'theme', description: 'The token law the capsule paints with — dark stages restyle for free' }, { name: '--jx-scroll-thumb-radius', default: '0px (square-cut)', source: 'component', description: 'The thumb\'s corner radius — set by the radius prop (px or the \'full\' capsule); 0 by default' }, { name: '--jx-scroll-track-w', default: '12px (width tiers: 8/12/16)', source: 'component', description: 'The drawn lane\'s size — the width prop\'s tier table (thumb rides at track − 2×2px resting, growing +2px inward on hover/drag)' }, { name: '--jx-scroll-pad', default: 'pad prop', source: 'component', description: 'The ring padding keeping content clear of the thumb lane' }] } /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The capsule look rides the scrollbar-token law: currentColor family, no JS."><div class={cx(rt.col24)}><DensityDemo><ScrollArea class={cx(rt.saStage36)} label="density sample" pad="0.75rem"><ol class={cx(rt.col8)}>{#each Array(10) as _, i (i)}<li class={cx(rt.frame40, rt.bgMuted40, rt.px12, rt.py6, rt.text125)}>item {i + 1}</li>{/each}</ol></ScrollArea></DensityDemo><TokenTable tokens={[{ name: '--scrollbar-thumb / -hover / -active', default: 'currentColor steps', source: 'component', description: 'The token law the capsule paints with — dark stages restyle for free' }, { name: '--jx-scroll-thumb-radius', default: '0px (square-cut)', source: 'component', description: 'The thumb\'s corner radius — set by the radius prop (px or the \'full\' capsule); 0 by default' }, { name: '--jx-scroll-track-w', default: '12px (width tiers: 8/12/16)', source: 'component', description: 'The drawn lane\'s size — the width prop\'s tier table (thumb rides at track − 2×2px resting, growing +2px inward on hover/drag)' }, { name: '--jx-scroll-pad', default: 'pad prop', source: 'component', description: 'The ring padding keeping content clear of the thumb lane' }] } /></div></SectionCard></div>
+
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollArea Props interface (the scrollbar variant prop retired with the dual-mode era); getViewport()/scrollTo() are the imperative exports."><PropsTable universal props={[{ name: 'orientation', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes scroll: overflow-y/x mapping.' }, { name: 'label', type: 'string', default: "'scrollable content'", description: 'a11y name for the region.' }, { name: 'pad', type: 'string', default: '0', description: 'Ring padding (CSS length), inline-axis — keeps content clear of the thumb lane.' }, { name: 'radius', type: "number | 'full'", default: '—', description: 'Thumb corner radius: a px number or the \'full\' capsule. Omitted → 0 (square-cut, the r2 default — the hard capsule retired).' }, { name: 'width', type: "'auto' | 'thin' | 'wide'", default: "'auto'", description: 'The chrome width tier sizing the drawn lane (8/12/16px; thumb resting 6/10/14 = track − 2 with the edge side AT the region edge, hover/drag 8/12/16 = the track). \'none\' is native-only vocabulary.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'style', type: 'string', default: '—', description: 'Style passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'Scroll callback from the viewport.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The scrolling content.', required: true }, { name: 'getViewport()', type: '() => HTMLDivElement | null', default: 'export', description: 'The scrollport element — Toc scrollRoot / engine-direct linkage.' }]} /></SectionCard></div>
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"
       headerRegion="universal-props"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. SEVEN lanes — the thumb-corner chrome param owns the radius name (a px number or the full capsule, never the concentric corner axis; §13 rules no rename); the axis surface rides the region root, the kit's hand-drawn engine stays outside the supply set."
+      title="The eight axes on scroll-area"
+      summary="The styled sibling is a FORWARDER family: all eight axes no-own, carriers stamped for descendants, zero axis-carrier readers in the family (grep receipts). The one deliberate collision is radius — the chrome param owns the name for the THUMB (square-cut 0 default; the 'full' capsule via calc(infinity * 1px)) — and the chrome paints currentColor, so the theme story is inheritance-precise: a bare .dark class re-declares token values but only a stage that re-themes TEXT color re-themes the chrome. Motion arrives as a floor: reduced-motion keeps the chrome statically visible."
     >
-      <ComponentCanvas title="ScrollArea · universal props" stage="fill" files={universalFiles}>
-<div class={cx(rt.panel)}><ScrollArea label="axes" size={18} density="small" style="height: 8rem"><p>line one</p><p>line two</p><p>line three</p><p>line four</p></ScrollArea></div>
-<div class={cx(rt.panel)}><ScrollArea label="named steps" size="medium" style="height: 8rem"><p>medium via the alias ladder</p><p>the thumb-corner radius prop keeps its own name</p></ScrollArea></div>
-<div class={cx(rt.panel)}><ScrollArea label="the concentric chain" radius={20} style="height: 8rem"><Card radius="auto"><p style="padding: .5rem">radius 20 on the region; the auto card computes max(0px, 20px − 0.875rem)</p></Card></ScrollArea></div>
-      </ComponentCanvas>
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the thumb contract digit-exact (aria-valuenow 50 at mid-travel; thumb/track
+          height ratio 0.333 == the kit's client/scroll fraction; position 0.50 == authored), the
+          four pins' timeline (data-thumb-live on at 1.1s focused; removed by 1.75s after blur;
+          track opacity 1 → 0), the width tiers (8/12/16px computed), the radius ladder (0px
+          square-cut ambient; 6px; 'full' → calc(infinity * 1px), engine-capped to a capsule), the
+          verdict vocabulary (data-verdict-y none/start-closed/open across this page's regions;
+          fitted regions drawing no chrome at all) and the currentColor theme edge (a bare .dark
+          on the region changes nothing — the chrome moves when the stage re-themes text color)
+          were measured on this page's served DOM (probe, task 38); the zero-reader rows carry
+          grep receipts over ui/scroll-area/ + scroll-area-kit/. The query() seat below rides the
+          md viewport key (48rem) on the size lane — the chrome params (radius/width/pad) are
+          passthroughs and reject query(). The concentric chain stays in the family: radius=20 on
+          the region anchors descendants (the auto Card computing max(0px, 20px − 0.875rem)).
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="scroll-area · query()" files={queryFiles}>
+            <div class={cx(rt.col16, rt.wFull, rt.maxWMd)}>
+              <ScrollArea label="sync" size={responsiveSize} class={cx(rt.saStage40)}>
+                <ol class={cx(rt.col8)}>
+                  {#each Array(12) as _, i (i)}
+                    <li class={cx(rt.frame40, rt.bgMuted40, rt.px12, rt.py6, rt.text125)}>item {i + 1}</li>
+                  {/each}
+                </ol>
+              </ScrollArea>
+              <p class={cx(rt.para)}>
+                Media keys are min-width: below 48rem the base (13px root) applies; at 48rem and
+                wider the md case wins (18px) — the §11 stamp scales the region root and the
+                content inherits it. The number lane goes bare. Resize across 48rem.
+              </p>
+            </div>
+          </ComponentCanvas>
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="ScrollArea · universal props" stage="fill" files={universalFiles}>
+            <div class={cx(rt.panel)}><ScrollArea label="axes" size={18} density="small" style="height: 8rem"><p>line one</p><p>line two</p><p>line three</p><p>line four</p></ScrollArea></div>
+            <div class={cx(rt.panel)}><ScrollArea label="named steps" size="medium" style="height: 8rem"><p>medium via the alias ladder</p><p>the thumb-corner radius prop keeps its own name</p></ScrollArea></div>
+            <div class={cx(rt.panel)}><ScrollArea label="the concentric chain" radius={20} style="height: 8rem"><Card radius="auto"><p style="padding: .5rem">radius 20 on the region; the auto card computes max(0px, 20px − 0.875rem)</p></Card></ScrollArea></div>
+          </ComponentCanvas>
+        </div>
+      </div>
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props from the ScrollArea Props interface (the scrollbar variant prop retired with the dual-mode era); getViewport()/scrollTo() are the imperative exports."><PropsTable universal props={[{ name: 'orientation', type: "'vertical' | 'horizontal' | 'both'", default: "'vertical'", description: 'Which axes scroll: overflow-y/x mapping.' }, { name: 'label', type: 'string', default: "'scrollable content'", description: 'a11y name for the region.' }, { name: 'pad', type: 'string', default: '0', description: 'Ring padding (CSS length), inline-axis — keeps content clear of the thumb lane.' }, { name: 'radius', type: "number | 'full'", default: '—', description: 'Thumb corner radius: a px number or the \'full\' capsule. Omitted → 0 (square-cut, the r2 default — the hard capsule retired).' }, { name: 'width', type: "'auto' | 'thin' | 'wide'", default: "'auto'", description: 'The chrome width tier sizing the drawn lane (8/12/16px; thumb resting 6/10/14 = track − 2 with the edge side AT the region edge, hover/drag 8/12/16 = the track). \'none\' is native-only vocabulary.' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough.' }, { name: 'style', type: 'string', default: '—', description: 'Style passthrough.' }, { name: 'onscroll', type: '(event: ViewportScrollEvent) => void', default: '—', description: 'Scroll callback from the viewport.' }, { name: 'children', type: 'Snippet', default: '—', description: 'The scrolling content.', required: true }, { name: 'getViewport()', type: '() => HTMLDivElement | null', default: 'export', description: 'The scrollport element — Toc scrollRoot / engine-direct linkage.' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The WAI scrollable-region pattern, PLUS the thumb's own scrollbar contract — mounted by the kit's adapter."><A11yTable keys={[{ key: 'Tab', action: 'Moves focus through the scrollable area (the region, then the thumb)' }, { key: '↑ ↓ ← → / Home / End / PgUp / PgDn', action: 'Native scrollport scrolling once the region is focused' }, { key: 'arrows / PgUp / PgDn / Home / End on the thumb', action: 'Keyboard-drag the thumb itself — steps, pages, jumps (role=scrollbar contract)' }, { key: 'pointer drag / track click', action: 'The thumb drags with pointer capture; a track click pages toward the click' }]} aria={[{ name: 'aria-label', value: 'label prop', description: 'Accessible name for the region (default "scrollable content")' }, { name: 'role', value: 'region', description: 'Plus tabindex=0 — the WAI scrollable-region pattern' }, { name: 'role (thumb)', value: 'scrollbar', description: 'The thumb\'s contract: aria-controls → the viewport, aria-valuenow tracking 0..100, aria-orientation, focusable, keyboard-draggable' }, { name: 'the four pins', value: 'focus-within / thumb focus / drag / hover', description: 'Each suspends the idle fade; while any pin holds the thumb stays in the accessibility tree ("AT-engaged" is not a detectable platform state and is deliberately not a pin)' }]} /></SectionCard></div>
+
+  <div id="see-also" data-reveal="">
+    <SectionCard family="see-also" headerRegion="see-also" eyebrow="see-also" title="See also" summary="The scroll-area family map — the styled sibling, the platform path, and the windowed list.">
+      <div class={cx(rt.wrap12)}>
+        <span class="pill">scroll-area — the hand-drawn path (this page)</span>
+        <a class="pill" href="/docs/components/native-scroll-area.html">native-scroll-area — the platform path</a>
+        <a class="pill" href="/docs/components/scroll-virtual.html">scroll-virtual — the windowed list</a>
+      </div>
+      <DocsSeeAlso name="scroll-area" />
+    </SectionCard>
+  </div>
   </div>
 </div>
 

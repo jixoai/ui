@@ -1083,3 +1083,26 @@
   cross-references in law-notes (page-side; retires if DocsSeeAlso grows
   family grouping). The rig harness (state block + PlayRow set + live-mirror
   usage file + resolve callback) proved copy-adaptable three times running.
+
+## Task 38 — scroll-area (2026-09-22)
+- **Read the sibling FIRST, then frame yours as the delta**: scroll-area's page only
+  works because native-scroll-area's page + closure notes were read first — the overview
+  teaches ONLY the family's additions (drawn chrome, pins, thumb contract, chrome params)
+  and the sharing law ("siblings share the core, never each other's halves") resolved
+  every framing decision (what belongs in see-also, what stays a mid-page sibling card,
+  what the kit's resolveThemeScope is NOT ours to claim).
+- **Stamp topology needs the delivery-shape taxonomy, not vibes**: scroll-area is an OWN
+  REGION ROOT (composed root stamps inside the item); the engine (kit adapter) sits
+  outside the supply set with grep receipts. The native sibling's observer-consumed
+  posture is the CONTRAST case, not the default — name the difference per family.
+- **The frozen-ink watch can end NEGATIVE and still be a receipt**: the capsule paints
+  currentColor (inheritance), so a bare .dark on the region re-declares values without
+  re-theming the chrome — that edge is the report, not a fifth instance. Precisely WHY
+  it's not an instance is the teachable content.
+- **Check summary claims against disk before trusting them**: this session resumed from a
+  summary that said +page.ts was written — it was not on disk. `ls` the directory before
+  building on a claimed artifact; the toc==DOM probe caught it within one step.
+- **CSS-value comment conventions carry classification law**: TokenTable `source` has a
+  4-value union; the native sibling already classified the identical currentColor row as
+  'component'. When your row invents a value ('theme'), the sibling's precedent IS the
+  answer — grep the family's pages before reaching for a union change.
