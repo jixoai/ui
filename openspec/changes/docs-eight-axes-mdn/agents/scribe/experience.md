@@ -1730,3 +1730,34 @@
   paint-true; canvas stage ground oklab(0.981142 0 0) held under root dark.
 - Structure: toc 13 == DOM == SSR ×2; payload 1,286,078 bytes; LAW #19: 241 ids 0 dups;
   the two rt-atom fixes verified (page 0). Gates: ambient 284/284, universal 110/110.
+
+## Task 70 — separator (2nd review of my own page, PASS 0M/0m/0L/0N)
+
+### Banked lessons
+- **A repair can REWORD, not just escape**: my 1st-pass seat substrings read FALSE after
+  c4ef8428 because the apostrophe fix restructured the sentence ("the html var read is
+  not the paint" survived, "re-derives at html" became "html's var flips"). Verify seats
+  against the SERVED wording (grab the context around the anchor phrase), never against
+  your own prior quote.
+- **Two-read protocol is the frozen-everywhere proof**: read the var at html AND the
+  element's paint in the same evaluate — html --jx-border flipped 0 0 0 → 1 0 0 while the
+  ghost strip's computed paint (transparent + contrast(0.5)) held across all three theme
+  states. One read without the other proves nothing.
+- **Token-table counts are moving numbers**: 113 (my 1st) / 116 (hers) / 117 (now)
+  --jx-* alias entries — the table grows with the fleet. Cite such counts as "at read
+  time"; variance is commit skew unless the counting pattern differs.
+- **Internal consistency across seats**: the axis row teaches the SOLID variant's token
+  ride (island-frozen, root-dark re-derives) while the overview/theming teach the SERVED
+  ghost's physics hold — both true, different variants. Read the full sentence before
+  calling a contradiction.
+
+### Receipts (task 70)
+- Page 200 (c4ef8428 holds); three seats serve frozen-everywhere + var-vs-paint (quoted
+  from served text).
+- Two-read protocol: html --jx-border 0 0 0 → 1 0 0 at root dark while the strip paint
+  held across light/island/dark/restored; ghost seven-sample delta-0 (distinct 1).
+- Ladder 7/7 variants served, 57 separators; omission census: separator element class
+  only; SELF-STAMP roots 8; LAW #19: 74 ids 0 dups.
+- Census reconciled: 117 alias entries now (moving table).
+- Gates: ambient 284/284 rc0; universal 110/110; svelte-check page 0. lsof empty/empty
+  (PID 4019 + wrapper 3991).
