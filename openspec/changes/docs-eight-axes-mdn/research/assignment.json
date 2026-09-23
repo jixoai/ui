@@ -1148,9 +1148,9 @@
     "quill",
     "scribe"
    ],
-   "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 78 marginalia 1st PASS (0M/0m/0L/1N); real-events battery; both alias-theme tiers on one family (unpinned flips / island ink frozen); the auto-finish live lesson; NIT: ratio ground-dependent — hedged in the record"
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at quill's T113 2nd (PASS 0M/0m/0L/1N new-info flag) — RE-TIERED Tier 2 -> 1 (confirmed). All receipts re-derived concordant on real-event drives; FRESH AXIS: the lease's restore-existing branch behavior-receipted 4/4 (planted prior restored exactly, dataset cleaned). The family's 3 standing errors closed at consolidation: :430 cx (17th family), :353 explicit null narrowing, :456 {autoId} shorthand -> id={autoId} (a REAL attribute bug — the dialog id never landed; compile-verified, the dialog mounts only when open so SSR bytes show neither)."
   },
   {
    "page": "transfer",

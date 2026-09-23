@@ -347,7 +347,7 @@
             .reverse();
     for (const i of order) {
       const el = resolve(steps[i]!);
-      if (!isUnavailable(el)) {
+      if (el !== null && !isUnavailable(el)) {
         index = i;
         targetEl = el;
         lease(el);
@@ -427,7 +427,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -453,7 +453,7 @@
        focus + keyboard) wins any name collision -->
   <div
     {...rest}
-    {autoId}
+    id={autoId}
     popover="manual"
     role="dialog"
     tabindex="-1"
