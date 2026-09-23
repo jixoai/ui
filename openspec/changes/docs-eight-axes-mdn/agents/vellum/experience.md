@@ -1575,3 +1575,26 @@
 - **Read the named carrier, not the nearest matching ancestor** — pagination's
   aria-hidden lives on the token span inside the li; ellipsis reads at the li returned
   null. Third lane, same lesson as the T98 sr-only span and the section-card zones.
+
+## 2026-09-22 — T142 second review text (the fleet's last 2nd review)
+
+- **Sheet-level findings must be re-proven at the sheet AND the computed layer** — the
+  feed fix verified four ways: the source block (app.css), the BUILT asset grep
+  (dist/_app/immutable/assets/0.*.css carries .font-medium{font-weight:500}), the
+  served seat's computed triple (500/14px/21px), and the injected-div control. A fix
+  at one layer can still fail at another (dev serves source, dist serves the built
+  sheet — grep the layer you serve).
+- **Unscoped family reads read the WRONG instance** — the text page hosts multiple
+  [data-jx-text] demos at different ambients; a page-global mark read gave 16px/yellow
+  where the matrix seat is 14px/oklab-tint. Section-scoped reads (#matrix, #modifiers)
+  landed her exact digits. The campaign's scoped-read lesson, now with a
+  same-page-multi-instance corollary.
+- **The bracket-INCLUSIVE token is the selector** — the kernel emits
+  [font-size:14px]; the CSS selector must escape the whole token
+  (.\[font-size\:14px\]), not the inner text. Quill's build-round correction is the
+  general rule: when a class token carries metacharacters, the token IS the class
+  name.
+- **A drift in a computed hue is not a drift in the claim** — mark's ground read
+  oklab(… −0.236964 …) vs her 0.135938: the brand rotation moves the hue channel while
+  the alpha law (0.18) and the box arithmetic (0.05em/0.25em) stand. Cite the
+  INVARIANT channels when re-deriving rotated-palette receipts.

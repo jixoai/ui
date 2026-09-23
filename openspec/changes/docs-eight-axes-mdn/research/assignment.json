@@ -1073,8 +1073,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st marginalia T131 NEEDS-WORK 1M; CODE round (quill T135) consolidated: THE SCANNER-FEED MAJOR resolved — the site is tailwindless (no scanner), the kernel's class strings compiled to nothing; a @layer components kernel-feed block authored in app.css (full vocabulary, consumer-wins ordering, kernel untouched, inline-code shares); the failing triple now computes 500/14px/21px live, the strong row MOVES; NIT x3 landed (preflight-reimplemented wording). Awaiting 2nd."
+   "status": "done",
+   "notes": "CODE round (quill T135) + 2nd (vellum T142) — CLOSED PASS 0M/0m/0L/0N, Tier 2 confirmed. The scanner-feed MAJOR verified dead at every layer: the failing triple computes 500/14px/21px, the strong row MOVES, the raw div computes, the full vocabulary serves in the dist sheet, the NIT wording paint-verified (preflight sub/sup arithmetic exact). Fresh axes: the inline-code shared feed (27 chips, kernel chip computes 500) + the bracket-token edge (six tokens all compute). THE FLEET'S LAST SECOND REVIEW."
   },
   {
    "page": "textarea",

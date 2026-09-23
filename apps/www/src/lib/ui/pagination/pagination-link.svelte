@@ -90,5 +90,15 @@
 {:else if href !== undefined}
   <a {...linkProps} href={href}>{#if children}{@render children()}{:else}{page}{/if}</a>
 {:else}
-  <button {...(linkProps as Record<string, string>)} type="button">{#if children}{@render children()}{:else}{page}{/if}</button>
+  <!-- the button branch ENUMERATES its legal members — never spreads the
+       anchor-typed bag (a cast would launder invalid HTML onto a <button>;
+       the T141 adjudication) -->
+  <button
+    data-jx-page=""
+    data-jx-page-current={isActive ? '' : undefined}
+    class={linkProps.class}
+    aria-current={isActive ? 'page' : undefined}
+    onclick={onclick}
+    type="button"
+  >{#if children}{@render children()}{:else}{page}{/if}</button>
 {/if}

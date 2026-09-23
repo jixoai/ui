@@ -190,7 +190,7 @@ two tiers
             <div class={cx(rt.thdPad)}>
               <p class={cx(rt.bodyMuted, rt.pretty)}>
                 Open the code drawer below for the verbatim source (the chrome + the three css
-                bands), then click the <em>Components</em> pill in the real header above — the
+                bands), then click the <em>Docs</em> pill in the real header above — the
                 mega panel that drops is the docs tree mapped onto NavigationMenuItem/Trigger/Panel
                 in the layout, running live. On a narrow viewport the same routes fold into the
                 hamburger drawer.
@@ -202,7 +202,7 @@ two tiers
         {#snippet playground()}
           <PlayFields>
             <PlayHelp>
-              the LIVE demo is the bar this page already wears: click the <em>Components</em> pill
+              the LIVE demo is the bar this page already wears: click the <em>Docs</em> pill
               above — the panel opens on the browser's popover laws (light dismiss, Escape, top
               layer) and its grid is authored in the site layout; narrow the viewport to watch the
               hamburger fold the drawer snippet open. Tab order: brand, the family's roving pill

@@ -14,6 +14,7 @@
     shadow,
     type ScrollEffect,
   } from '$lib/ui/scroll-run/scroll-run.svelte';
+  import type { Snippet } from 'svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
@@ -52,7 +53,7 @@ ${close}
     if (!run) return;
     const stamp = createScrollStamp({
       run,
-      host: hostEl,
+      host: hostEl ?? null,
       members: () => [...run.children].filter((c) => c instanceof HTMLElement),
       ramps: true, // stamp --jx-edge-* only under ramp()
     });
@@ -86,7 +87,9 @@ ${close}`;
   let fitting = $state(false);
   const lanes = $derived(fitting ? 3 : 14);
 
-  const effect = $derived.by(() => {
+  // named liveEffect: a local named `effect` makes the compiler read
+  // $effect as a store subscription (the rune-shadow, T131)
+  const liveEffect = $derived.by(() => {
     switch (kind) {
       case 'ramp·no-blur':
         return ramp({ blur: false });
@@ -100,13 +103,13 @@ ${close}`;
   });
 
   $effect(() => {
-    void (effect as ScrollEffect).type; // flips re-arm the machine
+    void (liveEffect as ScrollEffect).type; // flips re-arm the machine
     void axis; // axis flips re-arm it too (the machine reads data-axis)
     const run = runEl;
     if (!run) return;
     stamp = createScrollStamp({
       run,
-      host: hostEl,
+      host: hostEl ?? null,
       members: () => [...run.children].filter((c): c is HTMLElement => c instanceof HTMLElement),
       ramps: kind === 'ramp' || kind === 'ramp·no-blur',
     });
@@ -283,7 +286,7 @@ ${close}`;
               >
                 {#each chips as chip, i (chip)}
                   <span
-                    class={cx(rt.srChip, i === 3 && rt.inkPrimary)}
+                    class={cx(rt.srChip, i === 3 ? rt.inkPrimary : undefined)}
                   >
                     {chip}
                   </span>
@@ -298,7 +301,7 @@ ${close}`;
               >
                 {#each chips as chip, i (chip)}
                   <span
-                    class={cx(rt.srChip, i === 3 && rt.inkPrimary)}
+                    class={cx(rt.srChip, i === 3 ? rt.inkPrimary : undefined)}
                   >
                     {chip}
                   </span>
@@ -307,18 +310,18 @@ ${close}`;
             {/if}
             {#if customChips}
               <ScrollChrome
-                scrollEffect={effect}
+                scrollEffect={liveEffect}
                 run={runEl}
                 backwardLabel="Scroll back"
                 forwardLabel="Scroll on"
-                backwardContent={axis === 'horizontal' ? arrLeft : arrUp}
-                forwardContent={axis === 'horizontal' ? arrRight : arrDown}
+                backwardContent={axis === 'horizontal' ? (arrLeft as unknown as Snippet) : (arrUp as unknown as Snippet)}
+                forwardContent={axis === 'horizontal' ? (arrRight as unknown as Snippet) : (arrDown as unknown as Snippet)}
                 backwardDisabled={chipsDisabled}
                 forwardDisabled={chipsDisabled}
               />
             {:else}
               <ScrollChrome
-                scrollEffect={effect}
+                scrollEffect={liveEffect}
                 run={runEl}
                 backwardLabel="Scroll back"
                 forwardLabel="Scroll on"
@@ -366,7 +369,7 @@ ${close}`;
         contract, the squared consumption, the chip and veil paint, the verdict gates.
         <strong class={cx(rt.inkFg)}>scroll-chrome.svelte</strong> is the DOM half of the
         chrome — the veil layer (progressBlur ladder or shadow bands) and the two chevron
-        chips as real focusable buttons wired to nudgeRun.
+        chips wired to nudgeRun (pointer shortcuts; the run is the keyboard path).
       </p>
       <CodeBlock
         code={/* css */ `/* the eased curve — every ramp effect is this one shape:
@@ -393,7 +396,7 @@ opacity: calc(1 - max(var(--jx-edge-start, 0), var(--jx-edge-end, 0))
     </div>
   </SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The whole adoption contract: host, run hooks, chrome, and one effect. This is every line a future scrollable region adds."><CodeBlock code={usage} lang="svelte" meta="the raw contract" /></SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The chips are real buttons with REQUIRED labels; the veils are scenery; nothing paints before the first verdict."><A11yTable keys={[{ key: 'ArrowLeft / ArrowRight', action: 'The run is a native scroller — keyboard travel is free; the chips are shortcuts, not the only path' }]} aria={[{ name: 'backwardLabel / forwardLabel', value: 'required', description: 'Each chevron chip is a real focusable button; its accessible name is the consumer\'s call (tabs says "Scroll tabs backward")' }, { name: 'aria-hidden', value: 'veils', description: 'The veil layer and its bands are pure scenery — no name, no role, pointer-transparent' }, { name: 'prefers-reduced-motion', value: 'translate: none', description: 'The translate dies (member ramps and veil entrances); blur and opacity stay — a CLOSED edge hides its veil outright instead of parking it in place' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The chips are real buttons with REQUIRED labels; the veils are scenery; nothing paints before the first verdict."><A11yTable keys={[{ key: 'ArrowLeft / ArrowRight', action: 'The run is a native scroller — keyboard travel is free; the chips are shortcuts, not the only path' }]} aria={[{ name: 'backwardLabel / forwardLabel', value: 'required', description: 'Each chevron chip is a POINTER-SHORTCUT button — deliberately out of the Tab order; keyboard travel rides the run itself (Arrow keys scroll it natively). Accessible name still required (tabs says "Scroll tabs backward")' }, { name: 'aria-hidden', value: 'veils', description: 'The veil layer and its bands are pure scenery — no name, no role, pointer-transparent' }, { name: 'prefers-reduced-motion', value: 'translate: none', description: 'The translate dies (member ramps and veil entrances); blur and opacity stay — a CLOSED edge hides its veil outright instead of parking it in place' }]} /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The glyph/veil knobs ride the HOST (the overlays are the run's siblings — a var on the run never reaches them); the ramp magnitudes are chrome-stamped on the RUN; the glyphs are FOUR swappable css vars, one per direction."><TokenTable tokens={[{ name: '--jx-scroll-veil', default: 'calc(var(--jx-inset) * 1.5)', source: 'component', description: 'Veil band width; tabs overrides to inset·6 (its snap lane parks readable text inboard)' }, { name: '--jx-scroll-chevron-chip', default: 'oklab(1 0 0 / 0.8)', source: 'component', description: 'The frosted chip ink — near-white at 80% on a light page, near-black at 75% under .dark (the W7-r2 theme swap: the frost follows the page, dark glyphs on a dark chip), readable over any content through the 2px blur' }, { name: '--jx-scroll-chevron-chip-hover', default: 'oklab(1 0 0 / 0.95)', source: 'component', description: 'The RAISED ink hover paints (round 10) — the frost goes near-opaque (a hair of translucency stays so the blur reads) and the lift deepens; swap the VALUE, not the rule' }, { name: '--jx-scroll-chevron-size', default: '14px', source: 'component', description: 'The glyph size (the SVG canvas; the ink spans the middle half)' }, { name: '--jx-scroll-chevron-left / -right / -up / -down', default: 'lucide chevrons', source: 'component', description: 'The FOUR direction glyphs as url() css vars — one customization slot per PHYSICAL direction (axis + edge + page direction pick which slot paints; RTL swaps the inline pair). Swap any one arrow without touching the other three.' }, { name: '--jx-scroll-edge-slide / --jx-scroll-edge-blur', default: 'builder-set', source: 'component', description: 'The ramp magnitudes — ScrollChrome stamps them on the run from the builder\'s distance/radius; a toggle off never sets its var (a consumer never hand-writes them)' }]} /></SectionCard></div>
   <div id="universal-props" data-reveal="">
     <SectionCard
