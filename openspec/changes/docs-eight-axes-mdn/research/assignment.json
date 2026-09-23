@@ -677,8 +677,9 @@
     "vellum",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "task 92 marginalia 1st PASS (0M/1m/1N); the card-half hedged to the column-only law (no css mechanism existed); tonal pose note filed; 2nd = vellum"
   },
   {
    "page": "popconfirm",

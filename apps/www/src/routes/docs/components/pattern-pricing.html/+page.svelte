@@ -70,7 +70,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -114,7 +114,7 @@ ${close}
     <ComponentCanvas
       title="pattern-pricing"
       stage="fill"
-      description="The comparison section: the matrix rides the Table family (container-query laws intact — narrow the stage and the frame folds to card rows), each tier's install command rides a code-card, and the recommended tier is one paint law: brand rules flank the opted-in column and the recommended card takes the border-primary rung."
+      description="The comparison section: the matrix rides the Table family (container-query laws intact — narrow the stage and the frame folds to card rows), each tier's install command rides a code-card, and the recommended tier is one paint law: brand rules flank the opted-in column (the head cell takes the 14% brand tint, the flanked cells carry the 2px inset rules both sides — measured); the tier code-cards themselves stay uniform by design (the pattern css implements the column law only)."
       sourceUrl={registrySourceUrl('pattern-pricing')}
       install="pattern-pricing"
       files={canvasFiles}

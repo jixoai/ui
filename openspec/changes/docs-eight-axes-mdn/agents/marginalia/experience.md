@@ -998,3 +998,10 @@
 - **Synthetic mouseover still doesn't engage CSS :hover** (the T81 class, re-proven): real page.hover for any hover-clause receipt, and read the transform (not viewport y — scrolling poisons rect comparisons).
 - **Click-through receipts**: capture-phase preventDefault + a real click — the interceptor counts 1, the href is receipted, the SPA never navigates. Real event, no navigation, auditable transcript.
 - The copied-surface read needs the +120ms sample (the flip) AND the +1.6s restore — one drive, two samples, the whole 1.4s law.
+
+## T92 (pattern-pricing 1st) — the dispatch's assumption gets an N/A receipt; the paint-law audit splits column-half from card-half
+
+- **A dispatch assumption that finds no seat is an N/A RECEIPT, not a finding**: no monthly/yearly toggle exists on pattern-pricing (SSR byte-grep receipt) — the both-directions toggle instrument had nothing to drive. Say "instrument N/A, receipted" and let the matrix instruments carry the audit.
+- **A paint law with two halves can hold on one half and fail on the other**: the recommended-column law painted digit-exact at the COLUMN (th tint = color-mix(primary 14%, table-head) resolved; td flanking inset brand rules both sides) while the CARD half (the summary's border-primary rung) never stamped — all three tier cards shared the same neutral border. Split the claim into its halves, receipt each, and the fix becomes one class instead of a rewrite.
+- **The press-law shadow-pose absence is now a two-pattern constant** (pattern-cta's copy CTA + pattern-pricing's card CTAs: hover paints the tonal brand fill, box-shadow none at rest and hover) — the fleet-level press-button pose question is firming; hedge lines at the seats or the owner's pose check.
+- Color-mix computed values serialize to oklab — a tint receipt is the DIFFERENTIAL vs the un-tinted sibling (oklab(0.912…) vs oklch(0.9551…)), never a source-string match.
