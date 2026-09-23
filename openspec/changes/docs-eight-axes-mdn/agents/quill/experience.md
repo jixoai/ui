@@ -1036,3 +1036,29 @@
   universal appendix (the appendix is the axis rows' one home) — enumerate
   the served rows before asserting the api count, and expect family-owned
   axis documentation to live in the page's own axes section.
+- **THE SCREENSHOT PIPELINE'S OWN DECODER CAN BE THE BUG**: three instruments
+  failed in one review (screencast frames not 1:1 with DOM rects at dsf 1;
+  Emulation.setVirtualTimePolicy freezes fonts/compositor so screenshots
+  stall; my hand-rolled zlib PNG decoder verified correct on 10px strips yet
+  scrambled 900px frames — filter-4 rows decoded to zeros) before the
+  working answer: let the BROWSER decode (createImageBitmap + OffscreenCanvas
+  + getImageData in-page, crop in-page, only the clip's RGBA crosses to
+  Node). When pixel readings look impossible, cross-decode one PNG with an
+  independent decoder (sips → BMP) before distrusting the page.
+- **SIBLING CHURN IS AN ADVERSARY FOR PIXEL INSTRUMENTS ON A SHARED DEV
+  SERVER**: mid-review the served theme flipped dark and the accent hue moved
+  (green→pink) under me — hardcoded expected colors died silently. The
+  churn-proof kit: pin localStorage theme + colorScheme before load;
+  calibrate fill/track RGB from the live page per burst (fill from the
+  indeterminate sibling's stripes — always painted; track from computed
+  style); verify every synthetic keypress landed in the DOM (slider.value)
+  AND the paint (edge ≈ 0 after Home) with retry; after End, verify the final
+  painted edge ≈ full or declare the clip stale and redo. Rect-anchored
+  clips beat run-finding locators — the playground panel's own slider row
+  sits at the same y as the bar and will win any "longest run" contest.
+- **A 200MS TWEEN IS BURSTABLE AT ~75MS CADENCE IF YOU COUNT POSITIONS, NOT
+  FRAMES**: 8-10 clip screenshots over 600ms catch ≥3 distinct edge positions
+  (parked/mid/full) — proof of gradual motion an instant jump cannot fake
+  (2 positions max). State the settle tolerance or the numbers will look
+  discordant when they agree (marginalia's NIT, confirmed: my ±0.5px settle
+  read 93-114ms against the quoted 82-99ms window — concord, not conflict).

@@ -714,8 +714,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 51 marginalia re-verify PASS (0M/0m/1L/1N) — falsification addressed, re-derived with her own instrument; LOW landed: discriminator stretch softened to the instrument range (3.0 slope-fit / 4.1 / 4.5 CDP); proceeds to 2nd (quill's lane)"
+   "status": "done",
+   "notes": "CLOSED #49 (vellum 34+39 + marginalia 40 1st NEEDS-WORK->51 re-verify + quill 53 2nd PASS); settle criterion NAMED; RM persistence confirmed on a second instrument; the discriminator's SLOPE is the invariant (147-148px/s vs theoretical 149.3; her 2.25s span arithmetically exact — the playground overlay explained it); three instruments rejected on the record, browser-side decode the working answer"
   },
   {
    "page": "progressive-blur",
