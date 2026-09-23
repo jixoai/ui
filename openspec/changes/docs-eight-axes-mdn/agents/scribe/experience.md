@@ -1316,3 +1316,38 @@
 - (process) Three sibling edits cycled through the tree during this
   task (system-dialog ×2, the matrix fixture); each ambient state was
   attributed fresh and the final gate ran clean.
+
+## Techniques (task 47 additions)
+- **rem-vs-element-root falsification**: a claim that a size STAMP
+  "re-scales a REM-based length" is testable twice — (a) the stamped
+  element at 18px must compute the length × 18 if the claim held; (b)
+  the DOCUMENT root font moved (html.style.fontSize 16→20px) must move
+  the length if rem semantics hold. Run both: the length followed (b)
+  and not (a) — the floor reads html's font-size, the stamp moves only
+  em-relative copy. One experiment each direction beats any argument.
+- **Falsified-mechanism seat census**: when a nuance sentence is
+  falsified, grep EVERY seat that repeats it (the waterfall nuance sat
+  in 5 places: axis row, overview, axes summary, query caption,
+  receipts paragraph) — a partial purge is the drift-ledger's raw
+  material.
+- **Laid-out column count**: read columnCount (computed) AND count the
+  distinct offsetLeft clusters of the children — the computed form can
+  say "auto" while the layout answers the real question.
+- **Frame-boundary phrasing**: Svelte's flush lands reactive style
+  updates at the microtask/frame boundary — a same-task computed read
+  after dispatching change is stale by design. Phrase settle claims as
+  "by the first animation frame", and read after a rAF.
+
+## Highlights (task 47)
+- (prototype-waterfall) The 14rem floor measured end-to-end: 224px
+  column-width, 3 laid out @1400 → 2 @760 — width floored, count
+  follows, digit-exact.
+- (prototype-waterfall) The size-stamp REM nuance FALSIFIED with the
+  two-direction experiment: the stamp at 18px left the floor at 224px;
+  the document root at 20px moved it to 280px. Both forms are
+  §11-stamp-scale-blind; rem reads html. The MINOR rides closure with
+  the corrected sentence for all 5 seats.
+- (prototype-waterfall) The trio's see-also loop verified resolving
+  (each page links the other two, renders itself as a span); LAW #18
+  receipts on all 8 roots (41 mounted children); 64 ids zero
+  duplicates; ambient 284/284 clean.

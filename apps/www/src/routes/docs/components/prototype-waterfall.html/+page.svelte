@@ -101,7 +101,7 @@
       type: `'small' | 'medium' | 'large' | 'auto' | number`,
       default: `'auto'`,
       description:
-        "FORWARDER, ECHO MEASURED — the §11 stamp lands inline as font-size: var(--jx-size-effective, 1rem) (measured in the style attr; computed 18px at size={18}); rem-based column floors ('14rem') re-scale with it. Number unit: px.",
+        "FORWARDER, ECHO MEASURED — the §11 stamp lands inline as font-size: var(--jx-size-effective, 1rem) (measured in the style attr; computed 18px at size={18}); the stamp is ELEMENT-LEVEL — column floors do NOT follow it ('14rem' reads the document root: stamp 18px keeps the 224px floor; document root 16→20px moves it to 280px — both forms stamp-scale-blind, two-direction probe). Number unit: px.",
     },
     {
       name: 'shape',
@@ -155,7 +155,7 @@
 ${close}
 
 <!-- below 48rem the base (13px root) applies; at 48rem+ the md case
-     (18px) wins — rem-based column floors re-scale with the stamp -->
+     (18px) wins — element-level: the rem floor does NOT follow the stamp -->
 <PrototypeWaterfall columns="14rem" size={query({ md: 18 }, 13)}>…</PrototypeWaterfall>`;
 
   const queryFiles: TreeFile[] = [
@@ -216,8 +216,8 @@ ${close}
             ONLY (no utilities, no theme tokens, no css file). There is NO JavaScript in the
             family — no resize observation, no absolute positioning, no layout-settling timer:
             the browser's column balancer is the engine, so reflow on any control change is
-            immediate and native (measured in the task-37 probe: each rig change settles within
-            the same frame).
+            immediate and native (measured in the task-37 probe: each rig change settles by
+            the first animation frame — the same-task read is stale at Svelte's flush boundary).
           </p>
           <p class={cx(rt.para)}>
             The declared tradeoffs (honest, not hidden): children flow in COLUMN order — down
@@ -232,9 +232,10 @@ ${close}
           <p class={cx(rt.para)}>
             The eight axes are forwarders as on the trio's first two members: all no-own, carriers
             in the consumer style attr, density stamping its rung for descendants, theme riding
-            the .dark bridge. A waterfall-specific nuance measured below: the size stamp
-            re-scales REM-based column floors ('14rem' re-reads the root font), while count-form
-            columns are scale-blind. Reading order is coherent — the browser fills column one
+            the .dark bridge. A waterfall-specific nuance measured below: BOTH column forms
+            are §11-stamp-scale-blind — the rem floor reads the DOCUMENT root, not the
+            element stamp (stamp 18px → the 224px floor unchanged; document root 16→20px →
+            280px; two-direction probe). Reading order is coherent — the browser fills column one
             first, so announced order matches the visual column sequence — but content is
             segmented: a card straddling a column break is split unless you forbid it.
           </p>
@@ -399,7 +400,7 @@ ${close}
         headerRegion="universal-props"
         eyebrow="axes"
         title="The eight axes on prototype-waterfall"
-        summary="The zero-translation posture extends to paint: the first-time contract is ALL NO-OWN, and the family paints nothing for any axis — carriers join the consumer style attr, density stamps its rung for descendants, theme rides the .dark bridge. One measured nuance: the size stamp re-scales REM-based column floors ('14rem' re-reads the root font), while count-form columns are scale-blind."
+        summary="The zero-translation posture extends to paint: the first-time contract is ALL NO-OWN, and the family paints nothing for any axis — carriers join the consumer style attr, density stamps its rung for descendants, theme rides the .dark bridge. One measured nuance: both column forms are stamp-scale-blind — the rem floor reads the document root (stamp 18px keeps the 224px floor; root 16→20px moves it to 280px)."
       >
         <div class={cx(rt.col20)}>
           <PropsTable props={axisRows} title="" />
