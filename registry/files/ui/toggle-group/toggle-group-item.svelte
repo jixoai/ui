@@ -99,7 +99,7 @@
     checked={active}
     disabled={group.disabled || disabled}
     required={group.required || undefined}
-    data-jx-tgroup={active ? 'on' : undefined}
+    data-jx-tgroup-active={active ? 'on' : undefined}
   />
   <span
     class={cn(
