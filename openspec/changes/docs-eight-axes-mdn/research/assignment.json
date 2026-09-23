@@ -553,8 +553,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st marginalia T111 PASS 0M/0m/1L/1N consolidated: toc reordered to DOM (Usage first); NIT recorded (the theme-flip control unreachable — mechanism receipted, katex inherits prose color exactly)."
+   "status": "done",
+   "notes": "CLOSED at quill's T120 2nd (PASS 0/0/0/0 — Tier 2 confirmed): toc usage-first rail 6==DOM; the theme-flip NIT recorded-true with the mechanism completed from both sides (3343->3343 innerHTML across a flip; stage-pinned subtree + :root-pinned aliases, measured both directions); FRESH AXIS: registerMacros empty on this site — unknown macros render LITERAL TEXT via throwOnError:false, only parse errors take the in-place path (a sharper contract than her source receipt)."
   },
   {
    "page": "menubar",
@@ -955,8 +955,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st marginalia T111 PASS 0M/0m/2L/1N consolidated: radius stamped-never-consumed TAUGHT (the universal-props summary names it — flat text, no corner geometry, zero --jx-radius-* readers); the recipe's sr-only aria-live region now SERVED in the live demo; the class row added to the API table; cx closed both trees (mirrored)."
+   "status": "done",
+   "notes": "CLOSED at quill's T120 2nd (PASS 0/0/0/0 — Tier 2 confirmed): all three T111 landeds verified served; precision matrix + width-stable countdown + density trio re-derived; the trend-voice digit made ENVIRONMENT-HONEST (up L/C 0.6489/0.237 == --jx-primary exactly — the brand hue itself is per-load variable; the law is the L/C identity); FRESH AXIS GREEN: pause/resume arithmetic continuity (resume -> next tick exactly -1s, no reset, no double-step)."
   },
   {
    "page": "steps",
