@@ -208,7 +208,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -312,6 +312,13 @@ ${close}
                 <StepsItem step={0} state="success"><StepsIndicator /><StepsTitle>success</StepsTitle><StepsDescription>the terminal win · ✓ on the success pair</StepsDescription><StepsSeparator /></StepsItem>
                 <StepsItem step={1} state="error"><StepsIndicator /><StepsTitle>error</StepsTitle><StepsDescription>the terminal failure · ✕ on the error pair</StepsDescription><StepsSeparator /></StepsItem>
                 <StepsItem step={2} state="hint"><StepsIndicator /><StepsTitle>hint</StepsTitle><StepsDescription>informational · i on the info pair</StepsDescription><StepsSeparator /></StepsItem>
+              </Steps>
+            </div>
+            <div class={cx(rt.wFull, rt.maxW2xl)}>
+              <Steps current={1}>
+                <StepsItem step={1}><StepsIndicator /><StepsTitle>current · the first 1</StepsTitle><StepsDescription>duplicates paint EVERY match current — ordinal truth, not identity</StepsDescription></StepsItem>
+                <StepsItem step={1}><StepsIndicator /><StepsTitle>current · the second 1</StepsTitle><StepsDescription>the duplicate — also current; nothing corrupts</StepsDescription></StepsItem>
+                <StepsItem step={3} state="hint"><StepsIndicator /><StepsTitle>3 (the gap)</StepsTitle><StepsDescription>ordinal 2 simply does not exist — gaps paint none, no phantom row</StepsDescription></StepsItem>
               </Steps>
             </div>
             <div class={cx(rt.wFull, rt.maxW2xl)}>
