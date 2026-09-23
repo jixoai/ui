@@ -137,7 +137,7 @@ ${close}
       type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
       default: `'auto'`,
       description:
-        "TWO CLOCKS, BOTH OFF THE AXIS — the indeterminate sweep rides the promotion seams var(--motion-indeterminate, 900ms) linear infinite (measured 0.9s/linear/24px tile) and slows to 4s under prefers-reduced-motion (measured); the determinate fill's authored 200ms decelerate is INERT in Chromium (engine pseudo widths do not transition — measured fill-edge jumps 10% → 87% within the first frame in normal AND reduced modes); --jx-motion-effective has zero readers (grep receipt). Number unit: coefficient.",
+        "TWO LIVE CLOCKS, BOTH OFF THE AXIS — the indeterminate sweep rides the promotion seams var(--motion-indeterminate, 900ms) linear infinite (measured 0.9s/linear/24px tile) and slows to 4s under prefers-reduced-motion (measured); the determinate fill's authored 200ms decelerate is LIVE — burst-measured (3 runs, clip frames decoded in-page): the edge moves by 32–53ms and settles by 82–99ms, and the tween PERSISTS under reduced-motion (moved 32–36ms, settled 98–103ms — the engine's smoothing is css-unreachable); a 3s-linear injection stretches the paint to ≈3s, so the transition channel governs; --jx-motion-effective has zero readers (grep receipt). Number unit: coefficient.",
     },
   ];
 
@@ -184,7 +184,7 @@ ${close}
       <div class={cx(rt.wrap12)}>
         <span class="pill">native &lt;progress&gt;</span>
         <span class="pill">indeterminate built-in</span>
-        <span class="pill">two clocks, measured</span>
+        <span class="pill">two live clocks, measured</span>
         <span class="pill">polite % readout</span>
       </div>
     </SectionCard>
@@ -215,13 +215,16 @@ ${close}
           10px height and a 4px corner seam), and adds a label + live % readout.
         </p>
         <p class={cx(rt.para)}>
-          There are TWO clocks, and only one animates. The INDETERMINATE clock is real: a
-          terminal-stripe sweep at var(--motion-indeterminate, 900ms) linear, a 24px tile —
-          measured 0.9s/linear/infinite, slowing to 4s under prefers-reduced-motion. The VALUE
-          clock is honest about being inert: a 200ms decelerate is authored on the fill, but
-          Chromium does not transition engine-managed pseudo widths — measured, the fill edge
-          jumps 10% → 87% within the first frame in normal AND reduced modes, so a determinate
-          bar reports position discretely. The % readout is
+          There are TWO clocks, and both are live. The INDETERMINATE clock: a terminal-stripe
+          sweep at var(--motion-indeterminate, 900ms) linear, a 24px tile — measured
+          0.9s/linear/infinite, slowing to 4s under prefers-reduced-motion. The VALUE clock: the
+          fill's authored 200ms decelerate is live — burst-measured (clip frames decoded
+          in-page), the fill edge is mid-tween at ~35ms and settles inside ~150ms of paint, not a
+          first-frame jump — and the tween PERSISTS under reduced-motion: the css kill wins the
+          cascade, yet the engine's own smoothing keeps the visible motion (css-unreachable — a
+          reduced-motion user still sees the fill animate). Instrument note, carried honestly: a
+          single capture taken ≥200ms after the set sees two settled bars and reads "inert" —
+          burst capture is the truth instrument for paint transitions. The % readout is
           <code class={cx(rt.inkPrimary)}>role=status</code>: polite — announced when the reader
           is idle, never interrupting.
         </p>
@@ -292,7 +295,7 @@ ${close}
   </ComponentCanvas></SectionCard></div>
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Pass a 0..max value, or omit it for the honest 'something is happening' state."><CodeBlock code={usage} lang="svelte" meta="Progress usage" /></SectionCard></div>
   <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The bar's paint is density-INVARIANT — the height equation reads the fixed 4px unit (measured 10px at every rung, floor included) — and its clocks ride promotion seams: the sweep's 900ms linear and the fill's corner seam are reported constants a consumer var can re-shape."><div class={cx(rt.col24)}><DensityDemo scopes={['2xs', 'xs', 'sm', 'default', 'lg']}><Progress value={0.42} label="sync" /></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: 'brand fill', default: 'var(--primary)', source: 'color', description: 'The determinate fill — a live legacy chain, re-derives under .dark (measured).' }, { name: '--progress-radius', default: '4px', source: 'component', description: 'The bar corner promotion seam (measured ambient 4px; a consumer var re-shapes it).' }, { name: '--motion-indeterminate', default: '900ms', source: 'structural', description: 'The stripe sweep period (promotion seam; 4s under reduced motion, measured).' }, { name: '--motion-linear', default: 'linear', source: 'structural', description: 'The sweep timing (promotion seam).' }, { name: '--jx-unit', default: '0.25rem', source: 'density', description: 'The bar height reads unit × 2.5 = 10px — the unit is density-invariant.' }]} /></div></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Three data props and the class passthrough — the rest of the element's attributes ride through natively. The generated meta carries 12 entries (11 named + the synthesized rest); the universal fold serves the eight axis rows."><PropsTable universal props={[{ name: 'value', type: 'number', default: '—', description: '0..max; omitted ⇒ indeterminate ("activity", not "progress").' }, { name: 'max', type: 'number', default: '1', description: "The element's own spec default." }, { name: 'label', type: 'string', default: '—', description: 'Visible label above the bar (also names the element via aria-label; without one the bar falls back to the generic name "progress").' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Three data props and the class passthrough. The generated meta carries 12 NAMED entries (value, max, label, the eight axes, class) and no rest key — the component is rest-less: undeclared attributes are dropped, not spread, and the element's role and value semantics are native, not forwarded. The universal fold serves the eight axis rows."><PropsTable universal props={[{ name: 'value', type: 'number', default: '—', description: '0..max; omitted ⇒ indeterminate ("activity", not "progress").' }, { name: 'max', type: 'number', default: '1', description: "The element's own spec default." }, { name: 'label', type: 'string', default: '—', description: 'Visible label above the bar (also names the element via aria-label; without one the bar falls back to the generic name "progress").' }, { name: 'class', type: 'string', default: "''", description: 'Class passthrough to the root.' }]} /></SectionCard></div>
 
   <div id="universal-props" data-reveal="">
     <SectionCard
@@ -300,20 +303,24 @@ ${close}
       headerRegion="universal-props"
       eyebrow="axes"
       title="The eight axes on progress"
-      summary="The zero-hit family, measured honestly: density is managed but the paint is density-INVARIANT (10px at every rung — the height equation reads the fixed unit); the corner rides the own 4px promotion seam (axis unread); theme is the frozen-ink seam's third instance — the brand fill re-derives while track, frame and readout inks stay light literals; size echoes on the root; shape/color/elevation/motion supply unread. Two clocks, both off the axis: the 0.9s stripe sweep and the Chromium-inert fill transition."
+      summary="The zero-hit family, measured honestly: density is managed but the paint is density-INVARIANT (10px at every rung — the height equation reads the fixed unit); the corner rides the own 4px promotion seam (axis unread); theme is the frozen-ink seam's third instance — the brand fill re-derives while track, frame and readout inks stay light literals; size echoes on the root; shape/color/elevation/motion supply unread. Two live clocks, both off the axis: the 0.9s stripe sweep and the fill's burst-measured tween that persists under reduced-motion."
     >
       <div class={cx(rt.col20)}>
         <PropsTable props={axisRows} title="" />
         <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
-          Receipts: the two clocks (sweep 0.9s/linear/infinite with a 24px tile, 4s under reduced
-          motion; the fill edge measured jumping 10% → 87% within the first frame in normal AND
-          reduced modes — the authored 200ms decelerate is Chromium-inert), the density-invariant
+          Receipts: the two live clocks (sweep 0.9s/linear/infinite with a 24px tile, 4s under
+          reduced motion; the fill edge burst-measured moving by 32–53ms and settling by 82–99ms
+          in normal mode — and PERSISTING under reduced motion, 32–36ms moved / 98–103ms settled
+          across 3 runs, with a 3s-linear injection stretching the paint to ≈3s; a single capture
+          taken ≥200ms after the set would read "inert" — burst is the truth instrument for paint
+          transitions), the density-invariant
           height (10px at the 2xs stamp), the radius seam (4px ambient, 9px stamped), the theme
           split (fill 0.6489-family → 0.7044-family under .dark while the label ink stayed
           oklch(0.3211 0 0)) and the platform mapping (indeterminate position −1, valuenow
           omitted; aria-valuenow=100 at max=250) were measured on this page's served DOM (probe,
-          task 34); the unread rows carry grep receipts over ui/progress/. The query() seat below
-          rides the md viewport key (48rem) on the size lane.
+          task 34; the fill-clock burst receipts re-measured at task 39); the unread rows carry
+          grep receipts over ui/progress/. The query() seat below rides the md viewport key
+          (48rem) on the size lane.
         </p>
         <div class={cx(rt.mt20)}>
           <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
@@ -342,7 +349,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native element already exposes value semantics (indeterminate omits the current value); the component adds only a polite % readout and a generic-name fallback worth knowing about."><A11yTable keys={[{ key: '—', action: 'Not a focus stop and no keys of its own — value changes announce through the polite status readout, never by stealing focus' }]} aria={[{ name: 'progressbar (implicit)', value: 'native element', description: 'role, value mapping and the indeterminate state are the platform\u2019s — measured: position 0.42 determinate, position −1 with no valuenow when omitted' }, { name: 'aria-valuenow / min / max', value: 'native', description: 'Exposed by the element (measured aria-valuenow=100 at max=250); no ARIA attributes are authored' }, { name: 'aria-label', value: 'label ?? "progress"', description: 'Names the bar; without a visible label the fallback is the GENERIC "progress" — pass a label when several bars share a page (anchoring note)' }, { name: 'role: status', value: 'on the % readout', description: 'Polite live region — announced when the reader is idle; the value is announced through the relation, not read off the bar (measured "42%")' }, { name: 'prefers-reduced-motion', value: 'supported', description: 'The stripe sweep slows to 4s (measured); the inert fill transition is killed outright' }]} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The native element already exposes value semantics (indeterminate omits the current value); the component adds only a polite % readout and a generic-name fallback worth knowing about."><A11yTable keys={[{ key: '—', action: 'Not a focus stop and no keys of its own — value changes announce through the polite status readout, never by stealing focus' }]} aria={[{ name: 'progressbar (implicit)', value: 'native element', description: 'role, value mapping and the indeterminate state are the platform\u2019s — measured: position 0.42 determinate, position −1 with no valuenow when omitted' }, { name: 'aria-valuenow / min / max', value: 'native', description: 'Exposed by the element (measured aria-valuenow=100 at max=250); no ARIA attributes are authored' }, { name: 'aria-label', value: 'label ?? "progress"', description: 'Names the bar; without a visible label the fallback is the GENERIC "progress" — pass a label when several bars share a page (anchoring note)' }, { name: 'role: status', value: 'on the % readout', description: 'Polite live region — announced when the reader is idle; the value is announced through the relation, not read off the bar (measured "42%")' }, { name: 'prefers-reduced-motion', value: 'split, measured', description: 'The stripe sweep slows to 4s (measured); the fill tween is NOT fully suppressible — the css transition is killed outright yet the visible tween persists (engine-side smoothing, css-unreachable; burst-measured across 3 runs)' }]} /></SectionCard></div>
 
   <!-- see-also (chrome — out of the toc) -->
   <div id="see-also" data-reveal="">

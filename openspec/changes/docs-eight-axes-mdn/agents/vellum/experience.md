@@ -1106,3 +1106,26 @@
   4-value union; the native sibling already classified the identical currentColor row as
   'component'. When your row invents a value ('theme'), the sibling's precedent IS the
   answer — grep the family's pages before reaching for a union change.
+
+## Task 39 — progress fix (2026-09-23)
+- **OWN THE INSTRUMENT DELTA — single-capture has a latency blindspot**: I built the
+  "pixels are the truth instrument" lesson in T34, then shipped an "inert fill" claim off a
+  single capture taken ≥200ms after the set — it saw two settled bars. The review's burst
+  instrument broke my claim the honest way. The generalized law: PIXELS decide WHAT painted;
+  BURST (multi-capture, page-clock timestamps, in-page decode, edge tracing) decides WHEN it
+  painted. Any claim about a transition/animation needs a burst receipt with the instrument
+  named and multi-run ranges — a still frame cannot see a tween.
+- **A discriminator must outlive its own setup**: my first 3s-linear injection "failed"
+  because the reset-to-FROM tween was still mid-flight under the injected rule (650ms wait <
+  3s). When injecting a slowed clock, wait LONGER than the injected duration before the
+  measured jump, or you discriminate nothing. Likewise anchor settle metrics on MEASURED
+  endpoints (last-3-frame edge), never on authored constants — a geometry factor (paint
+  inset) silently rescales every authored fraction.
+- **A probe harness has its own fault budget — spend it in the open**: three faults (a
+  node-scope leak into page.evaluate, a clip read mid-smooth-scroll, the settle-anchor bug)
+  were caught and fixed before any conclusion. Write the box-stability assert BEFORE the
+  first capture, not after the first inexplicable number.
+- **"Remove it if it's yours and nothing references it" is a two-key check**: the leftover
+  probe route was tracked-clean at HEAD and pinned by the routes stylex map — not mine,
+  referenced, so the disposition is "leave + key for the orchestrator", not a deletion.
+  Check `git log -- <path>` + grep the surface map before touching fleet leftovers.
