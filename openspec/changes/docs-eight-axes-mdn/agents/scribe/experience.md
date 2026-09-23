@@ -1872,3 +1872,13 @@
 - **Ambiguous log strings get restated**: "outside click closes: false" was aria-expanded="false" (= closed) — restated in the report so the record can't be misread as a failure.
 - Rail-census noise: 16 raw anchors on an 8-entry toc = the toc family's dual desktop/mobile surfaces plus canvas-dock navs matching a loose `nav [href^=#]` selector — count DISTINCT ids against +page.ts, not raw anchors.
 - Receipts: reports 134-review-{chart,language-switcher}.md — chart 0M/0m/0L/0N Tier 2 CONFIRMED, language-switcher 0M/0m/0L/0N Tier 1 CONFIRMED; build rc=0 @ 4ab37d41, docs rc=0, port 5243 clean, siblings untouched.
+
+## T136 — 2nd-review batch: card · figure · highlight-detect-default (2026-09-25)
+
+- **The second batch-type debt is fully healed**: card's 6 page + 4 family errors, figure's 1, hdd's 1 — ALL zero on the batch's one saved scheck. The snippet casts (`as unknown as Snippet` ×3 on card), the 'law' token vocab, the foot render-gate, and every family cx are closed. Legacy pages that predate the fleet sweeps can reach 0/0 at consolidation.
+- **Rail proposals land verbatim and WORK**: card's 8 entries in her exact proposed order; figure's 4 + the optional 5th (`#numbering-walkthrough`). The fresh axis on both: the rail NAVIGATES (anchor click lands the section in the toc-line band) — a rebuilt rail is data + behavior, verify both.
+- **Byte-precise hydration receipt**: hdd's SSR ships five `<pre>`s ALL span-free; hydrated, the wrapped card's pre carries exactly 13 highlight spans (her count) while the sibling explicit-ts card runs its own 9 — per-`<pre>` parsing beats byte-slicing around a keyword (my ±400-byte slice caught adjacent chrome: 7 phantom spans).
+- **concentric reproduction across families**: card's radius-20 anchor → auto child 6px / explicit-4 4px reproduces dialog's 20−14=6 digit-for-digit — the §3 chain is now digit-receipted on three families (card, dialog, list-item-token-level).
+- **Re-derive richness can exceed the 1st's receipt**: figure's citedIn manual lane renders on BOTH numbered figures (T124 named eq-4-2 only) — second reviews re-census rather than spot-check the named seat.
+- Preview boot race owned: one ERR_MODULE_NOT_FOUND (manifest mid-write at preview start) — restart after the build fully settles; the build log's rc=0 is not the finish line.
+- Receipts: reports 136-review-{card,figure,highlight-detect-default}.md — ALL THREE 0M/0m/0L/0N; card + figure Tier 2 CONFIRMED, hdd Tier 1 CONFIRMED; build rc=0 @ ef520d44, docs rc=0, port 5243 clean.
