@@ -1524,3 +1524,34 @@
   nav/aria-current): the served DOM picked the a11y side, making the bullet a stale-
   prose LOW instead of a judgment call. When a page disagrees with itself, serve the
   verdict.
+
+## 2026-09-22 — T132 code micro (markdown 47 + command select-close)
+
+- **Identify WHICH dialog survived before believing a "stuck open"** — command's
+  select-close chain fired completely (instrumented: fire → ctx.close → setOpen(false)
+  → effect → shut → dialog.close → close event); the surviving dialog[open] was the
+  SITE'S search palette (⌘K collision: search-palette.svelte :227 + the demo's
+  hotkey={true} both window-bound). The jx-rest class on the site dialog made it read
+  as "the palette stuck". A stuck-state claim needs the element's IDENTITY, not just
+  its state class.
+- **A union with two catch-all members defeats every manual narrowing** — ParsedNode
+  carries CustomComponentNode (type: string) AND UnknownNode (type: string &
+  Record<string, unknown>): `.type ===` narrowing keeps both, so field reads resolve
+  unknown through the index signature. The only working tool is Extract-based
+  predicates (they DROP the catch-alls); switches on `.type` cannot type their arms.
+  The fix shape for a 36-seat cluster is the shared guard, never casts.
+- **Array.isArray does not narrow readonly arrays** — `readonly ParsedNode[]` members
+  need an explicit `candidate is readonly ParsedNode[]` predicate. The same gap sits
+  silently in any union that mixes mutable and readonly sequences.
+- **Narrow with an INTERSECTION when the narrowed shape must round-trip** — first cut
+  narrowed the inline wrapper to a bare { type; children } literal-type and the
+  strip-clones stopped being ParsedNodes (missing raw). `ParsedNode & { type:
+  'inline'; children }` keeps the original fields, so spreads rebuild tree-valid
+  nodes. Narrow toward the shape you'll write back, not just the shape you read.
+- **The consolidator commits mid-round** — my command-page edits were swept into a
+  consolidation commit while I worked (git status clean for a file I had edited).
+  After any mid-session HEAD movement, re-run the gate sweep against final HEAD and
+  note the race in the report; git-status your own deliverables to learn which of
+  your edits the tree still carries.
+- **console.debug does not surface on this Playwright channel** — instrumentation
+  must use console.warn (or capture via CDP). One silent diagnosis round taught it.

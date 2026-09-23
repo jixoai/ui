@@ -538,8 +538,9 @@ function isParagraphNode(candidate: ParsedNode): candidate is ParagraphNode {
 // the defensive `inline` wrapper is a RUNTIME shape the package's
 // ParsedNode union does not admit (no InlineNode member — a type
 // predicate over it is unnameable) — ONE documented structural
-// widening, the html-inline attrs precedent (:htmlInlineAttrs)
-type InlineWrapper = { type: 'inline'; children: ParsedNode[] };
+// widening, the html-inline attrs precedent: the intersection keeps
+// the wrapper's ORIGINAL fields, so clones spread back into the tree
+type InlineWrapper = ParsedNode & { type: 'inline'; children: ParsedNode[] };
 
 function isTextNode(candidate: ParsedNode): candidate is TextNode {
   return candidate.type === 'text';
@@ -682,7 +683,9 @@ export function htmlAttrsToRecord(
 }
 
 /** A summary-less details renders the UA's default disclosure label. */
-const DEFAULT_SUMMARY: readonly ParsedNode[] = [{ type: 'text', content: 'Details' }];
+const DEFAULT_SUMMARY: readonly ParsedNode[] = [
+  { type: 'text', content: 'Details', raw: 'Details' },
+];
 
 function isHtmlDetails(node: ParsedNode): node is HtmlBlockNode {
   return isHtmlBlockNode(node) && node.tag === 'details';

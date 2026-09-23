@@ -229,7 +229,7 @@
    ],
    "tier": 2,
    "status": "pass-1st",
-   "notes": "1st vellum T127 PASS 0M/2m/0L/0N; MINOR-1 (Enter-select never closes — live-only, static chain sound) LEDGERED + assigned to vellum for repro; MINOR-2 cx closed (page + family x5, MIRRORED)."
+   "notes": "1st vellum T127 PASS 0M/2m/0L/0N + T132 consolidated: the select-close 'bug' RESOLVED as the site-layer Cmd+K collision (the family never wrong — the chain fires live; her probes read the site search palette); the api row teaches the collision; both drives verify (trigger path closes; Meta+K double-opens by design-of-collision). The hotkey-drop teaching call is the Owner's."
   },
   {
    "page": "component-canvas",
@@ -541,7 +541,7 @@
    ],
    "tier": 2,
    "status": "pass-1st",
-   "notes": "1st vellum T127 PASS 0M/1m/1L/0N; the PlayRow id law LANDED fleet-wide ($props.id() replaces the per-PlayFields counter — the jx-play-row-1-label x2 class dead; the W-next #12 fix shape); page cx closed; family 47 = typing CODE micro assigned to vellum."
+   "notes": "1st vellum T127 PASS 0M/1m/1L/0N + the T132 CODE micro consolidated: the family 47->0 via ONE guard pass (accordion head-position; isNodeSequence — Array.isArray cannot narrow readonly arrays; the Extract guard suite; two documented widenings); twins byte-identical; the no-jx-pure x42 + zero-@html security floor verified."
   },
   {
    "page": "math-block",

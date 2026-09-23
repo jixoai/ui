@@ -100,10 +100,12 @@
 
   // The override lookup is ONE documented cast at the trust boundary:
   // MarkdownComponents keys each type to Component<{ node: NodeOf<K> }>,
-  // but at lookup time the node is the already-parsed ParsedNode — the
-  // map is app-authored, so the app owns both sides of the contract.
+  // but at lookup time the node is the ALREADY-PARSED input — the union
+  // the renderer itself accepts (MarkdownNodeInput, widened past
+  // ParsedNode for the accordion_group synthetic — task 132) — the map
+  // is app-authored, so the app owns both sides of the contract.
   const overrides = $derived(
-    components as unknown as Record<string, Component<{ node: ParsedNode }> | undefined> | undefined,
+    components as unknown as Record<string, Component<{ node: MarkdownNodeInput }> | undefined> | undefined,
   );
   const Override = $derived(overrides?.[node.type]);
 
@@ -122,27 +124,25 @@
     // Array.isArray cannot narrow a `readonly ParsedNode[]` member (the
     // predicate drops it from the union where the bare call cannot)
     if (isNodeSequence(nodes)) return nodes.map(extractText).join('');
-    switch (nodes.type) {
-      case 'text':
-      case 'html_block':
-      case 'html_inline':
-      case 'math_inline':
-      case 'math_block':
-        return nodes.content;
-      case 'inline_code':
-      case 'code_block':
-        return nodes.code;
-      case 'emoji':
-        return nodes.markup || nodes.raw;
-      case 'image':
-        return nodes.alt;
-      default: {
-        let text = '';
-        if (nodes.code !== undefined) text += nodes.code;
-        if ('children' in nodes && Array.isArray(nodes.children)) text += extractText(nodes.children);
-        return text;
-      }
+    // the field reads ride the SAME Extract guards the renderer
+    // branches use — CustomComponentNode/UnknownNode drop out of each
+    // arm, so content/code/markup/alt typecheck
+    if (isNodeType(nodes, 'text') || isNodeType(nodes, 'html_block') || isNodeType(nodes, 'html_inline') || isNodeType(nodes, 'math_inline') || isNodeType(nodes, 'math_block')) {
+      return nodes.content;
     }
+    if (isNodeType(nodes, 'inline_code') || isNodeType(nodes, 'code_block')) {
+      return nodes.code;
+    }
+    if (isNodeType(nodes, 'emoji')) {
+      return nodes.markup || nodes.raw;
+    }
+    if (isNodeType(nodes, 'image')) {
+      return nodes.alt;
+    }
+    let text = '';
+    if ('code' in nodes && nodes.code !== undefined) text += nodes.code;
+    if ('children' in nodes && Array.isArray(nodes.children)) text += extractText(nodes.children);
+    return text;
   }
 
   /** Column alignment from the delimiter row — the only cell style we mint. */
@@ -414,9 +414,9 @@
        does not inherit markdown-it's validateLink); unknown tags stay
        escaped text -->
   {@const htmlTag = (node.tag ?? '').toLowerCase()}
-  {@const htmlMark = HTML_INLINE_TAG_TO_MARK[htmlTag]}
+  {@const htmlMark = HTML_INLINE_TAG_TO_MARK[htmlTag as keyof typeof HTML_INLINE_TAG_TO_MARK]}
   {#if htmlMark !== undefined}
-    {@const MarkComponent = HTML_MARK_COMPONENTS[htmlMark]}
+    {@const MarkComponent = HTML_MARK_COMPONENTS[htmlMark as keyof typeof HTML_MARK_COMPONENTS]}
     <MarkComponent>
       {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
     </MarkComponent>
