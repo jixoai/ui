@@ -952,3 +952,31 @@
   "axes" (the measured eight-axes layer). The demo renames to "postures"
   (layout intent vocabulary); the eight-axes layer owns #axes. Keep the
   toc == DOM bijection while both concepts stay on the page.
+
+## Techniques (mine, added 2026-09-23, task 34 — code system-dialog)
+- **POPOVER PANELS HAVE NO [open] ATTRIBUTE**: dialog uses [open]; popover
+  uses the :popover-open pseudo-class (and .open is undefined on the
+  element). A probe selector reused from a dialog family times out forever
+  on a popover family — state the platform primitive per family before
+  writing the wait.
+- **UNINTERPOLATED TEMPLATE SEAMS DIE SILENTLY IN CSS**: a style string
+  built as 'position-anchor: --{api.uid}' (plain quotes, missing $) parses
+  as an INVALID custom ident — the browser drops the declaration, computed
+  position-anchor reads "normal", and the feature degrades to a fallback
+  with no error anywhere. The probe caught it by asserting the GEOMETRY
+  (panel staged top-left at fit-content instead of beside the trigger) and
+  then reading the computed property. When a "measured vs designed" gap
+  appears, read the computed value of the exact property the seam sets.
+- **ALERT GRAVITY IS A TESTABLE SEQUENCE**: no light dismiss (outside click,
+  panel stays), Escape scoping (keydown on the panel — Escape cancels only
+  while focus is inside; tab out, Escape is the page's), non-modality (Tab
+  eventually EXITS — the contrast with dialog families' showModal trap),
+  safe landing (Cancel focused on open), restore-to-invoker (only when
+  focus was ours). Each is one probe step in a strict order — a leaked
+  focus state poisons every later step (the task-29 leftover-UI law,
+  overlay edition).
+- **EXACTLY-ONCE RESOLUTION IS PROBED THROUGH THE PROMISE'S USER VISIBLE
+  ECHO**: the trio's readout line records each resolution — Cancel → false,
+  Action → true, Enter submits the initial value, Escape → null. Assert the
+  echo string per route; "the promise never hangs" needs the Escape route
+  measured, not assumed.

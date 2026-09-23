@@ -954,8 +954,9 @@
     "vellum",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 34 tier-2; two faces two shapes (self-carried portal anchored dialect + IMPERATIVE MOUNT — new taxonomy entry); ANCHORED RISE DEAD receipted (plain-string position-anchor, {api.uid} never interpolates, panel stages top-left) — one-char fix landing family-side, quill follow-up flips the page; trio exactly-once; Escape scoping both sides; matrix re-pin Content 2-3 Action 3-4"
   },
   {
    "page": "table",

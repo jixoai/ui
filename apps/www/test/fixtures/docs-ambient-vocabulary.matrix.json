@@ -2,7 +2,7 @@
  {
   "route": "system-dialog",
   "batch": "A",
-  "tableIndex": 2,
+  "tableIndex": 3,
   "prop": "variant",
   "occurrence": 1,
   "bareDefault": "auto",
@@ -10,12 +10,12 @@
   "defaultsFile": "registry/files/ui/system-dialog/system-dialog-defaults.svelte.ts",
   "slotExport": "alertDialogSurfaceVariantSlot",
   "exactDescription": null,
-  "note": "页面四张表 root=0/Trigger=1/Content=2/Action=3；本行属 Content 表"
+  "note": "task 34 (docs-eight-axes-mdn, MDN archetype) re-pin: the page gained the law table ahead of the parts, so the part tables shifted root=1/Trigger=2/Content=3/Action=4 (the axes table follows at 5); this row belongs to the Content table. Prior note: 页面四张表 root=0/Trigger=1/Content=2/Action=3. Row content unchanged."
  },
  {
   "route": "system-dialog",
   "batch": "A",
-  "tableIndex": 3,
+  "tableIndex": 4,
   "prop": "variant",
   "occurrence": 1,
   "bareDefault": "fill",
