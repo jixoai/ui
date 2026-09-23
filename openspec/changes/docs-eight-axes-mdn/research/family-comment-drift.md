@@ -77,3 +77,9 @@ The per-review "Nth clone" counts (hover-card #10, list #12…) were page-scoped
 
 ## Process note — svelte-check 只做必要检查（Owner 指令，2026-09-24）
 全量 `npx svelte-check`（~2500 文件）资源占用过高，禁止反复跑。纪律：（1）每个整合轮次至多跑 ONE 次全量，输出落盘 /tmp 供该轮所有 scoped grep 复用 —— 绝不在同一轮内为验证单个修复重跑；（2）机械修复（`?? {}`、ternary、重命名类）当场不跑 svelte-check，验证搭该轮唯一次运行或下一批次门禁；（3）"page-scoped check" 的含义 = 对已保存输出的 grep 过滤，不是重复全量；（4）子代理简报同此：门禁回执复用单次运行，不为逐页检查重复执行。
+
+## Platform-delta note — the top-layer hit-testing edge (quill's popover 2nd, task 114)
+"Renders above open dialogs" hit-tests TRUE on system Chrome but FALSE on Chrome for Testing 153.0.8010.12 (a popover opened after showModal() enters the top layer — :popover-open true — yet elementFromPoint still hits the DIALOG, fresh seat and reopen both). Same attribution class as the engine-vintage contrast digits: the platform's own seam, not the family's. The popover claim now carries the engine-dependence wording; any future top-layer z-order claim gets engine-named receipts.
+
+## Owner tension — the successor global-gate flip vs the UNMAPPED FLEET (scribe's website-scaffold 2nd, task 118; corrects the task-112 dispatch premise)
+website-scaffold is NOT in the 11-page inScope JSON (unmapped, like dialog) AND carries the same examples-before-usage structure (measured: staging marker @26602 < Usage H2 @111676). The successor change `2026-08-30-docs-demo-standard-global-gate` flips the skeleton gate to hard-fail-everywhere once the backlog empties — that flip therefore faces the WHOLE unmapped fleet's reorder-or-scope ruling, not just dialog's (the task-112 adjudication generalized). Owner's call at campaign close: reorder the unmapped pages' Usage above their demo canvases (a fleet restructuring), or scope the global gate's inScope list.

@@ -106,7 +106,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -396,7 +396,7 @@
 <div
   {id}
   popover="auto"
-  class={cx('jx-pop jx-surface', panelMotion.supported && 'jx-waapi', panelClass)}
+  class={cx('jx-pop jx-surface', panelMotion.supported ? 'jx-waapi' : undefined, panelClass)}
   data-variant={d.variant}
   data-density={densityRungOf(d.density)}
   class:dark={d.theme === 'dark'}

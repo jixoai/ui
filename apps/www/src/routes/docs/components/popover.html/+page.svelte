@@ -494,7 +494,7 @@ ${close}
             <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span><code class={cx(rt.inkAccent)}>popovertarget=&#123;id&#125;</code> — declarative trigger wiring; Enter/Space toggle, and the browser exposes <code class={cx(rt.inkAccent)}>aria-expanded</code> on the button</span></li>
             <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-              <span>top layer — the panel renders above sticky headers, transforms, and open dialogs</span></li>
+              <span>top layer — the panel renders above sticky headers, transforms, and open dialogs (engine-dependent at the top layer's hit-testing edge: true on system Chrome, not on Chrome for Testing 153 — the z-order seam is the platform's, re-verify per engine)</span></li>
             <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>Escape closes natively; focus returns to the trigger</span></li>
             <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
