@@ -1696,3 +1696,37 @@
 - Structure: toc 10 == DOM == SSR ×2; payload 1,103,869 bytes; LAW #19: 101 ids 0 dups.
 - Gates: ambient 284/284 rc0 (separator break fixed); universal 110/110; svelte-check
   page 0 (family overload/chrome-type errors + fleet warns pre-existing).
+
+## Task 68 — tabs (1st review, PASS 0M/0m/0L/0N — the sixth mechanism adjudicated PAINT-TRUE)
+
+### Banked lessons
+- **The root-pinned alias hold/flip line is the var-read vs physics line**: separator
+  HELD (ghost ink = backdrop-filter physics), tags-input FLIPPED (chip ground = var-chain
+  read), tabs FLIPPED (trigger ink = var-chain read). Mechanism: --jx-* is declared at
+  :root and html IS :root — html.dark re-declares the inner var, the substitution at the
+  root re-derives, and every element's paint follows. A hold at root-dark means the ink
+  is NOT a var-chain read (or the inner var is unpinned at html.dark).
+- **The canvas light-pin is a fleet posture**: ComponentCanvas stages pin
+  data-theme="light" — axis receipts measured inside canvases describe the light ground.
+  Ride full-width grounds outside canvases for theme seats (T40/T41/T42 convention).
+- **rAF transform sampling needs a sweep, not a capture** (T34/T42 lesson held): 20
+  samples caught 15 distinct mid-travel transforms over the authored 240ms; a single
+  mid-read measures nothing. Under RM the same sweep shows 1 distinct transform + 0s.
+- **Element-presence ≠ innerHTML length**: Svelte's <!----> anchors make innerHTML
+  nonempty on unmounted panels — count querySelectorAll('*').
+
+### Receipts (task 68)
+- ARIA chain on real keys: ArrowRight flips focus + aria-selected + roving (exactly one
+  true); End w/ disabled last → lands on the last ENABLED (audit skipped, APG); Home →
+  preview; list tabindex -1; 29 tablists / 129 tabs / 22 panels.
+- Panels: inactive hidden + 0 child elements (unmounted); labelledby deterministic and
+  resolving; tabindex 0.
+- Indicator: 0.24s×3 computed (transform/width/height, cubic-bezier(.2,.8,.2,1)); 20
+  rAF samples / 15 distinct transforms over the 240ms travel; RM → 0s + 1 distinct
+  position (the bar jumps).
+- Density digit-exact: trigger min-height/height 48px lg → 32px sm across 48rem.
+- Sixth mechanism adjudicated: trigger ink oklch(0 0 0) HELD under the scoped island
+  (--foreground flipped 1 0 0, --jx-foreground held) and FLIPPED at html.dark —
+  paint-true; canvas stage ground oklab(0.981142 0 0) held under root dark.
+- Structure: toc 13 == DOM == SSR ×2; payload 1,286,078 bytes; LAW #19: 241 ids 0 dups;
+  the two rt-atom fixes verified (page 0). Gates: ambient 284/284, universal 110/110.
