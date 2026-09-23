@@ -174,7 +174,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -292,6 +292,10 @@ ${close}
           <Statistic title="deploy window closes in" value={mmss} />
           {#if finished}<Badge variant="fill">window closed</Badge>{/if}
         </div>
+        <!-- the recipe's sr-only live region, served in the live demo too
+             (task 111 LOW 2 — the PlayHelp claims it; the claim needs a
+             seat, not just the drawer string) -->
+        <p class={cx(rt.srOnly)} aria-live="polite">{finished ? 'window closed' : ''}</p>
         <div class={cx(rt.stWrap8)}>
           <PressButton variant="outline" onclick={startCountdown} disabled={running || finished}>start</PressButton>
           <PressButton variant="ghost" onclick={stopCountdown} disabled={!running}>pause</PressButton>
@@ -367,7 +371,7 @@ ${close}
       headerRegion="universal-props"
       eyebrow="axes"
       title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The metric readout is flat content, all no-own; the size axis scales the root and the supply chain is the point."
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The metric readout is flat content, all no-own; the size axis scales the root and the supply chain is the point. Radius is STAMPED, NEVER CONSUMED (measured, task 111): the readout is flat text with no corner geometry to round — the family reads no --jx-radius-* var (the color-picker #19 class); the demo lane teaches the stamp, the paint stays honest about it."
     >
       <ComponentCanvas title="Statistic · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.panel)}><Statistic title="axes joined" value="42" size={18} density="small" /></div>
@@ -376,7 +380,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable universal props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value (format before it reaches the component).', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable universal props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value (format before it reaches the component).', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the readout root; consumer classes land last.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">
     <SectionCard

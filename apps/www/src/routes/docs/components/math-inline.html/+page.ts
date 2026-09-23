@@ -4,9 +4,9 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
+  { id: 'usage', label: 'Usage' },
   { id: 'math-inline-workbench', label: 'workbench' },
   { id: 'math-inline-lane', label: 'the sync lane' },
-  { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },
   { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },

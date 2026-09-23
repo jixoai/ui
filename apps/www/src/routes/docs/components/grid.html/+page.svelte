@@ -81,7 +81,7 @@ ${close}
   {open ? 'collapse the lane' : 'open the lane'}
 </button>
 <Grid rows={open ? 'open' : 'collapse'} class="w-full">
-  <div class="border border-border p-3 text-[12px]">…the lane's content…</div>
+  <div class="border border-border p-3 text-[12px] min-h-0 overflow-hidden">…the lane's content…</div>
 </Grid>`;
   const disclosureFiles: TreeFile[] = [
     { name: 'grid-disclosure-demo.svelte', content: gridDisclosureDemo, kind: 'usage' },
@@ -96,7 +96,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -206,10 +206,12 @@ ${close}
               {drawerOpen ? 'collapse the lane' : 'open the lane'}
             </button>
             <Grid rows={drawerOpen ? 'open' : 'collapse'} class={cx(rt.wFull)}>
-              <div class={cx(rt.panel, rt.p12, rt.text12)}>
+              <div class={cx(rt.panel, rt.p12, rt.text12, rt.minH0, rt.overflowHidden)}>
                 The lane's content — riding the grid's own 0fr→1fr track. No
                 max-height hacks, no measured pixels: the track IS the
-                animation, and the content simply lives in it.
+                animation, and the content simply lives in it (min-height: 0 /
+                overflow: hidden on the lane — without them the content's own
+                minimum floors the 0fr track and the collapse never closes).
               </div>
             </Grid>
           </div>

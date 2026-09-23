@@ -4,9 +4,9 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'tracks', label: 'Blowout-proof tracks' },
-  { id: 'disclosure', label: 'The disclosure lane' },
   { id: 'usage', label: 'Usage' },
+  { id: 'grid-workbench', label: 'Blowout-proof tracks' },
+  { id: 'disclosure', label: 'The disclosure lane' },
   { id: 'accessibility', label: 'Accessibility' },
   { id: 'theming', label: 'Theming' },
   { id: 'universal-props', label: 'Universal props' },

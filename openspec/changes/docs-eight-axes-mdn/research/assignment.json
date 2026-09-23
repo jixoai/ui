@@ -351,9 +351,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo",
-   "notes": "T111 batch reassignment: marginalia 1st (owner scribe codes); original 1st reviewer preserved as 2nd."
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st marginalia T111 NEEDS-WORK 1M/1m/1L consolidated: MAJOR landed page-side (the disclosure demo's lane content gains min-h-0/overflow-hidden — the 0fr track's content-minimum floor removed; SERVED-VERIFIED: .x2lwn1j{min-height:0}+.xb3r6kr{overflow:hidden} on the live div, sample trued same-source; the component-wrap option — every consumer gets the honest animation — ledgered for the Owner); toc rebuilt (grid-workbench rail-ed, the dead #tracks anchor gone, DOM order); cx closed both trees (mirrored). 2nd = vellum/quill pool."
   },
   {
    "page": "heading",
@@ -552,9 +552,9 @@
     "marginalia",
     "quill"
    ],
-   "tier": null,
-   "status": "todo",
-   "notes": "T111 batch reassignment: marginalia 1st (owner scribe codes); original 1st reviewer preserved as 2nd."
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st marginalia T111 PASS 0M/0m/1L/1N consolidated: toc reordered to DOM (Usage first); NIT recorded (the theme-flip control unreachable — mechanism receipted, katex inherits prose color exactly)."
   },
   {
    "page": "menubar",
@@ -954,9 +954,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo",
-   "notes": "T111 batch reassignment: marginalia 1st (owner scribe codes); original 1st reviewer preserved as 2nd."
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st marginalia T111 PASS 0M/0m/2L/1N consolidated: radius stamped-never-consumed TAUGHT (the universal-props summary names it — flat text, no corner geometry, zero --jx-radius-* readers); the recipe's sr-only aria-live region now SERVED in the live demo; the class row added to the API table; cx closed both trees (mirrored)."
   },
   {
    "page": "steps",
