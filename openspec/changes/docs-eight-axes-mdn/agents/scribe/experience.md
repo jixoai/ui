@@ -1423,3 +1423,42 @@
 - (scroll-area) The query seat LIVE both directions (13@600 fresh +
   reload ↔ 18@1280 live), the fresh +page.ts matching the served DOM
   14/14.
+
+## Task 54 — scroll-virtual (2nd review, PASS 0M/0m/1L + 2 carried LOWs)
+
+### Banked lessons
+- **parseInt stops at the `e` of `4e+06px`**: the CSSOM exponential serialization of
+  large px defeats numeric parses of inline styles — parseInt('4e+06px') is 4, only
+  parseFloat survives. Read the raw style string (or the rect) when a receipt depends on
+  a length. Bit my own windowing instrument twice before the raw dump settled it; the
+  same serialization the 1st review filed as a cosmetic LOW.
+- **PlaySegmented locator**: the count switch is a role=group of class-less buttons in
+  `.jx-play-seg` — selectOption cannot drive it; scope by container class and match
+  trimmed text.
+- **Engine-wrapper stamp walk-up**: anchor the composed root via `.jx-scroll-area`
+  (the holder) — the role=region element is the kit's viewport one level down with an
+  empty style attribute; reading stamps off the wrong level reads clean negatives.
+- **The page's own PlayFields output is a cross-check instrument**: the scroll-virtual
+  demo prints "dom window: N rows" — it settled the 110-vs-14 divergence between the
+  1st review's receipt and my census without any new instrument.
+- **Vitest reporter flag**: `--reporter=basic` is not a valid reporter in vitest 4.x
+  (startup error); `dot` works. Tests live in `apps/www/test/*.spec.ts`, not src/tests.
+
+### Receipts (task 54)
+- Windowing digit-exact: 14 wrappers (0-13) @10k with spacer exactly 400000px;
+  jump-4999 → 4993-5012 with 20 wrappers; @100k spacer raw `4e+06px` with the window
+  still 14/20 (viewport-bound: 288px stage = 8 visible + 6 overscan).
+- Stamps on the composed root only: data-density="sm" + dark + `--jx-scroll-thumb-radius:
+  8px` (+ radius-effective, density-coefficient) on `.jx-scroll-area`; viewport/spacer/
+  rows all clean. Radius seam source :219 (number-lane-only ternary).
+- query seat live both directions: 14px@600 fresh ↔ 18px@1280 ↔ 14px@600, stamp tracks.
+- Reserved keys land last (:154-161 spread order); region role/tabindex/label live on a
+  second instance ("forwarding stamps").
+- LAW #18: page zero eaches; family's single each keys on item.key; zero console
+  errors across all sessions. LAW #19: 48 ids, zero duplicates.
+- Toc baseline re-receipted: 8 data.toc ids ×2 rail surfaces served, all live, skip-link
+  the only extra; payload 947,074 bytes.
+- Gates: ambient 284/284 rc0; docs-universal 110/110 GREEN; svelte-check page 0
+  diagnostics (5 family errors = carried unchanged-file debt).
+- Record correction filed (LOW): the 1st review's "110 wrappers @100k" superseded by
+  14/20 — author's original 14→20 stands; three instruments agree.

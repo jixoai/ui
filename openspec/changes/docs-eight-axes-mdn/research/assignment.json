@@ -851,8 +851,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 40 marginalia 1st PASS (0M/1m/2L/1N); LAW #19 triple-axis clean (48 ids zero dupes, guard observed adopting); MINOR rides closure: served toc 8/13 + dead +page.ts data (live-demo vs virtual-demo); LOW family typing debt recorded; MINOR ADJUDICATED by orchestrator live fetch: dead-data half NOT REPRODUCIBLE (served toc == data.toc, 8/8 ids live, zero live-demo anywhere); navigability half BY CONVENTION (explicit-array toc lists majors; h3 children only when listed)"
+   "status": "done",
+   "notes": "CLOSED #43 (quill 30 + marginalia 40 1st + scribe 54 2nd PASS); RECORD CORRECTION at closure: 1st review's '110 wrappers @100k' superseded — 14 at rest / 20 post-jump (scribe census + page readout + quill's original agree); baseline fetch re-verified (toc == data.toc); windowing digit-exact incl. 4e+06px raw style"
   },
   {
    "page": "section-card",
