@@ -1070,8 +1070,9 @@
     "scribe",
     "marginalia"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 44 (coder's label: Tier B); SELF-CARRIED PORTAL taxonomy; per-item live regions (status x4, assertive->alert x1); auto-dismiss 5224-5227ms + exit frame 230ms; RM split; hover/hidden-tab holds; FIFO promote-on-visibility; BOTH theme mechanisms in one card; THE SECOND AA FAILURE: outline ink 2.81:1 on dark island (frozen :root ink over re-derived ground -> W-next #7 deepens; family fix); six probe faults owned (incl. oklch-as-sRGB contrast parser 1.64-garbage -> 4.57-real)"
   },
   {
    "page": "toc",

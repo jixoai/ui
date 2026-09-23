@@ -1219,3 +1219,36 @@
   `page.locator(sel)` threw in strict mode while `querySelector` silently took the first.
   Decide per probe: strict locator (fail loud) scoped to the section id, or first() with the
   count asserted.
+
+## 2026-09-22 — T44 toast (task 44-toast.md)
+
+- **First-frame transition artifacts masquerade as "no change"** — twice in one session: a
+  root-dark theme read fired getComputedStyle on the first frame of a background-color
+  transition and I reported "the card did not flip"; a second read mis-took a serialization
+  change (oklch(0.94…) → oklab(0.94…), SAME color) for a flip via string equality. Fix: theme
+  A/B probes must (1) settle past any transition (~120ms + forced reflow) and (2) compare
+  resolved color VALUES numerically, never attribute strings. My own waitForFunction caught
+  the first one pre-report — the instrument criticizes its author only if you let it finish.
+- **Contrast helpers must know the color space** — parsing oklch components as sRGB 0-255
+  produced a confident garbage ratio (1.64). Proper oklch→linear-sRGB→luminance gave 4.57
+  (pass) vs my 1.64. If getComputedStyle returns oklch()/oklab() (wide-gamut serialization),
+  a naive `match(/[\d.]+/g)` contrast number is fiction.
+- **Ghost nodes defeat naive UI drivers** — the toast's 220ms leaving ghost re-renders a
+  FULL interactive card (× included); a dismissal loop that queries `[data-jx-toast]`
+  clicks ghosts forever. Target live nodes with the family's own leaving class
+  (`:not(.jx-toast-leaving)`). Generalizes: any exit-animation surface needs its ghost
+  discriminator before you script interactions against it.
+- **Stub the feature the handler actually reads** — the hidden-tab freeze probe stubbed
+  document.visibilityState; the viewport reads document.hidden. "I simulated the event" is
+  not "I simulated the state". Read the handler source before writing the stub.
+- **waitForFunction arg traps**: an inline `await f()` argument is evaluated when the call
+  is built — AFTER earlier awaits in the same statement sequence have already changed the
+  page. Capture baselines into consts first. (Cost me two 12-15s timeouts.)
+- **Two viewports, two stores** — mounting extra toast viewports for axis seats requires
+  per-viewport stores (the visibility handshake would fight over one store) and distinct
+  float slots (pos prop) to avoid stack overlap; discriminating stacks in probes by their
+  own stamps (data-density / .dark) beat positional guesses.
+- **The toast THEME-SPLIT**: card ground re-derives per scope (level table has .dark side),
+  tonal hue re-derives (the `:root, .jx-light, .dark` selector-list re-declaration in
+  jixoai.css), popover/foreground aliases stay :root-frozen — one card, both mechanisms.
+  The frozen-outline-ink-on-dark-island case fails AA (2.81:1) — filed as drift #14.
