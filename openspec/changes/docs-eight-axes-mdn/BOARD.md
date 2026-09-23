@@ -2,7 +2,7 @@
 | agent | task | page | type | status |
 |---|---|---|---|---|
 | quill | 69 | toc (OWN) | CODE | in-flight |
-| vellum | 75 | tabs (vellum's OWN — scribe 1sted) | REVIEW (2nd) | in-flight |
+| vellum | 75 | terminal-footer (quill's) | REVIEW (1st) | in-flight |
 | marginalia | 74 | separator+spin RE-ADJUDICATION | PROBE | in-flight |
 | scribe | 71 | toast (vellum's) | REVIEW (1st) | in-flight |
 
