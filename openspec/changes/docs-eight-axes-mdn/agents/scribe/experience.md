@@ -1660,3 +1660,39 @@
 - Gates: ambient 278/284 — 6 failures all separator.html :505 js_parse_error (committed
   foreign law-text apostrophe; zero system-dialog keys; re-pin rows PASS); universal
   110/110. 2a26eb96-era MINOR fix 38560e22 verified served.
+
+## Task 66 — tags-input (1st review, PASS 0M/0m/0L/0N)
+
+### Banked lessons
+- **Measure the LANE and the BOX separately**: the density claim "hit 48→32" is true of
+  the --jx-hit lane (equations resolving 0.25rem×12/×8), while the input's computed
+  min-height is 46/30 (hit − 2px border pair). Receipt both, or the 2px reads as drift.
+- **Shell rect ≠ hit lane**: the tags shell wraps the chips area + input — the hit lane
+  lives on the input; rect-measuring the wrapper over-measures (80 vs 48).
+- **Duplicates-off filtering shows up IN the combobox rows**: typing 's' led with
+  typescript because svelte was already committed — the filter's hides-present behavior
+  is observable in the row order, a free extra receipt.
+- **Flash-class receipts need inside-AND-after samples**: sample the flash class at
+  ~80ms (inside the 200ms window) and again at +450ms (expired) in the same run —
+  one sample proves nothing about the decay.
+- **The separator :505 parse break was fixed** — the ambient suite is back to 284/284
+  corpus-wide (task 64's foreign-commit red is closed).
+
+### Receipts (task 66)
+- LAW #18 double weight: composite value#index chip keys (source :495) + the live
+  mutation census (Enter +1, duplicate +0 with the flash on the existing chip inside
+  the window and gone after, Backspace-on-empty −1, paste deno,bun +2), fully
+  interactive, zero console noise.
+- Combobox: expanded true, autocomplete list, activedescendant s2-sug-0 resolving to a
+  real row, ArrowDown roving, Enter commits the highlight; × labels "remove (label)";
+  shell horizontal listbox, chips options selected.
+- Error wiring: invalid true → describedby → existing id + dashed shell.
+- Density consumed: data-density lg↔sm across 48rem; --jx-hit 48/32 lanes; input box
+  46/30 (hit − 2).
+- Alias at the paint: chip ground 0.9551 HELD under the scoped island (--muted scope
+  flipped to 0.2178), root dark flipped, restored.
+- Drift #13 confirmed latent: suggestion rows value-alone keys (:583), unique catalogs,
+  one-word hardening owed family-side.
+- Structure: toc 10 == DOM == SSR ×2; payload 1,103,869 bytes; LAW #19: 101 ids 0 dups.
+- Gates: ambient 284/284 rc0 (separator break fixed); universal 110/110; svelte-check
+  page 0 (family overload/chrome-type errors + fleet warns pre-existing).
