@@ -255,7 +255,10 @@ ${close}
             and the modal contract is about focus, not scroll — the page
             behind is inert to focus and pointer interaction goes to the
             top layer, but the document's own scroll is not locked for you
-            (lock it in your app shell if the drawer's content demands it).
+            (wheel over the bare backdrop does not chain to it — the top
+            layer swallows the default; chaining happens through the
+            panel's own scroll cell at its overscroll boundary. Lock it in
+            your app shell if the drawer's content demands it).
           </p>
         </div>
       </SectionCard>
