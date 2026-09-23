@@ -756,8 +756,8 @@
     "scribe"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 44 marginalia 1st PASS (0M/0m/1L/1N); full concordance — every CODE-pass number reproduced to the rounding; no-blowout MEASURED by injection (2000px chip, tracks unchanged); LOW landed: px receipts name their seat (the readout now carries the width-naming clause)"
+   "status": "done",
+   "notes": "CLOSED #45 (vellum 36 + marginalia 44 1st + scribe 56 2nd PASS, zero new findings); concordance to the third decimal; no-blowout re-proven by rect geometry; the auto-fit re-count ladder (4x145.25 -> 3x149.7 -> 2x160.5, floor never breached); 12-flip LAW #18 stress clean at the law's birthplace; width-naming clause verified at its named seats"
   },
   {
    "page": "prototype-waterfall",

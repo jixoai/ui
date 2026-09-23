@@ -1462,3 +1462,41 @@
   diagnostics (5 family errors = carried unchanged-file debt).
 - Record correction filed (LOW): the 1st review's "110 wrappers @100k" superseded by
   14/20 — author's original 14→20 stands; three instruments agree.
+
+## Task 56 — prototype-grid (2nd review, PASS 0M/0m/0 new + carried LOW settled)
+
+### Banked lessons
+- **Injection placement decides overflow**: a wide min-width chip auto-placed into
+  column 1 of a 745px container NEVER overflows (600 < 745) — place it in the LAST
+  column explicitly (grid-column: 3) or the blowout's overflow half can't fire.
+- **scrollWidth lies on overflow:visible grid children**: two runs read 745 == 745
+  while the boolean flip-flopped between reads — the decisive instrument is rect
+  geometry (chip right edge vs container right edge), not scrollWidth.
+- **stylex hashes defeat class selectors — again**: `.panel` found zero elements
+  inside #universal-props (rt.panel compiles to a hash); anchor component probes on
+  data attributes ([data-jx-prototype-grid]) or aria/testid, disambiguate by chip text.
+- **CSSOM normalizes minmax(0, 1fr) → minmax(0px, 1fr)** on the first setProperty
+  write — the authored attr string and the CSSOM form are both valid reads; the
+  readout's named declaration is the CSSOM form (style.getPropertyValue).
+- **Named-seat receipts verify AT the named widths**: the landed width-naming clause
+  (831fbadb) is falsifiable exactly as written — re-measure at 1400/760 and the
+  numbers land to the rounding; at other widths they legitimately differ (the clause
+  converts viewport-conditional receipts from a defect into a contract).
+
+### Receipts (task 56)
+- Named seats reproduced: 240.328×3 @1400 (named 240), 228.328 under gap 30 (named
+  228), 180.25/360.5/180.25 (named 180/361/180 — exact 1:2:1), 145.25×4 @760 (named
+  145, floor 140 engaged); clean reverts.
+- NO-BLOWOUT: 600px chip in col 3 → tracks unchanged, chip right 1435 > grid right
+  1075. Auto-fit re-count ladder: 4→3→2 tracks @760/600/460, shares 145→149→160.5,
+  floor never breached.
+- rows=2 declaration repeat(2, minmax(0px, 1fr)); areas computed `"head head" "side
+  main"` with head spanning 711px top row, side/main row 2.
+- Stamps: sm/lg rungs, .dark bridge with --foreground flip oklch(1 0 0), size carrier
+  verbatim + computed 18px, named-step var forms; all-auto specimen stamps NOTHING;
+  rig (no axes) layout-only.
+- query seat 13@600 fresh ↔ 18@1280 ↔ 13 back. LAW #18: 12-flip stress, 6 chips, zero
+  console noise. LAW #19: 66 ids 0 twins. SSR: toc 8 ×2 surfaces, api 6 + axes 8 rows
+  by name; 4 SSR data-theme hits = canvas-stage chrome, not family vocabulary.
+- Gates: ambient 284/284 rc0; universal 110/110; svelte-check page 0 (family :115
+  8 warnings pre-existing). 831fbadb = the +5/−3 readout edit, verified.
