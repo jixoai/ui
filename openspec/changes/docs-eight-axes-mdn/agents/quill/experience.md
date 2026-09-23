@@ -1192,3 +1192,36 @@ the atoms hold the claim — marginalia's card-root-vs-atoms note, re-learned fi
  constructive fresh axis: a 1st reviewer's "source-read-only branch" (the lease's
 restore-existing path, no demo ships a pre-anchored target) is prime 2nd-reviewer
 territory — plant the precondition in-probe and the branch becomes behavior-receipted.
+
+## 2026-09-22 · T114 popover 2nd — shared-tree dev servers are cross-contaminating instruments
+
+Two legs died to "Execution context destroyed → navigation" mid-probe: a sibling lane's
+CODE edits (same working tree, their own port) hot-reload MY dev server. Fix: serve the
+FRESH DIST via `vite preview` for probe legs — stable against sibling churn, and it is
+byte-for-byte the artifact the lint gate audits (geometry receipts from dist bytes are
+the strongest form). Companion lessons: (1) canvas-playground controls can be GLYPH-
+labeled with the semantic name only in title= — match [title=], never textContent, and
+give every in-page async drive an always-resolve guard (a rejected promise past
+.then(resolve) hangs the evaluate forever); (2) top-layer LIFO (popover opened after a
+showModal dialog paints above) does NOT hit-test true on Chrome for Testing 153 /
+chromium-1243 — a system-Chrome receipt from a 1st review may be a version delta; always
+print the runner's engine version next to platform-behavior receipts; (3) page
+consolidations often close the PAGE's cx clone but leave the COMPONENT's own clone —
+check both lanes when the dispatch says "cx state post-closure".
+
+## 2026-09-22 · T120 math-inline/statistic 2nds — three env-digit traps and one composition seam
+
+(1) The site brand hue is PER-LOAD VARIABLE: --jx-primary read hue 189 then 179 across two
+loads on the SAME dist (marginalia's statistic receipt quoted 346 on hers). L/C identity
+(0.6489 0.237) is the stable brand-voice law; NEVER file the hue digit as a constant —
+compare L/C and call the hue environment-dependent. (2) Stylex families with css-less
+data-hook stamps: the sizing atom often rides a CHILD (statistic's value WRAPPER is a
+flex <p> with no font-size; the 1.5× line rides [data-jx-stat-num]) — measuring the
+wrapper reads a fake density-flat regression. Read the atom table to find the carrier
+before filing. (3) In-page async drives need always-resolve guards: a rejected promise
+past .then(resolve) hangs page.evaluate forever (the glyph-labeled grid cells lesson,
+generalized). (4) KaTeX facade shape: parse errors (unclosed groups) take the
+.katex-error in-place path; UNKNOWN macros render as literal text with throwOnError:false
+— and the site-level registerMacros table can be EMPTY (zero callers), so "registered
+macro renders" is untestable without first registering. Also: JS string → TeX escaping
+counts BOTH — '\\RR' in JS is a TeX LINEBREAK + "RR", not the macro.

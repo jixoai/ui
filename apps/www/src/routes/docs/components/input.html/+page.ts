@@ -6,9 +6,9 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 // DOM order (task 104: the rail now walks the page top-to-bottom —
 // capabilities and picker-bridge were unrail-ed, the order was stale)
 const toc: TocSection[] = [
-  { id: 'true', label: 'The field, truly' },
-  { id: 'deploy', label: 'Deploy field' },
+  { id: 'field-workbench', label: 'The field, truly' },
   { id: 'all-types', label: 'All native types' },
+  { id: 'tier1-native', label: 'Deploy field — the Tier-1 native layer' },
   { id: 'slots', label: 'Slot system' },
   { id: 'capabilities', label: 'Capabilities' },
   { id: 'error-wiring', label: 'Label + error wiring' },

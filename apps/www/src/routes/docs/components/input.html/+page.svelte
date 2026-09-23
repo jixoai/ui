@@ -349,7 +349,7 @@ ${close}
 
   <!-- component canvas (audit P1-A2): the workbench — LIVE stage, playground
        pane (reset + echo + live usage code), source tree + GitHub link. -->
-  <div data-reveal="">
+  <div id="field-workbench" data-reveal="">
     <ComponentCanvas
       title="input"
       description="The text-shell base of the NativeHTML family: every native type passes through untouched — the component owns only label/error wiring, four slot seams, and the bordered shell."
@@ -469,7 +469,7 @@ ${close}
           consume style bare markup; type in the first field and watch the placeholder read
           clearly lighter than a value:
         </p>
-        <div class={cx(rt.mt16, rt.grid760a)}>
+        <div id="tier1-native" class={cx(rt.mt16, rt.grid760a)}>
           <div class={cx(rt.col12)}>
             <label class="jx-label" for="tier1-text">bare text</label>
             <input id="tier1-text" class="jx-control" type="text" placeholder="placeholder reads lighter" />

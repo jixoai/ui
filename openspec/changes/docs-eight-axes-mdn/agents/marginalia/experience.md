@@ -1161,3 +1161,49 @@
 - **$derived closures over $props() create circular-inference error clusters** (toc-link.svelte :26 ×4, including "$props used before its declaration") — runtime-clean, svelte-check-loud. The fix family: annotate the destructured fields or move to $derived.by with an explicit return type.
 - **Landed-clause verification has three layers**: the copy (grep the exact wording), the byte (grep the code the clause describes), and the count (re-census the claim's number). The toc page passed all three on clauses 1-2; clause 3's substance held while its fleet digit had drifted 107→120 — substance-true, digit-stale is its own finding class (NIT).
 - **--jx-progress lives on the spine FILL element, not the toc root** — engine-written vars sit on the innermost element they style; read computed vars at the element the css rule targets, or eat an empty-string read.
+
+## T119 (toast 2nd, 2026-09-24)
+
+- **BootSplash eats clicks on cold loads.** The scaffold's FOUC mask (+layout.svelte
+  BootSplash: fonts.ready + 4s cap) lives in the top layer; on a cold vite compile its
+  breathing logo intercepts Playwright pointer events and click retries burn the full
+  30s timeout. Every docs-page probe must `await document.fonts.ready` + settle >4s
+  (I use 9s) before the first locator click. Two 30s timeouts died to this before the
+  fix; stages C/D/E on warm loads clicked fine, which masked it on the first run.
+- **Never rebuild dist while siblings run `vite preview`.** Check `ps` for preview
+  listeners BEFORE any build decision: quill (5241) and scribe (5243) were both serving
+  off the shared dist. When HEAD == dist == the dispatch reference vintage, gating
+  verify:docs against the existing dist is exact and free; a rebuild would have swapped
+  the ground under two live probes (the T71 contamination lesson, inbound this time).
+- **Transition-diff sampling measures EXIT_MS for free.** Sampling card-count
+  transitions at 40ms during a queue promotion caught the 5→4→1 cascade: the queued
+  card enters while the expired four still paint their leaving ghosts, and the ghost
+  window (~210-220ms) falls out of the transitions without a dedicated ghost poller.
+  Record n-transitions, not just endpoints.
+- **The queue-expiry arms-at-first-visibility law is best discriminated by pure
+  observation**: burst past maxVisible, touch nothing, sample to ~11s. Promotion of the
+  oldest + aliveness at 2× duration + unmount at promotion+duration is a three-point
+  proof that needs zero interaction (no dismiss interception risks, no hover timing).
+
+## T122 (grid 2nd of MY OWN 1st, 2026-09-24)
+
+- **The min-h-0/overflow-hidden recipe floors at the lane's BOX, not zero.** The 0fr
+  collapse suppresses exactly the CONTENT floor; padding+border remain (measured 16+16
+  +1+1 = 34px residue, margins 0). "0fr collapses to 0px" is only true of unpadded
+  lanes — when a receipt needs "0px-collapse", decompose the floor first (padT+padB+
+  borT+borB+margins) before calling it a fix failure. The content-clipping read
+  (scrollHeight vs clientHeight) is what proves the recipe landed.
+- **grid-template-rows SNAPs without a consumer transition.** The 0fr→1fr atom changes
+  the track instantly (40ms sampling caught exactly 2 distinct values, no tween) — the
+  component ships no duration and demo snippets usually don't either. "The track IS
+  the animation" copy oversells; the interpolable property needs `transition:
+  grid-template-rows <t>` supplied by the consumer. Sample transitions, don't assume.
+- **Vintage-proofing a shared dist without rebuilding**: dist mtime at the
+  consolidation minute + grep for the landed fix's generated class atoms in the dist
+  CSS proves the vintage carries the fix — then verify:docs against the existing dist
+  is honest, and a sibling's live `vite preview` stays untouched. (Second reuse of the
+  T119 rule; mtime + atom-grep is the cheap proof.)
+- **Re-reviewing MY OWN findings**: read the 1st report first, then re-derive every
+  digit fresh. The drift ledger is the honest form: my 1st said 70px flat, now 34→106
+  →34 — different numbers because the content grew AND the floor changed nature
+  (content floor → box residue). Say why the numbers differ, not just that they do.

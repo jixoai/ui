@@ -1997,17 +1997,6 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   border-color: var(--primary);
 }
 
-.jx-html-radio:checked {
-  background: var(--primary);
-  border-color: var(--primary);
-}
-/* radio :indeterminate deliberately UNSTYLED (radio 1st review, task 94): per
-   the HTML spec a radio matches :indeterminate whenever NO member of its
-   name-group is checked — a RESTING group, not a selection state. The
-   checkbox-derived pair above painted every all-unchecked group as solid
-   brand blobs (measured on both universal seats). Checkbox keeps its
-   authored tri-state; radios have no authored indeterminate. */
-
 .jx-html-radio:focus-visible {
   outline: 1px solid var(--ring);
   outline-offset: -1px;

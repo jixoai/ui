@@ -1500,12 +1500,6 @@
   clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
 }
 
-:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):indeterminate::before {
-  opacity: 1;
-  transform: rotate(0deg);
-  clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
-}
-
 :where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *))::after {
   content: '';
   position: absolute;
@@ -1524,11 +1518,6 @@
 }
 
 :where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):hover:not(:checked):not(:disabled) {
-  border-color: var(--primary);
-}
-
-:where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):checked, :where(.jx-pure) input:where([type='radio']:not(.no-jx-pure, .no-jx-pure *)):indeterminate {
-  background: var(--primary);
   border-color: var(--primary);
 }
 

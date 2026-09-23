@@ -352,8 +352,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st marginalia T111 NEEDS-WORK 1M/1m/1L consolidated: MAJOR landed page-side (the disclosure demo's lane content gains min-h-0/overflow-hidden — the 0fr track's content-minimum floor removed; SERVED-VERIFIED: .x2lwn1j{min-height:0}+.xb3r6kr{overflow:hidden} on the live div, sample trued same-source; the component-wrap option — every consumer gets the honest animation — ledgered for the Owner); toc rebuilt (grid-workbench rail-ed, the dead #tracks anchor gone, DOM order); cx closed both trees (mirrored). 2nd = vellum/quill pool. T122 reassignment: marginalia 2nd (owner scribe codes); vellum preserved."
+   "status": "done",
+   "notes": "CLOSED at marginalia's T122 2nd (PASS 0M/0m/0L/1N — Tier 2 confirmed): the MAJOR dead — 3-state re-measure 34/106/34 (her 1st's 70px was the unclipped content floor; the 34px residue decomposes exactly 16+16 padding + 1+1 border, the lane's own box); toc 7/7 live; twins cmp-identical; FRESH AXIS: minmax(0,1fr) holds through resize + cols swaps (spread 0); NIT landed (the snap-vs-'the track IS the animation' softened — instantly by default, family ships no duration)."
   },
   {
    "page": "heading",
@@ -445,8 +445,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 104 marginalia 1st PASS (0M/2m/3L); toc rebuilt, radius zero-reader taught, five family type errors closed (mirrored); 2nd = vellum"
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/1/0): her T106-correction withdrawal honored (rendered [18,8] table verified); toc rebuild verified + her LOW-1 (the #true/#deploy phantom anchors) landed at consolidation — live anchors #field-workbench/#tier1-native + the toc re-ordered DOM-true (tier1 follows all-types, its own prose says 'every native lane above'); five family errors closed MIRRORED."
   },
   {
    "page": "input-group",
@@ -511,8 +511,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st marginalia T105 PASS 0M/2m/2L/1N; consolidated: nav demo split (in-scope B8-defeat seat + standalone Contents default seat, escape no-jx-pure named+sourced), toc 8/8 DOM order, API rest-row caveat + nav-row standalone conditional, hero conditional, cx ?? {} page+component (mirrored). NIT-1 'five control adapters' recorded for list-item's review."
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0): BOTH nav paints verified live (in-scope disc+24px; standalone none+0px; Chapters decimal+ps-0 the fine print); toc 8/8; the B8-defeat teaching stands."
   },
   {
    "page": "list-item",
@@ -1064,7 +1064,7 @@
    ],
    "tier": 2,
    "status": "done",
-   "notes": "task 77 vellum 1st PASS (0M/0m/2L/1N; three verdict classes re-derive); task 84 marginalia 2nd PASS (0M/0m/1L/0N new — the two-halves ink clause landed on the theme row, L3 black-on-black named latent, eighth voice on W-next #7; served spellcheck/wrap seat completed — vellum's measured-seat ask closed); CLOSED #58"
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0 — closure over her 77 + marginalia 84): L3 latent-ink theme row landed (#7 eighth voice); spellcheck/wrap served both layers; boundary 251/252 re-derived. Her trio of family seats + the chrome declaration + ClassValue guard closed at consolidation (MIRRORED)."
   },
   {
    "page": "theme-toggle",
@@ -1127,8 +1127,8 @@
     "marginalia"
    ],
    "tier": 1,
-   "status": "pass-1st",
-   "notes": "task 102 marginalia 1st PASS (0M/1m/1L/1N); overload + three api rows + marker rename landed; 2nd = vellum"
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0 — Tier 1 CONFIRMED): marker census-unique (12 roots/0 empty divs/2 markers==2 checked); three api rows served; the item's cx twin closed at consolidation (MIRRORED)."
   },
   {
    "page": "tooltip",
@@ -1138,8 +1138,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "1st marginalia T106 PASS 0M/0m/2L/0N; consolidated: Escape attribution trued (platform gives top layer + manual semantics; the family wires its own window keydown), cx clone #13 page+twin closed (mirrored), :762 relatedTarget instanceof-Node guard. RECORD CORRECTION banked: her T103/104/105 'axes omitted as rows' findings withdrawn — PropsTable universal renders the second axis table ([9,8]/[18,8]/[8,8]/[8,8] census); input/hover-card/list landings audited: all phrasing-level, no duplication, all kept."
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0): Escape attribution verbatim; Node guard landed; 6px rest gap re-derived at translate 0."
   },
   {
    "page": "tour",
@@ -1171,8 +1171,8 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "pass-1st",
-   "notes": "task 101 marginalia 1st PASS (0M/1m/1L); all three type errors closed (brand casts documented), theming summary trued; 2nd = vellum"
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0): TreeSlotRender whole-arrow casts landed (page 0 diagnostics); roving tabindex re-derived; her cx twins closed at consolidation (MIRRORED)."
   },
   {
    "page": "website-scaffold",

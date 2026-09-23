@@ -81,7 +81,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -91,6 +91,10 @@
     /** field label; renders label[for] above the control.
         skipped when outerBlockStart takes the slot over */
     label?: string;
+    /** the chrome posture (frame | bare) — the destructure reads it at
+        :164 and stamps data-chrome; declared here so the contract
+        matches the call site (the input T104 twin) */
+    chrome?: ControlChrome;
     /** density policy: explicit, inherited, then default */
     /** density policy: explicit, inherited, then default — the
      *  universal §4 lane (named rungs + the documented small/medium/
@@ -226,7 +230,7 @@
        Part A's shell law carries the box/hover/focus/disabled/invalid
        paint — the only component-owned geometry is the column direction -->
   <div
-    class={cx('jx-html-control-shell', textareaStyles.shellColumn, className)}
+    class={cx('jx-html-control-shell', textareaStyles.shellColumn, typeof className === 'string' ? className : '')}
     class:jx-slotted={slotted}
     class:jx-invalid={invalid}
     data-chrome={chromeProp ?? ambientChrome ?? 'frame'}

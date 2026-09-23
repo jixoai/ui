@@ -1446,3 +1446,31 @@
   jx-out-shown grew 11→14 since her run (new seats), but "EVERY seat settled" is what
   the page claims, and 14/14 holds. Count deltas only matter against claims that pin
   the number; always restate the claim's quantifier before comparing counts.
+
+## 2026-09-22 — T117 second-review batch 3/3 (six pages, review lanes)
+
+- **A toc rebuild can ship entries whose ids exist only in code-sample text** — input's
+  rebuilt 13-entry rail opened with #true/#deploy; the only matching bytes are the demo
+  snippets' `id="true"`/`id="deploy"` (code text, never elements). Full-scroll
+  getElementById is the honest dangling check (top-of-page reads false-fail on
+  lazily-mounted reveals; code-text false-passes byte greps). Both checks, then verdict.
+- **maxLen seats and count seats are independent** — textarea serves two maxlength-280
+  textareas but only one carries the live readout; driving by maxlength found the wrong
+  instance and my "static readout" was another seat's. Census the READOUT's own seat
+  (the aria-live region's neighborhood), then drive. The same trap got marginalia in 84
+  (s2) — per-seat traps recur; census shapes close them.
+- **Programmatic focus does not engage keyboard-gated intent paths** — the tooltip's
+  focus-open is focus-visible-aware: .focus() opened nothing; a real Tab walk opened it
+  instantly. Synthetic `.click()` (T45) and synthetic `.focus()` are the same lesson's
+  two faces: the platform's intent signals are the API.
+- **"Row height" digits are hook-dependent** — tree-view's drift receipt reads 17.5–19.2px
+  at the label line but 52.36–57.56px at the treeitem box; both prove the law (density-
+  reactive, nothing pins it), neither invalidates the other. When re-measuring a
+  reworded claim, name your hook in the receipt so the digits stay comparable.
+- **The marker-on-input rename makes the census self-verifying** — toggle-group's
+  data-jx-tgroup-active now rides the checked input itself, so markers == checked inputs
+  by construction (2==2 measured). Attribute hygiene that moves state markers onto the
+  state's own element turns "census drift" into an impossibility rather than a check.
+- **Her record corrections apply to her OWN findings** — T106's rendered-table correction
+  withdrew T104/T105 omission findings; the 2nd reviewer's job includes verifying the
+  withdrawal against the rendered surface ([18,8] on input), not just noting it.

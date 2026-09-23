@@ -209,9 +209,12 @@ ${close}
               <div class={cx(rt.panel, rt.p12, rt.text12, rt.minH0, rt.overflowHidden)}>
                 The lane's content — riding the grid's own 0fr→1fr track. No
                 max-height hacks, no measured pixels: the track IS the
-                animation, and the content simply lives in it (min-height: 0 /
-                overflow: hidden on the lane — without them the content's own
-                minimum floors the 0fr track and the collapse never closes).
+                animation (instantly by default — the family ships no duration;
+                transition the track yourself for a smooth morph), and the
+                content simply lives in it (min-height: 0 / overflow: hidden on
+                the lane — without them the content's own minimum floors the
+                0fr track and the collapse never closes; WITH them the residue
+                is only the lane's own box — padding + border).
               </div>
             </Grid>
           </div>
