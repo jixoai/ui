@@ -1073,8 +1073,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "needs-work",
-   "notes": "1st marginalia T131 NEEDS-WORK 1M — THE SCANNER FEED; ledgered next-round"
+   "status": "pass-1st",
+   "notes": "1st marginalia T131 NEEDS-WORK 1M; CODE round (quill T135) consolidated: THE SCANNER-FEED MAJOR resolved — the site is tailwindless (no scanner), the kernel's class strings compiled to nothing; a @layer components kernel-feed block authored in app.css (full vocabulary, consumer-wins ordering, kernel untouched, inline-code shares); the failing triple now computes 500/14px/21px live, the strong row MOVES; NIT x3 landed (preflight-reimplemented wording). Awaiting 2nd."
   },
   {
    "page": "textarea",

@@ -73,8 +73,8 @@ ${close}
     { word: 'del', note: 'line-through', snippet: false },
     { word: 'mark', note: 'highlight ground + the 0.05em/0.25em box', snippet: false },
     { word: 'ins', note: 'underline', snippet: false },
-    { word: 'sub', note: 'none — the UA baseline shift is the law', snippet: false },
-    { word: 'sup', note: 'none — the UA baseline shift is the law', snippet: false },
+    { word: 'sub', note: 'none — the UA-baseline-shift law, preflight-reimplemented', snippet: false },
+    { word: 'sup', note: 'none — the UA-baseline-shift law, preflight-reimplemented', snippet: false },
   ] as const;
 
   // ---- modifier playground (r4 acceptance round, 2026-09-08) ---------------
@@ -198,17 +198,13 @@ ${close}
   const resolveModifierUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? modifierUsageLive : file.content;
 
-  /* Tailwind scanner candidates: the modifier utilities are composed
-     at RUNTIME by the kernel (template interpolations the source
-     scanner can never see) — this block feeds the exact set the
-     playground can emit so the compiled sheet carries it (the app.css
-     jx-html block precedent). The named weight/tracking/italic set
-     already extracts from the kernel's own literal maps. */
-  /* leading-[1] leading-[1.25] leading-[1.5] leading-[1.75] leading-[2]
-     font-[450] font-[550] [font-family:var(--font-mono)]
-     [font-family:var(--font-sans)] [font-family:Georgia,serif]
-     [font-size:11px] [font-size:12px] [font-size:13px] [font-size:14px]
-     [font-size:16px] */
+  /* The modifier utilities are composed at RUNTIME by the kernel
+     (template interpolations no scanner can see), so the vocabulary is
+     authored as REAL RULES in app.css's @layer components block — the
+     jx-html standard-layer precedent, landed T135 (comment blocks feed
+     nothing: app.css is read raw, svelte content comments are not).
+     The set there = this playground's exact value domain + the
+     kernel's full named maps (inline-code shares both). */
 
   // the page's local join (the separator serialize law): plain
   // strings pass through whole; stylex objects contribute their
@@ -309,7 +305,7 @@ ${close}
           <PlayFields>
             <PlayHelp>
               ONE vocabulary: the prop value, the sugar name, and the HTML element are the same
-              word. <code>sub</code>/<code>sup</code> own no utilities at all — the UA baseline
+              word. <code>sub</code>/<code>sup</code> own no utilities at all — the UA-baseline-shift law, preflight-reimplemented: the visible shift is the app's own preflight rules (position-relative + top), not the UA vertical-align — the
               shift IS the law. <code>mark</code>'s ground drops to the Highlight system pair
               under forced colors; <code>strong</code>'s 600 is a recorded settle over the face's
               700 (the GitHub/Tailwind Typography weight).

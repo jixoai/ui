@@ -43,6 +43,59 @@
    jx-html-tgroup jx-html-control jx-html-control-shell
    jx-html-control-lane */
 
+/* -------------------------------------------------------------------------
+ * text-modifier kernel feed (T135 code round): the text-style kernel
+ * composes its six modifier utilities at RUNTIME (template
+ * interpolations — no source scanner can see them), so the vocabulary
+ * is authored here as REAL rules, the jx-html standard-layer
+ * precedent. The set = the kernel's named maps + the playground's
+ * arbitrary domains (text.html + inline-code share the kernel).
+ * @layer components: the same tier as the jx-html utilities — the
+ * consumer's own (unlayered) classes still win the cascade, the
+ * kernel's "modifier lands after the form's utilities" contract.
+ * ---------------------------------------------------------------------- */
+@layer components {
+  /* weight — the kernel's named map */
+  .font-thin { font-weight: 100; }
+  .font-extralight { font-weight: 200; }
+  .font-light { font-weight: 300; }
+  .font-normal { font-weight: 400; }
+  .font-medium { font-weight: 500; }
+  .font-semibold { font-weight: 600; }
+  .font-bold { font-weight: 700; }
+  .font-extrabold { font-weight: 800; }
+  .font-black { font-weight: 900; }
+  /* the playground's arbitrary weights */
+  .font-\[450\] { font-weight: 450; }
+  .font-\[550\] { font-weight: 550; }
+  /* italic — true ⇒ italic (never not-italic) */
+  .italic { font-style: italic; }
+  /* tracking — the kernel's named map */
+  .tracking-tighter { letter-spacing: -0.05em; }
+  .tracking-tight { letter-spacing: -0.025em; }
+  .tracking-normal { letter-spacing: 0em; }
+  .tracking-wide { letter-spacing: 0.025em; }
+  .tracking-wider { letter-spacing: 0.05em; }
+  .tracking-widest { letter-spacing: 0.1em; }
+  /* leading — the playground's unitless-ratio domain */
+  .leading-\[1\] { line-height: 1; }
+  .leading-\[1\.25\] { line-height: 1.25; }
+  .leading-\[1\.5\] { line-height: 1.5; }
+  .leading-\[1\.75\] { line-height: 1.75; }
+  .leading-\[2\] { line-height: 2; }
+  /* font-family — the kernel's token INCLUDES the brackets
+     ([font-family:…]) — the selector escapes the whole token */
+  .\[font-family\:var\(--font-mono\)\] { font-family: var(--font-mono); }
+  .\[font-family\:var\(--font-sans\)\] { font-family: var(--font-sans); }
+  .\[font-family\:Georgia\,serif\] { font-family: Georgia, serif; }
+  /* font-size — same bracket-inclusive token form */
+  .\[font-size\:11px\] { font-size: 11px; }
+  .\[font-size\:12px\] { font-size: 12px; }
+  .\[font-size\:13px\] { font-size: 13px; }
+  .\[font-size\:14px\] { font-size: 14px; }
+  .\[font-size\:16px\] { font-size: 16px; }
+}
+
 @layer base {
   * {
     border-color: var(--border);

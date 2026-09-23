@@ -1278,3 +1278,26 @@
   (play-row $props.id() placement) briefly 500'd select.html mid-save; the file was
   healed on re-read. On a 500 in a shared tree, check git status for dirty sibling
   files before filing anything — diagnose, wait, retry.
+
+## T138 (4-page 2nd batch — pattern-login/progressive-blur/prose/result, 2026-09-24)
+
+- **The rg -rn trap bit a THIRD time** (-r is --replace: "?? {}" became "n" in my
+  grep output and I nearly misread landed guards as mangled). The rule is now
+  muscle memory: recursive+line-number is ALWAYS `rg -n`; -r only with an explicit
+  replacement intent.
+- **Token-equality receipts survive vintage drift**: result's success glyph was
+  oklch(…195) at scribe's vintage and oklch(…44) at mine — the brand hue moved —
+  and "glyph == --primary" held BOTH times. Assert token equality, never literal
+  digits; the drift itself becomes the receipt's strongest form.
+- **Degraded-branch emulation**: to measure an @supports-gated engine branch,
+  force the gate's failure (`animation: none !important` for a scroll-timeline
+  reveal) and measure the fallback — PB's "never a wrongly-painted band" went from
+  source-true to measured-true in one injection.
+- **Clean Tab walks need a fresh context**: any prior interaction (clicks, focus)
+  poisons the starting point and the walk silently skips the skip link. One fresh
+  context, no interactions, then walk. My first pattern-login walk was garbage;
+  the clean one verified the page's claim exactly.
+- **Scribe's open questions are fresh-axis gold**: her login Tab-order question and
+  PB degraded-path question both became my measured receipts — reading the 1st
+  report's open questions before picking the fresh axis doubles the value of the
+  pass.

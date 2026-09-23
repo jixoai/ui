@@ -1274,3 +1274,19 @@ both channels before asserting lockstep. (4) The tooltip/hover machinery ignored
 REAL mouse at the composed button root this round — receipt inconclusive against an
 unchanged surface rather than guessing at wrapper-vs-root; her :popover-open instrument
 with page.hover() on the wrapper is the next attempt.
+
+## 2026-09-22 · T135 text scanner-feed CODE round — in a tailwindless world a comment block is not a feed
+
+The text page's "scanner-feed" was a JS comment block citing app.css's jx-html comment
+block as the precedent — but the jx-html utilities work because jixoai.css authors REAL
+RULES behind the names (the comment only documents them), and the site has been
+TAILWINDLESS since W4 (no scanner, no generator: a class exists only where a rule is
+authored). The fix: author the kernel's emittable vocabulary as real @layer components
+rules in app.css. Three durable lessons: (1) grep the FRESH main sheet (hash changes
+every build) before any live probe — a stale-hash main sheet briefly read as "the fix
+didn't land"; (2) the kernel's arbitrary tokens are BRACKET-INCLUSIVE
+([font-size:14px]) — the CSS selector must escape the WHOLE token (.\[font-size\:14px\]),
+not just the inner punctuation (the first rules built fine and matched nothing); (3)
+comment-vs-rule: "the comment block guarantees the scanner sees them" was the app.css
+block's own self-description and it was wrong about the mechanism — the RULES are the
+feed, comments are documentation. Empirics over self-descriptions.
