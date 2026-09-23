@@ -38,7 +38,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -77,7 +77,7 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="numbering-walkthrough" data-reveal="">
       <ComponentCanvas
         title="figure"
         stage="fill"
@@ -87,7 +87,7 @@
       >
         <div data-doc-demo-scope="headings-ok">
         <NumberingProvider>
-          <SectionCard numbering="decimal" title="Results" eyebrow="4" headerRegion="results">
+          <SectionCard numbering="decimal" title="Results" eyebrow="1" headerRegion="results">
             <div class={cx(rt.col20)}>
               <Figure kind="equation" id="eq-4-1" caption="the momentum balance">
                 <CodeBlock code="p = m · v" lang="ts" meta="eq 4.1" />

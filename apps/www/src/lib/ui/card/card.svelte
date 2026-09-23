@@ -91,7 +91,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -243,7 +243,7 @@
   <CardBody {scroll}>
     {@render children()}
   </CardBody>
-  {#if hasFoot}
+  {#if foot}
     <Separator data-jx-card-sep="foot" aria-hidden="true" />
     <!-- THE RAW FOOT ZONE: the foot snippet overrides everything —
          no grouping from Card. The standard face is <CardFooter>;

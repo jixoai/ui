@@ -1474,3 +1474,27 @@
 - **Her record corrections apply to her OWN findings** — T106's rendered-table correction
   withdrew T104/T105 omission findings; the 2nd reviewer's job includes verifying the
   withdrawal against the rendered surface ([18,8] on input), not just noting it.
+
+## 2026-09-22 — T123 second review dialog (review lanes)
+
+- **A LIVE-resize pass upgrades a reopen battery to a reactivity receipt** — the query()
+  seat's radius stamp re-evaluates while the dialog stays open (20/20/6 ↔ 8/8/0 across
+  the 48rem key, reversible, equal to the instructed reopen path). When a claim says
+  "resize and reopen", ask whether the channel is actually reactive through re-layout;
+  one extra drive answers it.
+- **The same live-resize pass exposed a width anomaly the static battery can't see** —
+  resizing around an OPEN top-layer dialog read 500px where fresh opens read the
+  law-true 416px. One channel (the inline stamp) is reactive; the CSS width read went
+  off-law mid-state. Receipt shape: run the fresh-open control at the same widths
+  before attributing anything — the law held everywhere it was claimed.
+- **Trigger labels live in the source, not the vocabulary** — the query seat's button
+  says "radius · query()" (with the middle dot); hasText /open/i found nothing. Grep
+  the seat markup for the onclick label BEFORE writing the locator (the tgroup
+  uppercase lesson's sibling: the label exists, it's just not the word you guessed).
+- **Found-by-stamp beats found-by-label for axis seats** — in a 66-button universal
+  section, opening seats until the root style carries the target stamp (--jx-elevation-
+  shadow: …level4…) locates the right dialog without matching any human label.
+- **Fixture copies of families carry their own debt** — the one dialog-named svelte-check
+  ERROR lives in test/fixtures/context-coverage/root/registry (a sandbox copy), not the
+  product tree or the mirrored registry. Mirror-law receipts should name all three
+  surfaces: lib, registry twin, fixture sandbox.

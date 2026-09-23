@@ -28,6 +28,7 @@
     | 'value'
     | 'type'
     | 'icon'
+    | 'labelMode'
   >;
 
   interface Props extends Omit<ControlProps, 'disabled'> {

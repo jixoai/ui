@@ -1225,3 +1225,20 @@ generalized). (4) KaTeX facade shape: parse errors (unclosed groups) take the
 — and the site-level registerMacros table can be EMPTY (zero callers), so "registered
 macro renders" is untestable without first registering. Also: JS string → TeX escaping
 counts BOTH — '\\RR' in JS is a TeX LINEBREAK + "RR", not the macro.
+
+## 2026-09-22 · T124 card/figure/hdd 1sts — the playground toggle's name lives on the row; computed grids interleave names and sizes
+
+(1) PlayToggle bridges the PlayRow label via aria-labelledby — the switch's ACCESSIBLE
+name is the row label; page.getByRole('switch', { name }) is the only reliable drive
+(attribute scans and row-text scans both miss). (2) getComputedStyle().gridTemplateColumns
+INTERLEAVES track names and resolved sizes ("[card-inline-start] 14px [card-fill] 873px…")
+— count PAIRS (tokens/2), and read the names out of the same string; a naive token count
+reads five tracks as ten. (3) Stylex families with css-less data hooks: check the ATOM
+TABLE for which element carries the claim before measuring (statistic's value wrapper has
+no font-size; the num child carries calc(var(--jx-line) × 1.5)). (4) overlay-scrollbar
+engines probe scrollbar width 0 → gutter-compensation formulas read IDENTICAL padding in
+both scroll states; the honest receipt is the attribute/stamp flip + overflow, not the
+pad delta. (5) Svelte snippet narrowing ({#if foot} guarding {@render foot()}) is
+typing-only debt — check the guard before invoking the tour-:456 latent-bug precedent.
+(6) The brand hue is per-load variable — L/C identity is the stable law; hue digits are
+environment receipts.

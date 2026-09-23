@@ -153,7 +153,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -190,7 +190,7 @@ ${close}
         tone="hero"
         eyebrow="registry:ui · General"
         title="icon-button — icon and text, one contract"
-        summary="The button for actions that carry a glyph: an explicit two-part contract where icon is the glyph (always decorative) and text is the ONE label. The text posture renders icon + label side by side; iconOnly collapses to a square where the label does not disappear — it moves to the tooltip and stays the accessible name. The button itself IS a press-button (composition, not a copy): every paint variant, the component-tag attachment (r4 effect-attachments — the tag's symbol-keyed prop chains through this component's rest spread into press-button's own, landing at the wrapped button's root), href anchoring and the press law pass through verbatim — same physics, same shadow tokens, same 42px band."
+        summary="The button for actions that carry a glyph: an explicit two-part contract where icon is the glyph (always decorative) and text is the ONE label. The text posture renders icon + label side by side; iconOnly collapses to a square where the label does not disappear — it moves to the tooltip and stays the accessible name. The button itself IS a press-button (composition, not a copy): every paint variant, the component-tag attachment (r4 effect-attachments — the tag's symbol-keyed prop chains through this component's rest spread into press-button's own, landing at the wrapped button's root), href anchoring and the press law pass through verbatim — same physics, same shadow tokens, the same hit band (40px at the default rung, measured — the density-hit lane, not a literal; the ladder 28/32/40/48)."
       >
         <div class={cx(rt.wrap12)}>
           <span class="pill">text · icon-only</span>
@@ -337,8 +337,8 @@ ${close}
               <code class={cx(rt.inkAccent)}>href</code> and <code class={cx(rt.inkAccent)}>class</code>
               pass straight through to press-button — one button, one law</span></li>
           <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
-            <span>the icon-only square rides the same 42px band as a text button
-              (<code class={cx(rt.inkAccent)}>size-10.5</code>) — rows stay level and the shadow
+            <span>the icon-only square rides the same hit band as a text button
+              (40px measured at the default rung) — rows stay level and the shadow
               tokens are identical by construction; <code class={cx(rt.inkAccent)}>placement</code>
               picks the tip's side (top default) and the tip's pointer notch is ON by
               default (<code class={cx(rt.inkAccent)}>arrow</code> opt-out), aimed at the anchor
@@ -383,7 +383,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="usage" data-reveal="">
+  <div id="naming" data-reveal="">
     <SectionCard eyebrow="usage" title="Name the action once" summary="Provide an icon snippet and a text label; icon-only mode promotes the same text into the tooltip and accessible name.">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>

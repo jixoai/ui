@@ -66,7 +66,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -224,7 +224,7 @@
           themeToggleStyles.bezel,
           themeToggleStyles.seg,
           index === ORDER.length - 1 ? themeToggleStyles.segRail : themeToggleStyles.segFlush,
-          current === theme && themeToggleStyles.segActive,
+          current === theme ? themeToggleStyles.segActive : undefined,
         )}
         data-active={current === theme || undefined}
       >

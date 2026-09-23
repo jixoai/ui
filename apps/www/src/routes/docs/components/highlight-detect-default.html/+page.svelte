@@ -52,7 +52,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -147,7 +147,7 @@ ${close}
       <SectionCard eyebrow="api" title="HighlightDetectDefault props">
         <PropsTable universal
           props={[
-            { name: 'children', type: 'Snippet', required: true, description: 'The subtree to wire — rendered verbatim in place ({@render children()}); the wrapper adds no element to the DOM.' },
+            { name: 'children', type: 'Snippet', required: true, description: 'The subtree to wire — rendered verbatim in place ({@render children()}); the wrapper adds no element to the DOM. The eight axes arrive through context (HighlightContext) — the wrapper stamps nothing itself; the universal fold below serves the axis rows.' },
           ]}
         />
       </SectionCard>

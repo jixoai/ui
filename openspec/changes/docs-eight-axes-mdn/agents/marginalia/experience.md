@@ -1207,3 +1207,46 @@
   digit fresh. The drift ledger is the honest form: my 1st said 70px flat, now 34→106
   →34 — different numbers because the content grew AND the floor changed nature
   (content floor → box residue). Say why the numbers differ, not just that they do.
+
+## T126 (W-next #19 sweep, 2026-09-24)
+
+- **The containing-block law has a positive test now**: inject data-reveal on a
+  hosting section in-probe → the section's computed transform goes non-identity
+  matrix (the view() progress value, e.g. matrix(1,0,0,1,0,10.16)) and a fixed
+  descendant's rect starts tracking the scroll (measured −282.6). Revert → none /
+  moved 0. This demonstrates the law AND validates the fix shape in one probe —
+  stronger than a census alone.
+- **Opacity-only reveal = no containing block (measured)**: opacity is not a CB
+  trigger; a view()-timeline opacity-only keyframe leaves computed transform at
+  `none` and the fab free. This is the Owner's systemic option, proven on one seat.
+- **The rect-across-scroll test is only valid for PLAIN fixed elements.**
+  Anchor-positioned platform panels (tour card: top: anchor(bottom)) move with
+  scroll BY DESIGN — the anchor tracks its target. For popover platform elements
+  the immunity receipt is `:popover-open` membership (top layer ⇒ viewport CB),
+  not the scroll test. Two probe drives were burned learning this (tour −270
+  misread as suspicious; sysdlg measured closed on the first click).
+- **Fleet classification rule for fixed idioms**: exactly ONE inline fixed
+  renderer exists (float-button — the fab IS the consumer's element); every other
+  fixed atom in the families is a popover PLATFORM panel (top-layer while open,
+  display:none closed) or a float-plane adopter (toast). The sweep reduces to:
+  float-button hosts + a platform-class check everywhere else.
+
+## T128 (skip-link A/B probe, 2026-09-24)
+
+- **Chromium fragment navigation already moves the sequential focus starting
+  point** — Tab-after-skip starts inside main even when focus stays on body. The
+  classic skip-link argument "without tabindex the next Tab restarts from the top"
+  is FALSE on this engine; measure next-Tab in both arms before citing it. What
+  tabindex+focus() actually buys: activeElement ON the target (SR landmark context;
+  the click path otherwise strands focus ON the skip link) + a :focus-visible ring
+  (visual confirmation).
+- **Programmatic focus() needs its outline companion**: a tabindex="-1" landing
+  target paints the UA ring around its FULL box (here 784×5391px). The standard
+  skip-link implementation is three lines, not two — tabindex + focus() + outline:
+  none on the target's :focus. Measure the ring, don't ship it.
+- **focus()-induced scrolling honors scroll-padding** (measured focusDelta 0 after a
+  fragment landing at the toc-line) — the "focus will fight the scroll offset" fear
+  is unfounded in Chromium; no preventScroll gymnastics needed.
+- Assertion hygiene in Tab-walk probes: key stop identities off tagName+id
+  (MAIN#main), and remember the skip link has no id — check the raw stop strings,
+  not a label that assumes one.

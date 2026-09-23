@@ -34,4 +34,4 @@ export { default as ItemSelect } from './item-select.svelte';
 export { default as ItemInput } from './item-input.svelte';
 export { default as ItemSegmented } from './item-segmented.svelte';
 export { default as ItemStepper } from './item-stepper.svelte';
-export { ListItemDefaults, type ItemVariant, type ItemTone } from './list-item-defaults.svelte';
+export { ListItemDefaults } from './list-item-defaults.svelte';

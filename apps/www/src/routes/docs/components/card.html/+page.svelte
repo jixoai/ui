@@ -3,6 +3,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { Snippet } from 'svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import DocsInstall from '$lib/docs-install.svelte';
   import Icon from '$lib/ui/icon';
@@ -218,7 +219,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -242,7 +243,7 @@ ${close}
 {/snippet}
 
 {#snippet actionSeat()}
-  <IconButton icon={xGlyph} text="Close" iconOnly tip={false} />
+  <IconButton icon={xGlyph as unknown as Snippet} text="Close" iconOnly tip={false} />
 {/snippet}
 
 {#snippet footSeat()}
@@ -304,8 +305,8 @@ ${close}
           <div data-doc-demo-scope="headings-ok" class={cx(rt.wFull, rt.maxWMd)}>
             <Card
               title="Session"
-              actions={showActions ? actionSeat : undefined}
-              foot={showFoot ? footSeat : undefined}
+              actions={showActions ? (actionSeat as unknown as Snippet) : undefined}
+              foot={showFoot ? (footSeat as unknown as Snippet) : undefined}
               scroll={bodyScrolls}
             >
               <p class={cx(rt.body13)}>
@@ -439,7 +440,7 @@ ${close}
     </ComponentCanvas>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="The card is a generic section container; the separators are decorative chrome, the zones carry no semantics of their own."><A11yTable keys={[{ key: 'Escape / close', action: 'Not applicable — no close affordance ships; the action seat is the consumer’s own control' }]} aria={[{ name: 'root', value: '<section>', description: 'A generic container; give it an accessible name via its content when the region is navigable' }, { name: 'separators', value: 'aria-hidden', description: 'The structural lines are decorative — hidden from AT' }, { name: 'action seat', value: 'consumer-owned', description: 'Whatever sits in the actions slot keeps its own role, name, and activation behavior' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The inline ruler, verbatim: the root owns five named tracks ([inset] 14px · [start seat] auto · [fill] minmax(10px,1fr) · [end seat] auto · [inset] 14px); head/foot zones rent them via subgrid. Zones paint nothing; no face carries an inline padding utility — tracks paint the axis. The card is not density-scaled."><div class={cx(rt.col24)}><TokenTable tokens={[{ name: 'text seats (head title, foot start/end)', default: 'content axis (track)', source: 'law', description: 'Passive content ENTERS at card-content lines — 14px from each edge arrives BY TRACK. Foot text carries NO padding-block: it centers against the row and never sizes it.' }, { name: 'edge riders (actions slot, foot cluster)', default: 'flush, span to -1', source: 'law', description: 'The head actions slot is a CORNER (align-self: start, dialog × verbatim). The foot cluster is a CARVED CELL: it fills the band vertically — separator as its top rim, leading seam as its carved left edge; the buttons’ min-h economy is a floor, never a cap (a floating 40px button in a taller band reads as a hole dug out, not a cell cut out). The shared end column is as wide as its widest resident, like a table’s last column.' }, { name: 'body cell', default: 'py-3.5 + inline compensation', source: 'component', description: 'The full-bleed exception: the scroll ring owns its inline geometry — max(0.875rem − probed thin scrollbar, 0), a width tracks cannot see.' }, { name: '--card-foreground', default: 'theme', source: 'color', description: 'Body text at 80% via color-mix.' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Theming" summary="The inline ruler, verbatim: the root owns five named tracks ([inset] 14px · [start seat] auto · [fill] minmax(10px,1fr) · [end seat] auto · [inset] 14px); head/foot zones rent them via subgrid. Zones paint nothing; no face carries an inline padding utility — tracks paint the axis. The card is not density-scaled."><div class={cx(rt.col24)}><TokenTable tokens={[{ name: 'text seats (head title, foot start/end)', default: 'content axis (track)', source: 'structural', description: 'Passive content ENTERS at card-content lines — 14px from each edge arrives BY TRACK. Foot text carries NO padding-block: it centers against the row and never sizes it.' }, { name: 'edge riders (actions slot, foot cluster)', default: 'flush, span to -1', source: 'structural', description: 'The head actions slot is a CORNER (align-self: start, dialog × verbatim). The foot cluster is a CARVED CELL: it fills the band vertically — separator as its top rim, leading seam as its carved left edge; the buttons’ min-h economy is a floor, never a cap (a floating 40px button in a taller band reads as a hole dug out, not a cell cut out). The shared end column is as wide as its widest resident, like a table’s last column.' }, { name: 'body cell', default: 'py-3.5 + inline compensation', source: 'component', description: 'The full-bleed exception: the scroll ring owns its inline geometry — max(0.875rem − probed thin scrollbar, 0), a width tracks cannot see.' }, { name: '--card-foreground', default: 'theme', source: 'color', description: 'Body text at 80% via color-mix.' }]} /></div></SectionCard></div>
   <div id="universal-props" data-reveal="">
     <SectionCard
       family="universal-props"

@@ -23,6 +23,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
+  import type { Snippet } from 'svelte';
   import { CATALOG } from '$lib/catalog';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import Icon from '$lib/ui/icon';
@@ -117,7 +118,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -437,7 +438,7 @@ ${close}
   />
   <ItemStepper
     label="Build workers"
-    icon={cpuGlyph}
+    icon={cpuGlyph as unknown as Snippet}
     min={1}
     max={16}
     bind:value={workers}
@@ -1027,7 +1028,7 @@ ${close}
             />
             <ItemStepper
               label="Build workers"
-              icon={cpuGlyph}
+              icon={cpuGlyph as unknown as Snippet}
               min={1}
               max={16}
               bind:value={workers}

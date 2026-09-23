@@ -95,7 +95,7 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -129,7 +129,7 @@ ${close}
         headingLevel={1}
         tone="hero"
         eyebrow="registry:ui · General"
-        title="theme-toggle — light / dark / system, four densities"
+        title="theme-toggle — light / dark / system, four variants"
         summary="One shared theme contract (localStorage “theme”, the .dark class, colorScheme on the root), four ways to reach it. full is the segmented selector that sets a mode directly; compact, icon, and text are cycling buttons walking light → dark → system. Icons are inline SVG — no icon-library dependency — and the chrome adapts to its container through currentColor."
       >
         <div class={cx(rt.wrap12)}>
@@ -258,7 +258,7 @@ ${close}
       headerRegion="universal-props"
       eyebrow="axes"
       title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit; stamps nothing), an exact number, or query(). The theme axis is tree-scoped paint (class:dark on the control own root); it is deliberately NOT the global flip — the §6 system lane keeps driving html.dark + localStorage through set/cycle, untouched by the axis surface. Flip the toggles below: the GLOBAL theme still moves."
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — named steps, auto (inherit; stamps nothing), an exact number, or query(). The theme axis is tree-scoped paint by source (class:dark on the control own root — declared in the family, not served by a demo instance on this page); it is deliberately NOT the global flip — the §6 system lane keeps driving html.dark + localStorage through set/cycle, untouched by the axis surface. Flip the toggles below: the GLOBAL theme still moves."
     >
       <ComponentCanvas title="theme-toggle · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.panel)}><ThemeToggle size={18} /></div>

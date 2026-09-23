@@ -122,8 +122,9 @@
     "scribe",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st quill T124 PASS 0M/1m/2L/1N; RAIL DECISION: PROPOSED + LANDED (8 entries, the page predates the convention — not a concept page); consolidated: the snippet-typing trio closed (the xGlyph cast + the actions/foot whole-snippet casts — the T112 dual-copy class), TokenTable source vocab trued (law->structural x2), cx closed (page + family x3, MIRRORED), the :260 render gate trued to `foot` itself (the T112 :409 class — hasFoot derived lost narrowing); his N (narrowing-only :260) subsumed by the gate fix."
   },
   {
    "page": "card-grid",
@@ -296,8 +297,9 @@
     "quill",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st quill T124 PASS 0M/0m/1L/1N; RAIL LANDED (4+1 — the live canvas id'd #numbering-walkthrough); consolidated: cx closed, the demo eyebrow 4->1 (the domain's chapter), NIT landed."
   },
   {
    "page": "file-input",
@@ -382,8 +384,9 @@
     "vellum",
     "quill"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 1,
+   "status": "pass-1st",
+   "notes": "1st quill T124 PASS 0M/0m/1L/1N; NO-RAIL AFFIRMED (the deliberate pointer page — a rail would be chrome on a stub); consolidated: cx closed, the children row description now names the eight context-supplied axes + the fold."
   },
   {
    "page": "hover-card",
@@ -414,8 +417,9 @@
     "quill",
     "scribe"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st scribe T125 PASS 0M/2m/1L/1N; consolidated: the LAW #19 LIVE duplicate id=usage killed (the 'Name the action once' section re-id'd #naming — the canonical Usage section keeps the id), cx closed both trees (MIRRORED), the 42px stale literal -> 40px measured (both seats, the density-hit lane named), the toc label trued to the section title."
   },
   {
    "page": "image",
@@ -521,8 +525,9 @@
     "quill",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st scribe T125 PASS 0M/2m/0L/1N + THE TAXONOMY RULING: SEVEN control adapters (ItemToggle/Checkbox/Radio/Select/Input/Segmented/Stepper; ItemField is the escape hatch, never a member) — list's hero trued to the shared wording; consolidated: the toc REBUILT 16 sections in DOM order (ten were unrail-ed, types led usage), cx closed, the cpuGlyph dual-copy casts x2, family lane ALL NINE closed (item-end inset declared — cascading to actions/field; item-input labelMode omitted from ControlProps extend; index.ts duplicate ItemVariant/ItemTone re-export trimmed), MIRRORED."
   },
   {
    "page": "markdown",
@@ -1073,8 +1078,9 @@
     "vellum",
     "quill"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "1st scribe T125 PASS 0M/1m/1L/1N; consolidated: cx closed both trees + the :227 false-union ternary (MIRRORED), the class:dark axis claim scoped honestly (declared in family, not served by a demo instance), 'four densities'->'four variants' (axis-collision NIT)."
   },
   {
    "page": "timeline",
