@@ -280,17 +280,17 @@ ${close}
             value), and unmounts after the exit window.
           </p>
           <p class={cx(rt.measurePara)}>
-            <strong>Measured defect, filed W-next (2026-09-23):</strong> the
-            anchored rise is dead in the current tree — Content's anchor
-            style interpolates the anchor name literally (
-            <code>--{'{api.uid}'}</code> — missing the <code>$</code>), the
-            browser drops the invalid position-anchor declaration, and the
-            panel falls back to the top-left corner at fit-content width
-            instead of rising beside its trigger. The fix is one character in
-            system-dialog-content.svelte; the trio's center pose is
-            unaffected (measured: the trio centers exactly). Everything else
-            on this page — the decision mechanics, the focus chain, the
-            resolution law — measures true today.
+            The anchored rise, measured: the Trigger publishes the
+            anchor-name and the panel resolves
+            <code>position-anchor</code> with
+            <code>position-area: block-end</code> — the panel opens BELOW the
+            trigger, centered on it, with the <code>--jx-gap</code> breathing
+            room (12px). Near a viewport edge the try chain (flip-block,
+            flip-inline, and the combined flip) re-buckets the panel instead
+            of clipping it, and <code>anchors-visible</code> hides it if the
+            trigger scrolls away. The system trio's
+            <code>pose="center"</code> drops the chain and lets the UA's own
+            popover centering own the panel (measured dead-center).
           </p>
         </div>
       </SectionCard>
@@ -300,7 +300,7 @@ ${close}
       <ComponentCanvas
         title="system dialog"
         stage="center"
-        description="Open it: the alert is DESIGNED to rise beside the button that asked — measured defect (see the overview note): the anchor seam is dead in the current tree, so the panel stages at the top-left. Focus lands on Cancel (Tab straight to Delete). Escape cancels through the component's own handler — manual popover, no light dismiss on a destructive question. Confirm runs the root's onconfirm seam; hiding the popover restores focus to the invoker."
+        description="Open it: the alert rises BESIDE the button that asked — position-area: block-end, centered on the trigger with the --jx-gap breathing room (near a viewport edge the try-fallbacks flip it to the other side). Focus lands on Cancel (Tab straight to Delete). Escape cancels through the component's own handler — manual popover, no light dismiss on a destructive question. Confirm runs the root's onconfirm seam; hiding the popover restores focus to the invoker."
         sourceUrl="https://github.com/jixoai/ui/blob/main/registry/files/ui/system-dialog/system-dialog.svelte"
         files={canvasFiles}
         onreset={resetCanvas}

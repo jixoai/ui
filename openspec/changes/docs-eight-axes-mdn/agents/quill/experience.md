@@ -980,3 +980,30 @@
   Action → true, Enter submits the initial value, Escape → null. Assert the
   echo string per route; "the promise never hangs" needs the Escape route
   measured, not assumed.
+
+## Techniques (mine, added 2026-09-23, task 35 — the anchor-fix flip)
+- **A FIX THAT READS A NOT-YET-DECLARED CONST CONVERTS A WARNING FORECAST
+  INTO A 500**: the anchor-style template `${api.uid}` was planted 20 lines
+  above `const api = getContext(...)` — TDZ ReferenceError at SSR, the page
+  served 500 while the gates that never rendered the page stayed green.
+  When a landed fix touches a const's read position, the FIRST receipt is
+  the HTTP status of the page it renders, not the diff.
+- **THE FLIP CHECK PAIRS WITH A DEFECT-SPLIT**: a defect receipt with two
+  entangled symptoms (no anchoring + wrong width) must re-measure BOTH
+  after one symptom's fix — the anchor fix healed the position
+  (anchor-center exact, 12px gap) while the width loss persisted, cleanly
+  splitting one "broken panel" into two defects (the seam + the canvas-host
+  width interaction). Flip reports should assert each symptom separately.
+- **MEASURED TEACHING BEATS DEFECT NOTES**: the overview's measured-defect
+  paragraph (task 34) was the honest bridge; once the family fix landed,
+  the same paragraph slot became the measured teaching (anchor-center,
+  12px gap, try chain, anchors-visible — with the numbers). Page text that
+  carries numbers ages into truth; page text that carries adjectives ages
+  into rot.
+- **THE MIRROR SYNC IS A FIRST-PARTY EDITOR**: the dev server's registry ⇄
+  www mirror applied my family repair to the registry tree the moment the
+  file saved — a one-file edit became a two-file diff without a second
+  action. That is the mirror LAW working (byte-identical trees), but a
+  reporter who checks `git status` naively sees an extra modified file they
+  "never touched". Verify the pair with diff after every family edit and
+  name the pair in the integration receipt.

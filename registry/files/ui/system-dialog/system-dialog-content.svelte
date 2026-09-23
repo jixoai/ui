@@ -151,9 +151,6 @@
   );
   // §7's consumption pair + the solid-fill bridge
   const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
-  const anchorStyle = pose === 'center'
-    ? 'margin: auto'
-    : `position-anchor: --${api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem)`;
 
   // the payload's own join (separator's serialize law): every
   // stylex.create member is an OBJECT in dev and the joined string in
@@ -175,6 +172,15 @@
       .join(' ');
 
   const api = getContext<SystemDialogApi>(SYSTEM_DIALOG_KEY);
+
+  // the anchoring style MUST follow the context init: the template reads
+  // api.uid, and at its former position (before `api`) the 25c32355 fix
+  // SSR-crashed — Cannot access 'api' before initialization (TDZ). A plain
+  // const is correct here: uid is instance-stable and pose is static per
+  // usage (the mounted host never flips its pose mid-flight).
+  const anchorStyle = pose === 'center'
+    ? 'margin: auto'
+    : `position-anchor: --${api.uid}; position-area: block-end; inset-area: block-end; position-try: flip-block, flip-inline, flip-block flip-inline; position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline; margin: var(--jx-gap, 0.5rem)`;
 
   let panel = $state<HTMLDivElement | null>(null);
   provideQueryAnchor(() => panel ?? null);
