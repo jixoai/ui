@@ -348,11 +348,12 @@
    "page": "grid",
    "owner": "scribe",
    "reviewers": [
-    "vellum",
-    "quill"
+    "marginalia",
+    "vellum"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "todo",
+   "notes": "T111 batch reassignment: marginalia 1st (owner scribe codes); original 1st reviewer preserved as 2nd."
   },
   {
    "page": "heading",
@@ -548,11 +549,12 @@
    "page": "math-inline",
    "owner": "scribe",
    "reviewers": [
-    "quill",
-    "vellum"
+    "marginalia",
+    "quill"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "todo",
+   "notes": "T111 batch reassignment: marginalia 1st (owner scribe codes); original 1st reviewer preserved as 2nd."
   },
   {
    "page": "menubar",
@@ -949,11 +951,12 @@
    "page": "statistic",
    "owner": "scribe",
    "reviewers": [
-    "vellum",
-    "quill"
+    "marginalia",
+    "vellum"
    ],
    "tier": null,
-   "status": "todo"
+   "status": "todo",
+   "notes": "T111 batch reassignment: marginalia 1st (owner scribe codes); original 1st reviewer preserved as 2nd."
   },
   {
    "page": "steps",
@@ -1179,8 +1182,8 @@
     "vellum"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "T108 reassignment: marginalia 1st (owner quill codes — the lost task-82 BOARD row had mislabeled quill as his own 1st reviewer); vellum preserved as 2nd."
+   "status": "pass-1st",
+   "notes": "1st marginalia T108 PASS 0M/0m/3L/1N; consolidated: Enter row trued to the view-landing truth (focus stays on body — no tabindex -1 on main; the tabindex+programmatic-focus improvement ledgered as lull/Owner candidate), --jx-toc-line row scoped (:root standalone 76 vs shell-derived 106), family cx twin :95 closed (mirrored), the 6164px scrollable attributed as task-70 point-in-time. Quill's receipts verified 13-for-13."
   }
  ]
 }
