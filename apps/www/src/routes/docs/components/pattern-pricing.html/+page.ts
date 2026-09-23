@@ -5,6 +5,7 @@ const toc: TocSection[] = [
   { id: 'demo', label: 'Live demo' },
   { id: 'composition', label: 'Authoring the matrix' },
   { id: 'usage', label: 'Usage' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
 ];
 

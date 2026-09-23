@@ -12,6 +12,7 @@ const toc: TocSection[] = [
   { id: 'markdown-streaming', label: 'Streaming simulation' },
   { id: 'markdown-overrides', label: 'Custom components' },
   { id: 'markdown-static', label: 'Static document' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
 ];
 

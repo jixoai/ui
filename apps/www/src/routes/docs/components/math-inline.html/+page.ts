@@ -8,6 +8,7 @@ const toc: TocSection[] = [
   { id: 'math-inline-lane', label: 'the sync lane' },
   { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
 ];
 
