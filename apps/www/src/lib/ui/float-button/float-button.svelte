@@ -23,11 +23,16 @@
   ::backdrop) remains in float-button.css — D1-exempt residue.
 
   Motion kernel (2026-08-25): the menu panel adopts the shared surface
-  motion kernel (lib/surface-motion.ts, popover wiring verbatim) —
-  the toggle seam drives play/startTracking/stopTracking against the
+  motion kernel (lib/surface-motion.ts, popover wiring verbatim) — the
+  toggle seam drives play/startTracking/stopTracking against the
   fixed stack anchor, .jx-waapi opts into the jixoai.css formulas,
   and the real shadow rides a DOM child (data-jx-fab-menu-shadow) the
-  kernel animates in lockstep.
+  kernel animates in lockstep. MEASURED CAVEAT (docs-eight-axes-mdn
+  task 86): the shadow child animates but paints NO shadow today —
+  --jx-shadow-effective ships empty and the child renders a
+  translucent wash; the elevation STAMP (level3/6dp) arrives, the
+  recipe does not. Wire-or-retire is queued W-next (same class as
+  dialog's unpainted elevation ladder).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
@@ -199,7 +204,7 @@
     data-jx-fab={corner}
     class={cn(cx(fabStyles.stack), corners[corner], className)}
     class:dark={d.theme === 'dark'}
-    style={`anchor-name: ${anchorName}${rootStyle ? `; ${rootStyle}` : ''}`}
+    style={`anchor-name: ${anchorName}; width: fit-content${rootStyle ? `; ${rootStyle}` : ''}`}
     bind:this={anchorEl}
   >
     <!-- position-area law (W5 sweep, 2026-09-15 — spec-true): the menu

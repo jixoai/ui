@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-23T06:51:18.101Z",
+  "generatedAt": "2026-09-23T07:51:15.763Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -4782,8 +4782,8 @@
           "source": "registry/files/ui/float-button/float-button.svelte",
           "mirror": "apps/www/src/lib/ui/float-button/float-button.svelte",
           "target": "@ui/float-button/float-button.svelte",
-          "sourceSha": "15608d2d0680a2bbbd716dbbbef0eb72a9f730ae10ea31449eee16efebf8134a",
-          "mirrorSha": "15608d2d0680a2bbbd716dbbbef0eb72a9f730ae10ea31449eee16efebf8134a"
+          "sourceSha": "87030f88c32daeb0af37f4fb76357f6ac7145df99af273dd7deb08e0ba4c0208",
+          "mirrorSha": "87030f88c32daeb0af37f4fb76357f6ac7145df99af273dd7deb08e0ba4c0208"
         },
         {
           "source": "registry/files/ui/float-button/index.ts",
@@ -4796,8 +4796,8 @@
           "source": "registry/files/ui/float-button/float-button.css",
           "mirror": "apps/www/src/lib/ui/float-button/float-button.css",
           "target": "@ui/float-button/float-button.css",
-          "sourceSha": "d887cf9f68833c8db9bea11ab528f5590e0ee0a53058439d10333a90ce2c6416",
-          "mirrorSha": "d887cf9f68833c8db9bea11ab528f5590e0ee0a53058439d10333a90ce2c6416"
+          "sourceSha": "288b965c8d573ef1bb477a35946db58d50f5098ba3f6f4dbc6f1862aa87faf3f",
+          "mirrorSha": "288b965c8d573ef1bb477a35946db58d50f5098ba3f6f4dbc6f1862aa87faf3f"
         },
         {
           "source": "registry/files/ui/float-button/float-button-defaults.svelte.ts",
@@ -4810,8 +4810,8 @@
           "source": "registry/files/ui/float-button/float-button.stylex.ts",
           "mirror": "apps/www/src/lib/ui/float-button/float-button.stylex.ts",
           "target": "@ui/float-button/float-button.stylex.ts",
-          "sourceSha": "155a87a32724d579f21b80e2e366453906a4675203d21208dc310867583b7c13",
-          "mirrorSha": "155a87a32724d579f21b80e2e366453906a4675203d21208dc310867583b7c13"
+          "sourceSha": "4a7bd30fbe0ceb494f66ec9703a184cc491c56f0e4c512e646fdcfd089734308",
+          "mirrorSha": "4a7bd30fbe0ceb494f66ec9703a184cc491c56f0e4c512e646fdcfd089734308"
         },
         {
           "sharedClaimOf": "press-button",

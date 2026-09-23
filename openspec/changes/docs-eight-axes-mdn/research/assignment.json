@@ -317,8 +317,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "task 86 marginalia 1st NEEDS-WORK (1M/3m); consolidation landed by orchestrator — the geometry MAJOR root-caused to TWO mechanisms (reveal CB hijack W-next #19 + fit-content first-layout staleness W-next #20) + the corner-lane contest filed (#21); usage twin deduped, toc 8/8, elevation claims trued (#18 third family); BR column stack verified end-to-end; 2nd = vellum"
   },
   {
    "page": "form",

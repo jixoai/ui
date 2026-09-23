@@ -7,6 +7,16 @@
  * utility counterpart may exist, or it would fight the anchored pose)
  * and the transparent ::backdrop. Button + stack paint live as token
  * utilities in the markup. */
+/* the stack's width pin (docs-eight-axes-mdn task 86, measured): with
+ * only left+bottom set, the fixed flex column resolves engine-stretched
+ * to the full containing block (1440px, no width rule matched) — the
+ * lone button centers mid-viewport and the menu's span-left anchor
+ * region follows the phantom right edge, opening ~500px off the
+ * trigger. fit-content keeps the column at its button so the corner
+ * law and the anchor geometry both hold. */
+div[data-jx-fab-stack] {
+  width: fit-content;
+}
 .jx-fab-menu {
   position: fixed;
   margin: var(--jx-gap);

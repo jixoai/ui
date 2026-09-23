@@ -55,6 +55,10 @@ export const fabStyles = stylex.create({
   },
 
   // ── the fixed stack (menu idiom): corner-pinned column ──
+  // (the stack's width: fit-content lives in float-button.css beside the
+  // menu panel law — an atom there could not be verified at the paint:
+  // the class shipped but the rule never reached the live sheet, dev or
+  // build, while the css lane applies; docs-eight-axes-mdn task 86)
   stack: {
     position: 'fixed',
     zIndex: 80,

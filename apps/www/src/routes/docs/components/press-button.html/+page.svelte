@@ -870,7 +870,7 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Compose a button" summary="Use the semantic variant and add one typed effect only when the action needs extra attention — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="PressButton usage" /></SectionCard></div>
+  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Use the semantic variant and add one typed effect only when the action needs extra attention — compose a button — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="PressButton usage" /></SectionCard></div>
   <div id="theming" data-reveal="">
     <SectionCard eyebrow="theming" title="Density and tokens" summary="The button reads its geometry from the inherited density scale, so one scope change updates every instance together. The canvas dock's density select (xs / sm / default / lg) is the live proof — it re-scopes only the stage; the DensityDemo four-copy hack is retired by it.">
       <div class={cx(rt.col20)}>

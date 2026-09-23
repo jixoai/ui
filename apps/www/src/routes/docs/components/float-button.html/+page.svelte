@@ -32,7 +32,7 @@ ${close}
 
 <!-- menu idiom: children + an actions snippet — the button toggles a
      popover=auto stack above itself (native light dismiss, Escape, top layer) -->
-<FloatButton label="quick actions" corner="bottom-left">
+<FloatButton label="quick actions" corner="bottom-right" class="fab-lift-a">
   <span aria-hidden="true">+</span>
   {#snippet actions()}
     <button type="button" role="menuitem" onclick={compose}>compose</button>
@@ -54,7 +54,7 @@ ${close}
 
 <!-- menu idiom: children + an actions snippet — the button toggles a
      popover=auto stack above itself (native light dismiss, Escape, top layer) -->
-<FloatButton label="quick actions" corner="bottom-left">
+<FloatButton label="quick actions" corner="bottom-right" class="fab-lift-a">
   <span aria-hidden="true">+</span>
   {#snippet actions()}
     <button type="button" role="menuitem" onclick={backToTop}>back to top</button>
@@ -81,13 +81,13 @@ ${close}
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
       .join(' ');
   // ---- the universal props demo (explicit-props W3-C) --------------------
-  const universalUsage = `<FloatButton label="Actions" corner="bottom-right" elevation="level4">…</FloatButton>`;
+  const universalUsage = `<FloatButton label="Actions" corner="bottom-right" class="fab-lift-b" elevation="level4">…</FloatButton>`;
   const universalFiles: TreeFile[] = [
     { name: 'src/lib/ui/float-button-universal.svelte', content: universalUsage },
   ];
@@ -107,6 +107,17 @@ ${close}
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+  }
+  /* the stacked-fab seats ride the class prop's geometry-only channel (the
+     documented API): three live fabs share the bottom-right column, antd
+     stack style — the default at the corner, the menu one rung up, the
+     universal seat two rungs up. Scoped rules cannot reach the family's
+     internal elements, so the lifts are :global by name. */
+  :global(.fab-lift-a) {
+    bottom: 7.5rem;
+  }
+  :global(.fab-lift-b) {
+    bottom: 13.5rem;
   }
   /* menu idiom items: the popover carries role=menu; rows are menuitems */
   .jx-fab-menu-item {
@@ -162,7 +173,11 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <!-- no reveal here by the page's own :99 law — a scroll-driven reveal
+         keeps a containing-block transform on the section for the
+         animation's lifetime, hijacking the fixed fabs inside it (measured:
+         fill-mode does not help; only animation-less sections free them) -->
+    <div>
       <ComponentCanvas
         title="float-button"
         description="float-button — the fixed corner action: scroll this box (or the page), then press the corner button to ride back to the top."
@@ -194,7 +209,9 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="menu-idiom" data-reveal="">
+    <!-- no reveal (same law as the stage section above): the menu stack
+         must keep its viewport containing block -->
+    <div id="menu-idiom">
       <SectionCard
         family="menu-idiom"
         headerRegion="menu-idiom"
@@ -204,18 +221,27 @@ ${close}
       >
         <div class={cx(rt.col20)}>
           <p class={cx(rt.body13)}>
-            A second live instance sits fixed at the viewport's
-            <strong class={cx(rt.semibold)}>bottom-left</strong> — press the
-            <span aria-hidden="true">+</span> button there to open its stack. Items are ordinary
+            A second live instance sits in the
+            <strong class={cx(rt.semibold)}>bottom-right column, one rung above the stage demo's
+            fab</strong> (the <code class={cx(rt.inkAccent)}>class</code> prop's geometry-only
+            channel — the documented stack idiom) — press the
+            <span aria-hidden="true">+</span> button there to open its stack; the panel anchors
+            above the stack, END-aligned, with position-try fallbacks flipping it when the viewport
+            edge is near. Items are ordinary
             buttons carrying <code class={cx(rt.inkAccent)}>role="menuitem"</code>; the popover itself
-            already carries <code class={cx(rt.inkAccent)}>role="menu"</code>.
+            already carries <code class={cx(rt.inkAccent)}>role="menu"</code>. The other corners are
+            deliberately not demoed — both are contested lanes on scaffold-based docs pages
+            (measured): the sections-nav column owns the left 256px full-height, and the page-toc
+            rail owns the top-right block (x1231–1421, y94–358) — a fab there paints under the rail
+            and its hit area is covered. Consumers embedding in the scaffold should float
+            right-side, below the rail (the lane question is queued for the Owner, W-next).
           </p>
           <ComponentCanvas
             title="float-button · menu"
             stage="fill"
             files={[{ name: 'float-button-menu-demo.svelte', content: floatButtonMenuDemo, kind: 'usage' }]}
           >
-            <FloatButton label="quick actions" corner="bottom-left">
+            <FloatButton label="quick actions" corner="bottom-right" class="fab-lift-a">
               <span aria-hidden="true">+</span>
               {#snippet actions()}
                 <button type="button" role="menuitem" class="jx-fab-menu-item" onclick={scrollToTop}>
@@ -285,7 +311,7 @@ ${close}
   </div>
 
   <div id="usage" data-reveal="">
-    <SectionCard eyebrow="usage" title="Float an action" summary="Set the accessible label, choose the viewport corner, then supply either a direct action or an actions snippet.">
+    <SectionCard eyebrow="usage" title="Usage" summary="Set the accessible label, choose the viewport corner, then supply either a direct action or an actions snippet — the full usage file, as the canvas above runs it.">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
@@ -316,18 +342,17 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="FloatButton usage" /></SectionCard></div>
-
-  <div id="universal-props" data-reveal="">
+  <!-- no reveal (the Compose fab below is fixed — same law as above) -->
+  <div id="universal-props">
     <SectionCard
       family="universal-props"
       headerRegion="universal-props"
       eyebrow="axes"
       title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The fab carries its OWN elevation — level3 (6dp, M3's FAB rung); the MENU panel rides the family resolution. The carriers stamp the family root (the stack wrapper / the fixed button); the panel's promotion keeps the DOM, so the stamps inherit down."
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The fab carries its OWN elevation STAMP — level3 (6dp, M3's FAB rung) reaches the root (--jx-elevation-effective = 6, measured), but the shadow RECIPE is unwired on the served surface (--jx-shadow-effective ships empty; no shadow channel paints on the button or the menu panel — the menu's shadow child renders a translucent wash). The wire-or-retire decision is the family owner's — W-next. The carriers stamp the family root (the stack wrapper / the fixed button); the panel's promotion keeps the DOM, so the stamps inherit down."
     >
       <ComponentCanvas title="FloatButton · universal props" stage="fill" files={universalFiles}>
-<div class={cx(rt.panel)}><FloatButton label="Compose · level3 default" corner="bottom-right"><Icon name="plus" /></FloatButton></div>
+<div class={cx(rt.panel)}><FloatButton label="Compose · level3 default" corner="bottom-right" class="fab-lift-b"><Icon name="plus" /></FloatButton></div>
       </ComponentCanvas>
     </SectionCard>
   </div>
@@ -337,7 +362,7 @@ ${close}
       <PropsTable universal props={[
         { name: 'label', type: 'string', required: true, description: 'Accessible name for the icon-only control.' },
         { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
-        { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control.' },
+        { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control. On scaffold-based docs pages the sections-nav column owns the left 256px full-height (measured) — left corners are covered there; float right-side corners when embedding in the scaffold (the lane question is queued W-next).' },
         { name: 'onclick', type: '() => void', default: '—', description: 'Plain-action handler.' },
         { name: 'actions', type: 'Snippet', default: '—', description: 'Turns the control into a popover menu trigger.' },
         { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Menu panel surface treatment. Defaults: literal slot — own ’auto’, ambient when an axis opens.' },
