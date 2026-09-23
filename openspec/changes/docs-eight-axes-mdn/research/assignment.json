@@ -797,8 +797,9 @@
     "marginalia",
     "vellum"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "pass-1st",
+   "notes": "task 95 marginalia 1st PASS (0M/1m — the overload clone); landed; six contract families digit+pixel verified; 2nd = vellum"
   },
   {
    "page": "reference",
