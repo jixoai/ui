@@ -1761,3 +1761,63 @@
 - Census reconciled: 117 alias entries now (moving table).
 - Gates: ambient 284/284 rc0; universal 110/110; svelte-check page 0. lsof empty/empty
   (PID 4019 + wrapper 3991).
+
+## Task 71 — toast (1st review, PASS 0M/0m/1L — the seventh voice measured 1.17:1)
+
+### Banked lessons
+- **Measure timing at DISPATCH, not at click-promise resolution**: Playwright's click
+  resolves ~500ms late under headless load — my auto-dismiss reads were 4660ms by
+  click-clock and 5245ms by the in-page capture-phase mark (the claim family 5224).
+  Every latency-sensitive battery needs the in-page event mark.
+- **Sibling churn poisons dev-server timings**: the mirror sync + vite page-reload
+  trains (four navigations in one run) void absolute timings. The deterministic escape:
+  fresh build + vite preview. Also the dispatch's build requirement doubles as the
+  contamination escape.
+- **Hover-expand before depth-card clicks**: a collapsed toast stack front-intercepts
+  the back cards' buttons — hover the stack first, then click (the same front-intercept
+  lesson as the tabs depth cards).
+- **Synthetic visibility instrument**: stub document.hidden (defineProperty) + dispatch
+  the REAL visibilitychange — the component's listener runs the true pause/resume path;
+  name the stub in the receipt.
+- **The corrected oklch contrast math**: OKLab L,a,b → l_/m_/s_ → cube → the linear-sRGB
+  matrix → Y = 0.2126r+0.7152g+0.0722b. The % forms need the /100 guard (my muted-fg
+  parse exploded — own the bug, recompute by hand).
+- **Frozen-ink seats differ by PAIR and VINTAGE**: the billed 2.81:1 vs my 1.17:1
+  (popover-fg black over the re-derived dark ground) — both red; reconcile the pair at
+  consolidation rather than forcing the billed digit.
+
+### Receipts (task 71)
+- Portal: card chain → jx-float-slot (adopted); body-direct cards 0.
+- Live regions: pre-armed MutationObserver caught role=status ("Deployed build a011",
+  23 chars) and role=alert ("Build failed") AT insertion; exactly one alert; +1 queued
+  chip aria-hidden.
+- Timings (preview): auto 4660/4690/4660 click-clock, 5245 push-exact (claim family ✓);
+  exit ghost present-then-gone; RM × 1-9ms no ghost; RM auto ~4510 click-clock.
+- FIFO: burst ×5 → 4 visible #2-#5 + "+1 queued" hidden; front dismiss promoted #1
+  ([#1,#3,#4,#5]).
+- Theme: surface chain 0.94→0.205 with the mid-tween sampled (0.5806/0.2603); popover
+  chain 1.0→0.3211 at html; island split — ground 0.205 + tonal ink 0.7044 re-derived,
+  --jx-popover frozen 100% at card AND html.
+- Seventh voice: frozen popover-fg black over the re-derived dark ground = 1.17:1
+  (corrected math); tonal ink 6.21:1; muted-fg 1.42:1. Her 2.81 flagged.
+- Density: --jx-text 15px lg / 12px sm / 13px default base; seat description 15px
+  computed at lg.
+- Swipe: hover-expand + 120px drag dismissed (−1); slow 30px sprang back; judgeSwipe
+  48px/0.11px·ms/0.2 verified from source.
+- Known red confirmed: verify:docs rc=1 — "toast: skeleton: Examples renders before
+  Usage (the six keep their order)", THE only failing page; H2 order quoted from dist
+  AND live (identical).
+- LAW #18: each keys item.id (monotonic counter); LAW #19: 62 ids 0 dups. Page 0
+  diagnostics; family 2 errors + fleet warns (twins counted separately). Gates: ambient
+  284/284, universal 110/110.
+
+## T112 — dialog CODE round (2026-09-22)
+
+- **CODE-round shape (the toast/tour pattern)**: the consolidation lands the reviewer's findings; the CODE round lands the TIER-2 list + the family gate. My round: overview/law + axes table + query() seat + install/see-also markers, 4 family type errors, 1 stale family comment, 1 MISSED claim seat.
+- **The missed-seat census is a CODE-round duty**: marginalia's MAJOR-1 was corrected at three named seats — but the Basic-demo summary still taught the falsified absolute ("focus stays inside"). The 2nd reviewer would have caught it; better the code round does. Greppable form: after a claims-fix, re-grep the page for the OLD claim phrases ("focus stays inside", "inert" unqualified), not just the named seats.
+- **unmapped routes vs inScope**: verify-docs-structure hard-fails inScope routes only; dialog was unmapped (warning-only) — that's why a page missing install/see-also passed. Staging it would hard-fail `usage < examples` (Usage H2 sits after six demo canvases). Recorded as the owner's call; markers landed anyway.
+- **PropsTable call-site indices are load-bearing**: adding an axes-table PropsTable BEFORE the api table shifts the ambient matrix's 0-based tableIndex (dialog variant row 0→1). Any section insert that adds a PropsTable must re-run the ambient solo and expect the matrix bijection to catch the shift (it did — two failures pointing at exactly the moved row).
+- **Probe craft (re-learned + new)**: (1) `dlg.querySelector('button')` grabs the × close, not the claim's element — text-scoped locators for named seats; (2) /tmp ESM probes cannot resolve workspace packages — import by absolute node_modules path (playwright-core at repo root; pin the existing headless-shell executable — cache had -1243, the package wanted -1234); (3) `--reporter=basic` is invalid in vitest 4 (dot) — SECOND hit of my own banked lesson; the first hit was T66.
+- **Family gate receipts**: svelte-check "family 0" means 0 ERRORS; the standing `state_referenced_locally` warnings (provideUniversalLanes' eight lane reads) are the fleet cosmetic class — receipt, don't chase. The four dialog errors mapped to four fix shapes: `?? {}` (narrowing), ternary (false-union), `as unknown as Snippet` (the dual svelte-copy identity split — canvas-playground carries 8 of the same; NOT per-seat-fixable at fleet scale), and gating the render on the snippet itself rather than a $derived (TS can't narrow through derived).
+- **Mirror cadence worked**: edit → cp → diff both trees → verify:mirror; two sibling consolidations (43da0d99, 97f5b6cc) landed mid-round and the twins were re-diffed clean at teardown. The mirror manifest regeneration is part of the round, not an afterthought.
+- Receipts: report 112-code-dialog.md (gates: build/docs/universal/mirror/scheck 0+0/ambient 284×2/nav 34; probes: 742,734-byte SSR, 106 ids 0 dups, rail 14/14, trap leak shape re-measured, level4 zero-paint + stamp, query seat 8→20px with child 0→6px digit-exact, warm-reload byte-identical).

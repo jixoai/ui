@@ -1366,3 +1366,83 @@
   material** — quill's maxlength=10/spellcheck/wrap probes live-mounted instances; the
   integrated page caps at 280 and never exercises spellcheck/wrap. Her receipts were true;
   the page-level residue (serve what the headline measures) became my LOW 1.
+
+## 2026-09-22 — T79 first review toc (review lanes)
+
+- **A self-reference page needs a channel census that separates authored vs served** — the toc
+  page has 6 authored Toc instances → 9 served roots (DensityDemo multiplies across scope
+  wrappers); the receipts' "8" matched neither. On meta pages, count at BOTH layers and quote
+  the served number with the multiplier named.
+- **Lib batteries can run against the real module in vite dev** — `await
+  import('/src/lib/toc-outline.ts')` inside page.evaluate imports the transformed module;
+  fixture DOM + the real derivation beats re-implementing the law to test it. (A
+  built/prerendered target needs a different route — record the instrument with the gate.)
+- **Fixture bugs masquerade as lib bugs** — my extents fixture demanded a1→B when the
+  same-or-higher rule correctly ends a1 at a2; the "correct" flags were the wrong half. When a
+  battery row fails, re-derive the expectation from the SPEC before judging the code.
+- **The opt-out trio verification shape**: grep the fleet for each form, then SERVE one
+  example of each — the array form (107 files) and the absent form (this page) verified
+  served; the outline form implemented in the layout seat but zero fleet practice — a real
+  finding (documented capability, unexercised), not a failure.
+- **Framework-free claims need the lib named** — toc-outline has zero listeners; toc-engine
+  necessarily carries the scroll/resize pair. A grep receipt without the filename scope lets
+  the reader conflate the two libs.
+
+## 2026-09-22 — T110 second-review batch 1/3 (six pages, review lanes)
+
+- **2nd-review independence runs the other way: OPEN the 1st-review report FIRST** — the
+  job is verifying HER closures landed and hunting axes she didn't run, not re-deriving
+  from scratch. Every dispatch claim I verified landed, landed (float-button menu 12px
+  gap-margin arithmetic, radio's five-of-five findings, both pattern hedges). The
+  protocol inversion also inverts the fault profile: my one real catch was an artifact
+  IN her instrument (native-select stuck-light = class-injection bypassing the sync),
+  confirmed by reproducing the REAL path (OS-signal flips light→dark→light live).
+- **Site chrome poisons unscoped aria probes** — `button[aria-haspopup="menu"]` first()
+  opened a site-chrome panel (176px, 4 items, mid-viewport), not the fab menu (172px,
+  3 items, END-anchored). My first menu read was furniture; the scoped re-probe (inside
+  `[data-jx-fab-stack]`, keyed by `aria-controls` identity) is the receipt. Component
+  probes must scope by the component's own DOM identity, never global ARIA patterns.
+- **Byte-greps count teaching prose** — her "13 data-jx-recommended cells" vs my live-DOM
+  4: the usage code-sample + two inline `<code>` teaching spans match a byte-grep. Pages
+  that TEACH attribute names inflate SSR byte censuses; element census
+  (`querySelectorAll('[attr]')`) is the honest instrument for served-count claims.
+- **Container censuses have multi-container hazards** — my first inline-size find matched
+  the shell's jx-shell container, not the table frame; named containers
+  (`containerName: jx-table`) need name-matched queries. The fold itself drove clean at
+  420 (rows block, cells flex) — exercising beats mechanism-receipting.
+- **Inline style attribute selectors verify SSR bakes** — `[style*="fit-content"]` in the
+  raw HTML (pre-CSS, pre-hydration) is the first-layout receipt; DOM reads post-hydration
+  can't distinguish bake-from-effect. Grep the served bytes, not the live DOM, for
+  first-paint claims.
+- **Dispatch gate baselines can be stale by integration** — "sole red = toast" was
+  superseded mid-batch (4c4ba4ff consolidated scribe 71: verify:docs FULLY GREEN); my
+  rerun at the new HEAD confirmed. Also: adapter-static's `rm dist` dies ENOTEMPTY on a
+  same-session prior build's output — `rm -rf dist` + retry is the whole fix; don't
+  misread it as a tree defect.
+
+## 2026-09-22 — T115 second-review batch 2/3 (five pages, review lanes)
+
+- **Re-measuring a "digit-exact" lane map can split the receipt** — scaffold-float's
+  nav matched digit-for-digit but the toc rail's inner nav drifted (x1231→1220, w190→212)
+  fleet-wide (float-button measures the same). The LAW (non-overlap, y94, right-side)
+  held; the digits were chrome-verbose. When a claim pairs an invariant with measured
+  digits, re-derive BOTH and report which half moved — don't score the drift as a law
+  break or wave it as "close enough".
+- **Component hooks beat generic selectors, every lane, every time** — three probes in
+  this batch lost reads to guessed hooks (outer [data-jx-step] vs the inner
+  [data-jx-step-indicator]; [data-jx-terminal-card] vs [data-jx-terminal]; generic
+  span/p vs [data-jx-section-header] p). Read the component source for the carrier the
+  design names BEFORE probing; the css comment and the stylex atom ARE the map.
+- **The stroke-arithmetic chain is a cheaper falsifiable spine than rect reads** —
+  dasharray 161.5 − dashoffset 40.375 = 121.125 drawn = exactly between-nodes at 2.5
+  verifies the drawn geometry without any rect census (whose coordinates came back in
+  mask-space and garbage). When a visual claim reduces to arithmetic, run the
+  arithmetic; keep the pixel comparison as corroboration, not primary evidence.
+- **A "no seat" NIT can be closed by the page between reviews** — steps' duplicates
+  claim seatless at 98 now has a live multi-current ol. The 2nd-review move is a census
+  shape (per-list state counts, multiCurrent flag) that would catch such a seat's
+  arrival; assumed-stale findings should be re-censused, not re-filed.
+- **SSR settled-count deltas are claim-safe when the claim is universal** — terminal-card's
+  jx-out-shown grew 11→14 since her run (new seats), but "EVERY seat settled" is what
+  the page claims, and 14/14 holds. Count deltas only matter against claims that pin
+  the number; always restate the claim's quantifier before comparing counts.

@@ -40,7 +40,7 @@
  {
   "route": "dialog",
   "batch": "A",
-  "tableIndex": 0,
+  "tableIndex": 1,
   "prop": "variant",
   "occurrence": 1,
   "bareDefault": "auto",

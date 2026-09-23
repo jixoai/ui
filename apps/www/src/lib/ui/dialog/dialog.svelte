@@ -106,7 +106,9 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          // the `?? {}` is load-bearing: filter(Boolean) does NOT narrow,
+          // so the undefined arm reaches Object.entries' parameter type
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -317,7 +319,9 @@
   class={cx(
     'jx-dialog jx-surface',
     dialogStyles.platform,
-    panelMotion.supported && 'jx-waapi',
+    // the ternary (not `&&`) keeps the false arm out of cx's string
+    // union — `false | 'jx-waapi'` is not assignable to the joiner
+    panelMotion.supported ? 'jx-waapi' : undefined,
     platformClass,
   )}
   data-variant={d.variant}
@@ -371,9 +375,15 @@
              (r14-4, Owner): an IconButton with NO variant — the
              default path inherits the band's ghost scope; nothing
              hand-painted -->
+        <!-- the cast bridges the toolchain's dual svelte-copy identity
+             split (the snippet's branded type resolves from the other
+             copy than IconButton's `Snippet` import — structurally
+             identical, identity-branded; canvas-playground carries the
+             same class at its glyph seats). Runtime: the value passes
+             through untouched. -->
         <div class="jx-card-end-action-slot">
           <IconButton
-            icon={xGlyph}
+            icon={xGlyph as unknown as Snippet}
             text="Close"
             iconOnly
             tip={false}
@@ -393,7 +403,10 @@
     <CardBody {scroll}>
       {@render children()}
     </CardBody>
-    {#if hasFoot}
+    {#if footer}
+      <!-- the render gate is `footer` ITSELF (not the hasFoot derived):
+           TS cannot narrow the optional snippet through a $derived, and
+           the {@render} below needs the defined arm -->
       <Separator data-jx-card-sep="foot" aria-hidden="true" />
       <div data-jx-card-foot="">
         <!-- THE RAW FOOT BAND (r14-9, Owner correction): the footer

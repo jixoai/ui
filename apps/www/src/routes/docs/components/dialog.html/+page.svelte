@@ -16,6 +16,10 @@
   import { PlayFields, PlayRow, PlayHelp } from '$lib/playground';
   import { registrySourceUrl } from '$lib/registry-source';
   import Icon from '$lib/ui/icon';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { RadiusLane } from '$lib/defaults.svelte';
 
   // Same-source law: the drawer shows the exact registry copy this site runs.
   import dialogSource from '$lib/ui/dialog/dialog.svelte?raw';
@@ -302,6 +306,88 @@ ${close}
   let u4 = $state(false);
   let u5 = $state(false);
   let u6 = $state(false);
+  let uq = $state(false);
+
+  // the query() seat: responsive radius on the ONE lane that paints
+  // through the top layer — below 48rem the anchor is 8px, at md+ it is
+  // 20px, and the concentric child rides along (max(0px, R − 14)):
+  // 0px below, 6px at md+ (measured, task 112).
+  const responsiveRadius = query<{ md: RadiusLane }, RadiusLane>({ md: 20 }, 8);
+
+  const queryUsage = `<script lang="ts">
+  import Dialog from '@ui/dialog.svelte';
+  import PressButton from '@ui/press-button.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+const responsiveRadius = query({ md: 20 }, 8);
+${close}
+
+<Dialog title="Responsive radius" radius={responsiveRadius} bind:open>
+  <PressButton radius="auto">auto radius rides the anchor</PressButton>
+</Dialog>`;
+
+  // the eight axes on dialog — one row per universal axis, classified
+  // against the served family (grep receipts over ui/dialog/, the
+  // measured seats below, W-next #17/#18)
+  const axisRows = [
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number | query()`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY for the family's own paint — zero --jx-size-effective readers over ui/dialog/ (grep receipt); the carrier stamps the top-layered root (self-carried across the promotion), so composed head/footer snippet content scales while the panel's chrome stays pinned. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "CONSUMED at the platform element — dialog.css paints corner-shape: var(--jx-shape-effective, round) on .jx-dialog (the §14 alias ladder, round by default; the §2 named steps). No number lane.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number | query()`,
+      default: `'auto'`,
+      description:
+        'CONSUMED — THE PAINTING LANE. dialog.css composes border-radius from --jx-radius-consumed (explicit lane: effective × the §14 factor; auto: the §3 concentric calc against the panel\'s OWN ancestors). An explicit lane makes the panel the CONCENTRIC ANCHOR — the carrier stamps --jx-radius-effective on the top-layered root, and children at radius="auto" compute max(0px, R − P) THROUGH the top layer (measured digit-exact: the 20px seat anchors 6px on its child). Number unit: px.',
+    },
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number | query()`,
+      default: `'auto' · no family own`,
+      description:
+        "NO OPINION on value (DialogDefaults leaves the slot unparameterized) — a named rung rides the ambient scope channel (the top-layered <dialog> stays a DOM descendant for cascade) and the panel stamps the resolved rung as data-density; auto / number / query lanes omit the stamp (densityRungOf's undefined arm). Number unit: coefficient.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — zero --jx-color-effective / hue readers over ui/dialog/ (grep receipt); the panel's ink rides the ambient token sheet, and variant paints the surface (solid | acrylic | auto), not a hue. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE ISLAND STAMP — theme=\"dark\" stamps class:dark on the dialog root: a self-carried dark island THROUGH the top-layer promotion (the <dialog> stays a DOM descendant, so the island re-scopes every token read in the subtree — the card kernel's ground and ink re-derive inside it). The family itself carries zero var-chain theme reads (grep receipt). No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number | query()`,
+      default: `'level4' · Own default, not ambient`,
+      description:
+        "OWN level4 (the modal's historic 8dp z-feel), STAMPED, NOT PAINTED (measured — W-next #18): elevationSurfaceOf composes the level-table pair onto the root style, but no box-shadow / filter / background-image channel paints on the served dialog at settle — level4 / level3 / 6dp / level-1 / dark are visually identical (the seats below teach this measured truth). The number lane is real: exact dp snaps DOWN to the enclosing table rung (6dp IS level3). The wiring decision (wire the shadow reader or retire the rung receipts) is the family owner's.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE FAMILY OWNS THE MOTION, AXIS UNREAD — one 460ms --jx-p WAAPI kernel drives entry, exit, and the scrim (blurIn/slide/materials/shadow; the @starting-style pull-apart; the jx-waapi allow-discrete exit window holds the panel through the whole run), instant under prefers-reduced-motion. Zero --jx-motion-effective readers (grep receipt). Number unit: coefficient.",
+    },
+  ];
 </script>
 
 <svelte:head>
@@ -332,6 +418,62 @@ ${close}
         <span class="pill">Escape → cancel</span>
         <span class="pill">460ms WAAPI surface timeline</span>
         <span class="pill">footer buttons auto-group · ghost</span>
+      </div>
+    </SectionCard>
+  </div>
+
+  <!-- install (the archetype's install anchor; chrome — out of the toc) -->
+  <div id="install" data-reveal="">
+    <DocsInstall name="dialog" />
+  </div>
+
+  <!-- overview -->
+  <div id="overview" data-reveal="">
+    <SectionCard
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="One native <dialog>, one motion addition: the platform owns the modal mechanics (top layer, Escape, closed-by-default, the scrim token), the component binds open state and drives the 460ms surface kernel, and the interior is the card dialect — the head/body/foot bands ride the data-jx-card sticker and the Card family faces."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          The mechanism split is the component's design rule: everything the browser ships is
+          consumed as-is — <code class={cx(rt.inkAccent)}>showModal()</code> lifts the panel into
+          the top layer above every sticky header, the <code class={cx(rt.inkAccent)}>cancel</code>
+          event carries Escape, <code class={cx(rt.inkAccent)}>form method="dialog"</code> closes
+          natively, and a closed dialog renders nothing inline (no-JS loads included). The
+          component adds exactly two things: bindable <code class={cx(rt.inkAccent)}>open</code>{' '}
+          state (rising edge → showModal(), falling edge → the teardown) and the shared 460ms{' '}
+          <code class={cx(rt.inkAccent)}>--jx-p</code> WAAPI kernel — entry, exit, and the scrim
+          ride one progress property, instant under reduced motion.
+        </p>
+        <p class={cx(rt.para)}>
+          The interior is not dialog flesh: since the structural kernel the panel grows the CARD
+          DIALECT — the interior host stamps <code class={cx(rt.inkAccent)}>data-jx-card</code>{' '}
+          and card.css's rule set applies (the five-column inline ruler, three integer bands, the
+          footer's narrow reversal), the faces are <code class={cx(rt.inkAccent)}>CardHeader</code>{' '}
+          / <code class={cx(rt.inkAccent)}>CardBody</code> /{' '}
+          <code class={cx(rt.inkAccent)}>CardFooter</code> (the head band is unconditional — the ×
+          contract — the foot band exists iff the footer snippet is passed), and the ghost variant
+          scopes are written over both zones. The dialog owns the mechanism only: material
+          (variant), scrim, motion, close contract.
+        </p>
+        <p class={cx(rt.para)}>
+          The measured contract on the served page: the surface width is{' '}
+          <code class={cx(rt.inkAccent)}>min(92vw, 26rem)</code> (416px at desktop, 368px at a
+          400px viewport — responsive, measured); the scrim is achromatic{' '}
+          <code class={cx(rt.inkAccent)}>--scrim</code> (black 32% in light, white 10% in dark —
+          never a brand tint; the staged demos pin light); the platform focus trap holds for the
+          in-dialog cycle but LEAKS every second Tab to the page's skip link (measured per-press
+          by two reviewers — the repair is queued, W-next #17); and the elevation axis is OWN
+          level4 but STAMPED, NOT PAINTED (W-next #18) — the one axis lane that paints through the
+          top layer is radius, the §3 concentric anchor (a 20px seat computes 6px on an auto
+          child, digit-exact). Kinship: <code class={cx(rt.inkPrimary)}>system-dialog</code> (the
+          non-modal, popover-based cousin), <code class={cx(rt.inkPrimary)}>sheet</code> (the
+          edge-anchored twin), <code class={cx(rt.inkPrimary)}>popover</code> (the
+          anchor-positioned non-modal surface).
+        </p>
       </div>
     </SectionCard>
   </div>
@@ -389,7 +531,7 @@ ${close}
       headerRegion="dialog-basic"
       eyebrow="demo"
       title="Basic"
-      summary="A PressButton flips a bindable open state; the dialog does the rest. Try the × button, the Escape key, and Tab — focus stays inside the dialog while the page behind is inert."
+      summary="A PressButton flips a bindable open state; the dialog does the rest. Try the × button, the Escape key, and Tab — the in-dialog cycle holds and the page behind is inert, with ONE measured exception: every second Tab reaches the page's skip link (the one page focusable outside the modal's inertness; the next press returns — W-next #17)."
     >
       <div class={cx(rt.col20)}>
         <ComponentCanvas
@@ -773,9 +915,30 @@ ${close}
       family="universal-props"
       headerRegion="universal-props"
       eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The elevation axis on this modal is STAMPED, NOT PAINTED (measured): the level carriers stamp the top-layered root (radius proves the channel — the 20px seat anchors the concentric law for everything inside), but the shadow/rung recipe never paints on the served dialog — no box-shadow, filter, or backdrop-filter on any channel at settle, level4/level3/6dp/level-1/dark visually identical. The wiring decision (wire the shadow reader or retire the rung receipts) is the family owner's — W-next."
+      title="The eight axes on dialog"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The elevation axis on this modal is STAMPED, NOT PAINTED (measured): the level carriers stamp the top-layered root (radius proves the channel — the 20px seat anchors the concentric law for everything inside), but the shadow/rung recipe never paints on the served dialog — no box-shadow, filter, or backdrop-filter on any channel at settle, level4/level3/6dp/level-1/dark visually identical. The wiring decision (wire the shadow reader or retire the rung receipts) is the family owner's — W-next. The table classifies all eight axes against the served family; the query() seat rides the radius lane across the 48rem key."
     >
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the PORTAL LAW — the top-layer promotion moves PAINT, not DOM, and the axis
+          carriers stamp the panel's OWN root either way, so the resolved axes are SELF-CARRIED
+          (a trigger ancestor's stamps never span the boundary); the radius channel is the one
+          elevation-adjacent lane that PAINTS (the 20px seat → 6px auto child, measured
+          digit-exact through the top layer); the elevation rungs are the stamped-not-painted
+          class (W-next #18, the walk found zero shadow channels at settle); the theme axis is
+          the island stamp (class:dark on the dialog root re-scopes the card kernel's tokens
+          inside the subtree — the family itself carries zero var-chain theme reads, grep
+          receipt); and LAW #19 held — duplicate ids NONE page-wide (measured on the served
+          page). The query() seat below rides the md viewport key (48rem) on the radius lane:
+          below it the anchor is 8px (the auto child clamps at max(0px, 8 − 14) = 0px), at md+
+          the anchor is 20px and the child steps to 6px — the concentric law moving WITH the
+          query.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+      </div>
       <ComponentCanvas title="Dialog · universal props" stage="fill" files={universalFiles}>
 <div class={cx(rt.wrap12)}>
           <PressButton onclick={() => (u1 = true)}>level4 · default</PressButton>
@@ -784,6 +947,7 @@ ${close}
           <PressButton onclick={() => (u4 = true)}>level-1 · concave</PressButton>
           <PressButton onclick={() => (u5 = true)}>radius 20 · concentric</PressButton>
           <PressButton onclick={() => (u6 = true)}>dark · theme axis</PressButton>
+          <PressButton onclick={() => (uq = true)}>radius · query()</PressButton>
         </div>
         <Dialog title="level4 · the modal default" variant="solid" bind:open={u1}><p class={cx(rt.text13)}>The own level stamps level4 — the 8dp recipe and the surface-container-high rung are the level TABLE's pairing; on the served surface the shadow does not paint (measured — W-next owns the wiring).</p></Dialog>
         <Dialog title="level3 · one rung down" variant="solid" elevation="level3" bind:open={u2}><p class={cx(rt.text13)}>The level3 stamp pairs 6dp + the surface-container rung in the table — same unpainted truth as level4.</p></Dialog>
@@ -791,12 +955,24 @@ ${close}
         <Dialog title="level-1 · the concave" variant="solid" elevation="level-1" bind:open={u4}><p class={cx(rt.text13)}>The concave rung — the inset 1px recipe over the deepest ladder step; stamped, and like every sibling here the shadow stays unpainted (可填充的凹陷, measured).</p></Dialog>
         <Dialog title="radius 20 · the concentric anchor" radius={20} bind:open={u5}><p class={cx(rt.pb8, rt.text13)}>children at radius="auto" compute max(0px, 20 − 14) = 6px — the §3 law through the top layer, the one elevation-adjacent lane that PAINTS (measured digit-exact).</p><PressButton radius="auto">auto radius</PressButton></Dialog>
         <Dialog title="dark · the theme axis" variant="solid" theme="dark" bind:open={u6}><p class={cx(rt.text13)}>The dark theme axis — the table's rung STEPPING claim is unpainted on the served surface (same W-next decision); the axis itself still stamps the scope.</p></Dialog>
+        <!-- the query() seat: responsive radius on the painting lane —
+             below 48rem the anchor resolves 8px (auto child clamps to
+             0px), at md+ 20px (child 6px); resize across the key and
+             reopen to see the concentric pair step together -->
+        <Dialog title="Responsive radius · query()" radius={responsiveRadius} bind:open={uq}><p class={cx(rt.text13)}>Resize across 48rem and reopen: below the key the anchor is 8px, at md+ it is 20px — and the child at radius="auto" rides the concentric calc (0px below, 6px at md+).</p><PressButton radius="auto">auto radius rides the anchor</PressButton></Dialog>
       </ComponentCanvas>
     </SectionCard>
   </div>
 
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Nine props — the platform owns every behavior; the component owns state binding, zone presence, and the zone variant scopes. The footer snippet is the RAW full override of the foot zone; the head/footer content faces are the composition components below."><PropsTable universal props={[{ name: 'title', type: 'string', default: '—', description: 'Heading of the default title row (rendered through CardHeader); omit for a chrome-less body. Still names the dialog (aria-label) when a head snippet replaces the visible row.' }, { name: 'open', type: 'boolean', default: 'false', description: 'Bindable open state: true → showModal(), false → animated close.', bindable: true }, { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Floating-surface paint; auto defers to the environment’s transparency preference. Defaults: literal slot — own ’auto’, ambient when an axis opens.' }, { name: 'class', type: 'string', default: "''", description: 'Geometry-only utilities appended after the law’s own (a consumer’s anchor/width, a scroll-ring cap); the platform still paints nothing.' }, { name: 'scroll', type: 'boolean', default: 'true', description: 'The body zone’s scroll authority (the panel never scrolls). false asserts the body fits — the scroll authority and the stable both-edges gutter reservation retire together.' }, { name: 'head', type: 'Snippet', default: '—', description: 'Replaces the visible title row — typically a CardHeader wrapping custom content; the × close still rides the head grid’s end slot.' }, { name: 'children', type: 'Snippet', default: '—', description: 'Dialog body — the only scrollable zone.', required: true }, { name: 'footer', type: 'Snippet', default: '—', description: 'The RAW full override of the foot zone — its standard content is a CardFooter (buttons auto-joined in one end-packed group, ghost by the zone’s scope).' }, { name: 'cancelGuard', type: '() => boolean', default: '—', description: 'Consulted on the native cancel request (Escape); returning true holds the dialog open (e.g. through an IME composition).' }]} /></SectionCard></div>
   <div id="composition" data-reveal=""><SectionCard family="composition" headerRegion="composition" eyebrow="api" title="CardHeader · CardFooter — the zone content faces" summary="The slot architecture belongs to the zones' content, carried by components (r14-9): Dialog renders the zones and writes the ghost variant scopes; these two are what the zones usually show. CardHeader is also Dialog's internal default — the untitled title row has exactly one source."><PropsTable props={[{ name: 'CardHeader · title', type: 'string', default: '—', description: 'The default title row (padded chrome bar); yields to children.' }, { name: 'CardHeader · children', type: 'Snippet', default: '—', description: 'Custom head content, FLUSH edge-to-edge — owns its own geometry (the palette’s Input).' }, { name: 'CardFooter · children', type: 'Snippet', default: '—', description: 'The action buttons — auto-joined in ONE ButtonGroup packed at inline-end; ghost inherited from the Dialog zone scope, an explicit variant wins; ghost seams rule the buttons.' }, { name: 'CardFooter · end', type: 'Snippet', default: '—', description: 'Raw inline-end content: present, it replaces the grouped arrangement entirely — the opt-out for non-button content or a custom cluster, bracket and all.' }, { name: 'CardFooter · opening line', type: 'structural', default: 'leadingSeam', description: 'The actions region’s boundary — the ButtonGroup’s leadingSeam capability: the first button’s own flush seam pseudo (r14-13), not a sibling element; gone with the group under the end face.' }, { name: 'CardFooter · label', type: 'string', default: "'Dialog footer'", description: 'The ButtonGroup’s accessible name.' }]} /></SectionCard></div>
+
+  <!-- the skeleton's closing section: related components, derived from
+       the docs reading chain (data, not a hand list); chrome — out of
+       the toc -->
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="dialog" />
+  </div>
 </div>
 
 <style>

@@ -1158,3 +1158,37 @@ leaves `rootDark` false. Also measured this round: the seven-strata evidence com
 BOTH sides of a `theme="dark"` island seat — grounds hold (`--jx-card` 1 0 0) while leans
 flip (`--primary` 0.6489→0.7044 / 0.237→0.1872, hue via `calc(49 - 4)`) — the quote-L/C-
 never-hue law is visible in the token source itself and makes a clean probe receipt.
+
+## 2026-09-22 · T107 2nd-review batch — the dev server is an instrument too (icon union transient)
+
+Reviewing icon.html's "three count layers" I found the dock serving 44/48/54 options across
+three server states. The committed artifact + fresh dist said 54; the vite dep cache
+(cleared → 44) and the plugin's DEV-INCREMENTAL SCANNER held the other numbers: in dev the
+icon union is the scanned-set-so-far — it grows per transformed page (poking
+docs/icons.html + timeline.html took the dock 44→54 and flipped the page's own PlayHelp
+"union (44 today" → "54 today"). Lesson stack: (1) a live-probe count on a dev server can
+be a SCANNER TRANSIENT, not a designed layer — re-derive at a second layer (dist bytes,
+gen gate) before filing an interpretation; marginalia's "dock 44 = native-only by design"
+was exactly such a misread. (2) grep -c counts LINES — the dev SSR payload is one line;
+`grep -o … | wc -l` is the honest counter. (3) stale vite caches make fresh servers
+disagree with each other (48 with cache vs 44 fresh) — when two runs of the SAME
+instrument disagree, suspect the cache layer before the code. (4) hover-card state
+machines ignore synthetic pointerenter entirely — real-mouse moves are the only clock
+driver; and hover ≠ focus: the Tab-walk claims start from FOCUS on the trigger.
+
+## 2026-09-22 · T113 tour 2nd — the dispatch's craft note IS a test: programmatic clicks never focus
+
+I re-fell into the exact trap the T113 dispatch warned about ("programmatic clicks never
+focus — probe-fault discipline"): opening the tour with btn.click() left the invoker as
+BODY, so Escape "restored" body and four focus-law reads false-failed. Real locator
+clicks fixed all four — the component was right, my driver was untrusted. Companion
+lessons from the same probe session: (1) read the DEFAULT CARD's actual button labels
+before locator-ing ("Skip tour"/"Back"/"Next"/"done" — exact-text finders against the
+dispatch's shorthand hit code samples); (2) anchor-name leases are best matched via the
+card's computed position-anchor → the element carrying that name, never a bare
+style-substring selector; (3) ink reads are LEAF reads (ancestors paint the site scope,
+the atoms hold the claim — marginalia's card-root-vs-atoms note, re-learned first-hand);
+(4) tour targets can be id-less sections — plant a marker attribute, not getElementById.
+ constructive fresh axis: a 1st reviewer's "source-read-only branch" (the lease's
+restore-existing path, no demo ships a pre-anchored target) is prime 2nd-reviewer
+territory — plant the precondition in-probe and the branch becomes behavior-receipted.

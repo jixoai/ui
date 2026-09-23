@@ -14,12 +14,16 @@
  *            first: auditable today, promotable to an axis slot
  *            when an axis opens (the spec's "a style prop with no
  *            axis yet" scenario — this file is its carrier).
- *   density  class a, the open axis with NO family own — no opinion:
- *            the panel never stamped data-density and still does not
- *            (the ambient css scope channel flows through the
+ *   density  class a, the open axis with NO family own — no opinion
+ *            on VALUE (densityAxisSlot() unparameterized): a named
+ *            rung rides the ambient css scope channel through the
  *            top-layered <dialog>, which stays a DOM descendant for
- *            cascade purposes); the slot declares the family
- *            density-manageable without manufacturing an opinion.
+ *            cascade purposes, and the panel STAMPS the resolved rung
+ *            as data-density (dialog.svelte's carrier row; the
+ *            attribute omits for auto / number / query lanes —
+ *            densityRungOf's undefined arm). The slot declares the
+ *            family density-manageable without manufacturing an
+ *            opinion.
  *   elevation (W3-C) the ONE own on the overlay surface: the modal's
  *            historic z-feel mapped onto the §7 level table — level4
  *            (8dp, M3's dialog rung). The consumption pair composes
