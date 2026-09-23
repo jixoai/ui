@@ -333,6 +333,14 @@ const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' 
   </div>
 
 
+  </div>
+</div>
+
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Create the store in app state (never a module singleton), mount the viewport once in the root layout, push from anywhere through the api handle."><CodeBlock code={usageCode} lang="svelte" meta="Toast usage" /></SectionCard></div>
+
+  <!-- the live playground: moved below Usage — the skeleton's six slots
+       keep their order (the first canvas byte must follow the Usage
+       heading; the docs-lint contract, consolidated at scribe's T71) -->
   <div id="live-demo" data-reveal="">
     <ComponentCanvas
       title="toast"
@@ -414,12 +422,6 @@ const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' 
 
   <!-- the live viewport for this page's demos -->
   <ToastViewport store={toast} />
-
-
-  </div>
-</div>
-
-<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Create the store in app state (never a module singleton), mount the viewport once in the root layout, push from anywhere through the api handle."><CodeBlock code={usageCode} lang="svelte" meta="Toast usage" /></SectionCard></div>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Toast variants" summary="The ladder drives border + ink over the floating popover ground; hue is injected through the class seam (a failed status injects --error — never the destructive action hue); assertive switches the live-region role; duration 0 is sticky.">
     <ComponentCanvas title="toast · variants" stage="fill" files={toastTypesFiles}>
       <div class={cx(rt.gridSm3)}>

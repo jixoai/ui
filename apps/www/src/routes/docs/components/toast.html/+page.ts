@@ -8,8 +8,8 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
   { id: 'overview', label: 'Overview' },
-  { id: 'live-demo', label: 'Live demo' },
   { id: 'usage', label: 'Usage' },
+  { id: 'live-demo', label: 'Live demo' },
   { id: 'types', label: 'Types' },
   { id: 'stacking', label: 'Stacking' },
   { id: 'theming', label: 'Theming' },

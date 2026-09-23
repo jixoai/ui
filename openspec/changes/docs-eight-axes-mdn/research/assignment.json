@@ -329,8 +329,8 @@
     "quill"
    ],
    "tier": 1,
-   "status": "pass-1st-2nd-inflight",
-   "notes": "task 87 marginalia 1st PASS (0M/0m/0L/1N — the --jx-text digit); NIT + :149 overload landed by orchestrator (gates green, fresh build, form passes the lint); Tier 1 hub-waiver; 2nd = quill"
+   "status": "done",
+   "notes": "CLOSED at quill's T107 2nd (PASS): the --jx-text row served 10/11/12/13/15 exact; 0 diagnostics; the hub waiver still reads true."
   },
   {
    "page": "ghostty-term",
@@ -393,8 +393,8 @@
     "quill"
    ],
    "tier": 2,
-   "status": "pass-1st-2nd-inflight",
-   "notes": "task 103 marginalia 1st PASS (0M/2m/2L/1N); the focusable seat served, api count trued, cx + focusout typing closed (mirrored); 2nd = quill"
+   "status": "done",
+   "notes": "CLOSED at quill's T107 2nd (PASS): the demo card SERVES the link (Tab crosses focus INTO the card, stays open); api sixteen members; family 0 ERRORs; Node-guard in dist bytes."
   },
   {
    "page": "icon",
@@ -404,8 +404,8 @@
     "marginalia"
    ],
    "tier": 1,
-   "status": "pass-1st-2nd-inflight",
-   "notes": "task 88 marginalia 1st PASS (0M/1m — the toc rail entry); landed + gate-zero; the icon family lane 0 ERRORs; 2nd = quill"
+   "status": "done",
+   "notes": "CLOSED at quill's T107 2nd (PASS): toc 6/6 click-navigates; ui/icon family 0 ERRORs post-f92d6555; NEW INFO: the dock's 44 is the DEV-INCREMENTAL scanner set — fresh server 44 -> 54 after poking authoring pages; dist '54 today' true; one stale vite cache (42M) served 48 mid-isolation, cleared."
   },
   {
    "page": "icon-button",
@@ -542,8 +542,8 @@
     "quill"
    ],
    "tier": 1,
-   "status": "pass-1st-2nd-inflight",
-   "notes": "task 89 marginalia 1st PASS (0M/2m); tabindex landed family-wide at the scroll-run write point (live-verified incl. real-Tab reach); the :5199 orphan killed, km gate GREEN 9/9; 2nd = quill"
+   "status": "done",
+   "notes": "CLOSED at quill's T107 2nd (PASS): the scroll-run tabindex=0 stamped at the verdict (c6ba1f1f, mirrored) — real Tab lands ON the strip in one press, <-/-> scrolls it; both MINORs closed with the one fix; the verdict follows the VIEWPORT (1920 none -> 1440 start-closed -> 1920 none)."
   },
   {
    "page": "math-inline",
@@ -1095,8 +1095,8 @@
     "marginalia"
    ],
    "tier": 2,
-   "status": "coded",
-   "notes": "T71 re-dispatched (lost across session boundary); scribe 1st in flight. Known docs-lint red (Examples before Usage) rides this consolidation."
+   "status": "pass-1st",
+   "notes": "1st scribe T71 PASS 0M/0m/1L/0N, Tier 2 held; consolidated: the known docs-lint red RESOLVED (live-demo canvas moved below Usage — the skeleton's six keep their order; toc reordered to DOM), the family's THREE type errors closed (dialog:52 + viewport:225 joiners ?? {} ; viewport:878/:885 false-union ternaries), MIRRORED; W-next #7 seventh voice digit reconciled in the ledger (2.81:1 billed -> 1.17:1 measured at the current vintage, both red — no page digit quoted). verify:docs FULLY GREEN at this consolidation."
   },
   {
    "page": "toc",

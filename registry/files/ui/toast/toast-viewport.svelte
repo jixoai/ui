@@ -222,7 +222,7 @@
       .map((style) =>
         typeof style === 'string'
           ? style
-          : Object.entries(style).flatMap(([key, value]) =>
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
               key !== '$$css' && typeof value === 'string' ? [value] : [],
             ).join(' '),
       )
@@ -875,14 +875,14 @@
               tst.card,
               material === 'glass' ? materialGround.glass : variant === 'tonal' ? tonalGround : materialGround.popover,
               variantBorder[variant],
-              item.expandable && tst.cursorPointer,
+              item.expandable ? tst.cursorPointer : undefined,
               // the ORIGIN card hides while its dialog is open: the
               // shared element morphs out of it, and a card painted
               // underneath the flight doubles the content mid-morph
               // and strands a half-faded remnant at the origin (R3).
               // visibility (not display) keeps its box — the collapse
               // morph needs the rect to fly back into
-              dialogId === item.id && tst.invisible,
+              dialogId === item.id ? tst.invisible : undefined,
             ),
             leaving && 'jx-toast-leaving',
             item.class,
