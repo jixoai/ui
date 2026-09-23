@@ -6,6 +6,10 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
+  import DocsInstall from '$lib/docs-install.svelte';
+  import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -176,7 +180,7 @@ ${close}
     ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
   ): string =>
     styles
-      .filter(Boolean)
+      .filter((style): style is NonNullable<(typeof styles)[number]> => Boolean(style))
       .map((style) =>
         typeof style === 'string'
           ? style
@@ -185,6 +189,85 @@ ${close}
             ).join(' '),
       )
       .join(' ');
+
+  // ── the measured per-axis table (task 43) — every cell measured on
+  // the served DOM (probe) or negative-grepped over ui/tags-input/ ──
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'2xs' | 'xs' | 'sm' | 'default' | 'lg' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'auto'`,
+      description:
+        "MANAGED AND CONSUMED — the field's metrics ARE the kernel lanes: the shell min-height rides --jx-hit, chips ride --jx-row-min, text rides --jx-text, the rhythm rides --jx-gap/--jx-inset (measured: the seat shell's hit height flips 48px → 32px across the lg/sm rungs). data-density stamps on the root for the scope. Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "CONSUMED AT THE PASSTHROUGH BOUNDARY — the native element never receives a size attribute (the §1 native collision rule); the §1 echo lands on the root and the chip/input labels stay PINNED to var(--jx-text) (the density kernel wins the visible cascade, measured). Zero size-effective readers (grep receipt). Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero shape-channel readers (grep receipt); the shell corner is a structural 0. Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — the concentric broadcast for nested parts; the shell/chips keep the family hairline square (grep receipt). Number unit: px.',
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "CONSUMED AT THE PASSTHROUGH BOUNDARY (§1 — intercepted from rest, never a native attribute) and ZERO-READ as an axis: the field's inks are the pinned token set (shell --jx-background/--jx-border, chips --jx-muted/--jx-foreground, the flash border --jx-primary). Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE ROOT-PINNED ALIAS (the separator/spin/tabs shape #2, measured) — every ink (shell/chip/input/rows) rides :root alias chains (--jx-background/--jx-border/--jx-muted/--jx-foreground/--jx-primary/--jx-terminal-*), so a scoped .dark island re-derives inherited values while the field's tokens HOLD the light values (measured frozen), and root-level html.dark re-derives them (measured flip). class:dark stamps for composed descendants. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — zero elevation-carrier readers (grep receipt); the shell's well shadow is the css sheet's --shadow-well, not the axis. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE FAMILY OWNS TWO MOTIONS, AXIS UNREAD — the duplicate flash (200ms primary border + the shake keyframes) and the shell's hover/focus transitions (var(--motion-150)); reduced motion kills BOTH (transitions and the shake — measured), and the suggestion panel rides the shared WAAPI kernel. Zero motion-effective readers (grep receipt). Number unit: coefficient.",
+    },
+  ];
+
+  // the ONE query() case: the DENSITY lane's rung stamp — the one axis
+  // tags-input consumes, through the kernel lanes.
+  const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' }, 'small');
+
+  const queryUsage = `<script lang="ts">
+  import TagsInput from '@ui/tags-input.svelte';
+  import { query } from '@lib/universal-props-query.svelte';
+${close}
+
+<!-- the md key is the registered VIEWPORT scale (48rem): below it the
+     small rung stamps, at 48rem+ large wins — data-density flips AND
+     the kernel lanes rescale the whole field (the one consumed axis) -->
+<TagsInput label="stack" density={query({ md: 'large' }, 'small')} />`;
+
+  const queryFiles: TreeFile[] = [
+    { name: 'tags-input-query-demo.svelte', content: queryUsage, kind: 'usage' },
+  ];
 
 </script>
 
@@ -224,8 +307,57 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="install" data-reveal="">
+    <DocsInstall name="tags-input" />
+  </div>
+
+  <!-- overview -->
+  <div id="overview" data-reveal="">
+    <SectionCard
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="Input × multiselect: a keyed chip list and a combobox input in one shell — commit paths on real keys, duplicates flashed not added, announcements through the combobox contract, and a faceless form bridge carrying the values into FormData."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          The shell is a chip host at hit height and a typing input in the same row. Commit
+          paths are real keys: Enter / comma / Tab (via blur) commit a chip — a pasted
+          <code class={cx(rt.inkPrimary)}>a,b,c</code> splits into one commit per part — and
+          Backspace on an empty input deletes the last removable chip. Duplicates are flashed,
+          not added (200ms primary border + shake, reduced motion keeps the border flash only);
+          the typed text resolving to a suggestion commits the suggestion's value; maxTags hides
+          the input at the cap behind an N/N readout.
+        </p>
+        <p class={cx(rt.para)}>
+          The two law-heaviest surfaces meet here. The KEYED LIST: chips render from a keyed
+          each whose key is the composite value#index — duplicate tag VALUES cannot collide,
+          the LAW #18 worst case (constant add/remove/reorder) stays hydration-safe by
+          construction. The COMBOBOX: the typing input is role=combobox over the suggestion
+          popover — aria-expanded live, the roving highlight riding
+          aria-activedescendant + aria-owns with focus never entering the panel, committed
+          suggestions flipping their rows' aria-selected. The chip host itself is a horizontal
+          listbox of options; every × announces "remove (label)".
+        </p>
+        <p class={cx(rt.para)}>
+          Values reach FormData through the faceless jx-form-field bridge — ONE JSON array
+          string under the field name (lossless when a tag value contains a comma). The eight
+          axes: density is the ONE consumed axis (the field's metrics ARE the kernel lanes —
+          measured hit-height flip), size and color are consumed at the passthrough boundary
+          (§1: the native element never receives them), theme rides the ROOT-PINNED alias inks
+          (frozen under a scoped dark island, re-derived at root-level dark), and
+          shape/radius/elevation/motion supply unread. Kinship:
+          <code class={cx(rt.inkPrimary)}>input</code> (the single-value shell),
+          <code class={cx(rt.inkPrimary)}>select</code> (the single-select popover law spin-off),
+          <code class={cx(rt.inkPrimary)}>combobox</code> (the full law this popover miniaturizes).
+        </p>
+      </div>
+    </SectionCard>
+  </div>
+
   <!-- component canvas (audit P1-A2) -->
-  <div data-reveal="">
+  <div id="live-demo" data-reveal="">
     <ComponentCanvas
       title="tags-input"
       stage="center"
@@ -399,34 +531,6 @@ ${close}
       <CodeBlock code={tagsUsage} lang="svelte" meta="TagsInput usage" />
     </SectionCard>
   </div>
-  <div id="accessibility" data-reveal="">
-    <SectionCard
-      family="accessibility"
-      headerRegion="accessibility"
-      eyebrow="a11y"
-      title="Accessibility"
-      summary="The typing input is a combobox over a horizontal listbox of chips; the suggestion popover rides aria-activedescendant with focus never leaving the field."
-    >
-      <A11yTable
-        keys={[
-          { key: 'Tab', action: 'Moves focus into the typing input; leaving commits the pending text' },
-          { key: 'Enter', action: 'Commits the highlighted suggestion or the typed text — never submits the form' },
-          { key: 'comma', action: 'Commits a chip; a pasted "a,b,c" splits into one commit per part' },
-          { key: 'Backspace', action: 'On an empty input, deletes the last removable chip' },
-          { key: '↑ / ↓', action: 'Roving highlight through the filtered suggestions (no wrap)' },
-          { key: 'Esc', action: 'Closes the suggestion popover (native popover close)' },
-        ]}
-        aria={[
-          { name: 'role', value: 'combobox', description: 'On the typing input, with aria-expanded synced live' },
-          { name: 'aria-activedescendant', value: '{id}-sug-{index}', description: 'Roving highlight ID into the suggestion listbox' },
-          { name: 'aria-autocomplete', value: '"list"', description: 'The input is backed by the suggestion list' },
-          { name: 'role (shell)', value: 'listbox', description: 'The chip host is a horizontal listbox; each chip is role="option" aria-selected="true"' },
-          { name: 'aria-label', value: '"remove {label}"', description: 'On every chip × button (type="button")' },
-          { name: 'aria-invalid', value: "'true'", description: 'On the input when the error prop is provided' },
-        ]}
-      />
-    </SectionCard>
-  </div>
   <div id="theming" data-reveal="">
     <SectionCard
       family="theming"
@@ -451,23 +555,6 @@ ${close}
       </div>
     </SectionCard>
   </div>
-  <div id="universal-props" data-reveal="">
-    <SectionCard
-      family="universal-props"
-      headerRegion="universal-props"
-      eyebrow="axes"
-      title="Universal props"
-      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The family CONSUMES size and color: the native element never receives them (the §1 native collision rule)."
-    >
-      <ComponentCanvas title="tags-input · universal props" stage="fill" files={universalFiles}>
-        <div class={cx(rt.gridSm2)}>
-        <div class={cx(rt.panel)}><TagsInput label="size 14 · density small" size={14} density="small" name="univ-tags-px" /></div>
-        <div class={cx(rt.panel)}><TagsInput label="size large · radius medium" size="large" density="large" radius="medium" name="univ-tags-named" /></div>
-        </div>
-      </ComponentCanvas>
-    </SectionCard>
-  </div>
-
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -501,4 +588,89 @@ ${close}
       />
     </SectionCard>
   </div>
-</div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="The eight axes on tags-input"
+      summary="Density is the ONE consumed axis — the field's metrics ARE the kernel lanes (--jx-hit/--jx-row-min/--jx-text/--jx-gap/--jx-inset), so rungs rescale the whole field. size and color are consumed at the passthrough boundary (§1: the native element never receives them), the inks ride the ROOT-PINNED alias chains (frozen under a scoped dark island, re-derived at root-level dark — measured), the family owns the duplicate flash + shake and the panel's WAAPI entry, and shape/radius/elevation carry the supply chain."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the KEYED-EACH double weight (the chips each keys value#index — duplicate tag
+          VALUES cannot collide; mutation census on real keys: typing + Enter ADDED a chip, a
+          duplicate commit left the bound set unchanged with the flash class on the existing
+          chip, Backspace on empty removed the last — mounted census matching the bound set at
+          every step), the combobox contract (role=combobox with aria-expanded flipping on the
+          filter, aria-activedescendant riding the roving highlight into the suggestion listbox,
+          committed suggestions flipping their rows' aria-selected, every chip × announcing
+          "remove (label)"), the error wiring (aria-invalid + aria-describedby → the error id,
+          dashed shell), the comma-split paste (a,b,c → two commits), the density seat
+          (data-density lg → sm across 48rem AND the shell hit height 48px → 32px — the one
+          consumed axis), the theme split (the chip ink token chain: under a scoped .dark island
+          the inherited values flip while the field's --jx-* tokens HOLD the light values; at
+          root-level dark they re-derive — the root-pinned alias, shape #2) and the grep
+          receipts (zero --jx-*-effective readers over ui/tags-input/) were measured on this
+          page's served DOM (probe, task 43). LAW #19 id landscape: duplicate ids NONE
+          page-wide. The query() seat below rides the md viewport key (48rem) on the density
+          lane.
+        </p>
+        <div class={cx(rt.mt20)}>
+          <CodeBlock code={queryUsage} lang="svelte" meta="one real query() case" />
+        </div>
+        <div class={cx(rt.mt20, rt.wFull)}>
+          <TagsInput label="stack — responsive density" density={responsiveDensity} placeholder="Add tag..." />
+          <p class={cx(rt.mt12, rt.note12, rt.inkMuted70)}>
+            The md key is the registered VIEWPORT scale (48rem): below it the small rung stamps
+            (data-density="sm"); at 48rem and wider large wins ("lg" at a 1280 viewport,
+            measured) — and because density is the consumed axis, the shell hit height rescales
+            with it (48px vs 32px, measured). Resize across 48rem.
+          </p>
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="tags-input · universal props" stage="fill" files={universalFiles}>
+            <div class={cx(rt.gridSm2)}>
+            <div class={cx(rt.panel)}><TagsInput label="size 14 · density small" size={14} density="small" name="univ-tags-px" /></div>
+            <div class={cx(rt.panel)}><TagsInput label="size large · radius medium" size="large" density="large" radius="medium" name="univ-tags-named" /></div>
+            </div>
+          </ComponentCanvas>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+  <div id="accessibility" data-reveal="">
+    <SectionCard
+      family="accessibility"
+      headerRegion="accessibility"
+      eyebrow="a11y"
+      title="Accessibility"
+      summary="The typing input is a combobox over a horizontal listbox of chips; the suggestion popover rides aria-activedescendant with focus never leaving the field."
+    >
+      <A11yTable
+        keys={[
+          { key: 'Tab', action: 'Moves focus into the typing input; leaving commits the pending text' },
+          { key: 'Enter', action: 'Commits the highlighted suggestion or the typed text — never submits the form' },
+          { key: 'comma', action: 'Commits a chip; a pasted "a,b,c" splits into one commit per part' },
+          { key: 'Backspace', action: 'On an empty input, deletes the last removable chip' },
+          { key: '↑ / ↓', action: 'Roving highlight through the filtered suggestions (no wrap)' },
+          { key: 'Esc', action: 'Closes the suggestion popover (native popover close)' },
+        ]}
+        aria={[
+          { name: 'role', value: 'combobox', description: 'On the typing input, with aria-expanded synced live' },
+          { name: 'aria-activedescendant', value: '{id}-sug-{index}', description: 'Roving highlight ID into the suggestion listbox' },
+          { name: 'aria-autocomplete', value: '"list"', description: 'The input is backed by the suggestion list' },
+          { name: 'role (shell)', value: 'listbox', description: 'The chip host is a horizontal listbox; each chip is role="option" aria-selected="true"' },
+          { name: 'aria-label', value: '"remove {label}"', description: 'On every chip × button (type="button")' },
+          { name: 'aria-invalid', value: "'true'", description: 'On the input when the error prop is provided' },
+        ]}
+      />
+    </SectionCard>
+  </div>
+
+  <div id="see-also" data-reveal="">
+    <DocsSeeAlso name="tags-input" />
+  </div>
+  </div>
+

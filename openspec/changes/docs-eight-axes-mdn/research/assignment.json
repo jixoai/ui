@@ -989,8 +989,9 @@
     "marginalia",
     "quill"
    ],
-   "tier": null,
-   "status": "todo"
+   "tier": 2,
+   "status": "coded",
+   "notes": "task 43 tier-2; LAW #18 double-weight pass (composite keys value#index — duplicate tag values cannot collide; mutation diffs +1/+0/-1/+2 on real input); combobox announcement contract measured (activedescendant resolves, remove-X announces); root-pinned alias fourth family; family flag: suggestion rows key by value only (W-next class)"
   },
   {
    "page": "terminal-card",

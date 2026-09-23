@@ -1200,3 +1200,22 @@
   flat-zero on offscreen elements. The working recipe: scrollIntoView + settle + rAF sampling
   DURING the interaction (9 distinct mid-travel transforms over the authored 240ms), plus
   the RM contrast (transition-duration 0s → single position).
+
+## Task 43 — tags-input (2026-09-23)
+- **LAW #18's worst case is a MUTATING keyed list — and the fix is structural, not
+  behavioral**: tags-input chips key `${value}#${index}`, making duplicate VALUES unable to
+  collide no matter how the set mutates. The receipt is a DELTA census (add +1, duplicate +0,
+  Backspace −1, split +2) with the page interactive throughout — an abort would have frozen
+  everything. Flag remained: the SUGGESTION rows key on value alone (family file, one-word
+  composite fix for the orchestrator).
+- **Mutation censuses want seat-relative DELTAS, not absolute expectations**: my first
+  assertions assumed the seat's chip count started at 2 while the locator counted all four
+  demo fields (6). Deltas against the field's own start survive extra instances; absolute
+  numbers don't.
+- **Time-bound visual states expire**: the duplicate flash lives 200ms and my sample waited
+  200ms — measured nothing, twice as silly as it sounds. Sample time-bound states
+  IMMEDIATELY (0-delay read after the trigger) and assert the expiry separately.
+- **Probe selectors on demo pages hit SIBLING instances** — #demo held four TagsInputs, so
+  `page.locator(sel)` threw in strict mode while `querySelector` silently took the first.
+  Decide per probe: strict locator (fail loud) scoped to the section id, or first() with the
+  count asserted.
