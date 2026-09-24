@@ -127,6 +127,11 @@
   const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
   const max = $derived(seriesBounds(data)?.max ?? 0);
   const run = $derived((v: number) => barRun(v, max, cells));
+  // the adaptive-fit budget (Owner ruling 2026-09-24: charts are
+  // self-adaptive, never scrollable): runs cap at `cells` glyphs, and
+  // chart.css scales the run's font against the row's container width
+  // so the longest run always fits its 1fr track at ANY width
+  const fitBudget = `--jx-chart-cells: ${cells}`;
 
   // the payload's own join (separator's serialize law): objects in
   // dev, joined strings in payloads — never a raw interpolation
@@ -162,7 +167,7 @@
   data-jx-chart-bar={d.variant}
   data-density={densityRungOf(d.density)}
   class:dark={d.theme === 'dark'}
-  style={rootStyle}
+  style={[rootStyle, fitBudget].filter(Boolean).join('; ')}
   class={cn(cx(chartStyles.barRoot), className)}
 >
   {#each data as v, i (i)}

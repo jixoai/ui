@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-24T09:51:20.659Z",
+  "generatedAt": "2026-09-24T10:57:41.964Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -5860,8 +5860,8 @@
           "source": "registry/files/ui/chart/chart-bar.svelte",
           "mirror": "apps/www/src/lib/ui/chart/chart-bar.svelte",
           "target": "@ui/chart/chart-bar.svelte",
-          "sourceSha": "94c53bbb8f6e3b2250bb7408fbf4ca9730d3bf58f7b0dc5d400148d7d8283ce2",
-          "mirrorSha": "94c53bbb8f6e3b2250bb7408fbf4ca9730d3bf58f7b0dc5d400148d7d8283ce2"
+          "sourceSha": "5b7a510918641e59d042353651506b32eeabebd3eeebb801020f6247d421ebbf",
+          "mirrorSha": "5b7a510918641e59d042353651506b32eeabebd3eeebb801020f6247d421ebbf"
         },
         {
           "source": "registry/files/ui/chart/chart-sparkline.svelte",
@@ -5888,8 +5888,8 @@
           "source": "registry/files/ui/chart/chart.css",
           "mirror": "apps/www/src/lib/ui/chart/chart.css",
           "target": "@ui/chart/chart.css",
-          "sourceSha": "71f2cd5459f546d2203e6475f271fb0162ddc800889c4fa98d6d90218c011d18",
-          "mirrorSha": "71f2cd5459f546d2203e6475f271fb0162ddc800889c4fa98d6d90218c011d18"
+          "sourceSha": "744cb18509ff3f5160b8412d995c5413c95cefade3e8424d94f50162d9db706f",
+          "mirrorSha": "744cb18509ff3f5160b8412d995c5413c95cefade3e8424d94f50162d9db706f"
         },
         {
           "source": "registry/files/ui/chart/index.ts",
