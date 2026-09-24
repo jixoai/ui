@@ -9,7 +9,6 @@
   import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -221,7 +220,12 @@ ${close}
        column reserves the rail clearance with its mobile top padding -->
 
   <div class={cx(rt.shellCol)}>
-  <!-- page head -->
+  <!-- page head — the hero IS the page's terminal-header seat (Owner
+       walkthrough, round 3): the first card carries the TerminalCard
+       at its right side and the install rides THERE; the standalone
+       install card is gone. data-doc-install + the verbatim command
+       move with the card (the skeleton lint's contract holds — the
+       marker sits after the h1, before usage) -->
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -230,19 +234,25 @@ ${close}
       title="toggle — the native checkbox, painted as a switch"
       summary={heroSummary}
     >
-      <div class={cx(rt.wrap12)}>
-        <span class="pill">one element — the input is the rail</span>
-        <span class="pill">knob slide · 200ms</span>
-        <span class="pill">xs → lg rail rungs</span>
-        <span class="pill">checked is $bindable</span>
-        <span class="pill">label[for] + aria wiring</span>
+      <div class={cx(rt.grid760b)}>
+        <div class={cx(rt.col12)}>
+          <div class={cx(rt.wrap12)}>
+            <span class="pill">one element — the input is the rail</span>
+            <span class="pill">knob slide · 200ms</span>
+            <span class="pill">xs → lg rail rungs</span>
+            <span class="pill">checked is $bindable</span>
+            <span class="pill">label[for] + aria wiring</span>
+          </div>
+        </div>
+        <div class={cx(rt.col12)} data-doc-install="" aria-label="install toggle">
+          <TerminalCard
+            barTitle="install — toggle"
+            command="npx jixoai-ui add toggle"
+            outputs={['https://ui.jixoai.com/r/toggle.json']}
+          />
+        </div>
       </div>
     </SectionCard>
-  </div>
-
-  <!-- install (the docs-site skeleton: Intro → Install → Usage → …) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="toggle" />
   </div>
 
   <!-- usage (the skeleton law: Usage precedes the demos) -->
