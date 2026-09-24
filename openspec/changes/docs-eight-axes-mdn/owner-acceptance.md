@@ -90,4 +90,31 @@
 
 **GO 条件（Codex R1 开出）**：toggle 闭环+台账修正；页面级 backlog 消除；全量类型检查达批准基线；css-laws 修复进 HEAD 并重跑；串行重建后重跑全门禁。其中 backlog 消除与类型基线两项依赖 Owner 上述裁决——**收官序列在此暂停，呈 Owner 决策后继续**。
 
-### R2（待 Owner 裁决 + 修复轨完成后请求）
+### R2（HEAD 4684c960）：**未验证——不重新评分**（会话能力丧失）
+
+Codex 复核 1h11m 后报告：其会话失去仓库读取/命令执行能力，无法核验 4684c960 / 61d810ed / 三份 toggle 回执 / 本文档，故拒绝对所述修复采信或重评分（"在可执行环境恢复前，R2 应维持未验证，不重新评分"）。其**有条件接受框架**（原文归纳）：
+
+- B1/B4 **若**已进入 4684c960 且门禁实测通过 → 应从阻塞清单移除（编排者按：已由本仓库实测背书——css-laws 87/87（61d810ed）、最终 HEAD 串行重建 build/docs/universal 110/110/mirror/tailwindless 全 rc=0（4684c960））。
+- B2/B3 作为 Owner-gated 终态**可接受，仅当**四条件成立：
+  1. proposal / 活 spec 的 SHALL 未被暗中宣称为已满足 —— **满足**：本文档 §7-B2 原文记载"spec SHALL 与 Tier-1 执行存在真实落差"，无任何处宣称 SHALL 已全满足；
+  2. 48/39/40/70 精确缺口与 1204 分类原样保留 —— **满足**：§7-B2/B3 原数在档；
+  3. 明确的三选一决策、责任人、successor change 标识 —— **满足**：决策清单第 13 项（见下），successor = `2026-08-30-docs-demo-standard-global-gate`，责任人 = Owner（签署栏空置待署）；
+  4. 战役终态标注为**"实现收官、契约例外待 Owner 决策"**而非无条件 docs-complete —— **满足**：见下方终态声明。
+
+### 终态声明（per Codex R2 条件 4）
+
+**docs-eight-axes-mdn 战役的实现收官成立**：110/110 页面经标准管线闭环（tier 决策 + 双审签收 + 门禁），台账名实相符，收官序列（走查→420 歼灭→终审→修复轨）完成。**契约例外待 Owner 决策**：活 spec 的"每页 SHALL 携带专属 per-axis 表 + query() 实例"在 48 页（含 7 页 query() 缺失、39/40 页 Install/SeeAlso、70 页 Usage 序）未达全满足——此落差不因收官而消失，处置权在 Owner（三选一，决策清单 #13）。在 Owner 签署前，本变更**不主张 docs-complete 的契约级达成**。
+
+### 决策清单 #13（新增，承 B2/B3）
+
+**MDN 契约缺口的处置**（责任人：Owner；successor：`2026-08-30-docs-demo-standard-global-gate`）：
+- 选项 A：补一轮 fleet 轴表/骨架战役（≈48 页专属轴表 + 39/40 Install/SeeAlso + 70 Usage 序重排）；
+- 选项 B：修订 spec（specs/docs-site 的 per-axis SHALL 降为 tier 条件性——Tier 1 以通用 PropsTable 轴节 + 机制行满足）；
+- 选项 C：按设计归入 successor backlog（前提：先按选项 B 修订 SHALL，否则 successor 门禁全局翻转即全红）。
+同场裁决：**#14 svelte-check 批准基线**（1204 项分类在档：~458 家族类型债 + ~740 广谱遗留；批准现基线 + 修复路线图，或先清零再谈下一个变更）。
+
+### R3（新会话 codex-r3，窄域实跑核验）：**8.5/10 — CONDITIONAL GO（实现收官 / Owner-gated）**，较 R1 4.5 提升 +4.0
+
+全部核验为独立实跑（非转述）：B1 通过（固定 HEAD `git show` + jq：done=110、tier_null=0；三份 T147 回介入树且为实质审签）；B4 通过（`pnpm -C packages/css-laws test` 实跑 87/87，T94 钉扎断言在 law.test.ts:301）；门禁通过（apps/www `npm run build` rc=0 ~23s；根 `npm run verify:docs` rc=0 staged green、无 `[backlog] toggle:` 项——149 项 out-of-scope WARN 被如实区分于零 backlog）；B2/B3 **可接受为 Owner-gated 终态，不可称无条件 docs-complete**（活 spec 的每页 SHALL 仍在 specs/docs-site/spec.md:5；验收材料的数字保留/三选一/successor/终态声明被逐项核对认可）。Codex 同时标注边界：R2 四条件与终态声明在本轮核验时是未提交工作树改动——**本提交即闭合该边界，终态声明进入 HEAD**。
+
+**评分轨迹：R1 4.5 NO-GO → R2 未验证（能力丧失，有条件接受框架）→ R3 8.5 CONDITIONAL GO。**
