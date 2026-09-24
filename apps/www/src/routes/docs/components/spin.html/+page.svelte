@@ -22,7 +22,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -306,6 +306,16 @@ ${close}
         title="spin — a name, not a cursor"
         summary="The loading indicator in ora's voice. You hand it a NAME: any of the 60 text spinners curated from cli-spinners (frames and intervals verbatim — dots, line, arc, bounce…), or a name from the generated svg artifact (blocks-wave by default, the vendored loader packs and your own files through the vite plugin). The union closes at build time, so a misspelled spinner is a compile error, never a shipped blank. role=status keeps loading polite by construction; under prefers-reduced-motion the text frames rest on frame 0 and the svg clock freezes — observed live, not once at mount."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install spin">
+          <TerminalCard
+            barTitle="install — spin"
+            command="npx jixoai-ui add spin"
+            outputs={['https://ui.jixoai.com/r/spin.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">one spinner name lane — text + svg</span>
           <span class="pill">60-name catalog, frames verbatim</span>
@@ -316,9 +326,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="spin" />
-    </div>
 
     <!-- overview -->
     <div id="overview" data-reveal="">

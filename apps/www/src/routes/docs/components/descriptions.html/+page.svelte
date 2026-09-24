@@ -34,7 +34,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import Descriptions, { DescriptionsItem } from '$lib/ui/descriptions/index';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -235,6 +235,16 @@ ${close}
         title="descriptions — composed dt/dd pairs, never a table"
         summary={entry.summary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install descriptions">
+          <TerminalCard
+            barTitle="install — descriptions"
+            command="npx jixoai-ui add descriptions"
+            outputs={['https://ui.jixoai.com/r/descriptions.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">dl · never a table</span>
           <span class="pill">term prop → dt · children → dd</span>
@@ -245,9 +255,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="descriptions" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

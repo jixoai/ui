@@ -38,7 +38,7 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { meta as cardGridMeta } from '$lib/meta/card-grid.meta';
   import { CARD_GRID_DOCS } from '$lib/ui/props-table/docs/card-grid.docs';
@@ -283,6 +283,16 @@ ${close}
         title="card-grid — the subgrid equalizer"
         summary="Shared header and body rows keep card tops aligned and bodies filled to the tallest: grid + subgrid, works with any two-block card. A layout LANDLORD: it stamps the universal lanes and forwards them to the tenants it hosts — its own paint stays structural."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install card-grid">
+          <TerminalCard
+            barTitle="install — card-grid"
+            command="npx jixoai-ui add card-grid"
+            outputs={['https://ui.jixoai.com/r/card-grid.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">subgrid rows</span>
           <span class="pill">any two-block card</span>
@@ -295,9 +305,6 @@ ${close}
     <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
          ABOVE the demos — Intro → Install → Usage → Examples → API →
          See Also is the page law; the sections between stay page-local. -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="card-grid" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

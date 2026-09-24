@@ -20,7 +20,7 @@
   import { usageFile } from '$lib/canvas-usage';
   import { registrySourceUrl } from '$lib/registry-source';
   import { PlayFields, PlayHelp } from '$lib/playground';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import type { DensityLane } from '$lib/defaults.svelte';
@@ -163,6 +163,16 @@
       title="badge — the eyebrow's inline cousin"
       summary="A plain <span> with the site's micro-label voice: font-nav uppercase, tracked at 0.14em, a 1px hairline border, kbd-law geometry. Prominence is the variant ladder — fill, tonal (the bare default, brand-tinted), outline — and every status hue injects through the four global token slots, never a variant name. Seven universal axes resolve on the chip; the eighth, shape, is the family's own corner law."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install badge">
+          <TerminalCard
+            barTitle="install — badge"
+            command="npx jixoai-ui add badge"
+            outputs={['https://ui.jixoai.com/r/badge.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">plain span</span>
         <span class="pill">fill · tonal · outline</span>
@@ -215,9 +225,6 @@
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="badge" />
-  </div>
 
   <div id="usage" data-reveal="">
     <SectionCard

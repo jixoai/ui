@@ -16,7 +16,7 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { meta as comboboxMeta } from '$lib/meta/combobox.meta';
   import { COMBOBOX_DOCS } from '$lib/ui/props-table/docs/combobox.docs';
@@ -322,6 +322,16 @@ ${close}
       title="combobox — the searchable select"
       summary={heroSummary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install combobox">
+          <TerminalCard
+            barTitle="install — combobox"
+            command="npx jixoai-ui add combobox"
+            outputs={['https://ui.jixoai.com/r/combobox.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">the trigger IS the input</span>
         <span class="pill">live label filter</span>
@@ -336,9 +346,6 @@ ${close}
   <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law; the sections between stay page-local. -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="combobox" />
-  </div>
 
   <div id="overview" data-reveal="">
     <SectionCard

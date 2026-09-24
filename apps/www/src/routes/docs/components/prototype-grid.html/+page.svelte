@@ -3,7 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import PrototypeGrid from '$lib/ui/prototype-grid/prototype-grid.svelte';
@@ -189,6 +189,16 @@ ${close}
         title="prototype-grid — the standardized grid"
         summary="The layout family, alpha track: the design studio's property panel edits these exact props. Three laws carry over from prototype-flex — single root + rest spread, zero translation, inline style only — plus the track coercion: cols/rows number → repeat(N, minmax(0, 1fr)) (the no-max-content-blowout form), strings stay verbatim, and grid-template-areas passes through as one template string."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install prototype-grid">
+          <TerminalCard
+            barTitle="install — prototype-grid"
+            command="npx jixoai-ui add prototype-grid"
+            outputs={['https://ui.jixoai.com/r/prototype-grid.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">alpha track</span>
           <span class="pill">inline style only</span>
@@ -200,9 +210,6 @@ ${close}
     </div>
 
     <!-- install (chrome — out of the toc) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="prototype-grid" />
-    </div>
 
     <!-- overview -->
     <div id="overview" data-reveal="">

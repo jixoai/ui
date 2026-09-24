@@ -25,7 +25,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import Link from '$lib/ui/link/link.svelte';
@@ -358,6 +358,16 @@ ${close}
         title="chip — the grammar's compact activation"
         summary="What a filter, a toggle, or an inline nav target looks like in this language: the badge's uppercase micro-label at badge scale with an activation root — button or anchor, press physics, the focus law. Paint is the frozen four-rung ladder (fill / tonal / outline / ghost) consumed as global tokens; hue is injected through classes, never named."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install chip">
+          <TerminalCard
+            barTitle="install — chip"
+            command="npx jixoai-ui add chip"
+            outputs={['https://ui.jixoai.com/r/chip.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">badge twin · inline scale</span>
           <span class="pill">fill · tonal · outline · ghost</span>
@@ -367,9 +377,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="chip" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

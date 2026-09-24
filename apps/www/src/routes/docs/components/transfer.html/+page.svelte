@@ -23,7 +23,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import Transfer from '$lib/ui/transfer/transfer.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -307,6 +307,16 @@ let typesTitledValue = $state<string[]>(['done']);
       title="transfer — two fieldsets and a batch mover"
       summary="The two-panel selector the ruled way: each side is a real fieldset of real checkbox rows — grouping, labeling and toggling all native. The middle buttons batch-move every checked row at once, then the selection clears (checked is a transient moving state, never the value). Per-panel search filters its own list; disabled rows render but never move. value is the TARGET list — what sits on the right is the answer."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install transfer">
+          <TerminalCard
+            barTitle="install — transfer"
+            command="npx jixoai-ui add transfer"
+            outputs={['https://ui.jixoai.com/r/transfer.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">fieldset + checkbox rows</span>
         <span class="pill">batch move · selection clears</span>
@@ -317,9 +327,6 @@ let typesTitledValue = $state<string[]>(['done']);
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="transfer" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

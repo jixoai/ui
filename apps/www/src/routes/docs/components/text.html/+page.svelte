@@ -11,7 +11,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -250,6 +250,16 @@ ${close}
         title="text — one word, three ways to say it"
         summary="The family the Owner designed: base <Text> renders <p> by default (the Chakra <Text>-is-a-paragraph precedent) and mark switches the element and paint. ONE vocabulary — the prop value, the sugar name, and the HTML element are the same word: strong renders <strong> whether you wrote <Text mark=&quot;strong&quot;> or <Strong>. mark is a LITERAL slot (defineLiteralSlot, own 'p' — the kbd variant precedent): element vocabulary, never prominence, never zone-ambient. Two members deliberately override face channels (recorded settles, not accidents): strong's font-semibold (600 — the GitHub/Tailwind Typography emphasis weight, settling the UA's 700) and mark's highlight ground with the 0.05em/0.25em padding box mirroring the face's mark so standalone and in-face agree. FACE-COMPOSING: no member escapes the prose face — an inline escape would virally descope the code chips and nested marks a link legitimately contains — and no member stamps a font-size; the ambient scale flows by inheritance."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install text">
+          <TerminalCard
+            barTitle="install — text"
+            command="npx jixoai-ui add text"
+            outputs={['https://ui.jixoai.com/r/text.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">8 forms · one vocabulary</span>
           <span class="pill">mark = literal slot (own 'p')</span>
@@ -259,9 +269,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="text" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard

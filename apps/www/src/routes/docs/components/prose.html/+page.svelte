@@ -11,7 +11,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import Chip from '$lib/ui/chip/chip.svelte';
   import Heading from '$lib/ui/heading/heading.svelte';
@@ -142,6 +142,16 @@
         title="prose — the reading region, eleven knobs and two channels"
         summary="NOT <Typography> — that word is markdown's live user-facing vocabulary (<Markdown typography=&quot;relaxed&quot;); the provider is <Prose>, rendering a div.jx-pure[data-jx-prose] host. Eleven frozen v1 knobs, every one an absentSlot in ProseDefaults: ABSENCE IS THE STATE — an unset knob emits nothing, stamps nothing, and the ambient channel (an outer prose region's declarations, or no opinion at all) keeps flowing; nested regions inherit every knob they do not set, nearest setter wins. Two channels carry the state: the JS scope (resolved through the plugin chain AT THE PROVIDER — a print-medium plugin can strip gradient/ground before CSS sees them — then provided through the typography lib's context pair) and the CSS residue sheet (prose.css), whose every rule sits at (0,2,0): above the face element rules, BELOW the markdown sheet. That ladder IS the sovereignty contract — an outer <Prose measure leading> can never fight <Markdown typography=…>; ink and flow pass through; chrome stays unaffected BY CASCADE; code/kbd stay mono under family; density stamps only for an explicit lane (W3-D2, the markdown trio founding law)."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install prose">
+          <TerminalCard
+            barTitle="install — prose"
+            command="npx jixoai-ui add prose"
+            outputs={['https://ui.jixoai.com/r/prose.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">11 absentSlot knobs</span>
           <span class="pill">absence IS the state</span>
@@ -151,9 +161,6 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="prose" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard

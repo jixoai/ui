@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
@@ -202,6 +202,16 @@ ${close}
         title="sheet — a dialog that arrives from the side"
         summary={summary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install sheet">
+          <TerminalCard
+            barTitle="install — sheet"
+            command="npx jixoai-ui add sheet"
+            outputs={['https://ui.jixoai.com/r/sheet.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">4 sides</span>
           <span class="pill">no backdrop-click close</span>
@@ -210,9 +220,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="sheet" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

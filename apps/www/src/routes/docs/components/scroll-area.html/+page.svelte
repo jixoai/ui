@@ -4,7 +4,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -304,6 +304,16 @@ ${close}
       title="scroll-area — the scrollable region, always hand-drawn"
       summary="A dedicated scrollable-region component after shadcnui, with the jixoai law: the component IS a native scroll container — wheel, touch momentum, keyboard and scroll-snap stay platform behavior — and the scrollbar is ALWAYS HAND-DRAWN (the 2026-09-15 rework retired the dual-mode scrollbar prop; no mode branch exists, breaking). Capsule thumb on the scrollbar-token law, idle fade with four testable auto-hide pins, hover growth, drag pinning, keyboard affordances on region and thumb. The platform path is its own sibling (native-scroll-area); both share the scroll-area-kit kernel. The windowed-list sibling (scroll-virtual) lives on its own page, and the ToC metadata export lets a table of contents derive itself from your content."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install scroll-area">
+          <TerminalCard
+            barTitle="install — scroll-area"
+            command="npx jixoai-ui add scroll-area"
+            outputs={['https://ui.jixoai.com/r/scroll-area.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">nativeHTML scrollport</span>
         <span class="pill">hand-drawn capsule, always</span>
@@ -315,9 +325,6 @@ ${close}
   </div>
 
   <!-- install (chrome — out of the toc) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="scroll-area" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

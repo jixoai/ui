@@ -9,7 +9,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -92,6 +92,16 @@
         title="list — the prose list, the list itself"
         summary="A native <ol|ul> by the ordered prop — the separator's dual-root cast, with start and reversed passed explicitly on the ol branch only. What it owns is the reading channel set: the marker (a 7-word frozen vocabulary — disc | circle | square | decimal | alpha | roman | none, element-agnostic, lowercase only; omitted keeps the per-element platform default byte-parity, explicit overrides), padding-inline-start 1.5rem (none keeps it: the indent is structural), muted marker ink. And nav mode: a nav prop (the aria-label) wraps the list in a landmark <nav data-jx-list-nav> defaulting marker none + ps-0 — a default that paints standalone; inside a jx-pure scope the face's B8 restore out-cascades it (no-jx-pure is the escape). class/rest stay on the LIST element, the wrapper carries only the semantics. What it refuses: block margins (the rhythm and flush laws own spacing, as with heading) and any opinion about the rows — children stay native <li> elements, so the element-based rhythm selectors, the flush law and the container-inner sibling stack keep matching the native roots (the markdown map composes exactly this way; list_item stays bare). Not to be confused with list-item: that item is the antd/F7 settings-row system — ItemGroup frames, media/end lanes, ItemField + seven control adapters (Toggle / Checkbox / Radio / Select / Input / Segmented / Stepper — the list-item 1st review ruling) — a different taxonomy entirely."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install list">
+          <TerminalCard
+            barTitle="install — list"
+            command="npx jixoai-ui add list"
+            outputs={['https://ui.jixoai.com/r/list.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;ul&gt; | &lt;ol&gt;</span>
           <span class="pill">ordered · start · reversed</span>
@@ -102,9 +112,6 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="list" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard

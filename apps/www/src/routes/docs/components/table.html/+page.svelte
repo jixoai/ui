@@ -18,6 +18,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
@@ -699,6 +700,16 @@ ${close}
       title="table — frame-width laws, token paint, composition recipes"
       summary="The figure frame is a named inline-size container, so every responsive decision reads the FRAME's width, never the viewport's. Wide (≥ 30rem): the scroll law — fit-content columns, native overflow-x, consumer cells opt into pinned columns with data-sticky=start|end behind a hairline fold mark. Narrow: the CodePen card law — thead folds away, td[data-label] renders a muted label with the value flushed right. Every color routes through the --jx-table-* locals. On top of the paint sits the RECIPE SUITE: the component owns only the frame, so sorting, filtering, selection, row actions, column visibility and pagination are page-owned state composed from the family — the shadcn data-table tutorial's layering in terminal paint, ending in the tasks table."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install table">
+          <TerminalCard
+            barTitle="install — table"
+            command="npx jixoai-ui add table"
+            outputs={['https://ui.jixoai.com/r/table.json', 'zero-dependency; recipes add their own families']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">container queries on the frame</span>
         <span class="pill">data-sticky pin law</span>
@@ -710,18 +721,7 @@ ${close}
   </div>
 
   <!-- install -->
-  <div id="install" data-reveal="">
-    <SectionCard
-      family="install"
-      headerRegion="install"
-      eyebrow="install"
-      title="Install"
-      summary="One zero-dependency item. The recipes below add their own families — checkbox, input, toggle-group, select, pagination, dropdown-menu, popover, press-button — each a separate add."
-    >
-      <CodeBlock code={`npx jixoai-ui add table`} lang="sh" meta="install" />
-    </SectionCard>
-  </div>
-
+  
   <!-- overview -->
   <div id="overview" data-reveal="">
     <SectionCard

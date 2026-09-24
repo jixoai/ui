@@ -2,7 +2,7 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -304,6 +304,16 @@ ${close}
       title="file-input — a picker that reads like one"
       summary="2026-08-23 redesign: the old trigger was indistinguishable from a button and long filenames broke layouts. The anatomy is borrowed from ant-design Upload with LOCAL-picker semantics — no network, no fake upload progress: a dedicated drop zone (or compact button trigger) plus a selected-file list below, exactly where ant puts it. The zone is a real <button> (Enter/Space open the platform picker) and a real drop target (enter-depth counting, file-drag detection); accept violations are gate-rejected — reported, never entering the value."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install file-input">
+          <TerminalCard
+            barTitle="install — file-input"
+            command="npx jixoai-ui add file-input"
+            outputs={['https://ui.jixoai.com/r/file-input.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">drop zone · button trigger</span>
         <span class="pill">real drag-and-drop</span>
@@ -318,9 +328,6 @@ ${close}
   <!-- the demo-standard skeleton: Install then Overview then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law (docs-eight-axes-mdn task 25) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="file-input" />
-  </div>
 
   <div id="overview" data-reveal="">
     <SectionCard

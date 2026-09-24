@@ -1,6 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -229,6 +229,16 @@ ${close}
       title="native-scroll-area — the platform path, packaged best practices"
       summary="The 2026-09-15 family rework (Owner ruling): the styled component hand-draws always; this sibling ships the platform scrollbar under the site's scrollbar-token law — zero drawn chrome, zero custom scrollbar ARIA (the platform bar IS the accessibility contract) — with the native best practices packaged as capability styles from the shared scroll-area-kit kernel."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install native-scroll-area">
+          <TerminalCard
+            barTitle="install — native-scroll-area"
+            command="npx jixoai-ui add native-scroll-area"
+            outputs={['https://ui.jixoai.com/r/native-scroll-area.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">zero drawn chrome</span>
         <span class="pill">stable gutter</span>
@@ -243,9 +253,6 @@ ${close}
        capabilities/usage sections were already law-grade; the archetype
        gains install/overview/see-also + the measured axes layer; the
        theming section folds into axes) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="native-scroll-area" />
-  </div>
 
   <div id="overview" data-reveal="">
     <SectionCard

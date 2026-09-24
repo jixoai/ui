@@ -10,7 +10,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
@@ -208,6 +208,16 @@ ${close}
       title="select — the popover listbox"
       summary={heroSummary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install select">
+          <TerminalCard
+            barTitle="install — select"
+            command="npx jixoai-ui add select"
+            outputs={['https://ui.jixoai.com/r/select.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">popover=auto panel</span>
         <span class="pill">per-option descriptions</span>
@@ -221,9 +231,6 @@ ${close}
   <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law; the sections between stay page-local. -->
-  <div data-reveal="">
-    <DocsInstall name="select" />
-  </div>
 
   <div id="usage" data-reveal="">
     <SectionCard

@@ -4,7 +4,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import InlineCode, { INLINE_LANGS, detectInlineLang } from '$lib/ui/inline-code/inline-code.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -266,6 +266,16 @@ ${close}
         title="inline code — the token, framed by its backdrop"
         summary="A native <code> — the element whose entire meaning is 'this is source code' — in the ladder's fused/tonal/outline paint with kbd-law geometry. Mono with untouched case: code is not a label, so the eyebrow voice (uppercase, tracking) never applies. Highlighting rides the engine seam: the stock microlighter RANGE engine paints zero markup — token ranges over the same text node, so the text stays copyable and the frame never depends on it. Inside <pre> the jx-pure reset strips a bare code's frame — long or dynamic code belongs to CodeCard."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install inline-code">
+          <TerminalCard
+            barTitle="install — inline-code"
+            command="npx jixoai-ui add inline-code"
+            outputs={['https://ui.jixoai.com/r/inline-code.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;code&gt;</span>
           <span class="pill">fused default</span>
@@ -275,9 +285,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="inline-code" />
-    </div>
 
     <!-- overview (docs-eight-axes-mdn task 16, tier 3: the page was
          already canonical and invariant-pinned — this section completes

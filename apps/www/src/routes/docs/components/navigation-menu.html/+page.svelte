@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -288,6 +288,16 @@ ${close}
       title="navigation menu — a bar you WALK, with panels that move"
       summary="The site-nav pattern as an independent thin coordinator: ←/→ walk the top-level triggers (one tab stop, on the current section), click opens a panel, Escape closes and hands focus back. Panels ride the Popover primitive's laws — native popover=auto light dismiss, CSS anchor positioning, and the WAAPI surface-motion entry/exit — through a DECLARATIVE popovertarget wire, and open state mirrors the native toggle seam only, so aria-expanded never lies. Panels carry REAL LINKS — navigation moves you; actions belong to dropdown-menu. Duplicated deliberately: the three menu roots stay independent registry items, no hidden coupling."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install navigation-menu">
+          <TerminalCard
+            barTitle="install — navigation-menu"
+            command="npx jixoai-ui add navigation-menu"
+            outputs={['https://ui.jixoai.com/r/navigation-menu.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">roving walk</span>
         <span class="pill">click open</span>
@@ -300,9 +310,6 @@ ${close}
   <!-- install + overview (docs-eight-axes-mdn task 22; the theming
        section folds into the measured axes layer, the old types section
        into usage, the prose universal-props section into axes) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="navigation-menu" />
-  </div>
 
   <div id="overview" data-reveal="">
     <SectionCard

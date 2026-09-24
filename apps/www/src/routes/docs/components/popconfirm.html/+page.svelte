@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -271,6 +271,16 @@ ${close}
         title="popconfirm — the light sure-bubble"
         summary={entry.summary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install popconfirm">
+          <TerminalCard
+            barTitle="install — popconfirm"
+            command="npx jixoai-ui add popconfirm"
+            outputs={['https://ui.jixoai.com/r/popconfirm.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">role=dialog</span>
           <span class="pill">light dismiss = cancel</span>
@@ -280,9 +290,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="popconfirm" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

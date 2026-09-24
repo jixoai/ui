@@ -15,7 +15,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -142,6 +142,16 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
         title="icon — a name, not a picture"
         summary="The glyph renderer every component shares. You hand it a NAME from the generated set — the IconName union closes at build time, so a misspelled glyph is a compile error, not a blank square in production. The component owns the whole &lt;svg&gt; root: viewBox from the icon data, the square size edge, currentColor painting by artwork nature (stroke artwork strokes, fill artwork fills), round caps and joins, aria-hidden. Sizing and stroke weight are props — never wrapper CSS fighting an inline svg."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install icon">
+          <TerminalCard
+            barTitle="install — icon"
+            command="npx jixoai-ui add icon"
+            outputs={['https://ui.jixoai.com/r/icon.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">IconName union — typo = compile error</span>
           <span class="pill">size / strokeWidth props</span>
@@ -152,9 +162,6 @@ await preloadIcons(['folderOpen', 'fileAudio']); // warm a set ahead of a mount
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="icon" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard

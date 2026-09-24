@@ -1,6 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import { query } from '$lib/universal-props-query.svelte';
@@ -215,6 +215,16 @@ ${close}
       title="input-otp — six slots, one form value"
       summary="Single-character inputs with the mechanics a raw stack lacks: typing overflows into the next slots, backspace steps back, paste distributes, focus entering from outside lands on the first empty slot. The group is not a single native control — exactly the jx-form-field bridge case: the joined code submits as ONE value; a partial code submits empty (never a partial lie)."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install input-otp">
+          <TerminalCard
+            barTitle="install — input-otp"
+            command="npx jixoai-ui add input-otp"
+            outputs={['https://ui.jixoai.com/r/input-otp.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">paste distributes</span>
         <span class="pill">backspace steps back</span>
@@ -225,9 +235,6 @@ ${close}
   </div>
 
     <!-- ② install (the archetype's install anchor) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="input-otp" />
-    </div>
 
     <!-- ③ overview (docs-eight-axes-mdn task 29, tier 2) -->
     <div id="overview" data-reveal="">

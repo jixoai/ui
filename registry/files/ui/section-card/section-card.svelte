@@ -90,6 +90,12 @@
     title: string;
     summary?: string;
     children: Snippet;
+    /** The header region's RIGHT wing (the hero's terminal seat, Owner
+     *  walkthrough 2026-09-24): when given, the header's text stack
+     *  (eyebrow + title + summary) and this aside form a two-wing row —
+     *  text left, aside right at the wide tier, aside stacked below on
+     *  narrow. The body (children) always stays full-width below. */
+    headerAside?: Snippet;
     class?: string;
     headingLevel?: 1 | 2;
     tone?: SectionCardTone;
@@ -158,6 +164,7 @@
     title,
     summary,
     children,
+    headerAside,
     class: className = '',
     headingLevel = 2,
     tone,
@@ -354,25 +361,57 @@
     class={cx(sectionCardStyles.header)}
     data-region={headerRegion}
   >
-    {#if eyebrow}
-      <p class={cx(sectionCardStyles.eyebrow)}>
-        {eyebrow}
-      </p>
+    {#if headerAside}
+      <!-- the two-wing header (the hero's terminal seat): text stack
+           LEFT, the consumer's aside RIGHT at the wide tier; the aside
+           stacks below on narrow. The body below stays full-width -->
+      <div class={cx(sectionCardStyles.headerRow)}>
+        <div class={cx(sectionCardStyles.headerText)}>
+          {#if eyebrow}
+            <p class={cx(sectionCardStyles.eyebrow)}>
+              {eyebrow}
+            </p>
+          {/if}
+          <div class={cx(sectionCardStyles.titleBlock)}>
+            {#if headingLevel === 1 && number}
+              <h1 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h1>
+            {:else if headingLevel === 1}
+              <h1 data-jx-section-title="">{title}</h1>
+            {:else if number}
+              <h2 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h2>
+            {:else}
+              <h2 data-jx-section-title="">{title}</h2>
+            {/if}
+            {#if summary}
+              <p data-jx-section-summary="">{summary}</p>
+            {/if}
+          </div>
+        </div>
+        <div class={cx(sectionCardStyles.headerAsideCell)}>
+          {@render headerAside()}
+        </div>
+      </div>
+    {:else}
+      {#if eyebrow}
+        <p class={cx(sectionCardStyles.eyebrow)}>
+          {eyebrow}
+        </p>
+      {/if}
+      <div class={cx(sectionCardStyles.titleBlock)}>
+        {#if headingLevel === 1 && number}
+          <h1 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h1>
+        {:else if headingLevel === 1}
+          <h1 data-jx-section-title="">{title}</h1>
+        {:else if number}
+          <h2 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h2>
+        {:else}
+          <h2 data-jx-section-title="">{title}</h2>
+        {/if}
+        {#if summary}
+          <p data-jx-section-summary="">{summary}</p>
+        {/if}
+      </div>
     {/if}
-    <div class={cx(sectionCardStyles.titleBlock)}>
-      {#if headingLevel === 1 && number}
-        <h1 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h1>
-      {:else if headingLevel === 1}
-        <h1 data-jx-section-title="">{title}</h1>
-      {:else if number}
-        <h2 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h2>
-      {:else}
-        <h2 data-jx-section-title="">{title}</h2>
-      {/if}
-      {#if summary}
-        <p data-jx-section-summary="">{summary}</p>
-      {/if}
-    </div>
   </div>
   <Separator data-jx-section-sep aria-hidden="true" />
   <div

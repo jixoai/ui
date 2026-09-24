@@ -8,7 +8,7 @@
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlaySelect, PlayHelp } from '$lib/playground';
@@ -677,6 +677,16 @@ ${close}
       title="code-card — the readonly code surface, on Shiki"
       summary="A figure + pre/code base with a filename-tab head and a compact copy control, highlighted by Shiki through lib/shiki: grammars and themes are separate lazy chunks fetched exactly when a card first needs them (shiki/core + the JavaScript regex engine — no WASM), and the default jixoai theme is Shiki's own css-variables recipe bound to the --tok-* palette, so token paint rides the design tokens in both themes. Code is always a runtime prop — Shiki escapes it, so samples containing literal script-closing tags are inert data; the pre is the scrollport: horizontal always, vertical when maxHeight caps it."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install code-card">
+          <TerminalCard
+            barTitle="install — code-card"
+            command="npx jixoai-ui add code-card"
+            outputs={['https://ui.jixoai.com/r/code-card.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">based on Shiki</span>
         <span class="pill">engine matrix · six installable backends</span>
@@ -691,9 +701,6 @@ ${close}
   <!-- archetype gaps (docs-eight-axes-mdn task 22, tier 2): install +
        overview join here; the workbench/engines/auto sections below are
        the pre-existing canon and stay untouched -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="code-card" />
-  </div>
 
   <div id="overview" data-reveal="">
     <SectionCard

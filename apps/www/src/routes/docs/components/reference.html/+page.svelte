@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -186,6 +186,16 @@ ${close}
         title="reference — the 引 primitive"
         summary="A native <a href> that says what the target says: an equation Figure renders Eq (4.5), a numbered Section renders § 3.2.1, an unnumbered one renders its title. Change the target — kind, chapter, order — and every reference follows. Forward references prerender their ?? fallback carrying the edge claim and resolve on hydration."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install reference">
+          <TerminalCard
+            barTitle="install — reference"
+            command="npx jixoai-ui add reference"
+            outputs={['https://ui.jixoai.com/r/reference.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native anchor · zero grammar knowledge</span>
           <span class="pill">target-owned display</span>
@@ -194,9 +204,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="reference" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

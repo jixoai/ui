@@ -22,7 +22,7 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
@@ -399,6 +399,16 @@ ${close}
       title="component-canvas — the documentation workbench"
       summary="One bordered surface per component: a LIVE demo stage, the floating playground dock — the eight-axis bar on every canvas — and a collapsible code drawer. Every component page on this site is one canvas; this one renders the component inside itself."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install component-canvas">
+          <TerminalCard
+            barTitle="install — component-canvas"
+            command="npx jixoai-ui add component-canvas"
+            outputs={['https://ui.jixoai.com/r/component-canvas.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">LIVE stage · muted tint</span>
         <span class="pill">floating dock · the eight-axis bar</span>
@@ -410,9 +420,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="component-canvas" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

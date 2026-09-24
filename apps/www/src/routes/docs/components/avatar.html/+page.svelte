@@ -25,7 +25,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -171,6 +171,16 @@ ${close}
         title="avatar — an img, honestly"
         summary="The avatar IS an <img>: lazy, async-decoded, intrinsic width/height so layout never shifts. When the source fails or is absent, it swaps to an initials block derived code-point-wise from the name — CJK-safe (张伟 stays 张伟), halved to one code point at icon size so the badge never wraps. Three silhouettes ride one geometry: the bevel radius law (default), a true circle, and the squircle superellipse. Hover any avatar and the full name comes back on a tooltip — on by default, tooltip={false} opts out."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install avatar">
+          <TerminalCard
+            barTitle="install — avatar"
+            command="npx jixoai-ui add avatar"
+            outputs={['https://ui.jixoai.com/r/avatar.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">bevel · rounded · squircle</span>
           <span class="pill">sm halves the initials</span>
@@ -181,9 +191,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="avatar" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

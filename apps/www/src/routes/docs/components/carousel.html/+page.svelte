@@ -37,7 +37,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import Carousel from '$lib/ui/carousel/carousel.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -220,6 +220,16 @@ ${close}
         title="carousel — the browser is the animator"
         summary="A carousel IS a horizontally scrolled region: CSS scroll-snap pages it, native scrolling animates it (momentum, keyboard when focused), and JS only READS the position (rAF-throttled) to keep the dots honest. No slide cloning, no virtual window, no transition emulation — slides are ordinary direct children."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install carousel">
+          <TerminalCard
+            barTitle="install — carousel"
+            command="npx jixoai-ui add carousel"
+            outputs={['https://ui.jixoai.com/r/carousel.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">scroll-snap</span>
           <span class="pill">no cloning</span>
@@ -228,9 +238,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="carousel" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

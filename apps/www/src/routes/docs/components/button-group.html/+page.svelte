@@ -35,7 +35,7 @@
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Icon from '$lib/ui/icon';
@@ -315,6 +315,16 @@ ${close}
         title="button-group — joined actions, one hairline"
         summary="The shadcn Button Group counterpart, native to this registry's laws: a layout container that joins press-buttons edge-to-edge. The group paints NO bezel of its own — adjacent children collapse their 1px borders into ONE hairline seam (a joined row of outline buttons reads as one control, never a 2px double border), and the ButtonGroupDivider replaces the seam wherever clusters need an explicit boundary. The buttons keep their paint ladder and density tier; PHYSICS is the one takeover (2026-09-04): the joined row is ONE control, so it casts ONE convex shadow from the ROOT — per-button convex shadows overlap at the seams, so the subtree rides raised=false by default through the texture context (an explicit raised on any child still wins; icon-buttons follow the same context for free). ROLE LAW: the root is role=group — a named grouping of related actions, NOT a toolbar; and when the children express SELECTION (a pressed state, an active value), the component is wrong: segmented selection is toggle-group's law."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install button-group">
+          <TerminalCard
+            barTitle="install — button-group"
+            command="npx jixoai-ui add button-group"
+            outputs={['https://ui.jixoai.com/r/button-group.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">orientation · justify</span>
           <span class="pill">1px hairline seams</span>
@@ -326,9 +336,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="button-group" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

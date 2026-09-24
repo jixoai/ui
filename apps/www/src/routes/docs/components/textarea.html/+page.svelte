@@ -7,7 +7,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -233,6 +233,16 @@ ${close}
       title="textarea — the multiline text shell"
       summary={heroSummary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install textarea">
+          <TerminalCard
+            barTitle="install — textarea"
+            command="npx jixoai-ui add textarea"
+            outputs={['https://ui.jixoai.com/r/textarea.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">resize: vertical</span>
         <span class="pill">toolbar + status slot rows</span>
@@ -244,9 +254,6 @@ ${close}
   </div>
 
   <!-- install (the archetype's install anchor; chrome — out of the toc) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="textarea" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

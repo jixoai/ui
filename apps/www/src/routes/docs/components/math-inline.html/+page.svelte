@@ -9,7 +9,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import MathInline from '$lib/ui/math-inline';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -142,6 +142,16 @@ ${close}
         title="math-inline — real math in prose, no chrome"
         summary={heroSummary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install math-inline">
+          <TerminalCard
+            barTitle="install — math-inline"
+            command="npx jixoai-ui add math-inline"
+            outputs={['https://ui.jixoai.com/r/math-inline.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">based on KaTeX</span>
           <span class="pill">one span · zero chrome</span>
@@ -153,9 +163,6 @@ ${close}
 
     <!-- the demo-standard skeleton: Install then Usage sit ABOVE the
          demos — Intro → Install → Usage → Examples → API → See Also -->
-    <div data-reveal="">
-      <DocsInstall name="math-inline" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard

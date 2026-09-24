@@ -28,7 +28,7 @@
   import Table from '$lib/ui/table/table.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { CATALOG } from '$lib/catalog';
 
@@ -346,6 +346,16 @@ let cardOpen = $state(false);
       title="tour — targets stay data, the card opens"
       summary={entry.summary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install tour">
+          <TerminalCard
+            barTitle="install — tour"
+            command="npx jixoai-ui add tour"
+            outputs={['https://ui.jixoai.com/r/tour.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">anchor-name lease</span>
         <span class="pill">box-shadow hole</span>
@@ -356,9 +366,6 @@ let cardOpen = $state(false);
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="tour" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

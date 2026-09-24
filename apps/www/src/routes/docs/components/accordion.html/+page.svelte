@@ -17,7 +17,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -286,6 +286,16 @@ ${close}
       title="accordion — details/summary, no framework"
       summary="The platform already ships the accordion: <details>/<summary> carries the toggle, the disclosure state, the keyboard contract, and open-in-SSR — nothing to hydrate, no ARIA to maintain. The group adds the 1px frame, the seams, and opt-in exclusive behavior; the eight style axes resolve once at the group root."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install accordion">
+          <TerminalCard
+            barTitle="install — accordion"
+            command="npx jixoai-ui add accordion"
+            outputs={['https://ui.jixoai.com/r/accordion.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">native details/summary</span>
         <span class="pill">SSR-stable open state</span>
@@ -333,9 +343,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="accordion" />
-  </div>
 
   <div id="usage" data-reveal="">
     <SectionCard

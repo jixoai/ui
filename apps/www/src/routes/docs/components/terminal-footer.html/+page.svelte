@@ -1,6 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -206,6 +206,16 @@ ${close}
       title="terminal-footer — the ghost wordmark"
       summary="Composition-first: the root is a real <footer> landmark, the meta row composes TerminalFooterColumn parts (a title plus FREE link children — the closed links[] data prop died with the data-driven form), and the ghost word is decorative by declaration — aria-hidden, unselectable, pure sign-off. The family carries no theme literal: the paint follows the page, and the axes are a first-time all-no-own contract."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install terminal-footer">
+          <TerminalCard
+            barTitle="install — terminal-footer"
+            command="npx jixoai-ui add terminal-footer"
+            outputs={['https://ui.jixoai.com/r/terminal-footer.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">composition-first</span>
         <span class="pill">free link children</span>
@@ -217,9 +227,6 @@ ${close}
   </div>
 
   <!-- install (the archetype's install anchor; chrome — out of the toc) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="terminal-footer" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

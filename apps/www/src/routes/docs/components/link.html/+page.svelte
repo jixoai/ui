@@ -9,7 +9,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -205,6 +205,16 @@ ${close}
         title="link — the typographic lane, standing alone"
         summary="A native <a> carrying the prose face's non-nav lane as its own utilities — primary ink, 4px underline offset, hover underline — so it works with no jx-pure scope in sight; inside one, the values coincide with the face's own channels (same property, same token, deterministic no-op). External detection is PATTERN-based, not origin-based: any absolute http(s) href is external — no window.location semantics dragged into SSR — and externals open a new tab with rel=noreferrer (the fleet convention; doc-link and PressButton both ship bare noreferrer, and modern browsers imply noopener from it). href, title and the external pair land AFTER the spread (the separator law): the contract is the component's, not overridable through rest props."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install link">
+          <TerminalCard
+            barTitle="install — link"
+            command="npx jixoai-ui add link"
+            outputs={['https://ui.jixoai.com/r/link.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;a&gt;</span>
           <span class="pill">http(s) = external · new tab</span>
@@ -215,9 +225,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="link" />
-    </div>
 
     <!-- overview (docs-eight-axes-mdn task 20, tier 2: the skeleton had
          Install/lanes/icon/detection already — this section + the

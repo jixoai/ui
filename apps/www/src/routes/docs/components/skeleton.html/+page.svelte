@@ -8,7 +8,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
@@ -251,6 +251,16 @@ ${close}
         title="skeleton — the placeholder, nothing more"
         summary={summary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install skeleton">
+          <TerminalCard
+            barTitle="install — skeleton"
+            command="npx jixoai-ui add skeleton"
+            outputs={['https://ui.jixoai.com/r/skeleton.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">pure CSS</span>
           <span class="pill">aria-hidden scenery</span>
@@ -259,9 +269,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="skeleton" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

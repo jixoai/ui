@@ -6,7 +6,7 @@
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { meta as toastViewportMeta } from '$lib/meta/toast-viewport.meta';
   import { TOAST_VIEWPORT_DOCS } from '$lib/ui/props-table/docs/toast-viewport.docs';
@@ -263,6 +263,16 @@ const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' 
       title="toast — two seams, no singleton"
       summary="The store owns state and lifecycle (created by YOUR app, never a module singleton — SSR requests never share state); the viewport owns presentation — a GRID stack that ADOPTS into the website-scaffold's float plane when one is present (the float-button law: it never floats itself; the fixed corner is the standalone fallback), max visible with older queued, per-item live regions — role=status polite / role=alert assertive, and the unified hold (hover/focus freezes BOTH clocks — the store timer and the countdown companion), duration 0 is sticky."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install toast">
+          <TerminalCard
+            barTitle="install — toast"
+            command="npx jixoai-ui add toast"
+            outputs={['https://ui.jixoai.com/r/toast.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">createToastStore()</span>
         <span class="pill">adopts the float plane</span>
@@ -280,9 +290,6 @@ const responsiveDensity = query<{ md: DensityLane }, DensityLane>({ md: 'large' 
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="toast" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

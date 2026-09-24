@@ -41,7 +41,7 @@
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import ColorPicker from '$lib/ui/color-picker/color-picker.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -218,6 +218,16 @@ ${close}
         title="color-picker — native field, pro editor"
         summary={heroSummary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install color-picker">
+          <TerminalCard
+            barTitle="install — color-picker"
+            command="npx jixoai-ui add color-picker"
+            outputs={['https://ui.jixoai.com/r/color-picker.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native input[type=text] field</span>
           <span class="pill">native input[type=color] swatch</span>
@@ -230,9 +240,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="color-picker" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

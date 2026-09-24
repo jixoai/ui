@@ -25,7 +25,7 @@
   import DatePicker, { type DatePickerRange } from '$lib/ui/date-picker/date-picker.svelte';
   import { addDays, todayIso } from '$lib/ui/date-picker/calendar-math';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { meta as datePickerMeta } from '$lib/meta/date-picker.meta';
   import { DATE_PICKER_DOCS } from '$lib/ui/props-table/docs/date-picker.docs';
@@ -345,6 +345,16 @@ ${close}
       title="date-picker — the zero-dep calendar popover"
       summary={heroSummary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install date-picker">
+          <TerminalCard
+            barTitle="install — date-picker"
+            command="npx jixoai-ui add date-picker"
+            outputs={['https://ui.jixoai.com/r/date-picker.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">zero date libraries</span>
         <span class="pill">single + range modes</span>
@@ -355,9 +365,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="date-picker" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

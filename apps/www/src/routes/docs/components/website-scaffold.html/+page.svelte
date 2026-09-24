@@ -14,7 +14,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -216,6 +216,16 @@ ${close}
         title="website-scaffold — the grid shell"
         summary="The layout root of every page on this site — including this one. A named container host whose ONE grid both layers subgrid (columns shared, placement by named areas), forms driven by container queries on the host's own width, per-zone immersive motion, the boot splash seat, and systematized view transitions. The strictest prop contract in the fleet: four snippet seams, eight axes, no rest."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install website-scaffold">
+          <TerminalCard
+            barTitle="install — website-scaffold"
+            command="npx jixoai-ui add website-scaffold"
+            outputs={['https://ui.jixoai.com/r/website-scaffold.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">named container</span>
           <span class="pill">subgrid layers</span>
@@ -227,9 +237,6 @@ ${close}
     </div>
 
     <!-- install (the archetype's install anchor; chrome — out of the toc) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="website-scaffold" />
-    </div>
 
     <!-- overview -->
     <div id="overview" data-reveal="">

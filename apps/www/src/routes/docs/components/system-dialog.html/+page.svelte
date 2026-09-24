@@ -8,7 +8,7 @@
   popover panel), plus the imperative trio that mounts its own hosts.
 -->
 <script lang="ts">
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
@@ -231,6 +231,16 @@ ${close}
         title="system dialog — the deliberate destructive"
         summary={entry.summary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install system-dialog">
+          <TerminalCard
+            barTitle="install — system-dialog"
+            command="npx jixoai-ui add system-dialog"
+            outputs={['https://ui.jixoai.com/r/system-dialog.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">role=alertdialog</span>
           <span class="pill">focus → cancel</span>
@@ -240,9 +250,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="system-dialog" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

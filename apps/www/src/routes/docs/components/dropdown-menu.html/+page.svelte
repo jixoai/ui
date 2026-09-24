@@ -21,7 +21,7 @@
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
@@ -246,6 +246,16 @@ ${close}
       title="dropdown menu — the menu the browser never shipped"
       summary="The popover laws carry the surface: popover=auto light dismiss, Escape, top layer, CSS Anchor Positioning. The component adds the menu keyboard contract the platform lacks — opening focuses item 1, arrows/Home/End walk with wrapping, 500ms typeahead jumps by label, and selection closes with focus restored to the trigger."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install dropdown-menu">
+          <TerminalCard
+            barTitle="install — dropdown-menu"
+            command="npx jixoai-ui add dropdown-menu"
+            outputs={['https://ui.jixoai.com/r/dropdown-menu.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">role=menu · menuitem</span>
         <span class="pill">typeahead</span>
@@ -255,9 +265,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="dropdown-menu" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

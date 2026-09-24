@@ -26,7 +26,6 @@
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
@@ -288,6 +287,16 @@ ${close}
         title="hero-section — the Broadside hero, opened"
         summary={entry.summary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install hero-section">
+          <TerminalCard
+            barTitle="install — hero-section"
+            command="npx jixoai-ui add hero-section"
+            outputs={['https://ui.jixoai.com/r/hero-section.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">title / badges snippets</span>
           <span class="pill">copy CTA default + override</span>
@@ -297,9 +306,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="hero-section" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

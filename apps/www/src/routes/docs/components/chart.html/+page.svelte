@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -152,6 +153,16 @@ ${close}
         title="chart — terminal-native charts, zero dependencies"
         summary="Four deterministic display primitives, not a chart library: horizontal bars drawn in Unicode block glyphs on the mono text grid, one-line sparklines in block or braille cells, an SVG polyline over hairline rules, and a stroke-dasharray donut ring in the theme's OKLCH chart palette. Every part renders static data — no Recharts, no animation runtime, no tooltips — and every degenerate input (empty, all-negative, constant, NaN, zero-total) has a frozen, unit-tested output. Each chart is role=img with a REQUIRED accessible name and an opt-in visually-hidden data table fallback."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install chart">
+          <TerminalCard
+            barTitle="install — chart"
+            command="npx jixoai-ui add chart"
+            outputs={['https://ui.jixoai.com/r/chart.json', 'the family context, four parts + the barrel — one item']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">zero runtime deps</span>
           <span class="pill">block · braille glyphs</span>
@@ -162,18 +173,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <SectionCard
-        family="install"
-        headerRegion="install"
-        eyebrow="install"
-        title="Install"
-        summary="One registry item — the family context, the four parts and the barrel ship together (the glyph math exports ride the same folder)."
-      >
-        <CodeBlock code={`npx jixoai-ui add chart`} lang="sh" meta="install" />
-      </SectionCard>
-    </div>
-
+    
     <div id="chart-demo" data-region="chart-demo" data-family="chart-demo" data-reveal="">
       <ComponentCanvas
         title="chart"

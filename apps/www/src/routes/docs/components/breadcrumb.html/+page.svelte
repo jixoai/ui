@@ -17,7 +17,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -269,6 +269,16 @@ ${close}
       title="breadcrumb — the trail the platform already defines"
       summary="nav[aria-label] wrapping an ol of ordinary links, composed part by part: the list carries the order, Link is a real href, Page marks aria-current=page, Separator is pure decoration — no roles to maintain. Long trails fold by WRAPPING the middle items in BreadcrumbCollapse; one node can open a menu of peer pages (BreadcrumbDropdown) — every destination a real anchor."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install breadcrumb">
+          <TerminalCard
+            barTitle="install — breadcrumb"
+            command="npx jixoai-ui add breadcrumb"
+            outputs={['https://ui.jixoai.com/r/breadcrumb.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">nav + ol + a</span>
         <span class="pill">aria-current=page</span>
@@ -278,9 +288,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="breadcrumb" />
-  </div>
 
   <div id="overview" data-reveal="">
     <SectionCard

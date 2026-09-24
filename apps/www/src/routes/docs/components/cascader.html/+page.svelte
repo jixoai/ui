@@ -16,7 +16,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -225,6 +225,16 @@ const options = [
       title="cascader — a chain of selects, natively"
       summary="The cascade selector the ruled way: N plain select elements, each listing the children of the previous pick — native keyboard, native mobile pickers, zero custom panels to keep honest. The joined leaf path submits through the bridge; a partial path submits empty."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install cascader">
+          <TerminalCard
+            barTitle="install — cascader"
+            command="npx jixoai-ui add cascader"
+            outputs={['https://ui.jixoai.com/r/cascader.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">chain of native selects</span>
         <span class="pill">path value · partial submits empty</span>
@@ -234,9 +244,6 @@ const options = [
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="cascader" />
-  </div>
 
   <div id="overview" data-reveal="">
     <SectionCard

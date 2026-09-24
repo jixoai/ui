@@ -3,7 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import PrototypeWaterfall from '$lib/ui/prototype-waterfall/prototype-waterfall.svelte';
@@ -182,6 +182,16 @@ ${close}
         title="prototype-waterfall — the standardized masonry"
         summary="The layout family, alpha track, on the CSS multicol engine: the columns shorthand passes through verbatim — a number is the count form, a length string is the auto-width floor — with column-fill: balance (browser-equalized heights) and column-gap. The tradeoffs are declared, not hidden: children flow in column (newspaper) order, and break-inside stays the consumer's call."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install prototype-waterfall">
+          <TerminalCard
+            barTitle="install — prototype-waterfall"
+            command="npx jixoai-ui add prototype-waterfall"
+            outputs={['https://ui.jixoai.com/r/prototype-waterfall.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">alpha track</span>
           <span class="pill">CSS multicol engine</span>
@@ -193,9 +203,6 @@ ${close}
     </div>
 
     <!-- install (chrome — out of the toc) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="prototype-waterfall" />
-    </div>
 
     <!-- overview -->
     <div id="overview" data-reveal="">

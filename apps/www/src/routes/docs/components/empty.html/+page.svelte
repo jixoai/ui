@@ -18,7 +18,7 @@
   import Empty from '$lib/ui/empty/empty.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
@@ -194,6 +194,16 @@ ${close}
   <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="empty — the no-data state, nothing more" summary="The eight-state machine's no-data member (error/loading/404 are alert/result surfaces — ruled separate). Terminal illustration slot, title, description, actions. Zero JS.">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install empty">
+          <TerminalCard
+            barTitle="install — empty"
+            command="npx jixoai-ui add empty"
+            outputs={['https://ui.jixoai.com/r/empty.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">zero JS</span>
         <span class="pill">illustration slot</span>
@@ -202,9 +212,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="empty" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

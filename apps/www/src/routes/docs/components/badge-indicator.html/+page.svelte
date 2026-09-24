@@ -9,7 +9,7 @@
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
@@ -175,6 +175,16 @@
         title="badge-indicator — the live count/dot overlay"
         summary="antd Badge's live half, split from the static chip (badge.svelte): the count/dot rides a corner of its child. dot is presence without a number — label carries the accessible name; count caps at 99+ and zero hides honestly unless showZero. Standalone (no child) is an inline chip; the wrap is a live density scope for whatever it carries."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install badge-indicator">
+          <TerminalCard
+            barTitle="install — badge-indicator"
+            command="npx jixoai-ui add badge-indicator"
+            outputs={['https://ui.jixoai.com/r/badge-indicator.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">dot · count · standalone</span>
           <span class="pill">99+ overflow cap</span>
@@ -184,9 +194,6 @@
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="badge-indicator" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

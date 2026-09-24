@@ -1,6 +1,7 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
@@ -657,6 +658,16 @@ ${close}
         title="ghostty-term — the live wasm terminal"
         summary="The brand's live terminal surface: a canvas grid rendered by the real libghostty-vt wasm, not a DOM reimplementation. The component owns painting and geometry — DPR-aware cells derived from the density tokens, rAF-batched dirty-row repaints — while the consumer owns the pty: onData carries terminal input out (keys, gated pastes, wheel) and the bind:this write() feeds pty output back in. Load failures degrade to a data-state machine with a terminal-styled fallback, or the consumer's own face through the children slot."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install ghostty-term">
+          <TerminalCard
+            barTitle="install — ghostty-term"
+            command="npx jixoai-ui add ghostty-term"
+            outputs={['https://ui.jixoai.com/r/ghostty-term.json', 'the wasm supply step: see Install prerequisites below']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">real libghostty-vt wasm</span>
           <span class="pill">rAF dirty-row canvas painting</span>

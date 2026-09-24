@@ -5,7 +5,7 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import type { Snippet } from 'svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import Icon from '$lib/ui/icon';
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -274,6 +274,16 @@ ${close}
         title="card — the structural surface"
         summary="THE STRUCTURAL KERNEL (2026-09-09): the head/body/foot bands, the stamped presence, the structural separators, the body-only scroll law — and the inline ruler everything rents (passive text enters the content axis by TRACK, interactive clusters ride the card edge flush). Structure is a STICKER: every rule anchors on the data-jx-card attribute family, so ANY element stamped with it — the planar Card root, a Dialog's interior host — acquires the whole ruler server-side by CSS alone; the named column lines and the jx-card container are public API. The content faces are the family parts: CardHeader (title/custom head), CardBody (the scroll cell — ONE gutter-compensation formula), CardFooter (the foot's seat law). Floating surfaces grow no flesh of their own — Dialog's interior speaks this dialect, its × riding the end-action seat reserved for it."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install card">
+          <TerminalCard
+            barTitle="install — card"
+            command="npx jixoai-ui add card"
+            outputs={['https://ui.jixoai.com/r/card.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">head · body · foot</span>
           <span class="pill">inline ruler</span>
@@ -285,9 +295,6 @@ ${close}
 
     <!-- the demo-standard skeleton (2026-08-30): Intro → Install → Usage
          → Examples → API → See Also is the page law -->
-    <div data-reveal="">
-      <DocsInstall name="card" />
-    </div>
 
     <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The card keeps the zones and the snippet transports; the content faces are composition — CardHeader for the head, CardFooter for the foot."><CodeBlock code={usage} lang="svelte" meta="Card usage" /></SectionCard></div>
 

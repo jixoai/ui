@@ -6,7 +6,7 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Popover from '$lib/ui/popover/popover.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { meta as popoverMeta } from '$lib/meta/popover.meta';
   import { POPOVER_DOCS } from '$lib/ui/props-table/docs/popover.docs';
@@ -283,6 +283,16 @@ ${close}
       title="popover — declarative, zero script"
       summary="The native Popover API does everything: the panel carries popover=&quot;auto&quot; and the trigger is wired with popovertarget, so light dismiss, Escape, aria-expanded, and top-layer rendering come from the browser. The default trigger path runs zero listeners and zero positioning script — the browser owns open/close, light dismiss, and the top layer; the component's script is one aria toggle seam plus the shared surface-motion kernel (view source and count)."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install popover">
+          <TerminalCard
+            barTitle="install — popover"
+            command="npx jixoai-ui add popover"
+            outputs={['https://ui.jixoai.com/r/popover.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">popover="auto"</span>
         <span class="pill">popovertarget trigger</span>
@@ -296,9 +306,6 @@ ${close}
   <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law; the sections between stay page-local. -->
-  <div data-reveal="">
-    <DocsInstall name="popover" />
-  </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Menu rows repeat popovertarget to close on select — still zero JavaScript on the close path."><CodeBlock code={menuUsage} lang="svelte" meta="Popover usage" /></SectionCard></div>
 

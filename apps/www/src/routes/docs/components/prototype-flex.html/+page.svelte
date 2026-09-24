@@ -3,7 +3,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import PrototypeFlex from '$lib/ui/prototype-flex/prototype-flex.svelte';
@@ -209,6 +209,16 @@ ${close}
         title="prototype-flex — the standardized flex row"
         summary="The layout family, alpha track: the design studio's property panel edits these exact props. Every value is a native CSS token passed through 1:1 (no vocabulary mapping layer), styling is inline-style only — zero Tailwind, zero theme tokens, zero dependencies — so the item renders in any host. Single root + rest spread: the stamp mechanism's family precondition, proven here first."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install prototype-flex">
+          <TerminalCard
+            barTitle="install — prototype-flex"
+            command="npx jixoai-ui add prototype-flex"
+            outputs={['https://ui.jixoai.com/r/prototype-flex.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">alpha track</span>
           <span class="pill">inline style only</span>
@@ -220,9 +230,6 @@ ${close}
     </div>
 
     <!-- install (chrome — out of the toc) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="prototype-flex" />
-    </div>
 
     <!-- overview -->
     <div id="overview" data-reveal="">

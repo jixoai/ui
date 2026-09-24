@@ -27,7 +27,7 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { meta as markdownMeta } from '$lib/meta/markdown.meta';
   import Markdown from '$lib/ui/markdown';
@@ -465,6 +465,16 @@ ${close}
       title="markdown — the streaming face, AST mapped to first-party parts"
       summary="One component turns a markdown string into jixoai surfaces: fenced code lands in code-card (generation-guard repaint keeps partial code readable mid-stream), tables land in the registry table under a data-kind wrapper, and every prose construct lands on a first-party reading-content part — Blockquote (with GitHub alert detection), Heading, List, the text family, Link, InlineCode, Separator — escaping the jx-pure face exactly where the box-owning blocks need it and composing with it everywhere else. Streaming is keyed-block memoized — the frozen prefix keeps its DOM while append-only chunks re-render only the trailing block — and streaming=false (the default) is a static, final document. The parser core is stream-markdown-parser; the renderer, the mapping vocabulary and the security floor (html:false, validateLink, image sanitize, zero raw-HTML injection) are 100% first-party."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install markdown">
+          <TerminalCard
+            barTitle="install — markdown"
+            command="npx jixoai-ui add markdown"
+            outputs={['https://ui.jixoai.com/r/markdown.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">streaming-first · keyed blocks (L1–L4)</span>
         <span class="pill">AST → blockquote · heading · list · text · link</span>
@@ -477,9 +487,6 @@ ${close}
   </div>
 
   <!-- install -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="markdown" />
-  </div>
 
   <!-- usage: the ONE h2 -->
   <div id="usage" data-reveal="">

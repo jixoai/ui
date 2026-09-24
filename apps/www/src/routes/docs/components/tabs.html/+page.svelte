@@ -2,7 +2,7 @@
   import Badge from '$lib/ui/badge/badge.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import type { DensityLane } from '$lib/defaults.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
@@ -544,6 +544,16 @@ ${close}
       title="tabs — one value, four files, any layout"
       summary="The WAI-ARIA tabs pattern, composition-first: the root owns only the selected value and hands it to the family through context — tablist, triggers and panels lay out anywhere in the subtree. Selection paint lives in the indicator engine: a single shared element measured to the active trigger and translated between positions, in five materials — line, pill, outline, glass, liquid — or none at all, or replaced entirely by your own snippet paint. Triggers carry the Material grammar (icon lanes, icon-only, stacked columns) and the strip lays out inline, grow, scroll or wrap — every horizontal strip degrading to a hidden-scrollbar scroll run with on-demand DOM chevron buttons when content outgrows the container. The keyboard contract is untouched: automatic activation (focus moves select), roving tabindex, deterministic trigger/panel ids, and hidden — attribute, not CSS — background panels."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install tabs">
+          <TerminalCard
+            barTitle="install — tabs"
+            command="npx jixoai-ui add tabs"
+            outputs={['https://ui.jixoai.com/r/tabs.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">APG tablist contract</span>
         <span class="pill">sliding indicator · 5 materials + none</span>
@@ -553,9 +563,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="tabs" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

@@ -11,7 +11,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import MathBlock from '$lib/ui/math-block';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -219,6 +219,16 @@ ${close}
         title="math-block — display math, baked at prerender"
         summary={heroSummary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install math-block">
+          <TerminalCard
+            barTitle="install — math-block"
+            command="npx jixoai-ui add math-block"
+            outputs={['https://ui.jixoai.com/r/math-block.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">based on KaTeX</span>
           <span class="pill">sync SSR lane · zero flash</span>
@@ -230,9 +240,6 @@ ${close}
 
     <!-- the demo-standard skeleton: Install then Usage sit ABOVE the
          demos — Intro → Install → Usage → Examples → API → See Also -->
-    <div data-reveal="">
-      <DocsInstall name="math-block" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard

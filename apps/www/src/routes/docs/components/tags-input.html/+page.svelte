@@ -8,7 +8,7 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import type { DensityLane } from '$lib/defaults.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
@@ -297,6 +297,16 @@ ${close}
       title="tags-input — input × multiselect"
       summary={heroSummary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install tags-input">
+          <TerminalCard
+            barTitle="install — tags-input"
+            command="npx jixoai-ui add tags-input"
+            outputs={['https://ui.jixoai.com/r/tags-input.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">chips · press-physics removal</span>
         <span class="pill">Enter / comma / Tab / paste-split</span>
@@ -307,9 +317,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="tags-input" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

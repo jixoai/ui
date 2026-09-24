@@ -1,6 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -436,6 +436,16 @@ ${close}
         title="press-button — one physics, the ladder, four effects"
         summary="The only button in the grammar, and the animation is deliberately quiet: hover never moves the body — the hard shadow alone grows from xs to sm; active presses the body one pixel into the page while the shadow stays exactly where it was. Variants are a prominence ladder, never a color decision: fill for the one action that matters, tonal for the supporting seat, outline for the rest (the default), ghost and link for the quiet seats — link is the grammar's one interaction exception. Semantic color is hue injection through the global tokens: destructive actions fill with the destructive pair, metadata tones down through --jx-tonal, the copied transient is tonal + success. One opt-in effect loop adds attention without breaking the restraint: shimmer (a spark walks the perimeter), pulse (sonar rings breathe outward), rainbow (a gradient flows around the border), ripple (ink expands from the press point) — typed builders with options, all frozen under reduced motion."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install press-button">
+          <TerminalCard
+            barTitle="install — press-button"
+            command="npx jixoai-ui add press-button"
+            outputs={['https://ui.jixoai.com/r/press-button.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">hover: shadow only</span>
           <span class="pill">active: anchored press</span>
@@ -447,9 +457,6 @@ ${close}
     </div>
 
     <!-- install (the archetype's install anchor; chrome — out of the toc) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="press-button" />
-    </div>
 
     <!-- overview -->
     <div id="overview" data-reveal="">

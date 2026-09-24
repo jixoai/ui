@@ -15,7 +15,7 @@
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -186,6 +186,16 @@ ${close}
       title="anchor — real links, read-only spy"
       summary="A nav landmark (Anchor) of real fragment links (AnchorItem parts): navigation and smooth scrolling stay native, and JavaScript only reads the scroll position to mark aria-current=location."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install anchor">
+          <TerminalCard
+            barTitle="install — anchor"
+            command="npx jixoai-ui add anchor"
+            outputs={['https://ui.jixoai.com/r/anchor.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">real fragment links</span>
         <span class="pill">aria-current=location</span>
@@ -195,9 +205,6 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="install" data-reveal="">
-    <DocsInstall name="anchor" />
-  </div>
 
   <div id="overview" data-reveal="">
     <SectionCard

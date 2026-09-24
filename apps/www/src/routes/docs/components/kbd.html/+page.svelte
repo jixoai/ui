@@ -1,6 +1,6 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import { query } from '$lib/universal-props-query.svelte';
@@ -213,6 +213,16 @@ ${close}
         title="kbd — the element, chipped"
         summary="A native <kbd> — the element whose entire meaning is 'this is keyboard input' — on the grammar's variant ladder: tonal (12%/45% primary tint) by default, fill and outline beside it, over the engraved geometry (1px border + the --shadow-engrave inset, mono). Deliberately no key-parsing and no platform detection (⌘/Ctrl string opinions belong to the caller); keys compose by hand."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install kbd">
+          <TerminalCard
+            barTitle="install — kbd"
+            command="npx jixoai-ui add kbd"
+            outputs={['https://ui.jixoai.com/r/kbd.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;kbd&gt;</span>
           <span class="pill">zero parsing</span>
@@ -222,9 +232,6 @@ ${close}
     </div>
 
     <!-- ② install (the archetype's install anchor) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="kbd" />
-    </div>
 
     <!-- ③ overview (docs-eight-axes-mdn task 30, tier 2) -->
     <div id="overview" data-reveal="">

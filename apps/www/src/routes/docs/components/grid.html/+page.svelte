@@ -8,7 +8,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -127,6 +127,16 @@ ${close}
         title="grid — blowout-proof tracks, honest disclosure"
         summary={heroSummary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install grid">
+          <TerminalCard
+            barTitle="install — grid"
+            command="npx jixoai-ui add grid"
+            outputs={['https://ui.jixoai.com/r/grid.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">repeat(N, minmax(0, 1fr))</span>
           <span class="pill">0fr → 1fr disclosure lane</span>
@@ -136,9 +146,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="grid" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard

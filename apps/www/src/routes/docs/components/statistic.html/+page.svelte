@@ -18,6 +18,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -200,6 +201,16 @@ ${close}
   <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="statistic — the metric readout" summary="Micro-label over a big tabular-nums value with prefix/suffix snippets and text-glyph trends. The component never guesses what good means for your metric — you compose it.">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install statistic">
+          <TerminalCard
+            barTitle="install — statistic"
+            command="npx jixoai-ui add statistic"
+            outputs={['https://ui.jixoai.com/r/statistic.json', 'zero-dependency; recipes add press-button + badge']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">tabular-nums value</span>
           <span class="pill">prefix/suffix snippets</span>
@@ -209,19 +220,7 @@ ${close}
       </SectionCard>
     </div>
 
-  <!-- install -->
-  <div id="install" data-reveal="">
-    <SectionCard
-      family="install"
-      headerRegion="install"
-      eyebrow="install"
-      title="Install"
-      summary="One zero-dependency item; the recipes below add press-button (controls) and badge (the finished flag)."
-    >
-      <CodeBlock code={`npx jixoai-ui add statistic`} lang="sh" meta="install" />
-    </SectionCard>
-  </div>
-
+  
   <div id="statistic-demo" data-region="statistic-demo" data-family="statistic-demo" data-reveal="">
     <ComponentCanvas
       title="statistic"

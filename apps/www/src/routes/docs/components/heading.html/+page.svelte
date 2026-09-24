@@ -17,7 +17,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -224,6 +224,16 @@ ${close}
         title="heading — the ladder emigrated from the face"
         summary="A native h1–h6 by level (1–6, rounded then clamped), carrying the em size ladder that used to live in the markdown prose face: 1.875em at h1 down through 1em at h5/6. em, never rem — the hierarchy scales with the ambient font-size preset and survives the escape from any face. What it owns: bold, leading 1.25, the foreground ink, the size. What it refuses: a paint ladder (level IS the structural axis), block margins, and a Defaults file (level is not a style prop)."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install heading">
+          <TerminalCard
+            barTitle="install — heading"
+            command="npx jixoai-ui add heading"
+            outputs={['https://ui.jixoai.com/r/heading.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native h1–h6</span>
           <span class="pill">em ladder · preset-scaled</span>
@@ -233,9 +243,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="heading" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

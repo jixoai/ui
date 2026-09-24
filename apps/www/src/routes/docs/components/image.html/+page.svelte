@@ -23,7 +23,7 @@
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import { PlayFields, PlayHelp } from '$lib/playground';
@@ -216,6 +216,16 @@ ${close}
   <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="image — the no-CLS native picture" summary="The general-purpose picture: lazy, async-decoded, REQUIRED intrinsic width and height (layout never shifts), alt semantics, failure fallback with src-change recovery. Lightbox is a dialog recipe, not built in.">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install image">
+          <TerminalCard
+            barTitle="install — image"
+            command="npx jixoai-ui add image"
+            outputs={['https://ui.jixoai.com/r/image.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">no-CLS width/height</span>
           <span class="pill">lazy + async decode</span>
@@ -224,9 +234,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="image" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

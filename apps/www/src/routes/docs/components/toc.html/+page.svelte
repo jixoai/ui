@@ -19,7 +19,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -248,6 +248,16 @@ ${close}
       title="toc — the rule tracker rail"
       summary={entry.summary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install toc">
+          <TerminalCard
+            barTitle="install — toc"
+            command="npx jixoai-ui add toc"
+            outputs={['https://ui.jixoai.com/r/toc.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">IoM weights</span>
         <span class="pill">line pick</span>
@@ -259,9 +269,6 @@ ${close}
   </div>
 
   <!-- install (the archetype's install anchor; chrome — out of the toc) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="toc" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

@@ -16,7 +16,7 @@
   import { PlayFields, PlayRow, PlayHelp } from '$lib/playground';
   import { registrySourceUrl } from '$lib/registry-source';
   import Icon from '$lib/ui/icon';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import type { RadiusLane } from '$lib/defaults.svelte';
@@ -411,6 +411,16 @@ ${close}
       title="dialog — the platform owns the hard parts"
       summary="One native <dialog> element, opened with showModal() and closed with close(). Focus trapping, the inert page behind, top-layer rendering above every sticky header, and the Escape key are browser features — the component only binds open state to them and adds the shared WAAPI surface timeline. Closed dialogs render nothing in the page, with or without JavaScript. Since the structural kernel (2026-09-09) the interior is the CARD DIALECT: the head/body/foot bands, separators, inline ruler and narrow reversal all ride the data-jx-card sticker (card.css), the faces are the Card family parts (<CardHeader>, <CardBody>, <CardFooter> — the retired DialogHeader/DialogFooter were their clones), and the × rides the end-action seat the card sources reserved for it. The dialog owns the mechanism only: material, scrim, motion, close contract."
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install dialog">
+          <TerminalCard
+            barTitle="install — dialog"
+            command="npx jixoai-ui add dialog"
+            outputs={['https://ui.jixoai.com/r/dialog.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">&lt;dialog&gt; + showModal()</span>
         <span class="pill">focus trap · inert · top layer</span>
@@ -423,9 +433,6 @@ ${close}
   </div>
 
   <!-- install (the archetype's install anchor; chrome — out of the toc) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="dialog" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

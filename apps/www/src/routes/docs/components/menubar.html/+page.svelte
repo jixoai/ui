@@ -10,7 +10,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import { query } from '$lib/universal-props-query.svelte';
@@ -227,6 +227,16 @@ ${close}
         title="menubar — File, Edit, View, ruled by the platform's gap"
         summary="The application menu bar's top-level contract differs from stacked dropdowns, so it gets its OWN walker: Tab lands on the single roving stop; ←/→ move between triggers — and from an open bar the glide closes the current panel, opens the next, and focuses its first item; ↓/↑/Enter open; Home/End jump; Escape hands focus back to the trigger. The family composes: MenubarItem owns the ONE id, MenubarTrigger and MenubarPanel derive theirs (aria-controls always resolves), the panel registers its imperative handles at init — first registration wins — and the walkers are scoped to the nearest menu so nested dropdown families never leak."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install menubar">
+          <TerminalCard
+            barTitle="install — menubar"
+            command="npx jixoai-ui add menubar"
+            outputs={['https://ui.jixoai.com/r/menubar.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">role=menubar</span>
           <span class="pill">roving glide walking</span>
@@ -237,9 +247,6 @@ ${close}
     </div>
 
     <!-- install (the archetype's install anchor; chrome — out of the toc) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="menubar" />
-    </div>
 
     <!-- overview -->
     <div id="overview" data-reveal="">

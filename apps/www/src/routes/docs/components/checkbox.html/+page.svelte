@@ -18,7 +18,6 @@
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import type { PropEntry } from '$lib/ui/props-table/props-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { meta as checkboxMeta } from '$lib/meta/checkbox.meta';
   import { CHECKBOX_DOCS } from '$lib/ui/props-table/docs/checkbox.docs';
@@ -308,6 +307,16 @@ ${close}
       title="checkbox — the native selector, redrawn"
       summary={heroSummary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install checkbox">
+          <TerminalCard
+            barTitle="install — checkbox"
+            command="npx jixoai-ui add checkbox"
+            outputs={['https://ui.jixoai.com/r/checkbox.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">pure CSS · zero icon deps</span>
         <span class="pill">:checked morph</span>
@@ -364,9 +373,6 @@ ${close}
   <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law; the sections between stay page-local. -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="checkbox" />
-  </div>
 
   <div id="usage" data-reveal="">
     <SectionCard

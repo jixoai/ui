@@ -8,7 +8,7 @@
   and the carriers join the consumer style attr.
 -->
 <script lang="ts">
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
@@ -276,6 +276,16 @@ ${close}
         title="stack — flow over the typed space ladder"
         summary={heroSummary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install stack">
+          <TerminalCard
+            barTitle="install — stack"
+            command="npx jixoai-ui add stack"
+            outputs={['https://ui.jixoai.com/r/stack.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">16 gap rungs · --jx-space-N</span>
           <span class="pill">closed CSS axis vocabulary</span>
@@ -285,9 +295,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="stack" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

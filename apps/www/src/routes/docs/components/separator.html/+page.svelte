@@ -17,7 +17,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { query } from '$lib/universal-props-query.svelte';
   import { rt } from '$lib/surface/routes.stylex';
@@ -314,6 +314,16 @@ ${close}
         title="separator — <hr> is the separator"
         summary="The W3C already built this one: <hr> carries thematic-break semantics, announcements, and styling for free. Only the vertical posture — splitting inline peers — has no native element, so it takes the ARIA route: a div with role=separator. The ink paints no color: the default variant, fused, is the backdrop's own contrast ghost, every shaped variant rides the same engine, and solid is the one plain-fill escape."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install separator">
+          <TerminalCard
+            barTitle="install — separator"
+            command="npx jixoai-ui add separator"
+            outputs={['https://ui.jixoai.com/r/separator.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;hr&gt;</span>
           <span class="pill">role=separator vertical</span>
@@ -324,9 +334,6 @@ ${close}
     </div>
 
     <!-- install (the archetype's install anchor; chrome — out of the toc) -->
-    <div id="install" data-reveal="">
-      <DocsInstall name="separator" />
-    </div>
 
     <!-- overview -->
     <div id="overview" data-reveal="">

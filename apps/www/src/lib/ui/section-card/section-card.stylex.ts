@@ -60,6 +60,23 @@ export const sectionCardStyles = stylex.create({
     gap: 'calc(var(--jx-stack) + calc(var(--jx-unit) / 2))',
   },
 
+  // ── the two-wing header row (headerAside given — the hero's terminal
+  //    seat, Owner walkthrough 2026-09-24): text stack LEFT, aside RIGHT
+  //    at the wide tier; stacked on narrow. minmax discipline: the text
+  //    wing may shrink (its prose wraps), the aside stays its own width ──
+  headerRow: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 'calc(var(--jx-stack) + var(--jx-unit))',
+    '@media (min-width: 48rem)': {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: 'calc(var(--jx-inset) * 3)',
+    },
+  },
+  headerText: { display: 'flex', flexDirection: 'column', gap: 'calc(var(--jx-stack) + var(--jx-unit))', minWidth: 0, flex: '1 1 0%' },
+  headerAsideCell: { flex: 'none', width: 'min(100%, 24rem)' },
+
   // ── the body zone: inset+1u / stack+2u (density adoption) ──
   body: {
     paddingInline: 'calc(var(--jx-inset) + var(--jx-unit))',

@@ -15,7 +15,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
@@ -204,6 +204,16 @@ ${close}
         title="boot-splash — the mask whose styles cannot be late"
         summary={heroSummary}
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install boot-splash">
+          <TerminalCard
+            barTitle="install — boot-splash"
+            command="npx jixoai-ui add boot-splash"
+            outputs={['https://ui.jixoai.com/r/boot-splash.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">zero css files · by law</span>
           <span class="pill">inline styles + head-carried keyframes</span>
@@ -214,9 +224,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="boot-splash" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

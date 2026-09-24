@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -260,6 +261,16 @@ ${close}
         title="input-group — the joined field shell"
         summary="The Origin UI “Input with X” family over the input's shared shell law: addons compose BESIDE the field, not inside a private composite. One 1px var(--border) bezel carries the shell states (hover lift, inset focus ring, invalid dash); each addon owns exactly one hairline seam facing the lane; the InputGroupInput stays a chromeless Tier-2 control-lane — no double borders by construction. ONE disabled propagation rule: disable the root and the lane renders native disabled while every addon goes inert (the platform's containment — buttons, selects and links inside lose activation and focus at once)."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install input-group">
+          <TerminalCard
+            barTitle="install — input-group"
+            command="npx jixoai-ui add input-group"
+            outputs={['https://ui.jixoai.com/r/input-group.json', 'the group, addon and input parts — one item']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">composition parts</span>
           <span class="pill">1px hairline seams</span>
@@ -270,18 +281,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <SectionCard
-        family="install"
-        headerRegion="install"
-        eyebrow="install"
-        title="Install"
-        summary="One registry item — the group, the addon and the input parts ship together (the barrel exports all three)."
-      >
-        <CodeBlock code={`npx jixoai-ui add input-group`} lang="sh" meta="install" />
-      </SectionCard>
-    </div>
-
+    
     <!-- overview (docs-eight-axes-mdn task 17, tier 2: the skeleton was
          complete; this section + the measured per-axis table replace the
          W3-era universal summary whose "consumes size and color" claim

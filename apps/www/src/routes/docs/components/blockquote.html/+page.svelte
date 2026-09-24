@@ -14,7 +14,7 @@
   import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -174,6 +174,16 @@
         title="blockquote — the quote, on the banner's ladder"
         summary="The reading-content quote and admonition surface: the native <blockquote> on the alert-shaped two-rung ladder — outline, the classic left-rule quote; tonal, the alert recipe verbatim — with label, icon and cite composing over either rung."
       >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install blockquote">
+          <TerminalCard
+            barTitle="install — blockquote"
+            command="npx jixoai-ui add blockquote"
+            outputs={['https://ui.jixoai.com/r/blockquote.json']}
+          />
+        </div>
+      {/snippet}
+
         <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;blockquote&gt;</span>
           <span class="pill">outline · tonal (frozen)</span>
@@ -184,9 +194,6 @@
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <DocsInstall name="blockquote" />
-    </div>
 
     <div id="overview" data-reveal="">
       <SectionCard

@@ -10,7 +10,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import { query } from '$lib/universal-props-query.svelte';
@@ -240,6 +240,16 @@ ${close}
       title="number-input — the [- NUM +] stepper"
       summary={heroSummary}
     >
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install number-input">
+          <TerminalCard
+            barTitle="install — number-input"
+            command="npx jixoai-ui add number-input"
+            outputs={['https://ui.jixoai.com/r/number-input.json']}
+          />
+        </div>
+      {/snippet}
+
       <div class={cx(rt.wrap12)}>
         <span class="pill">click / hold / type</span>
         <span class="pill">min / max / step clamp</span>
@@ -251,9 +261,6 @@ ${close}
   </div>
 
   <!-- install (chrome — out of the toc) -->
-  <div id="install" data-reveal="">
-    <DocsInstall name="number-input" />
-  </div>
 
   <!-- overview -->
   <div id="overview" data-reveal="">

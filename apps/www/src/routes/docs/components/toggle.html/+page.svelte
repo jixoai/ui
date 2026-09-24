@@ -234,23 +234,21 @@ ${close}
       title="toggle — the native checkbox, painted as a switch"
       summary={heroSummary}
     >
-      <div class={cx(rt.grid760b)}>
-        <div class={cx(rt.col12)}>
-          <div class={cx(rt.wrap12)}>
-            <span class="pill">one element — the input is the rail</span>
-            <span class="pill">knob slide · 200ms</span>
-            <span class="pill">xs → lg rail rungs</span>
-            <span class="pill">checked is $bindable</span>
-            <span class="pill">label[for] + aria wiring</span>
-          </div>
-        </div>
-        <div class={cx(rt.col12)} data-doc-install="" aria-label="install toggle">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install toggle">
           <TerminalCard
             barTitle="install — toggle"
             command="npx jixoai-ui add toggle"
             outputs={['https://ui.jixoai.com/r/toggle.json']}
           />
         </div>
+      {/snippet}
+      <div class={cx(rt.wrap12)}>
+        <span class="pill">one element — the input is the rail</span>
+        <span class="pill">knob slide · 200ms</span>
+        <span class="pill">xs → lg rail rungs</span>
+        <span class="pill">checked is $bindable</span>
+        <span class="pill">label[for] + aria wiring</span>
       </div>
     </SectionCard>
   </div>
