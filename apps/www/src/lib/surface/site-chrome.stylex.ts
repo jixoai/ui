@@ -297,10 +297,19 @@ export const siteChrome = stylex.create({
     padding: tokens['--jx-space-16'],
     '@media (min-width: 40rem)': {
       flexDirection: 'row',
-      alignItems: 'center',
+      // hero-form install (Owner walkthrough round 2): LEFT the prose +
+      // copy affordances, RIGHT the terminal card — top-aligned pair,
+      // isomorphic with the homepage hero's terminal aside
+      alignItems: 'flex-start',
       justifyContent: 'space-between',
       padding: tokens['--jx-space-20'],
     },
+  },
+  // the terminal-card column of the hero-form install: bounded on the
+  // wide tier, full-width when stacked below it on narrow
+  diCard: {
+    flex: 'none',
+    width: 'min(100%, 26rem)',
   },
   diLeft: { display: 'flex', minWidth: 0, flexDirection: 'column', gap: tokens['--jx-space-4'] },
   diEyebrow: {

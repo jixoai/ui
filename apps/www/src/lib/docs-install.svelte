@@ -19,14 +19,14 @@
   Install marker — and MUST render the command text verbatim inside
   the section (the lint greps `npx jixoai-ui add <name>`).
 
-  TERMINAL SHELL (Owner walkthrough, 2026-09-24): the command rides a
-  TerminalCard — the family's own traffic-light bar IS the window
-  chrome (terminal-header is a standalone family; the card carries
-  its bar in-piece), dark bezel per the bezel law, the command typed
-  once on hydration (prerender/no-JS shows the settled terminal, so
-  the lint's verbatim grep stays true) and the registry URL as the
-  terminal's output line. The copy affordances sit in a slim row under
-  the card.
+  HERO FORM (Owner walkthrough, round 2 — decision C): the install is
+  the homepage hero's composition in miniature — LEFT the prose (the
+  command inline + the registry URL line) with the copy affordances
+  beneath, RIGHT a TerminalCard as the terminal aside (dark bezel per
+  the bezel law, the command typed once on hydration, the registry URL
+  as the output line; prerendered/no-JS shows the settled terminal, so
+  the lint's verbatim grep stays true from BOTH columns). Stacks
+  card-below-text under 40rem.
 -->
 <script lang="ts">
   import CopyCommand from '$lib/copy-command.svelte';
@@ -69,11 +69,23 @@
   class={cx(siteChrome.diRoot)}
   aria-label="install {name}"
 >
-  <TerminalCard barTitle={`install — ${name}`} {command} {outputs} />
-  <div class={cx(siteChrome.diActions)}>
-    <span class={cx(siteChrome.diAuto)}>
-      <CopyIconButton {command} />
-    </span>
-    <CopyCommand {command} label="copy command" />
+  <div class={cx(siteChrome.diLeft)}>
+    <p class={cx(siteChrome.diEyebrow)}>install</p>
+    <p class={cx(siteChrome.diBody)}>
+      <code class={cx(siteChrome.diCode)}>{command}</code>
+      {#if registryUrl}
+        — or point <code class={cx(siteChrome.diCode)}>shadcn add</code> at the item URL:
+        <code class={cx(siteChrome.diCode, siteChrome.diCodeWrap)}>{registryUrl}</code>
+      {/if}
+    </p>
+    <div class={cx(siteChrome.diActions)}>
+      <span class={cx(siteChrome.diAuto)}>
+        <CopyIconButton {command} />
+      </span>
+      <CopyCommand {command} label="copy command" />
+    </div>
+  </div>
+  <div class={cx(siteChrome.diCard)}>
+    <TerminalCard barTitle={`install — ${name}`} {command} {outputs} />
   </div>
 </section>
