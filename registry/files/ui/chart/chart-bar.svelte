@@ -114,7 +114,13 @@
   const d = $derived(
     ChartDefaults.resolve({ variant, density, shape, radius, color, theme, elevation, motion }),
   );
-  const carriers = $derived(stampCarriersForLanes(d));
+  // the icon law (donut's guard, the 96px-explosion fix): the defaults'
+  // open size slot (own 96 = the DONUT's outer diameter) backfills d.size
+  // for every part — stamping it here put --jx-size-effective: 96px /
+  // font-size 96px on bar/sparkline/line roots (7.38× magnified glyphs,
+  // scrolling runs; introduced 3e8c38ec, diagnosed 2026-09-24). Only an
+  // explicit number may stamp; these parts carry no size prop at all.
+  const carriers = $derived(stampCarriersForLanes({ ...d, size: undefined }));
   provideUniversalLanes({ density, shape, radius, color, theme, elevation, motion });
   let uniRoot = $state<HTMLDivElement>();
   provideQueryAnchor(() => uniRoot ?? null);

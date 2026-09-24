@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-24T04:19:00.809Z",
+  "generatedAt": "2026-09-24T09:51:20.659Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -436,8 +436,8 @@
           "source": "registry/files/ui/section-card/section-card.svelte",
           "mirror": "apps/www/src/lib/ui/section-card/section-card.svelte",
           "target": "@ui/section-card/section-card.svelte",
-          "sourceSha": "67be16949a7cd6365ae856dfed7a9f60996bc0897595ac4e36e46d757e727d7f",
-          "mirrorSha": "67be16949a7cd6365ae856dfed7a9f60996bc0897595ac4e36e46d757e727d7f"
+          "sourceSha": "3d3fd9148706b72fb4d89a6e07c032140507a469979fe8132379ab52c71b0216",
+          "mirrorSha": "3d3fd9148706b72fb4d89a6e07c032140507a469979fe8132379ab52c71b0216"
         },
         {
           "source": "registry/files/ui/section-card/section-card.css",
@@ -464,8 +464,8 @@
           "source": "registry/files/ui/section-card/section-card.stylex.ts",
           "mirror": "apps/www/src/lib/ui/section-card/section-card.stylex.ts",
           "target": "@ui/section-card/section-card.stylex.ts",
-          "sourceSha": "7d13d127293ac2641b32e17847639428722760bfebb8aea50e65338ecc7e6635",
-          "mirrorSha": "7d13d127293ac2641b32e17847639428722760bfebb8aea50e65338ecc7e6635"
+          "sourceSha": "1758326a87fed7e6b643bbcec08a043533f93ee64dfddc9ab7a6055943695e91",
+          "mirrorSha": "1758326a87fed7e6b643bbcec08a043533f93ee64dfddc9ab7a6055943695e91"
         },
         {
           "sharedClaimOf": "press-button",
@@ -5860,22 +5860,22 @@
           "source": "registry/files/ui/chart/chart-bar.svelte",
           "mirror": "apps/www/src/lib/ui/chart/chart-bar.svelte",
           "target": "@ui/chart/chart-bar.svelte",
-          "sourceSha": "db97eb41c48158810dbdc1c2c54aae449f64eff271ad09e255e727f8204047c6",
-          "mirrorSha": "db97eb41c48158810dbdc1c2c54aae449f64eff271ad09e255e727f8204047c6"
+          "sourceSha": "94c53bbb8f6e3b2250bb7408fbf4ca9730d3bf58f7b0dc5d400148d7d8283ce2",
+          "mirrorSha": "94c53bbb8f6e3b2250bb7408fbf4ca9730d3bf58f7b0dc5d400148d7d8283ce2"
         },
         {
           "source": "registry/files/ui/chart/chart-sparkline.svelte",
           "mirror": "apps/www/src/lib/ui/chart/chart-sparkline.svelte",
           "target": "@ui/chart/chart-sparkline.svelte",
-          "sourceSha": "6a4163d1e0eaacd2ff5472af2495093de5a21e1d74318296b1921722c96828f9",
-          "mirrorSha": "6a4163d1e0eaacd2ff5472af2495093de5a21e1d74318296b1921722c96828f9"
+          "sourceSha": "aa0167aa61e881ef68c0b1f3dbf5397d8063febe4dc46634976886fde26b58b2",
+          "mirrorSha": "aa0167aa61e881ef68c0b1f3dbf5397d8063febe4dc46634976886fde26b58b2"
         },
         {
           "source": "registry/files/ui/chart/chart-line.svelte",
           "mirror": "apps/www/src/lib/ui/chart/chart-line.svelte",
           "target": "@ui/chart/chart-line.svelte",
-          "sourceSha": "3146bcca56b6177cf97f3748040157c84832e052d423d0c44176b154ef372637",
-          "mirrorSha": "3146bcca56b6177cf97f3748040157c84832e052d423d0c44176b154ef372637"
+          "sourceSha": "b8eb7c5b4b3352231b6772d0f80021a50ceb7ab4fafdbf06e20f2b2c4ee2de61",
+          "mirrorSha": "b8eb7c5b4b3352231b6772d0f80021a50ceb7ab4fafdbf06e20f2b2c4ee2de61"
         },
         {
           "source": "registry/files/ui/chart/chart-donut.svelte",
