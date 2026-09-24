@@ -47,6 +47,12 @@ export const otpStyles = stylex.create({
   // ── one slot: hit-or-two-lines lane, hairline frame, mono voice ──
   slot: {
     boxSizing: 'border-box',
+    // WIDTH is explicit — a digit cell, never a text field: without it
+    // the input's intrinsic ~20ch content width owned every wide
+    // container (167px slots on the docs page; the narrow DensityDemo
+    // probes that measured 32/36/40/48 were shrinking to this same
+    // floor, masking the gap — the Owner's walkthrough catch)
+    width: 'max(var(--jx-hit), calc(var(--jx-line) * 2))',
     minWidth: 'max(var(--jx-hit), calc(var(--jx-line) * 2))',
     minHeight: 'max(var(--jx-hit), calc(var(--jx-line) * 2))',
     padding: 0,

@@ -190,28 +190,36 @@ ${close}
         resolveFileContent={resolveUsage}
       >
         <div class={cx(rt.col32, rt.wFull)}>
+          <!-- the four primitives, ONE geometry: a 2×2 of identically
+               shaped cells (eyebrow label on top, the chart below) —
+               the Owner's walkthrough catch replaced the old stack of
+               two differently-shaped grids (1fr/1fr over 2fr/1fr) with
+               three alignment postures and an unlabeled bar -->
           <div class={cx(rt.chGridLg2)}>
-            <ChartBar data={WEEK} labels={DAYS} label="deploys per day" table={showTable} />
-            <div class={cx(rt.col12, rt.justifyCenter)}>
+            <div class={cx(rt.col12)}>
               <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track14, rt.inkMuted)}>
-                week at a glance
+                deploys per day — block bars
+              </p>
+              <ChartBar data={WEEK} labels={DAYS} label="deploys per day" table={showTable} />
+            </div>
+            <div class={cx(rt.col12)}>
+              <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track14, rt.inkMuted)}>
+                week at a glance — sparkline
               </p>
               <ChartSparkline data={WEEK} label="deploys this week" cells={cellMode} table={showTable} />
               <p class={cx(rt.bodyMuted, rt.m0)}>
                 one line, no axes — the finite min and max own the glyph range's endpoints
               </p>
             </div>
-          </div>
-          <div class={cx(rt.chGridLg21)}>
             <div class={cx(rt.col12)}>
               <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track14, rt.inkMuted)}>
-                deploy trend · 8 weeks
+                deploy trend · 8 weeks — line
               </p>
               <ChartLine data={TREND} label="deploy trend" area={lineArea} markers={lineMarkers} table={showTable} />
             </div>
-            <div class={cx(rt.col12, rt.itemsStart)}>
+            <div class={cx(rt.col12)}>
               <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track14, rt.inkMuted)}>
-                incident severities
+                incident severities — donut
               </p>
               <ChartDonut data={SEV} label="incident severities" table={showTable}>
                 <div class={cx(rt.flex, rt.col, rt.itemsCenter)}>
