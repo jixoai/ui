@@ -128,6 +128,10 @@ export const meta = defineComponentMeta(
         "kind": "opaque",
         "typeText": "(value: string) => void"
       },
+      "chrome": {
+        "kind": "opaque",
+        "typeText": "ControlChrome"
+      },
       "picker": {
         "kind": "snippet",
         "typeText": "Snippet<[PickerCtx]>"
@@ -159,10 +163,6 @@ export const meta = defineComponentMeta(
       "'data-dissolve-border'": {
         "kind": "boolean",
         "default": false
-      },
-      "chrome": {
-        "kind": "opaque",
-        "typeText": "unknown"
       },
       "rest": {
         "kind": "opaque",

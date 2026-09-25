@@ -18,6 +18,10 @@ export const meta = defineComponentMeta(
         "kind": "snippet",
         "typeText": "Snippet"
       },
+      "headerAside": {
+        "kind": "snippet",
+        "typeText": "Snippet"
+      },
       "class": {
         "kind": "string",
         "default": ""

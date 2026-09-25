@@ -19,7 +19,6 @@
   ],
   "dead": [
     "component-canvas -> @jixoai/shiki",
-    "scaffold-float -> @jixoai/website-scaffold",
     "search-corpus -> @jixoai/llms-txt"
   ]
 }

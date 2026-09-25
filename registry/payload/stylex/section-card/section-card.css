@@ -1,4 +1,4 @@
-@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3;
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2, components.stylex.priority3, components.stylex.priority4;
 
 @layer components.stylex.priority1 {
   :root, .x1klgzij {
@@ -253,6 +253,14 @@
     border-width: var(--hairline);
   }
 
+  .x845mor {
+    flex: 1;
+  }
+
+  .x1okw0bk {
+    flex: none;
+  }
+
   .x4mccgb {
     gap: calc(var(--jx-stack) + calc(var(--jx-unit) / 2));
   }
@@ -271,6 +279,12 @@
 
   .x1rkupyp {
     padding-inline: calc(var(--jx-inset) + var(--jx-unit));
+  }
+
+  @media (width >= 48rem) {
+    .xqw5h6q.xqw5h6q {
+      gap: calc(var(--jx-inset) * 3);
+    }
   }
 }
 
@@ -310,5 +324,25 @@
   .xtvhhri {
     text-transform: uppercase;
   }
+
+  @media (width >= 48rem) {
+    .x1gqojru.x1gqojru {
+      align-items: flex-start;
+    }
+
+    .x1k046mz.x1k046mz {
+      flex-direction: row;
+    }
+  }
 }
-/* buildId: e12c98c6feb373f1861e907a966420d7969018bd07cbc08ac11a31858f99eeac · generator: @jixoai/ui-vite-plugin@0.5.1 · engine: @stylexjs/unplugin@0.19.0 */
+
+@layer components.stylex.priority4 {
+  .xeuugli {
+    min-width: 0;
+  }
+
+  .xy0nghz {
+    width: min(100%, 24rem);
+  }
+}
+/* buildId: fa64ecad5239b9c22987268e54d1df02526b078881da49e0c55932e51dfdb0e9 · generator: @jixoai/ui-vite-plugin@0.6.0 · engine: @stylexjs/unplugin@0.19.0 */

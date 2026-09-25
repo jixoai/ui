@@ -8,6 +8,10 @@ export const meta = defineComponentMeta(
       "label": {
         "kind": "string"
       },
+      "chrome": {
+        "kind": "opaque",
+        "typeText": "ControlChrome"
+      },
       "density": {
         "kind": "opaque",
         "typeText": "DensityLane | QueryResult<DensityLane>",
@@ -89,10 +93,6 @@ export const meta = defineComponentMeta(
       "class": {
         "kind": "string",
         "default": ""
-      },
-      "chrome": {
-        "kind": "opaque",
-        "typeText": "unknown"
       },
       "rest": {
         "kind": "opaque",

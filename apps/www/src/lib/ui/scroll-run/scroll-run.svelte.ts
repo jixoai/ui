@@ -172,7 +172,13 @@ export function createScrollStamp(options: ScrollStampOptions): ScrollStamp {
   // members (observed once per element — re-observing inside the
   // callback would recurse on the jsdom sync-fire polyfill)
   const observed = new WeakSet<HTMLElement>();
+  // frozen under print projection (the machinery near the teardown
+  // owns it) — declared here because update() runs before that block
+  let printProjection = false;
   const update = () => {
+    // frozen under print projection (the block below): the machine
+    // restamps from live geometry when the projection ends
+    if (printProjection) return;
     const kids = members();
     // the axis pair: (travel, box) — scrollLeft/offsetLeft inline,
     // scrollTop/offsetTop block; the window width is the client side
@@ -225,8 +231,7 @@ export function createScrollStamp(options: ScrollStampOptions): ScrollStamp {
       }
     }
     // WRITE pass
-    run.setAttribute('data-jx-scroll-state', state);
-    // keyboard reachability (WCAG 2.1.1 scrollable-region class,
+    run.setAttribute('data-jx-scroll-state', state);    // keyboard reachability (WCAG 2.1.1 scrollable-region class,
     // math-block 1st review task 89): the run joins the tab order exactly
     // when the verdict arms it — a none verdict needs no keyboard entry,
     // and SSR (no verdict) stays untouched
@@ -265,6 +270,57 @@ export function createScrollStamp(options: ScrollStampOptions): ScrollStamp {
   document.fonts?.ready.then(() => {
     if (alive) update();
   });
+
+  // ── print projection (print-determinism, 2026-09-25): scrolling
+  // does not exist in print — the verdict, the progress var and the
+  // per-member edge ramps are screen ink, and a clone taken from
+  // different viewports must be byte-identical (verify-print's
+  // 800×600 ≡ 1600×1200 differential; the accordion carrier caught
+  // --jx-edge-end stamped at narrow and absent at wide). Entering the
+  // projection canonicalizes the run to its pristine never-stamped
+  // form (no verdict attr, no tabindex, no progress, no member
+  // stamps) and FREEZES the machine; leaving it restamps from live
+  // geometry. The two signal sources are the medium contract's own
+  // (lib/medium.svelte.ts): matchMedia('print') and the
+  // data-jx-print-sim stamp on an ancestor — read as DOM truth by
+  // literal name so this registry item stays import-free of the
+  // Svelte context (the kernel imports no provider; neither does a
+  // leaf machine).
+  const canonicalize = () => {
+    run.removeAttribute('data-jx-scroll-state');
+    run.removeAttribute('tabindex');
+    host?.style.removeProperty(progressVar);
+    for (const t of members()) {
+      t.style.removeProperty('--jx-edge-start');
+      t.style.removeProperty('--jx-edge-end');
+    }
+    for (const { target } of mirrors?.() ?? []) {
+      target.style.removeProperty('--jx-edge-start');
+      target.style.removeProperty('--jx-edge-end');
+    }
+  };
+  const reevaluateProjection = () => {
+    const on =
+      (typeof matchMedia === 'function' && matchMedia('print').matches) ||
+      (!!run.closest && !!run.closest('[data-jx-print-sim]'));
+    if (on === printProjection) return;
+    printProjection = on;
+    if (on) canonicalize();
+    else update();
+  };
+  const printMq = typeof matchMedia === 'function' ? matchMedia('print') : null;
+  printMq?.addEventListener?.('change', reevaluateProjection);
+  const simObs =
+    typeof MutationObserver === 'undefined'
+      ? null
+      : new MutationObserver(reevaluateProjection);
+  simObs?.observe(document.documentElement, {
+    attributes: true,
+    subtree: true,
+    attributeFilter: ['data-jx-print-sim'],
+  });
+  reevaluateProjection();
+
   return {
     update,
     destroy() {
@@ -272,6 +328,8 @@ export function createScrollStamp(options: ScrollStampOptions): ScrollStamp {
       run.removeEventListener('scroll', update);
       document.removeEventListener('visibilitychange', onWake);
       window.removeEventListener('focus', onWake);
+      printMq?.removeEventListener?.('change', reevaluateProjection);
+      simObs?.disconnect();
       ro?.disconnect();
       mo?.disconnect();
     },
