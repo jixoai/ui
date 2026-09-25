@@ -33,28 +33,14 @@
     font-variant-numeric: tabular-nums;
     line-height: 1;
     /* the art never wraps — and never scrolls (Owner ruling
-       2026-09-24: self-adaptive, not scrollable). The bar run's font
-       scales to fit its track (the rule below); clip is the fractional
-       safety net so no scrollbar can ever appear. A non-visible
+       2026-09-24: self-adaptive, not scrollable). Adaptation is the
+       component's re-bin (chart-bar measures the run track and
+       re-bins the glyph budget); clip is the fractional safety net
+       between mount and the first measurement pass. A non-visible
        overflow also zeroes the automatic minimum, so the 1fr track
        can shrink under its content (finale sweep) */
     max-width: 100%;
     overflow-x: clip;
-  }
-
-  /* ---- the adaptive bar run: font scales against the ROW's container
-     width so the longest run (capped at --jx-chart-cells glyphs, set
-     from the cells prop) always fits its 1fr track at ANY width. The
-     4rem flank reserves the label+value lanes; min() keeps the rung's
-     base size whenever the track is wide enough ---- */
-  :where([data-jx-chart-bar-row]) {
-    container-type: inline-size;
-  }
-  :where([data-jx-chart-bar-run]) {
-    font-size: min(
-      var(--jx-text),
-      calc((100cqi - 4rem) / (var(--jx-chart-cells, 80) * 0.6))
-    );
   }
 
   /* ---- braille cells: JetBrains Mono ships no U+28xx — the dots fell

@@ -4,9 +4,12 @@
 
   Horizontal bars on the text grid: Unicode block fill, value-
   proportional — floor(value/max × cells) full blocks plus one
-  left-eighth partial tail (chart.svelte's barRun). One row per datum:
-  a label lane (inline-start), the glyph run, a value lane
-  (inline-end). The mono lock lives in chart.css (.jx-chart-glyphs).
+  left-eighth partial tail (chart.svelte's barRun). The whole chart
+  is ONE shared three-column grid (label lane · run · value lane) —
+  every run starts at the same x by construction, and the glyph
+  budget re-bins to the track's measured capacity (self-adaptive,
+  never scrollable; see the re-bin block below). The mono lock lives
+  in chart.css (.jx-chart-glyphs).
 
   Data honesty (frozen semantics, unit-tested): non-finite and
   non-positive values render an EMPTY run — the glyph lane refuses to
@@ -126,12 +129,84 @@
   provideQueryAnchor(() => uniRoot ?? null);
   const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
   const max = $derived(seriesBounds(data)?.max ?? 0);
-  const run = $derived((v: number) => barRun(v, max, cells));
-  // the adaptive-fit budget (Owner ruling 2026-09-24: charts are
-  // self-adaptive, never scrollable): runs cap at `cells` glyphs, and
-  // chart.css scales the run's font against the row's container width
-  // so the longest run always fits its 1fr track at ANY width
-  const fitBudget = `--jx-chart-cells: ${cells}`;
+  // the adaptive re-bin (Owner ruling 2026-09-24: charts are
+  // self-adaptive, never scrollable — and 2026-09-25: adaptation is
+  // RE-BINNING, never font-scaling): the run's font stays on the
+  // density rung; the glyph budget re-bins from pure geometry — the
+  // width the CEILING art wants (label lane + value lane + gaps +
+  // ceiling × advance) against the space the CONTAINER offers (the
+  // first real ancestor box, clamped by the root's own max-width).
+  // When that space can hold the ceiling — a shrink-to-fit box
+  // FOLLOWS the art, so it always can; a wide grid cell can too —
+  // the full resolution stays; when it is tighter (max-width cap,
+  // narrow viewport) the budget drops to the real capacity. Reading
+  // only container-determined geometry — never the current run's
+  // rendered width, never the shrink-to-fit root's own clientWidth —
+  // is what makes this bidirectional and ratchet-proof: measured-
+  // content feedback loops were tried first and spiraled (the
+  // shrink-to-fit demos collapsed toward the 4-glyph floor one rebin
+  // at a time — a fallback-font advance at mount was enough to start
+  // it — and could never grow back). The advance comes from canvas
+  // measureText (grid tracks do NOT shrink under a tight box — the
+  // whole grid just overflows — so a rendered-run measure could
+  // never see the constraint). A CSS font-size fit predates all this
+  // and was rolled back too: hairline ink at wide budgets, ZERO px
+  // in the flex demos (inline-size-contained rows contributed no
+  // intrinsic width). The 4-glyph floor keeps a degenerate track
+  // from erasing the art entirely (clip catches the residue).
+  let effCells = $state(cells);
+  const run = $derived((v: number) => barRun(v, max, effCells));
+  $effect(() => {
+    const root = uniRoot;
+    const ceiling = cells;
+    if (!root || typeof ResizeObserver === 'undefined') return;
+    const rebin = () => {
+      // used track sizes: "label-lane run-track value-lane" (the
+      // label/value lanes are content-determined, not run-dependent)
+      const tracks = getComputedStyle(root).gridTemplateColumns.split(' ').map(parseFloat);
+      if (tracks.length < 3 || !Number.isFinite(tracks[0]) || !Number.isFinite(tracks[2])) return;
+      const gap = parseFloat(getComputedStyle(root).columnGap) || 0;
+      const flank = tracks[0] + tracks[2] + 2 * gap;
+      // the AVAILABLE box is the container's, never the root's own:
+      // a shrink-to-fit root (center-stage flex) FOLLOWS the current
+      // content, so sizing against root.clientWidth ratchets — one
+      // fallback-font measure at mount locked the a11y demo two
+      // glyphs under its ceiling. Walk to the first ancestor with a
+      // real box (display:contents rows have none), then clamp by
+      // the root's own max-width when present.
+      let host: HTMLElement | null = root.parentElement;
+      let avail = 0;
+      while (host && !(avail = host.clientWidth)) host = host.parentElement;
+      if (!avail) return;
+      // clamp by the root's own max-width ONLY in absolute px (the
+      // a11y demo's 28rem cap): a PERCENTAGE resolves against the
+      // walked parent already — parseFloat("100%") = 100px once
+      // collapsed the table-fallback chart to a 5-glyph stub
+      const maxWRaw = getComputedStyle(root).maxWidth;
+      if (maxWRaw.endsWith('px')) {
+        const maxW = parseFloat(maxWRaw);
+        if (maxW > 0) avail = Math.min(avail, maxW);
+      }
+      const ink = root.querySelector<HTMLElement>('[data-jx-chart-bar-run]');
+      if (!ink || !ink.textContent) return;
+      const cs = getComputedStyle(ink);
+      const ctx = document.createElement('canvas').getContext('2d');
+      if (!ctx) return;
+      ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      const advance = ctx.measureText('█').width;
+      if (!(advance > 0)) return;
+      const next =
+        flank + ceiling * advance <= avail
+          ? ceiling
+          : Math.min(ceiling, Math.max(4, Math.floor((avail - flank) / advance)));
+      if (next !== effCells) effCells = next;
+    };
+    rebin();
+    const ro = new ResizeObserver(rebin);
+    ro.observe(root);
+    document.fonts?.ready.then(rebin).catch(() => {});
+    return () => ro.disconnect();
+  });
 
   // the payload's own join (separator's serialize law): objects in
   // dev, joined strings in payloads — never a raw interpolation
@@ -167,7 +242,7 @@
   data-jx-chart-bar={d.variant}
   data-density={densityRungOf(d.density)}
   class:dark={d.theme === 'dark'}
-  style={[rootStyle, fitBudget].filter(Boolean).join('; ')}
+  style={rootStyle}
   class={cn(cx(chartStyles.barRoot), className)}
 >
   {#each data as v, i (i)}

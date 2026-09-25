@@ -23,20 +23,23 @@ export const chartStyles = stylex.create({
   // ── the ensemble root: layout-transparent ──
   contents: { display: 'contents' },
 
-  // ── bar: one grid row per datum ──
+  // ── bar: ONE grid for the whole chart, rows as contents ──
+  // The label and value lanes are SHARED columns — every row's run
+  // starts at the same x BY CONSTRUCTION (per-row `auto 1fr auto`
+  // grids sized each label lane to its own text, so throughput-by-
+  // lane runs started at three different x; 2026-09-25). No
+  // container-type anywhere in the bar: an inline-size-contained row
+  // contributes NO intrinsic width, and the center-stage flex demos
+  // collapsed the whole root to ~24px on it.
   barRoot: {
-    display: 'inline-flex',
-    flexDirection: 'column',
+    display: 'grid',
+    gridTemplateColumns: 'max-content 1fr auto',
+    alignItems: 'baseline',
     gap: 'var(--jx-gap)',
     fontSize: 'var(--jx-text)',
     fontVariantNumeric: 'tabular-nums',
   },
-  barRow: {
-    display: 'grid',
-    gridTemplateColumns: 'auto 1fr auto',
-    alignItems: 'baseline',
-    gap: 'var(--jx-gap)',
-  },
+  barRow: { display: 'contents' },
   barLabel: {
     minWidth: 0,
     overflow: 'hidden',
@@ -44,7 +47,7 @@ export const chartStyles = stylex.create({
     whiteSpace: 'nowrap',
     color: tokens['--jx-muted-foreground'],
   },
-  barValue: { color: tokens['--jx-foreground'] },
+  barValue: { color: tokens['--jx-foreground'], justifySelf: 'end' },
   // the ink rungs through the global hue slots (variant grammar)
   inkFill: { color: 'var(--jx-fill)' },
   inkTonal: { color: 'color-mix(in oklab, var(--jx-tonal) 70%, transparent)' },

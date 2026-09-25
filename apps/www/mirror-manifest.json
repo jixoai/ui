@@ -1,7 +1,7 @@
 {
   "$schema": "./mirror-manifest.schema.json",
   "version": 1,
-  "generatedAt": "2026-09-24T10:57:41.964Z",
+  "generatedAt": "2026-09-25T04:52:41.652Z",
   "canonicalMain": {
     "press-button": "registry/files/ui/press-button/press-button.svelte",
     "list-item": "registry/files/ui/list-item/item.svelte",
@@ -5860,8 +5860,8 @@
           "source": "registry/files/ui/chart/chart-bar.svelte",
           "mirror": "apps/www/src/lib/ui/chart/chart-bar.svelte",
           "target": "@ui/chart/chart-bar.svelte",
-          "sourceSha": "5b7a510918641e59d042353651506b32eeabebd3eeebb801020f6247d421ebbf",
-          "mirrorSha": "5b7a510918641e59d042353651506b32eeabebd3eeebb801020f6247d421ebbf"
+          "sourceSha": "99107b3ed1ff2dd823db204a166cb29e58115d0d8ec9d68e1b7139922000007f",
+          "mirrorSha": "99107b3ed1ff2dd823db204a166cb29e58115d0d8ec9d68e1b7139922000007f"
         },
         {
           "source": "registry/files/ui/chart/chart-sparkline.svelte",
@@ -5888,8 +5888,8 @@
           "source": "registry/files/ui/chart/chart.css",
           "mirror": "apps/www/src/lib/ui/chart/chart.css",
           "target": "@ui/chart/chart.css",
-          "sourceSha": "744cb18509ff3f5160b8412d995c5413c95cefade3e8424d94f50162d9db706f",
-          "mirrorSha": "744cb18509ff3f5160b8412d995c5413c95cefade3e8424d94f50162d9db706f"
+          "sourceSha": "3cedc056c81e5178c06fa3ac524a00190ca4aa2c3faeaa822bb1b00223989479",
+          "mirrorSha": "3cedc056c81e5178c06fa3ac524a00190ca4aa2c3faeaa822bb1b00223989479"
         },
         {
           "source": "registry/files/ui/chart/index.ts",
@@ -5909,8 +5909,8 @@
           "source": "registry/files/ui/chart/chart.stylex.ts",
           "mirror": "apps/www/src/lib/ui/chart/chart.stylex.ts",
           "target": "@ui/chart/chart.stylex.ts",
-          "sourceSha": "279ff305737ec71116302a1e319384dcb93775e6b7283afb8c9a32878f171c85",
-          "mirrorSha": "279ff305737ec71116302a1e319384dcb93775e6b7283afb8c9a32878f171c85"
+          "sourceSha": "14463b9e9887dd3436c70272023bba64efb7868b4bef307ffcfa14239a77767a",
+          "mirrorSha": "14463b9e9887dd3436c70272023bba64efb7868b4bef307ffcfa14239a77767a"
         },
         {
           "sharedClaimOf": "press-button",
