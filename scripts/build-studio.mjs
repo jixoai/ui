@@ -7,7 +7,7 @@
  * a prebuilt, zero-host-coupled vite bundle of the studio chrome:
  *   input   packages/design-tool/src/studio/studio-static.html
  *           → ./studio-static-entry.js (mountStudio — the package
- *             default shell) + ./studio-static.css (the tailwind
+ *             default shell) + ./studio-static.css (the 0.6.0
  *             fan-in over registry/files/theme) + the icons CSS
  *   aliases #jixoai/* → registry/files/ui, $lib → apps/www/src/lib
  *           (the monorepo-fixed twin of the design server's vehicle
@@ -87,11 +87,11 @@ function exportFn(mod, name, spec) {
   die(`${spec} exposes no usable "${name}" export (keys: ${Object.keys(record).join(", ")})`);
 }
 
-/* ── the plugin matrix (create.ts:370-377, same parameters) ───────────── */
+/* ── the plugin matrix (the 0.6.0 tailwindless shape — the site
+   entry's twin, apps/www/vite.config.ts; PFINAL retired 2026-09-27) ── */
 
 const viteMod = await importFromModuleRoot("vite");
 const svelteMod = await importFromModuleRoot("@sveltejs/vite-plugin-svelte");
-const tailwindMod = await importFromModuleRoot("@tailwindcss/vite");
 const jixoaiMod = await importFromModuleRoot("@jixoai/ui-vite-plugin");
 const lucideMod = await importFromModuleRoot("@jixoai/ui-vite-plugin/icons");
 const mdMod = await importFromModuleRoot("@jixoai/ui-vite-plugin/icons/md");
@@ -100,22 +100,32 @@ const rxMod = await importFromModuleRoot("@jixoai/ui-vite-plugin/icons/rx");
 
 const build = exportFn(viteMod, "build", "vite");
 const svelteFactory = exportFn(svelteMod, "svelte", "@sveltejs/vite-plugin-svelte");
-const tailwindFactory = exportFn(tailwindMod, "tailwindcss", "@tailwindcss/vite");
 const jixoaiFactory = exportFn(jixoaiMod, "jixoai", "@jixoai/ui-vite-plugin");
 const lucideFactory = exportFn(lucideMod, "lucideIconProvider", "@jixoai/ui-vite-plugin/icons");
 const mdFactory = exportFn(mdMod, "md", "@jixoai/ui-vite-plugin/icons/md");
 const phFactory = exportFn(phMod, "ph", "@jixoai/ui-vite-plugin/icons/ph");
 const rxFactor = exportFn(rxMod, "rx", "@jixoai/ui-vite-plugin/icons/rx");
 
-// ghostty OFF, icons channels ON — the design server's exact matrix
-// (create.ts:370-377): the studio resolves no wasm at startup and
-// scans only md:/ph:/rx: literals (studio sources carry none). The
-// studio's glyphs ride the COMMITTED canonical artifact through the
+// ghostty OFF, icons channels ON, stylex ON — the 0.6.0 kernel shape:
+// the StyleX engine rides the umbrella, transform scope = the trees the
+// studio chrome compiles through its build aliases (registry/files via
+// #jixoai/, apps/www/src/lib via $lib) + the studio's own tree. The
+// registry components' utility chrome compiles from their per-item
+// payload modules (tabs.stylex.ts et al.) — with the tailwind engine
+// retired, this lane is the ONLY utility supplier.
+// The studio's glyphs ride the COMMITTED canonical artifact through the
 // $lib alias (apps/www/src/lib/icon-set.gen.ts) — NOT this options
 // face (the alias bypasses the plugin's generated module; config
 // icons here ship nothing, the r5 lesson).
 const jixoaiPlugins = jixoaiFactory({
   ghostty: false,
+  stylex: {
+    include: [
+      join(repoRoot, "registry/files"),
+      join(repoRoot, "apps/www/src/lib"),
+      join(pkgDir, "src"),
+    ],
+  },
   icons: {
     provider: lucideFactory(),
     safety: { mode: "warn" },
@@ -193,7 +203,7 @@ await build({
   configFile: false,
   base: "/__design__/",
   logLevel: "info",
-  plugins: [svelteFactory(), tailwindFactory(), ...jixoaiPlugins, jixoaiIconsCssEntry(), studioManifestPlugin()],
+  plugins: [svelteFactory(), ...jixoaiPlugins, jixoaiIconsCssEntry(), studioManifestPlugin()],
   resolve: {
     // the monorepo-fixed twin of the design server's vehicle alias
     // table (create.ts:382-387): the prebuilt chrome compiles the

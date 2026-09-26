@@ -2,8 +2,8 @@
  * @jixoai/ui-design (server) — createDesignViteServer (T3).
  *
  * Orthogonal intents (3):
- *   1. synthesize the ONE vite dev server config (svelte + tailwind v4
- *      + @jixoai/ui-vite-plugin with icons channels + the design
+ *   1. synthesize the ONE vite dev server config (svelte + the 0.6.0
+ *      jixoai umbrella (stylex + icons channels) + the design
  *      surface plugins), with the probe's alias table — this is the
  *      whole plugin matrix of registry/vite.config.ts minus sveltekit,
  *      plus ghostty OFF (the design studio does not resolve wasm at
@@ -269,10 +269,6 @@ interface SveltePluginModule {
   readonly svelte?: () => Plugin;
   readonly default?: unknown;
 }
-interface TailwindViteModule {
-  readonly tailwindcss?: () => Plugin;
-  readonly default?: unknown;
-}
 interface JixoaiModule {
   readonly jixoai?: (options: Record<string, unknown>) => Plugin[];
   readonly default?: unknown;
@@ -351,7 +347,6 @@ export async function createDesignViteServer(
 
   const viteMod = await importFromModuleRoot<ViteFactoryModule>(moduleRoot, 'vite');
   const svelteMod = await importFromModuleRoot<SveltePluginModule>(moduleRoot, '@sveltejs/vite-plugin-svelte');
-  const tailwindMod = await importFromModuleRoot<TailwindViteModule>(moduleRoot, '@tailwindcss/vite');
   const jixoaiMod = await importFromModuleRoot<JixoaiModule>(moduleRoot, '@jixoai/ui-vite-plugin');
   const lucideMod = await importFromModuleRoot<LucideProviderModule>(moduleRoot, '@jixoai/ui-vite-plugin/icons');
   const mdMod = await importFromModuleRoot<ChannelModule>(moduleRoot, '@jixoai/ui-vite-plugin/icons/md');
@@ -359,7 +354,6 @@ export async function createDesignViteServer(
   const rxMod = await importFromModuleRoot<ChannelModule>(moduleRoot, '@jixoai/ui-vite-plugin/icons/rx');
 
   const svelteFactory = requireExportFn<() => Plugin>(svelteMod, 'svelte', '@sveltejs/vite-plugin-svelte');
-  const tailwindFactory = requireExportFn<() => Plugin>(tailwindMod, 'tailwindcss', '@tailwindcss/vite');
   const jixoaiFactory = requireExportFn<(options: Record<string, unknown>) => Plugin[]>(jixoaiMod, 'jixoai', '@jixoai/ui-vite-plugin');
   const lucideFactory = requireExportFn<() => unknown>(lucideMod, 'lucideIconProvider', '@jixoai/ui-vite-plugin/icons');
   const mdFactory = requireExportFn<() => unknown>(mdMod, 'md', '@jixoai/ui-vite-plugin/icons/md');
@@ -368,8 +362,21 @@ export async function createDesignViteServer(
 
   // the jixoai() matrix, ghostty OFF (no wasm resolution at design-server
   // startup; terminal components degrade — recorded in the change report)
+  // + stylex ON (kernel 0.6.0, PFINAL retired 2026-09-27): the canvas
+  // pipeline compiled registry chrome through the tailwind engine before;
+  // the vehicles are tailwindless now, so the StyleX lane is the ONLY
+  // utility supplier — transform scope = the item tree (registry/files,
+  // dirname of the #jixoai/ base: covers ui/ + tokens.stylex + lib/),
+  // the $lib mirror tree, and the studio's own tree
   const jixoaiPlugins = jixoaiFactory({
     ghostty: false,
+    stylex: {
+      include: [
+        dirname(host.itemAliasBase),
+        host.libAliasBase,
+        join(PACKAGE_DIR, 'src'),
+      ],
+    },
     icons: {
       provider: lucideFactory(),
       safety: { mode: 'warn' },
@@ -415,7 +422,6 @@ export async function createDesignViteServer(
       // studio wiped per edit, server log `page reload`, 2026-09-12)
       buildStampHmrPlugin(),
       svelteFactory(),
-      tailwindFactory(),
       ...jixoaiPlugins,
       designIconsCssEntryPlugin(jixoaiPlugins),
       designSurfacesPlugin(host, agent, collabCell),

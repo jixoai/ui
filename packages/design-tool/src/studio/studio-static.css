@@ -1,31 +1,56 @@
 /* -------------------------------------------------------------------------
- * @jixoai/ui-design (studio) — the static studio's tailwind fan-in
- * (issue #18, the studio style base).
+ * @jixoai/ui-design (studio) — the static studio's style base
+ * (issue #18; PFINAL retired 2026-09-27, kernel 0.6.0: the tailwind
+ * fan-in below was the repo's LAST legal `@import 'tailwindcss'` —
+ * the studio now rides the same tailwindless boundary as the site
+ * entry, apps/www/src/app.css W4).
  *
- * The minimal transplant of apps/www/src/app.css's three-way fan-in
- * (tw4 P2.2): `tailwindcss` + the canonical theme sheets, all compiled
- * by @tailwindcss/vite in the studio build. The registry theme files
- * CANNOT be loaded raw: they carry TW4 compiler at-rules (@custom-variant
- * dark, @theme inline, @utility jx-*) that browsers drop — the jx-press /
- * jx-surface / jx-hue-* laws would silently vanish.
+ * The three-sheet fan-in (token sheet + the eight-axes generated
+ * layer + the pure sheet), resolved through the build's $lib alias —
+ * byte-same sources the site installs at src/lib. The registry theme
+ * sheets are PLAIN css on 0.6.0 (the TW4 at-rules retired with the
+ * engine), so they load raw with nothing dropped: the jx-press /
+ * jx-surface / jx-hue-* laws arrive intact.
  *
- * EXPLICIT @source — the highest-risk line of the static build: TW4's
- * automatic content detection bases itself on the vite config ROOT
- * (packages/design-tool), which does NOT cover the component trees the
- * studio chrome compiles from (the #jixoai/ → registry/files/ui and
- * $lib → apps/www/src/lib build aliases). Without these two lines the
- * utility classes inside those trees silently drop out of the output —
- * no error, a broken studio. The studio chrome's own tree stays under
- * the vite root and rides automatic detection.
+ * The global base layer mirrors the site entry's (the studio is a
+ * full app surface — same reset posture); site-only blocks (smooth
+ * scroll, microlighter scoping, text-modifier kernel feed) stay site-
+ * side. Utility atoms are NOT here either: the registry components'
+ * chrome compiles through the StyleX lane (build-studio.mjs
+ * jixoai({ stylex }) transforms the kernel trees; per-item payload
+ * modules like tabs.stylex.ts are the source of record).
  *
  * The icons vocabulary block does NOT belong here:
- * 'virtual:jixoai-icons.css' cannot be CSS-@imported under
- * @tailwindcss/vite (enhanced-resolve skips plugin hooks — the
- * apps/www app.css comment is the authoritative record); it rides the
- * JS entry instead (studio-static-entry.js).
+ * 'virtual:jixoai-icons.css' rides the JS entry
+ * (studio-static-entry.js), the app.css precedent.
  * ---------------------------------------------------------------------- */
-@import 'tailwindcss';
-@import '../../../../registry/files/theme/jixoai.css';
-@import '../../../../registry/files/theme/jx-pure.css';
-@source '../../../../registry/files/ui';
-@source '../../../../apps/www/src/lib';
+@import '$lib/jixoai.css';
+@import '$lib/universal-props.css';
+@import '$lib/jx-pure.css';
+
+@layer base {
+  * {
+    border-color: var(--border);
+    corner-shape: bevel;
+    accent-color: var(--primary);
+  }
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    -webkit-font-smoothing: antialiased;
+    font-family: var(--font-mono);
+  }
+  .font-nav {
+    font-family: var(--font-nav);
+  }
+  button {
+    cursor: pointer;
+  }
+  :where(a, button):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--primary) 30%, transparent);
+  }
+}

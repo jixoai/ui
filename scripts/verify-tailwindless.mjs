@@ -2772,21 +2772,18 @@ function check(root, allowlistPath) {
     }
   }
 
-  // PFINAL enclave (W4-r3): the design-tool studio is the ONE frozen
-  // Tailwind-consumer css (spec: "keeps the engine fan-in BY DESIGN");
-  // the ONLY @import 'tailwindcss' allowed anywhere in repo css is
-  // that exact file — a second one is a new engine coupling.
-  {
-    const ENCLAVE = 'packages/design-tool/src/studio/studio-static.css';
-    for (const tree of ['apps/www/src', 'registry/files', 'packages']) {
-      for (const rel of walkDir(join(root, tree), tree)) {
-        if (!rel.endsWith('.css')) continue;
-        const p = `${tree}/${rel}`;
-        if (p === ENCLAVE) continue;
-        const text = readFileSync(join(root, p), 'utf8');
-        if (/^@import\s+['"]tailwindcss['"]/m.test(text)) {
-          red.push(`${p}: @import 'tailwindcss' outside the frozen design-tool enclave (${ENCLAVE}) — the engine died everywhere else (PFINAL)`);
-        }
+  // PFINAL CLOSED (2026-09-27, kernel 0.6.0 design-agent round): the
+  // design-tool studio rode the same tailwindless boundary as the site
+  // (three-sheet fan-in + the stylex lane in its builds) — the W4-r3
+  // frozen enclave is retired with it. ZERO @import 'tailwindcss'
+  // anywhere in repo css now; a hit is a new engine coupling.
+  for (const tree of ['apps/www/src', 'registry/files', 'packages']) {
+    for (const rel of walkDir(join(root, tree), tree)) {
+      if (!rel.endsWith('.css')) continue;
+      const p = `${tree}/${rel}`;
+      const text = readFileSync(join(root, p), 'utf8');
+      if (/^@import\s+['"]tailwindcss['"]/m.test(text)) {
+        red.push(`${p}: @import 'tailwindcss' — the engine died everywhere (PFINAL closed 2026-09-27)`);
       }
     }
   }

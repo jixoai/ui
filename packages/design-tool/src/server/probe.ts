@@ -164,7 +164,11 @@ function probeConsumer(root: string, config: ComponentsJson): Pick<DesignHostInf
 
 /* ── moduleRoot ───────────────────────────────────────────────────────── */
 
-const PLUGIN_SET = ['vite', '@sveltejs/vite-plugin-svelte', '@tailwindcss/vite', '@jixoai/ui-vite-plugin'] as const;
+// the 0.6.0 kernel shape (PFINAL retired 2026-09-27): the vehicle
+// installs dropped @tailwindcss/vite with the engine — completeness is
+// vite + svelte + the jixoai umbrella (the StyleX engine rides the
+// umbrella's own dependency surface, never the vehicle's — F11)
+const PLUGIN_SET = ['vite', '@sveltejs/vite-plugin-svelte', '@jixoai/ui-vite-plugin'] as const;
 
 /** does `dir`'s node_modules resolve every plugin-set member? (ESM-aware, see resolver.ts) */
 function resolvesPluginSet(dir: string): boolean {
