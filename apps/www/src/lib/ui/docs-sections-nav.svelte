@@ -22,6 +22,14 @@
   blurs at rest — no sticky anywhere). The mobile expansion viewport
   keeps the original sticky-head law (its band is INSIDE its own
   scroller, where sticky is the honest pin).
+
+  The EIGHT-AXIS SURFACE (explicit-props W3-D4, siteOnly): size ·
+  shape · radius · density · color · theme · elevation · motion ride
+  DocsSectionsNavDefaults (first-time, all no-own) on the nav root —
+  a no-own CONTAINER surface (the scaffold's chrome snippet renders
+  this with no lanes today; nothing stamps, the rail's dense
+  micro-typography keeps its own authored law; the axes are the
+  supply seam, not a restyle).
 -->
 <script lang="ts">
   import './docs-sections-nav.css';
@@ -39,6 +47,51 @@
   } from '$lib/search/nav-filter';
   import ProgressiveBlur from '$lib/ui/progressive-blur/progressive-blur.svelte';
   import { onMount } from 'svelte';
+  import { dsnStyles } from './docs-sections-nav.stylex';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { DocsSectionsNavDefaults } from './docs-sections-nav-defaults.svelte';
+
+  interface Props {
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
+  }
+
+  let { density, size, shape, radius, color, theme, elevation, motion }: Props = $props();
 
   const normalized = $derived(
     page.url.pathname.replace(/\.html$/, '').replace(/\/+$/, '') || '/',
@@ -95,6 +148,22 @@
 
   let open = $state(false);
 
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // ── the layer-grid clearance (2026-09-05, the scaffold's
   // --jx-header-h precedent): the rail is a ONE-CELL layer grid — the
   // head is an OVERLAY, the scroller spans the full cell behind it,
@@ -105,6 +174,28 @@
   // fallback (≈ the authored head height)
   let railEl = $state<HTMLElement | null>(null);
   let headEl = $state<HTMLElement | null>(null);
+
+  // ── the eight-axis surface (W3-D4 — FIRST-TIME contract, all
+  // no-own): one resolution record AFTER the element state
+  // declarations (the W3-C TDZ law — the query() anchor reads
+  // uniRoot); the standard stamp + supply wiring on the nav root
+  const d = $derived(
+    DocsSectionsNavDefaults.resolve({
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   onMount(() => {
     if (!railEl || !headEl) return;
@@ -160,7 +251,7 @@
   }
 </script>
 
-<nav class="jx-dsn" data-area="tree" aria-label="docs sections">
+<nav class="jx-dsn" data-area="tree" aria-label="docs sections" bind:this={uniRoot} data-density={densityRungOf(d.density)} class:dark={d.theme === 'dark'} style={rootStyle}>
   <!-- rail surface (wide form): the spine, always expanded -->
   <!-- THE ONE-CELL LAYER GRID (2026-09-05 r3 — the sticky era
        retires): the rail grid is a single [stack] cell — the groups
@@ -177,7 +268,7 @@
        lifted with timeline-scope (see the style block). The band
        mounts INSIDE the rail surface (dying with it below 1200px) -->
   <div class="jx-dsn-rail" bind:this={railEl}>
-    <ProgressiveBlur pin="grid" position="top" reveal="scroll" height="7.5rem" class="z-[5]" />
+    <ProgressiveBlur pin="grid" position="top" reveal="scroll" height="7.5rem" class={cx(dsnStyles.bandZ)} />
     <div class="jx-dsn-head" bind:this={headEl}>
       <p class="jx-dsn-title">{railTitle}</p>
       <div class="jx-dsn-search">
@@ -261,7 +352,7 @@
       <!-- the same sticky-head + scroll-edge law on the mobile
            expansion viewport: the filter pins, the groups scroll
            under it through the band -->
-      <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" class="z-[5]" />
+      <ProgressiveBlur position="top" reveal="scroll" height="4.5rem" class={cx(dsnStyles.bandZ)} />
       <div class="jx-dsn-search jx-dsn-bar-search jx-dsn-expand-head">
         <input
           class="jx-dsn-input"

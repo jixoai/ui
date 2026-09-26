@@ -1,0 +1,7 @@
+# payload symmetry proof (2026-09-14)
+== tw-baseline/src ==
+tree-hash: 332db3ed035c7ec820b366b4859e499b869eff3c6bec18c06165f1c8ed729373
+ec89d0420ba51f21ed7845b0b69a39e94aed23b3587ec8202a50bc29d19bc080  tw-baseline/src/App.svelte
+== arch-b/src ==
+tree-hash: a9e54fdd2ad92fbd261576532daec3b61277698667194ee37636eecee46f4ca7
+65097ac2ce05ca6eab920e20967b34cd030c48aced663d6836c14e29b1f98700  arch-b/src/App.svelte

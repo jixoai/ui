@@ -36,6 +36,7 @@
     NAVIGATION_MENU_ITEM_KEY,
     type NavigationMenuItemApi,
   } from './navigation-menu-item.svelte';
+  import { navMenuStyles } from './navigation-menu.stylex';
   import '$lib/ui/popover/popover.css';
 
   interface Props {
@@ -44,6 +45,22 @@
   }
 
   let { class: className = '', children }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const bar = getContext<NavigationMenuApi>(NAVIGATION_MENU_KEY);
   const item = getContext<NavigationMenuItemApi>(NAVIGATION_MENU_ITEM_KEY);
@@ -120,7 +137,13 @@
      handling only; the panel's links are the interactive elements. The
      hide() is EXPLICIT: preventDefault on the keydown cancels the
      native close request, so without it focus would return over a
-     still-open panel (Codex r1 blocking #1, browser-reproduced) -->
+     still-open panel (Codex r1 blocking #1, browser-reproduced). -->
+<!-- SPAN SEMANTICS (2026-09-15, measured — research/p0-bug-probes.md,
+     stylex-kernel-phase0 P0.1): span-right START-aligns (panel left
+     edge on the item's left edge), span-left END-aligns — the family's
+     own law is LEFT edges aligned under the item, so the inline writes
+     span-right; the terminal-header override flips it to span-left for
+     its right-aligned header law. -->
 <div
   id={panelId}
   popover="auto"
@@ -128,13 +151,13 @@
   class={cn(
     'jx-pop jx-surface',
     surfaceMotionSupported && 'jx-waapi',
-    'w-fit max-w-[min(92vw,26rem)]',
+    cx(navMenuStyles.panel),
     className,
   )}
   data-variant={bar.variant}
   data-density={bar.density}
   bind:this={panelEl}
-  style="position-anchor: {item.anchorName}; --jx-surface-in-x: 0px; --jx-surface-in-y: 6px; --jx-surface-ox: 6px; --jx-surface-oy: 6px; inset-area: bottom span-left; position-area: bottom span-left;"
+  style="position-anchor: {item.anchorName}; --jx-surface-in-x: 0px; --jx-surface-in-y: 6px; --jx-surface-ox: 6px; --jx-surface-oy: 6px; inset-area: bottom span-right; position-area: bottom span-right;"
   ontoggle={handleToggle}
   onkeydown={handleKeydown}
 >
@@ -147,9 +170,9 @@
   <div data-jx-navmenu-surface="" class="jx-surface-body">
     <div
       data-jx-navmenu-scroll=""
-      class="max-h-[72vh] overflow-auto [scrollbar-gutter:stable_both-edges] [padding:var(--jx-pop-pad,12px_14px)] [padding-inline:max(var(--jx-pop-pad-inline,14px)-var(--jx-scrollbar-thin,0px),0px)]"
+      class={cx(navMenuStyles.scroll)}
     >
-      <div class="flex flex-col" data-jx-navmenu-panel-body="">
+      <div class={cx(navMenuStyles.panelBody)} data-jx-navmenu-panel-body="">
         {@render children()}
       </div>
     </div>

@@ -11,7 +11,9 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { CommandDefaults } from './command-defaults.svelte';
+  import { commandStyles } from './command.stylex';
   import { cn } from '$lib/utils';
 
   interface Props extends HTMLAttributes<HTMLDivElement> {
@@ -24,12 +26,27 @@
   // economy 3.2): the density slot's ambient read lands the root's
   // provided opinion; no opinion resolves undefined → no stamp
   const d = $derived(CommandDefaults.resolve({}));
+
+  // the payload's own join (separator's serialize law)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div
   data-jx-command-empty=""
-  data-density={d.density}
-  class={cn('[min-block-size:var(--jx-hit)] px-[var(--jx-inset)] py-[var(--jx-stack)] text-center text-[length:var(--jx-text)] text-muted-foreground', className)}
+  data-density={densityRungOf(d.density)}
+  class={cn(cx(commandStyles.empty), className)}
   role="status"
   {...rest}
 >

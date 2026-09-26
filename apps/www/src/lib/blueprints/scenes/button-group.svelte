@@ -5,9 +5,24 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import ButtonGroupDivider from '$lib/ui/button-group/button-group-divider.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center gap-14 p-10">
+<div class={cx(bpA.buttonGroupStage)}>
   <ButtonGroup label="export actions">
     <PressButton variant="outline">copy</PressButton>
     <PressButton variant="outline">move</PressButton>

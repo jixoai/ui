@@ -6,29 +6,45 @@
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-6 p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="flex flex-col gap-3 opacity-60">
-    <Skeleton class="h-3 w-3/4"></Skeleton>
-    <Skeleton class="h-3 w-1/2"></Skeleton>
-  </div>
-  <p class="text-sm leading-6">
+<Stack direction="column" justify="center" gap="24" class={cx(bpA.hoverCardStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpA.hoverCardMuted)} }>
+    <Skeleton class={cx(bpA.hoverCardSkeletonA)}></Skeleton>
+    <Skeleton class={cx(bpA.hoverCardSkeletonB)}></Skeleton>
+  </Stack>
+  <p class={cx(bpA.hoverCardBody)}>
     release 77 was deployed by
     <HoverCard id="bp-hover-card" placement="bottom">
       {#snippet trigger()}
-        <a class="font-medium underline decoration-dotted underline-offset-4" href="#bp-hover-card">@grace</a>
+        <a class={cx(bpA.hoverCardTrigger)} href="#bp-hover-card">@grace</a>
       {/snippet}
-      <div class="flex items-start gap-3">
+      <Stack align="start" gap="12">
         <Avatar name="Grace Hopper" size="lg" alt="" />
-        <div class="flex flex-col gap-1">
-          <p class="text-sm font-medium">Grace Hopper</p>
-          <p class="text-muted-foreground text-xs leading-5">
+        <Stack direction="column" gap="4">
+          <p class={cx(bpA.hoverCardPeekName)}>Grace Hopper</p>
+          <p class={cx(bpA.hoverCardPeekNote)}>
             maintainer · 77 registry items published · last deploy 2h ago
           </p>
-        </div>
-      </div>
+        </Stack>
+      </Stack>
     </HoverCard>
     — 3 commits ahead of main.
   </p>
-</div>
+</Stack>

@@ -1,9 +1,11 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import FloatButton from '$lib/ui/float-button/float-button.svelte';
+  import Icon from '$lib/ui/icon';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
@@ -30,7 +32,7 @@ ${close}
 
 <!-- menu idiom: children + an actions snippet — the button toggles a
      popover=auto stack above itself (native light dismiss, Escape, top layer) -->
-<FloatButton label="quick actions" corner="bottom-left">
+<FloatButton label="quick actions" corner="bottom-right" class="fab-lift-a">
   <span aria-hidden="true">+</span>
   {#snippet actions()}
     <button type="button" role="menuitem" onclick={compose}>compose</button>
@@ -52,7 +54,7 @@ ${close}
 
 <!-- menu idiom: children + an actions snippet — the button toggles a
      popover=auto stack above itself (native light dismiss, Escape, top layer) -->
-<FloatButton label="quick actions" corner="bottom-left">
+<FloatButton label="quick actions" corner="bottom-right" class="fab-lift-a">
   <span aria-hidden="true">+</span>
   {#snippet actions()}
     <button type="button" role="menuitem" onclick={backToTop}>back to top</button>
@@ -68,6 +70,28 @@ ${close}
     const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
     body?.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
   }
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<FloatButton label="Actions" corner="bottom-right" class="fab-lift-b" elevation="level4">…</FloatButton>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/float-button-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <style>
@@ -83,6 +107,17 @@ ${close}
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+  }
+  /* the stacked-fab seats ride the class prop's geometry-only channel (the
+     documented API): three live fabs share the bottom-right column, antd
+     stack style — the default at the corner, the menu one rung up, the
+     universal seat two rungs up. Scoped rules cannot reach the family's
+     internal elements, so the lifts are :global by name. */
+  :global(.fab-lift-a) {
+    bottom: 7.5rem;
+  }
+  :global(.fab-lift-b) {
+    bottom: 13.5rem;
   }
   /* menu idiom items: the popover carries role=menu; rows are menuitems */
   .jx-fab-menu-item {
@@ -115,12 +150,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -129,7 +164,7 @@ ${close}
         title="float-button — the fixed corner action"
         summary="The floating action button in two idioms: plain (a lone fixed action) and menu (an actions snippet toggling a popover stack above). Corner is a prop — your layout is never touched."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">plain · menu idioms</span>
           <span class="pill">corner is a prop</span>
           <span class="pill">popover=auto menu</span>
@@ -138,7 +173,11 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <!-- no reveal here by the page's own :99 law — a scroll-driven reveal
+         keeps a containing-block transform on the section for the
+         animation's lifetime, hijacking the fixed fabs inside it (measured:
+         fill-mode does not help; only animation-less sections free them) -->
+    <div>
       <ComponentCanvas
         title="float-button"
         description="float-button — the fixed corner action: scroll this box (or the page), then press the corner button to ride back to the top."
@@ -147,12 +186,12 @@ ${close}
         stage="fill"
       >
         <div class="jx-fab-stage">
-          <p class="text-muted-foreground text-[12.5px] leading-6">
+          <p class={cx(rt.inkMuted, rt.text125, rt.lead6)}>
             scroll inside this box or the page itself — the button stays pinned to the viewport
             corner. Press it and the page rides back to its top.
           </p>
           {#each Array(12) as _, i (i)}
-            <p class="text-[12.5px] leading-6 text-muted-foreground/70">filler row {i + 1}</p>
+            <p class={cx(rt.text125, rt.lead6, rt.inkMuted70)}>filler row {i + 1}</p>
           {/each}
           <FloatButton label="back to top" onclick={scrollToTop}>
             <span aria-hidden="true">↑</span>
@@ -170,7 +209,9 @@ ${close}
       </ComponentCanvas>
     </div>
 
-    <div id="menu-idiom" data-reveal="">
+    <!-- no reveal (same law as the stage section above): the menu stack
+         must keep its viewport containing block -->
+    <div id="menu-idiom">
       <SectionCard
         family="menu-idiom"
         headerRegion="menu-idiom"
@@ -178,20 +219,31 @@ ${close}
         title="The menu idiom"
         summary="Pass an actions snippet and the same button becomes a menu trigger: a popover=auto stack opens above it with native light dismiss, Escape, and top-layer rendering — the component adds only the aria wiring (aria-haspopup=menu, aria-expanded) and the anchor geometry."
       >
-        <div class="flex flex-col gap-5">
-          <p class="text-[13px] leading-6">
-            A second live instance sits fixed at the viewport's
-            <strong class="font-semibold">bottom-left</strong> — press the
-            <span aria-hidden="true">+</span> button there to open its stack. Items are ordinary
-            buttons carrying <code class="text-accent">role="menuitem"</code>; the popover itself
-            already carries <code class="text-accent">role="menu"</code>.
+        <div class={cx(rt.col20)}>
+          <p class={cx(rt.body13)}>
+            A second live instance sits in the
+            <strong class={cx(rt.semibold)}>bottom-right column, one rung above the stage demo's
+            fab</strong> (the <code class={cx(rt.inkAccent)}>class</code> prop's geometry-only
+            channel — the documented stack idiom) — press the
+            <span aria-hidden="true">+</span> button there to open its stack; the panel anchors
+            above the stack, END-aligned, with position-try fallbacks flipping it when the viewport
+            edge is near. Items are ordinary
+            buttons carrying <code class={cx(rt.inkAccent)}>role="menuitem"</code>; the popover itself
+            already carries <code class={cx(rt.inkAccent)}>role="menu"</code>. The other corners are
+            deliberately not demoed — both are contested lanes on scaffold-based docs pages
+            (measured): the sections-nav column owns the left 256px full-height, and the page-toc
+            rail owns the top-right block (x1231–1421, y94–358 at the task-86 read — content-
+            dependent: the rail's width and height ride its headings; a later measurement read
+            x1220 w212 on the same lane) — a fab there paints under the rail
+            and its hit area is covered. Consumers embedding in the scaffold should float
+            right-side, below the rail (the lane question is queued for the Owner, W-next).
           </p>
           <ComponentCanvas
             title="float-button · menu"
             stage="fill"
             files={[{ name: 'float-button-menu-demo.svelte', content: floatButtonMenuDemo, kind: 'usage' }]}
           >
-            <FloatButton label="quick actions" corner="bottom-left">
+            <FloatButton label="quick actions" corner="bottom-right" class="fab-lift-a">
               <span aria-hidden="true">+</span>
               {#snippet actions()}
                 <button type="button" role="menuitem" class="jx-fab-menu-item" onclick={scrollToTop}>
@@ -230,21 +282,21 @@ ${close}
         title="Corner is a prop, label is the law"
         summary="Positioning is a prop, not a wrapper: the component owns its fixed point and the consumer's layout is never touched. The surface follows the press-button laws at a fixed size, and the accessible name is mandatory."
       >
-        <ul class="flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">label</code> is required — an icon-only button must say
-              itself; the glyph is decorative and <code class="text-accent">aria-hidden</code></span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><code class="text-accent">corner</code> picks one of four fixed points
+        <ul class={cx(rt.col8, rt.body13)}>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>label</code> is required — an icon-only button must say
+              itself; the glyph is decorative and <code class={cx(rt.inkAccent)}>aria-hidden</code></span></li>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><code class={cx(rt.inkAccent)}>corner</code> picks one of four fixed points
               (bottom-right default); no wrapper element, no consumer layout change</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span>the menu idiom rides <code class="text-accent">popover="auto"</code>: light
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span>the menu idiom rides <code class={cx(rt.inkAccent)}>popover="auto"</code>: light
               dismiss, Escape, and the top layer belong to the browser; CSS anchor positioning
               keeps the stack glued to its button with flip fallbacks</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
             <span>the press law is shared with press-button (.jx-press at float scale): hover grows
               the shadow (--shadow → --shadow-md) without moving the body, active presses +1px,+1px
-              on the anchored shadow layer, <code class="text-accent">:focus-visible</code> keeps
+              on the anchored shadow layer, <code class={cx(rt.inkAccent)}>:focus-visible</code> keeps
               the ring</span></li>
         </ul>
       </SectionCard>
@@ -253,15 +305,15 @@ ${close}
 
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="Plain action or action menu" summary="A FloatButton remains one corner-anchored control; passing actions changes it into a native popover menu trigger.">
-      <div class="grid gap-3 sm:grid-cols-2">
-        <div class="border border-border/60 p-3"><p class="font-nav text-sm">Plain</p><p class="mt-1 text-xs text-muted-foreground">A single fixed command via onclick.</p></div>
-        <div class="border border-border/60 p-3"><p class="font-nav text-sm">Menu</p><p class="mt-1 text-xs text-muted-foreground">An actions snippet opens an anchored popover menu.</p></div>
+      <div class={cx(rt.fbGridSm2)}>
+        <div class={cx(rt.panel60P12)}><p class={cx(rt.fontNav, rt.textSm)}>Plain</p><p class={cx(rt.mt4, rt.text12, rt.inkMuted)}>A single fixed command via onclick.</p></div>
+        <div class={cx(rt.panel60P12)}><p class={cx(rt.fontNav, rt.textSm)}>Menu</p><p class={cx(rt.mt4, rt.text12, rt.inkMuted)}>An actions snippet opens an anchored popover menu.</p></div>
       </div>
     </SectionCard>
   </div>
 
   <div id="usage" data-reveal="">
-    <SectionCard eyebrow="usage" title="Float an action" summary="Set the accessible label, choose the viewport corner, then supply either a direct action or an actions snippet.">
+    <SectionCard eyebrow="usage" title="Usage" summary="Set the accessible label, choose the viewport corner, then supply either a direct action or an actions snippet — the full usage file, as the canvas above runs it.">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
   </div>
@@ -277,9 +329,9 @@ ${close}
 
   <div id="theming" data-reveal="">
     <SectionCard eyebrow="theming" title="Corner geometry and density" summary="The fixed control consumes the shared density scale and locally repoints the press-shadow poses for its elevated surface.">
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <DensityDemo>
-          <button type="button" class="jx-press inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center border border-border bg-popover text-popover-foreground [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)]" aria-label="example floating action">+</button>
+          <button type="button" class={cx('jx-press', rt.fbDemoBtn)} aria-label="example floating action">+</button>
         </DensityDemo>
         <TokenTable tokens={[
           { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Minimum floating action target.' },
@@ -292,13 +344,27 @@ ${close}
     </SectionCard>
   </div>
 
-  <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="FloatButton usage" /></SectionCard></div>
+  <!-- no reveal (the Compose fab below is fixed — same law as above) -->
+  <div id="universal-props">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The fab carries its OWN elevation STAMP — level3 (6dp, M3's FAB rung) reaches the root (--jx-elevation-effective = 6, measured), but the shadow RECIPE is unwired on the served surface (--jx-shadow-effective ships empty; no shadow channel paints on the button or the menu panel — the menu's shadow child renders a translucent wash). The wire-or-retire decision is the family owner's — W-next. The carriers stamp the family root (the stack wrapper / the fixed button); the panel's promotion keeps the DOM, so the stamps inherit down."
+    >
+      <ComponentCanvas title="FloatButton · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><FloatButton label="Compose · level3 default" corner="bottom-right" class="fab-lift-b"><Icon name="plus" /></FloatButton></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="FloatButton owns position and popover wiring while leaving command content to the caller.">
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'label', type: 'string', required: true, description: 'Accessible name for the icon-only control.' },
         { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
-        { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control.' },
+        { name: 'corner', type: "'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'", default: "'bottom-right'", description: 'Viewport corner for the fixed control. On scaffold-based docs pages the sections-nav column owns the left 256px full-height (measured) — left corners are covered there; float right-side corners when embedding in the scaffold (the lane question is queued W-next).' },
         { name: 'onclick', type: '() => void', default: '—', description: 'Plain-action handler.' },
         { name: 'actions', type: 'Snippet', default: '—', description: 'Turns the control into a popover menu trigger.' },
         { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto' · Own default, not ambient", description: 'Menu panel surface treatment. Defaults: literal slot — own ’auto’, ambient when an axis opens.' },

@@ -70,17 +70,32 @@
   import { setContext, untrack } from 'svelte';
   import type { HTMLInputAttributes, HTMLAttributes } from 'svelte/elements';
   import type { Snippet } from 'svelte';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { RangeDefaults } from './range-defaults.svelte';
   import { cn } from '$lib/utils';
   import RangeTick, { RANGE_TICK_CONTEXT, type RangeTickContext } from './range-tick.svelte';
+  import { rangeStyles } from './range.stylex';
   import './range.css';
 
   // native passthrough (the input.svelte law): the interface rides the
   // platform's own attribute surface, so aria-label without a label,
   // title, data-testid, required… all land on the REAL input through
   // the rest spread — a label-less slider keeps its accessible name
-  interface Props extends HTMLInputAttributes {
+  interface Props extends Omit<HTMLInputAttributes, 'size' | 'color'> {
     /** committed value; bind:value — external writes snap into [min, max] on the step */
     value?: number;
     min?: number;
@@ -128,7 +143,33 @@
     /** pairs the label[for] and the error's aria-describedby; auto-generated when omitted */
     id?: string;
     class?: string;
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     'data-density'?: string;
     /** caller-supplied validation relations — used only when the
         control's own error wiring is absent (the input.svelte merge) */
@@ -156,6 +197,13 @@
     id = autoId,
     class: className = '',
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
@@ -165,7 +213,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): explicit ?? ambient scope per slot, one line, no
   // legacy helper channels
-  const d = $derived(RangeDefaults.resolve({ density }));
+  const d = $derived(
+    RangeDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
@@ -372,22 +429,42 @@
       ruler?.removeEventListener('wheel', onWheel);
     };
   });
+
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <div
-  data-density={d.density}
+  bind:this={uniRoot}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
   data-orient={vertical ? 'vertical' : undefined}
   class={cn('jx-field', className)}
 >
   {#if label || showValue}
-    <div data-jx-slider-head class="flex items-baseline justify-between gap-3">
+    <div data-jx-slider-head class={cx(rangeStyles.head)}>
       {#if label}
-        <label class={'jx-label' + (srLabel ? ' sr-only' : '')} for={id}>{label}</label>
+        <label class={cx('jx-label', srLabel ? rangeStyles.srOnly : undefined)} for={id}>{label}</label>
       {/if}
       {#if showValue}
         <span
           data-jx-slider-value
-          class={cn('jx-slider-value font-mono text-foreground tabular-nums', invalid && 'text-destructive')}
+          class={cn(cx('jx-slider-value', rangeStyles.value), invalid && cx(rangeStyles.valueInvalid))}
         >{display}</span>
       {/if}
     </div>

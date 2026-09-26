@@ -9,6 +9,7 @@ const toc: TocSection[] = [
   { id: 'modifiers', label: 'Modifier playground' },
   { id: 'equivalence', label: 'Sugar ≡ base' },
   { id: 'accessibility', label: 'Accessibility' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
 ];
 

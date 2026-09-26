@@ -36,5 +36,9 @@ describe('markdown — SSR frames (renderToHtml)', () => {
     };
     assertMarkdownDocShape(dom(streamingFrame), { streaming: true });
     assertMarkdownDocShape(dom(staticFrame), { streaming: false });
-  });
+    // heavyweight SSR integration (two full renderToHtml passes through
+    // the markdown tree) — measured 3.9s isolated, over the 5s default
+    // under full-battery load (tailwindless W4: the engine-free css
+    // pipeline shifted cold-transform timing)
+  }, 30_000);
 });

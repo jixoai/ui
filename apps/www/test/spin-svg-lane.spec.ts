@@ -29,12 +29,31 @@
  * the injected <style> content; real motion is the browser
  * walkthrough's evidence.
  */
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { render } from '@testing-library/svelte';
 import { createRawSnippet, flushSync } from 'svelte';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import Spin from '../src/lib/ui/spin/spin.svelte';
 import { SPINNER_CATALOG } from '../src/lib/ui/spin/spin-catalog';
+import { spinStyles } from '../src/lib/ui/spin/spin.stylex';
+
+// tailwindless one-shot Wave 1b batch A (2026-09-17): the postures'
+// paint rides stylex atoms now — membership asserted through the same
+// cx join the component rides (utility-shaped expectations went with
+// the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 import { getSpin } from '../src/lib/spin-set.gen';
 import cliSpinnersJson from 'cli-spinners/spinners.json';
 
@@ -101,7 +120,7 @@ describe('spin — text posture', () => {
     const frames = [...cursor.querySelectorAll('[data-jx-spin-frame]')];
     expect(frames.length).toBe(SPINNER_CATALOG.dots.frames.length);
     expect(frames.map((f) => f.textContent)).toEqual([...SPINNER_CATALOG.dots.frames]);
-    expect(cursor.className).toContain('whitespace-pre');
+    expect(cursor.className).toContain(cx(spinStyles.cursor));
     // the wrapping decoration this change kills (Owner ruling #1) —
     // pinned on the whole rendered region, nbsp included
     expect(container.textContent).not.toContain('[');
@@ -223,7 +242,12 @@ describe('spin — svg posture', () => {
     expect(absentSvg.getAttribute('style')!.replace(/;$/, '')).toBe('width: var(--jx-icon); height: var(--jx-icon)');
     // the text posture paints the ruler's text size (review R1)
     const text = render(Spin);
-    expect(text.container.querySelector('[data-jx-spin-cursor]')!.className).toContain('var(--jx-text)');
+    // the text posture paints the ruler's text size (review R1) —
+    // pinned at the atom SOURCE (dev atoms carry hashed classnames,
+    // not the var() text; the separator suite's css-source law)
+    expect(text.container.querySelector('[data-jx-spin-cursor]')!.className).toContain(cx(spinStyles.cursor));
+    const atom = readFileSync(join(process.cwd(), 'src/lib/ui/spin/spin.stylex.ts'), 'utf8');
+    expect(atom).toContain("fontSize: 'var(--jx-text)'");
   });
 
   it('reduced motion: the SMIL clock freezes via pauseAnimations (channel one, design §3)', () => {
@@ -331,14 +355,14 @@ describe('spin — reduced motion', () => {
 // wrapping posture — the unchanged container law
 // ---------------------------------------------------------------------------
 describe('spin — wrapping posture regression', () => {
-  it('children snippet: aria-busy grid host, z-[1] status pill, scrim over the content', () => {
+  it('children snippet: aria-busy one-cell grid host, z-1 status pill, scrim over the content', () => {
     const children = createRawSnippet(() => ({
       render: () => '<b data-testid="spin-wrapped">payload</b>',
     }));
     const { container } = render(Spin, { props: { label: 'syncing', children } });
     const wrap = container.querySelector('[data-jx-spin-wrap]')!;
     expect(wrap.getAttribute('aria-busy')).toBe('true');
-    expect(wrap.className).toContain('grid');
+    expect(wrap.className).toContain(cx(spinStyles.wrap));
     const pill = container.querySelector('[data-jx-spin-live]')!;
     expect(pill.getAttribute('role')).toBe('status');
     expect(pill.getAttribute('aria-label')).toBe('syncing');

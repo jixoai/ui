@@ -12,11 +12,11 @@
 //   2. Otherwise Batch A's resolver runs (imported straight from source
 //      under packages/vite-plugin/src/resolve.ts — vitest transforms TS)
 //      and downloads once into the shared node_modules/.cache cache.
+// (W5-r2, 2026-09-21: extracted to test/helpers/ghostty-wasm.ts — the
+// shared three-tier ladder every live-wasm spec rides.)
 //
 // Owner original demand: 2026-08-28 "ghostty-term / Batch B (design.md D4)".
 
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -27,33 +27,7 @@ import {
   type GhosttyVT,
   type RowSnapshot,
 } from '../../../registry/files/lib/ghostty-vt';
-
-const DEFAULT_LOCAL_WASM = '/tmp/ghostty-research/ghostty-vt.wasm';
-
-async function acquireWasmBytes(): Promise<Uint8Array> {
-  // an explicit env override defers to the same loud-failure semantics as
-  // Batch A's resolver (an unreadable override is an error, not a fallback)
-  const envPath = process.env.JIXOAI_GHOSTTY_WASM_PATH;
-  if (envPath !== undefined) {
-    return new Uint8Array(readFileSync(envPath));
-  }
-  if (existsSync(DEFAULT_LOCAL_WASM)) {
-    return new Uint8Array(readFileSync(DEFAULT_LOCAL_WASM));
-  }
-  // Resolver fallback. We drive resolveWasmFromPin with an explicitly-read
-  // pin because the www vitest config runs jsdom under the browser
-  // condition, where import.meta.url is an http:// URL and the resolver's
-  // defaultPinPath() (fileURLToPath) rejects it. readPin(path?) and
-  // resolveWasmFromPin(pin, opts) are the exported for-tests seams; all
-  // download/cache/verify behavior stays Batch A's code.
-  const { readPin, resolveWasmFromPin } = await import(
-    '../../../packages/vite-plugin/src/resolve'
-  );
-  const pinPath = join(process.cwd(), '../../packages/vite-plugin/ghostty.pin.json');
-  const pin = await readPin(pinPath);
-  const resolved = await resolveWasmFromPin(pin, { variant: 'full' });
-  return resolved.bytes;
-}
+import { acquireWasmBytes } from './helpers/ghostty-wasm';
 
 const enc = (text: string): Uint8Array => new TextEncoder().encode(text);
 const dec = (bytes: Uint8Array): string => new TextDecoder().decode(bytes);

@@ -18,6 +18,15 @@ export const radioLaw: ComponentLaw = composeLaw(checkboxLaw, {
     'border-radius': '50%',
     transition: 'border-color 150ms ease-out',
   },
+  /* the checkbox tri-state does not compose: per the HTML spec a radio
+     matches :indeterminate whenever NO member of its name-group is
+     checked — a RESTING group, not a selection state. Inheriting
+     checkbox's indeterminate branches would paint every all-unchecked
+     group as a solid brand blob (the task-94 finding, originally
+     fixed in the sheet; held at THIS source since the regen would
+     resurrect a sheet-side edit — the generated-sheet law). */
+  omitStateSelectors: [':indeterminate'],
+  omitPseudoStates: { before: ['indeterminate'] },
   pseudos: {
     /* the checkbox glyph is retired — content: none wins over the
        composed ::before build, exactly like the @apply cascade did */

@@ -1,4 +1,5 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components;
+
 
 /* jixoai component-canvas — residue (tw4; redesign 2026-08-25, Codex
  * D5 layering; dock era since canvas-playground-dock, 2026-09-08).
@@ -307,8 +308,10 @@
 /* focus rings: the site's contained-ring law at canvas scale. The
    adapter-rendered leaf controls (toggle/select/text/slider, and since
    grindstone #17-3 segmented/stepper too) own their focus paint; only
-   the canvas-authored chrome + the dock head's chrome cluster
-   (chevron, theme button, density select) ride this block */
+   the canvas-authored chrome + the dock head's axis bar (chevron,
+   theme button, the axis menu triggers) ride this block — the axis
+   hooks are DATA ATTRIBUTES (the jx data-hook pattern, invisible to
+   the class-identity census) */
 :where(.jx-canvas-reset:focus-visible),
 :where(.jx-canvas-copy-usage:focus-visible),
 :where(.jx-canvas-code-toggle:focus-visible),
@@ -316,9 +319,25 @@
 :where(.jx-canvas-install:focus-visible),
 :where(.jx-canvas-dock-toggle:focus-visible),
 :where(.jx-canvas-dock-theme:focus-visible),
-:where(.jx-canvas-dock-density:focus-visible) {
+:where([data-jx-canvas-axis]:focus-visible) {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
+}
+
+/* THE RUN'S MEMBERS CARRY THE INSET RING (W7-r2, the stray-bars
+   MAJOR): the +2px-offset outline around a full-height member of an
+   overflow-clipped scroller paints ONLY its inline edges — the
+   scrollport eats the top/bottom pair, leaving two free-floating
+   2px ring bars spanning the head after a scroll (the keyboard
+   focus returning from a closed axis menu + a mid-scrolled run was
+   the vision round's cyan artifact). The inset ring stays fully
+   inside the button box, immune to the clip — the focus ink stays
+   VISIBLE everywhere, it just never leaks past the run. Later rule,
+   same zero-specificity lane: the run's members win over the shared
+   block above */
+:where([data-jx-canvas-dock-head] [data-jx-scroll-run] :focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -327,4 +346,117 @@
   :where(.jx-canvas-dock-collapse) {
     transition: none;
   }
+}
+
+/* ── the tailwindless seams (one-shot Wave 1 batch 1, 2026-09-16) ──
+   Everything the markup utilities carried that atoms cannot express.
+   The CONTAINER TIERS are static contracts (@layer components); the
+   press-channel poses, hover poses, transitions and optical nudges
+   override the family's own ATOM paint, so they ride the UNLAYERED
+   :where() carve-out (the Part A law — the stylex tiers nest under
+   components). Durations/easings mirror the replaced utilities; no
+   motion token exists yet (reported). The title/toggle weights have
+   no token either (reported as --jx-weight-* candidates). */
+@layer components {
+  /* the HOST container tier (@container/jx-canvas-host): the section
+     is the named layout container for the ≥48rem drawer window */
+  :where([data-jx-canvas]) {
+    container: jx-canvas-host / inline-size;
+  }
+  /* the NAMED demo container on the scrollport: demo container queries
+     see the width the scrollbar actually leaves */
+  :where([data-jx-canvas-scroll]) {
+    container: jx-canvas / inline-size;
+  }
+}
+
+/* the press-channel poses (the jx-press law's per-element tuning) */
+:where([data-jx-canvas-install]),
+:where(.jx-canvas-copy-usage) {
+  --jx-press-shadow: none;
+  --jx-press-shadow-hover: none;
+  --jx-press-shadow-active: none;
+}
+:where([data-jx-canvas-source]),
+:where(.jx-canvas-code-toggle) {
+  --jx-press-shadow: var(--shadow-2xs);
+  --jx-press-shadow-hover: var(--shadow-xs);
+  --jx-press-shadow-active: var(--shadow-xs-press);
+}
+
+/* the hover poses (native pseudos — never JS state) */
+:where([data-jx-canvas-install]:hover) {
+  color: var(--foreground);
+}
+:where([data-jx-canvas-source]:hover) {
+  color: var(--foreground);
+}
+:where(.jx-canvas-code-toggle:hover) {
+  background-color: var(--muted);
+}
+:where(.jx-canvas-copy-usage:hover) {
+  color: var(--primary);
+}
+
+/* the transitions the utilities carried */
+:where(.jx-canvas-chevron) {
+  transition: transform var(--motion-150) var(--motion-ease-out);
+}
+/* (the wedge round, 2026-09-19): the two disclosures' 0fr→1fr motion
+   left the CSS transition engine — fr-transitions freeze at
+   currentTime 0 forever in Chrome 146 while a scroll-driven reveal
+   animation is active up-tree (the clock-freeze receipt,
+   lib/disclosure-motion.ts); the components drive the same
+   --motion-200 curve through the rAF lane, the classes carry the
+   semantic endpoints */
+
+/* the chrome optical nudge (pt-[0.1rem]) and the voices' weights */
+:where([data-jx-canvas-head-actions]) {
+  padding-block-start: 0.1rem;
+}
+:where([data-jx-canvas-title]) {
+  font-weight: 400;
+}
+:where(.jx-canvas-code-toggle) {
+  font-weight: var(--weight-medium);
+}
+
+/* the dock's density select: the bare-chrome channel overrides
+   (--) RETIRED with the select itself (the eight-axis bar, the Owner
+   directive 2026-09-21 — the legacy xs/sm/default/lg rung select
+   gave way to the axis grammar's density menu; the rung aliases stay
+   legal underneath, the channel overrides have no carrier left) */
+
+/* ── the eight-axis bar (the Owner directive, 2026-09-21) ──
+   The head's scrollable ButtonGroup owns its own gestures: the head
+   row is otherwise touch-action none (the horizontal drag must not
+   hand the gesture to native scrolling), but the RUN re-enables the
+   horizontal pan — the long bar scrolls, it never drags the dock
+   (onHeadPointerDown returns early inside the scroll host, this rule
+   carries the touch half) */
+:where([data-jx-canvas-dock-head] [data-jx-scroll-run]) {
+  touch-action: pan-x;
+}
+
+/* a SET axis reads in the BRAND INK (W7-r2, the invisible-set MAJOR):
+   the first round's `color: var(--foreground)` was a NO-OP — ghost's
+   own ink IS foreground (press-button.stylex), so the size button
+   measured pixel-identical before/after set (≤3/255). The set state
+   now paints the primary hue plus a whisper fill — the hue step is
+   the clearly perceptible signal (the ghost hover's own ink lane),
+   the 10% wash frames it without a token beyond the brand */
+:where([data-jx-canvas-axis]:not([data-axis-auto])) {
+  color: var(--primary);
+  background-color: color-mix(in oklab, var(--primary) 10%, transparent);
+}
+
+/* the axis menu item's check lane: the slot is ALWAYS rendered (the
+   reserved width keeps every label aligned); the glyph paints only on
+   the current value — `auto` (the default) is itself a checkable
+   value, the bar's reset rung */
+:where([data-jx-canvas-axis-check]) {
+  visibility: hidden;
+}
+:where([data-jx-canvas-axis-check][data-on]) {
+  visibility: visible;
 }

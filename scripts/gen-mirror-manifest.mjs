@@ -35,6 +35,16 @@ const UNREFERENCED_LIB = [
   { path: 'registry/files/lib/search/engine-types.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/lib/search/tokenizer.ts', note: 'search stream (85e9f3c) — final classification pending' },
   { path: 'registry/files/ui/search-palette.svelte', note: 'search stream (85e9f3c) — final classification pending' },
+  // tailwindless W1 (2026-09-17): the palette's stylex/css join the
+  // svelte's pending classification — same-source pairs, referenced by
+  // no registry item (site chrome); retire together when the search
+  // stream lands its final home
+  { path: 'registry/files/ui/search-palette.css', note: 'tailwindless W1 — search-stream family, final classification pending' },
+  { path: 'registry/files/ui/search-palette.stylex.ts', note: 'tailwindless W1 — search-stream family, final classification pending' },
+  // explicit-props W3-D4: the palette joins the eight-axis surface —
+  // its Defaults contract rides the family's pending classification
+  // (same-source pair, referenced by no registry item)
+  { path: 'registry/files/ui/search-palette-defaults.svelte.ts', note: 'explicit-props W3-D4 — the search-palette eight-axis Defaults contract; search-stream family, final classification pending' },
   // nav-fuzzy-filter (2026-09-02): the fuzzysort nav kernel joins the
   // search-stream family's pending classification — same-source pair,
   // referenced by no registry item (the change's N1 ruling: not a
@@ -55,7 +65,6 @@ const UNREFERENCED_LIB = [
   // stale watchers live on this machine). Retire the copy + this
   // entry once the servers have reloaded — the loading law is
   // documented at the devMirrorSync call in apps/www/vite.config.ts.
-  { path: 'registry/files/lib/icon-table/icon-table.svelte', note: 'icons-docs — site-only ruling; on-disk relic pending dev-server reload' },
   // registry-standalone stream (2026-09-02): the registry package's own
   // kit/vite app needs the global Tailwind fan-in entry — a byte-copy of
   // apps/www/src/app.css living at the registry/files ROOT (outside the
@@ -72,6 +81,13 @@ const UNREFERENCED_LIB = [
   // artifact pair — B2 removed its registry item (the icon-set.gen
   // artifact + the @jixoai/icon-set item replace it); C5 deleted the
   // pair, retiring this stopgap with it.
+  // explicit-props W1 (2026-09-21, task 1.9) → W2: the schema pair's
+  // stopgap RETIRED (the §12 registry item `universal-props` now
+  // ships schema.ts + the generated universal-props.css). Two pairs
+  // remain unreferenced BY DESIGN of the frozen item's files[]
+  // (specs/registry/spec.md — schema + css only):
+  { path: 'registry/files/lib/universal-props.inventory.json', note: 'explicit-props W1 1.9 — the §17.2 census pair; the frozen §12 item ships schema+css only, so the inventory stays site-consumed until a later wave gives it an item' },
+  { path: 'registry/files/lib/universal-props-query.svelte.ts', note: 'explicit-props W2 2.3 — the query() runtime-engine pair (§9 semantics; slots resolve through it); site-consumed, shipped by no item yet — W3/W4 wire the consumers and own its final home' },
 ];
 // canonical main overrides for registry:ui items whose main file is not
 // name-identical (B11/B9 ruling: manifest is the single machine source)
@@ -88,7 +104,27 @@ const CANONICAL_MAIN_OVERRIDES = {
 };
 // mirror-path overrides for files whose mirror does not follow the
 // default rule (pre-migration item css living at src/lib root)
-const MIRROR_PATH_OVERRIDES = {};
+const MIRROR_PATH_OVERRIDES = {
+  // tailwindless-site P0 (2026-09-17): the files-ROOT tokens bridge.
+  // registry/files/lib/tokens.stylex.ts stays the canonical lib pair,
+  // but a ui/<item>/<item>.stylex.ts sits two levels deep, where the
+  // lib-relative path only resolves in the www tree — the babel
+  // module resolution takes RELATIVE .stylex imports only (the ssg
+  // lesson), so the registry tree, the www mirror, and consumer
+  // installs (@lib/tokens.stylex.ts → $lib/tokens.stylex.ts) all read
+  // '../../tokens.stylex'. This override pairs the bridge with the
+  // SAME www mirror the canonical pair hashes against, so all three
+  // copies are byte-gated transitively (the separator item carries
+  // the bridge in its files[]).
+  'registry/files/tokens.stylex.ts': 'apps/www/src/lib/tokens.stylex.ts',
+  // tailwindless W1 (2026-09-17): the ONE item-owned surface twin —
+  // component-canvas's svelte consumers import the surface module
+  // through $lib, so the item ships it (batch 1's ruling); every other
+  // surface module stays site-only (the prefix comment in
+  // scripts/lib/site-only.mjs). Without this override the default
+  // rules leave the mirror pointing at the registry file itself.
+  'registry/files/surface/component-canvas.stylex.ts': 'apps/www/src/lib/surface/component-canvas.stylex.ts',
+};
 
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';

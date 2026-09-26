@@ -36,16 +36,38 @@
   ButtonFace/ButtonText, tonal/outline → Canvas/CanvasText (the
   color-mix tints drop), ghost transparent at rest / ButtonFace on
   hover; the focus ring stays 2px Highlight, offset 2, never removed.
+
+  tailwindless-site Wave 1 batch 3 (2026-09-17): the paint rides the
+  family's stylex ATOMS (chip.stylex.ts) joined through cx() below —
+  the ladder walks the static VARIANT_CLASS table, .jx-press keeps the
+  press law (the theme sheet's unlayered pose wiring), and the slot
+  lanes' svg sizing rides chip.css (the descendant boundary atoms
+  cannot express).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
-  import { type Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { ChipDefaults, type ChipShape, type ChipVariant } from './chip-defaults.svelte';
+  import { chipStyles } from './chip.stylex';
   // the press law's pose sheet (.jx-press) — shared from the
   // press-button folder; the effect layers' paint rides there too
   import '../press-button/press-button.css';
+  import './chip.css';
 
   /* the REST LANE (the press-button convention): arbitrary attributes
    * flow through VERBATIM and land on the root (button or anchor); the
@@ -56,10 +78,30 @@
    * data-jx-attach="root" stays as the optional named stamp */
   interface Props extends Omit<
     HTMLAttributes<HTMLElement>,
-    'onclick' | 'class' | 'aria-label' | 'style' | 'type'
+    'onclick' | 'class' | 'color' | 'aria-label' | 'style' | 'type'
   > {
-    /** DENSITY override: explicit ?? ambient scope, else unstamped */
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (§3's §14-factor composition — the silhouette's
+     *  square|pill paint stays the family's own until §13 rules the
+     *  collided shape name) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the grammar ladder — prominence, never semantic hue; omitted →
      *  the ambient paint zone, else the frozen own 'tonal' */
     variant?: ChipVariant;
@@ -84,6 +126,12 @@
 
   let {
     density,
+    size,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     variant,
     shape,
     href,
@@ -100,42 +148,74 @@
 
   // the family Defaults is the single read point (context-defaults-
   // economy 2.3): variant rides the paint axis slot (zone ambient,
-  // frozen own 'tonal'), shape/density their literal/no-opinion slots
-  const d = $derived(ChipDefaults.resolve({ variant, shape, density }));
+  // frozen own 'tonal'), shape/density their literal/axis slots —
+  // W3-B: the seven non-collided universal axes ride the same record
+  const d = $derived(ChipDefaults.resolve({ variant, shape, density, size, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers). The lanes record SELECTS the axis
+  // members — the resolve record also carries the literal silhouette
+  // (square|pill), which is NOT the §2 axis lane (the unruled
+  // collision) and never reaches the carriers
+  const carriers = $derived(
+    stampCarriersForLanes({ density: d.density, size: d.size, radius: d.radius, color: d.color, theme: d.theme, elevation: d.elevation, motion: d.motion }),
+  );
+  provideUniversalLanes({ density, size, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev (dev names + the $$css
+  // marker) and the joined string in shipped payloads — Svelte's
+  // class interpolation stringifies objects, so composition goes
+  // through THIS joiner (all string values except $$css, space-joined
+  // — never a raw class={styles.x} interpolation).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // badge geometry verbatim (the badge's activation twin): height from
   // the secondary line, inline insets only; slot lanes replace their
-  // side's padding (the data-icon law, badge dialect: the inset halves
-  // — the lane carries the edge). The focus utilities pin the §6
-  // forced-colors ring: 2px Highlight, offset 2.
-  const base =
-    'inline-flex items-center justify-center gap-[calc(var(--jx-gap)/2)] box-border max-w-full [padding-inline:var(--jx-inset)] has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)] has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)] font-nav [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] tracking-[0.14em] uppercase whitespace-nowrap forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-offset-2 forced-colors:focus-visible:[outline-color:Highlight]';
-  const silhouette = $derived(d.shape === 'pill' ? 'rounded-full' : 'rounded-(--radius)');
-  // the bordered, shadow-bearing body (ghost presses without a shadow).
-  // TW4 collision law (batch D probe, 2026-08-26): a rung is the SOLE
-  // border-color source — named border paints (.border-border) sort
-  // AFTER arbitrary values and would silently win, so the frame never
-  // carries one; typed arbitrary forms (bg-[color-mix(…)],
-  // [border-color:var(…)], text-[color:var(…)]) are preferred over raw
-  // arbitrary properties (they emit @supports fallbacks). These strings
-  // are byte-aligned with press-button's landed variant-grammar map.
-  const frame = 'jx-press border';
-  const variants = {
-    fill: `${frame} [background:var(--jx-fill)] [border-color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] forced-colors:bg-[ButtonFace] forced-colors:text-[ButtonText] forced-colors:border-[ButtonText]`,
-    tonal: `${frame} bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[Canvas] forced-colors:text-[CanvasText] forced-colors:border-[CanvasText]`,
-    outline: `${frame} bg-transparent [border-color:var(--jx-outline)] text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] forced-colors:bg-[Canvas] forced-colors:text-[CanvasText] forced-colors:border-[CanvasText]`,
-    // ghost keeps the box geometry (1px border, transparent color) but
-    // presses without a shadow; hover derives entirely from --jx-tonal
-    ghost: `jx-press border border-transparent bg-transparent text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] hover:text-[color:var(--jx-tonal)] [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none] forced-colors:bg-transparent forced-colors:text-[CanvasText] forced-colors:border-transparent forced-colors:hover:bg-[ButtonFace] forced-colors:hover:text-[ButtonText]`,
-  } as const;
+  // side's padding (the data-icon law rides the base atom's :has()
+  // pose). The focus ring under forced colors rides the base atom's
+  // @media block: 2px Highlight, offset 2.
+  const silhouette = $derived(d.shape === 'pill' ? chipStyles.pill : chipStyles.square);
+  // the bordered, shadow-bearing body (ghost presses without a shadow
+  // and owns its transparent frame). The ladder walks static table
+  // members — runtime is a pure lookup; .jx-press keeps the press law
+  // (the theme sheet's unlayered pose wiring reads the --jx-press*
+  // seams the ghost atom nulls).
+  const VARIANT_CLASS: Record<ChipVariant, string> = {
+    fill: cx(chipStyles.base, chipStyles.frame, chipStyles.fill),
+    tonal: cx(chipStyles.base, chipStyles.frame, chipStyles.tonal),
+    outline: cx(chipStyles.base, chipStyles.frame, chipStyles.outline),
+    ghost: cx(chipStyles.base, chipStyles.ghost),
+  };
 
-  const classes = $derived(cn(base, silhouette, variants[d.variant], className));
+  const classes = $derived(
+    cn(
+      'jx-press',
+      VARIANT_CLASS[d.variant],
+      cx(silhouette),
+      className,
+    ),
+  );
   const isExternal = $derived(external ?? (href !== undefined && !href.startsWith('/')));
 </script>
 
 {#snippet start()}
   {#if slotStart}
-    <span data-icon="inline-start" class="inline-flex [&>svg]:size-[var(--jx-text-secondary)]">
+    <span data-icon="inline-start" class={cx(chipStyles.slotStart)}>
       {@render slotStart()}
     </span>
   {/if}
@@ -143,7 +223,7 @@
 
 {#snippet end()}
   {#if slotEnd}
-    <span data-icon="inline-end" class="inline-flex [&>svg]:size-[var(--jx-text-secondary)]">
+    <span data-icon="inline-end" class={cx(chipStyles.slotEnd)}>
       {@render slotEnd()}
     </span>
   {/if}
@@ -151,15 +231,18 @@
 
 {#if href}
   <a
+    bind:this={uniRoot}
     {...rest}
     {href}
     target={isExternal ? '_blank' : undefined}
     rel={isExternal ? 'noreferrer' : undefined}
     aria-label={ariaLabel}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     data-jx-chip={d.variant}
     data-jx-attach="root"
     class={classes}
+    style={carriers || undefined}
     onclick={onclick}
   >
     {@render start()}
@@ -168,14 +251,17 @@
   </a>
 {:else}
   <button
+    bind:this={uniRoot}
     {...rest}
     {type}
     onclick={onclick}
     aria-label={ariaLabel}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     data-jx-chip={d.variant}
     data-jx-attach="root"
     class={classes}
+    style={carriers || undefined}
   >
     {@render start()}
     {@render children()}

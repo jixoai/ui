@@ -1,29 +1,44 @@
 <!-- theme-toggle blueprint: all four variants (full / compact / icon /
      text) on the terminal bezel surface — their native habitat, matching
-     the docs demo composition. -->
+     the docs demo composition.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import ThemeToggle from '$lib/ui/theme-toggle/theme-toggle.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center p-10">
-  <div
-    class="border-border bg-terminal text-terminal-foreground flex w-full max-w-[440px] flex-col gap-4 border p-6"
-  >
-    <div class="flex items-center justify-between gap-4">
-      <span class="font-nav text-[10px] uppercase tracking-[0.24em] opacity-60">full</span>
+<Stack align="center" justify="center" class={cx(bpB.themeToggleStage)}>
+  <Stack direction="column" gap="16" class={cx(bpB.themeToggleBezel)} }>
+    <Stack align="center" justify="between" gap="16">
+      <span class={cx(bpB.themeToggleLabel)}>full</span>
       <ThemeToggle variant="full" />
-    </div>
-    <div class="border-terminal-foreground/10 flex items-center justify-between gap-4 border-t pt-4">
-      <span class="font-nav text-[10px] uppercase tracking-[0.24em] opacity-60">compact</span>
+    </Stack>
+    <Stack align="center" justify="between" gap="16" class={cx(bpB.themeToggleRowDivided)} }>
+      <span class={cx(bpB.themeToggleLabel)}>compact</span>
       <ThemeToggle variant="compact" />
-    </div>
-    <div class="border-terminal-foreground/10 flex items-center justify-between gap-4 border-t pt-4">
-      <span class="font-nav text-[10px] uppercase tracking-[0.24em] opacity-60">icon</span>
+    </Stack>
+    <Stack align="center" justify="between" gap="16" class={cx(bpB.themeToggleRowDivided)} }>
+      <span class={cx(bpB.themeToggleLabel)}>icon</span>
       <ThemeToggle variant="icon" />
-    </div>
-    <div class="border-terminal-foreground/10 flex items-center justify-between gap-4 border-t pt-4">
-      <span class="font-nav text-[10px] uppercase tracking-[0.24em] opacity-60">text</span>
+    </Stack>
+    <Stack align="center" justify="between" gap="16" class={cx(bpB.themeToggleRowDivided)} }>
+      <span class={cx(bpB.themeToggleLabel)}>text</span>
       <ThemeToggle variant="text" />
-    </div>
-  </div>
-</div>
+    </Stack>
+  </Stack>
+</Stack>

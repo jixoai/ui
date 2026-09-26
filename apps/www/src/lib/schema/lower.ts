@@ -10,6 +10,7 @@
  * from this same lowering — never two hand-maintained copies.
  */
 import type { ComponentMeta, PropNode, XUI } from './ir';
+import type { UniversalAxisDoc } from '../universal-props.schema';
 
 /** Export annotation block — structurally the IR's `XUI`, carried verbatim. */
 export type SchemaXUI = XUI;
@@ -41,6 +42,46 @@ function finite(n: number | undefined): number | undefined {
 function excludedNode(node: Extract<PropNode, { typeText: string }>): SchemaPropNode {
   return {
     'x-ui': { ...node['x-ui'], control: 'none', sourceType: node.typeText },
+  };
+}
+
+// ── the universal-props consumption path (explicit-props W4 4.1) ────
+//
+// meta.universal turns the family's AXIS props from excluded opaques
+// (`SizeLane | QueryResult<SizeLane>` — unrepresentable pre-W4) into
+// panel rows: each axis lowers as ONE string node whose enum is the
+// lane grammar — 'auto', the named steps, then the `number` and
+// `query()` MODE steps (present per the axis' numberUnit / always for
+// query) — annotated `control: 'axis-enum'` + `axis` + `unit`. The
+// canvas kernel's controlsFor synthesizes the `:number` (axis-number)
+// and `:query` (query-editor) sibling rows from the same annotation;
+// the dock gates them on the axis' selected mode. Families whose
+// props do NOT carry the axis name (the seven-lane deviations, the
+// exempt) are untouched — their axis props keep lowering as excluded.
+
+/** does this opaque node speak the axis-lane union (the §9.1 form)? */
+function isAxisLaneNode(node: PropNode): boolean {
+  return node.kind === 'opaque' && node.typeText.includes('QueryResult<');
+}
+
+/** the axis lane-grammar node: 'auto' + named steps + the mode steps */
+function axisNode(doc: UniversalAxisDoc, node: PropNode): SchemaPropNode {
+  const xui = node['x-ui'];
+  const enumValues = ['auto', ...doc.namedSteps];
+  if (doc.numberUnit !== null) enumValues.push('number');
+  enumValues.push('query()');
+  return {
+    type: 'string',
+    enum: enumValues,
+    default: 'auto',
+    'x-ui': {
+      ...xui,
+      control: 'axis-enum',
+      axis: doc.axis,
+      label: xui?.label ?? doc.label,
+      description: xui?.description ?? doc.description,
+      ...(doc.numberUnit !== null ? { unit: doc.numberUnit } : {}),
+    },
   };
 }
 
@@ -89,14 +130,25 @@ export function lowerNode(node: PropNode): SchemaPropNode {
 
 /**
  * Lower a whole meta. `required` lists exactly the props without
- * defaults (an explicitly-undefined default is no default).
+ * defaults (an explicitly-undefined default is no default). When the
+ * meta carries `universal` (the §17 merge block), axis-lane props
+ * lower through the axis path instead of the excluded one.
  */
 export function toJSONSchema(meta: ComponentMeta): SchemaObject {
+  const axisDocs = new Map((meta.universal ?? []).map((doc) => [doc.axis, doc]));
   const properties: Record<string, SchemaPropNode> = {};
   const required: string[] = [];
   for (const [key, node] of Object.entries(meta.props)) {
+    // membership-checked: the map is keyed by the eight axis names, so
+    // only an axis-named prop can hit (the cast narrows string → the
+    // axis union for the lookup alone)
+    const axisDoc = axisDocs.get(key as UniversalAxisDoc['axis']);
+    if (axisDoc !== undefined && isAxisLaneNode(node)) {
+      properties[key] = axisNode(axisDoc, node);
+      continue; // default 'auto' — never a required row
+    }
     properties[key] = lowerNode(node);
-    if (node.default === undefined) required.push(key);
+    if (!('default' in node) || node.default === undefined) required.push(key);
   }
   return { type: 'object', properties, required };
 }

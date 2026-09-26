@@ -37,16 +37,40 @@
  *      keeps the absentSlot discipline: NoInfer + `= never` (TS ≥
  *      5.4) — the explicit type argument is the ONLY enforcement face.
  *
- * 惰性律: this module reads ZERO context and imports NOTHING —
- * construction captures only `own`; the ambient supply is the axis
- * module's closure-held getter, lazily evaluated at resolve time
- * inside the consumer's component window, never a snapshot and never
- * a module-level read here. The window is a HARD CONTRACT (D3-C):
- * outside component initialisation Svelte's own
- * lifecycle_outside_component propagates — never caught, never
- * normalized, never message-matched. The byte mirror installs whole,
- * zero burden.
+ * 惰性律: the TOOL layer (defineAxisSlot + the literal family —
+ * everything above the universal-axis section at the bottom) reads
+ * ZERO context and imports NOTHING — construction captures only
+ * `own`; the ambient supply is the axis module's closure-held getter,
+ * lazily evaluated at resolve time inside the consumer's component
+ * window, never a snapshot and never a module-level read here. The
+ * universal axis slots (explicit-props W1 1.4, §9.1/§11) extend the
+ * same law to a seam that DOES read context: those reads happen only
+ * inside the slot call, only for the axis being resolved — still
+ * never at module level, still always inside the consumer's window.
+ * The window is a HARD CONTRACT (D3-C): outside component
+ * initialisation Svelte's own lifecycle_outside_component propagates
+ * — never caught, never message-matched. The byte mirror installs
+ * whole, zero burden.
  */
+
+import {
+  DENSITY_NAMED_ALIASES,
+  ELEVATION_DP,
+  UNIVERSAL_AXES,
+  type AxisSlotResult,
+  type ColorLane,
+  type DensityLane,
+  type ElevationLane,
+  type MotionLane,
+  type QueryResult,
+  type RadiusLane,
+  type ShapeLane,
+  type SizeLane,
+  type ThemeLane,
+  type UniversalAxisDoc,
+} from './universal-props.schema';
+import { getContext, setContext } from 'svelte';
+import { resolveQueryLane } from './universal-props-query.svelte';
 
 declare const jxSlot: unique symbol;
 const SLOT_BRAND = Symbol('jx-defaults-slot') as typeof jxSlot;
@@ -231,3 +255,723 @@ export function defineComponentDefaults<S extends Record<string, AnyBrandedSlot>
     slots: Object.freeze(slots),
   };
 }
+
+// ---- the universal axis slots (explicit-props W1 1.4, §9.1/§11) -------
+//
+// The eight-axis seam of the explicit-props contract: REAL slot
+// implementations carrying the FROZEN §9.1 signatures (the schema
+// module holds the verbatim type block; these are its runtime twin —
+// same names, same lanes, same AxisSlotResult). Resolution is the
+// fleet law verbatim: `explicit ?? ambient ?? own`, every axis
+// defaulting to 'auto' (§0.1) — an `auto` resolution stamps NOTHING
+// (「无意见不盖章」: the ambient carriers keep flowing through the CSS
+// cascade, §10). The ambient channel is one Svelte context per axis
+// under the §11 key `jx.<axis>` — STRING keys (the table's literal
+// spellings); verify-context-coverage's axisContextKeys pins these
+// constants by identifier, so a family bypassing the seam with a
+// direct `getContext(SIZE_KEY)` is an A3 finding.
+//
+// Channel note (density): §11's density row says `jx.density`
+// "(today's)" — today's LEGACY channel (density.svelte.ts's
+// DENSITY_KEY symbol, resolveDensity, the plugin chain) keeps serving
+// the ~60 migrated consumers untouched; this seam's density lane
+// rides the string key because importing the legacy channel here
+// would close a module CYCLE (density.svelte.ts constructs its slot
+// through defineAxisSlot at module-eval time — a cycle hits
+// SLOT_BRAND's TDZ and dies at load). The channels bridge as
+// families migrate (W3); the LAW (explicit ?? ambient ?? own, no
+// opinion no stamp) is identical on both.
+//
+// The 惰性律 holds here too: no module-level context reads — the
+// ambient read happens inside the slot call, which lands in the
+// consumer's component window (the hard window contract D3-C); the
+// payload is getter-endorsed so reads land in the consumer's
+// $derived dependency graph (the provideDensity/providePaintZone
+// precedent — a parent flip re-derives the child in the same frame).
+
+/** the eight §11 Svelte context keys, one per axis (literal strings). */
+export const SIZE_KEY = 'jx.size';
+export const SHAPE_KEY = 'jx.shape';
+export const RADIUS_KEY = 'jx.radius';
+export const UNIVERSAL_DENSITY_KEY = 'jx.density';
+export const COLOR_KEY = 'jx.color';
+export const THEME_KEY = 'jx.theme';
+export const ELEVATION_KEY = 'jx.elevation';
+export const MOTION_KEY = 'jx.motion';
+
+/** §17's axis-name union, derived from the schema's doc interface. */
+export type UniversalAxisName = UniversalAxisDoc['axis'];
+
+/** the lane type of each axis — the provideAxisLane/§11 supply domain. */
+export interface UniversalLaneMap {
+  readonly size: SizeLane;
+  readonly shape: ShapeLane;
+  readonly radius: RadiusLane;
+  readonly density: DensityLane;
+  readonly color: ColorLane;
+  readonly theme: ThemeLane;
+  readonly elevation: ElevationLane;
+  readonly motion: MotionLane;
+}
+
+const AXIS_CONTEXT_KEYS: Readonly<Record<UniversalAxisName, string>> = {
+  size: SIZE_KEY,
+  shape: SHAPE_KEY,
+  radius: RADIUS_KEY,
+  density: UNIVERSAL_DENSITY_KEY,
+  color: COLOR_KEY,
+  theme: THEME_KEY,
+  elevation: ELEVATION_KEY,
+  motion: MOTION_KEY,
+};
+
+/**
+ * The ambient payload: getter-endorsed (reads land in the consumer's
+ * $derived dependency graph — never a snapshot). `lane` undefined =
+ * the provider passes NO opinion down (the DensityContext.precedent:
+ * the write still shadows deeper providers; resolution treats it
+ * exactly like a missing context).
+ */
+interface AxisLaneContext<T> {
+  readonly lane: T | undefined;
+}
+
+function readAxisLane<T>(key: string): T | undefined {
+  return getContext<AxisLaneContext<T> | undefined>(key)?.lane;
+}
+
+/**
+ * The §11 broadcast supply: write one axis' resolved lane downward.
+ * Getter-backed, so `provideAxisLane('size', () => sizeResult.explicit)`
+ * keeps a parent re-resolution re-deriving every consumer in the same
+ * frame. Supply the RESOLVED lane; a resolved 'auto' is a no-opinion
+ * (the fleet law recommends the family simply NOT supply in that
+ * case — this helper stores whatever it is given verbatim, matching
+ * provideDensity's shadowing semantics).
+ */
+export function provideAxisLane<K extends keyof UniversalLaneMap>(
+  axis: K,
+  lane: () => UniversalLaneMap[K] | undefined,
+): void {
+  setContext(AXIS_CONTEXT_KEYS[axis], {
+    get lane() {
+      return lane();
+    },
+  });
+}
+
+/**
+ * The query() anchor seam (W3, design §9.1's "container keys need an
+ * element anchor the family wiring supplies"): the family root binds
+ * itself (bind:this) and provides the anchor ONCE at init — the slot
+ * resolution reads it lazily inside the consumer's $derived (getter-
+ * endorsed, so the post-mount element bind re-runs the resolution and
+ * container keys evaluate live). Without an anchor (or before mount)
+ * container keys NEVER match — §9's missing-container semantics, the
+ * same verdict the build warning and the shim audit give.
+ */
+export const QUERY_ANCHOR_KEY = 'jx.query-anchor';
+
+interface QueryAnchorContext {
+  readonly anchor: Element | null | undefined;
+}
+
+/** supply the query() anchor — the family root element (its
+ *  ANCESTORS are the candidate containers; a component cannot query
+ *  itself, CSS law). */
+export function provideQueryAnchor(getAnchor: () => Element | null | undefined): void {
+  setContext(QUERY_ANCHOR_KEY, {
+    get anchor() {
+      return getAnchor();
+    },
+  });
+}
+
+function readQueryAnchor(): Element | null {
+  return getContext<QueryAnchorContext | undefined>(QUERY_ANCHOR_KEY)?.anchor ?? null;
+}
+
+/**
+ * A query() carrier resolves through the RUNTIME ENGINE (W2 task
+ * 2.3a, §9): the media lane evaluates LIVE (matchMedia — reactive
+ * through the engine's $state ticks, so a consumer's $derived
+ * re-resolves on viewport change); container keys need the anchor the
+ * family wiring supplies (above) and NEVER match without one (§9's
+ * missing-container semantics); on the server (no window) the engine
+ * returns the unconditional `base` — the §9.1 SSR first-paint
+ * semantics, a correct-if-unresponsive first paint. Plain lanes pass
+ * through untouched.
+ */
+function unwrapQueryLane<T>(lane: T | QueryResult<T> | undefined): T | undefined {
+  return resolveQueryLane(lane, readQueryAnchor());
+}
+
+/**
+ * The shared resolver: `explicit ?? ambient ?? own` with the per-axis
+ * default folded in by the caller (every axis defaults 'auto', §0.1).
+ * `ambient: true` marks a value resolved from the ambient context
+ * (the §9.1 field is frozen — `explicit` carries the RESOLVED lane,
+ * whatever lane it came from).
+ */
+function resolveAxisLane<T>(
+  key: string,
+  explicit: T | QueryResult<T> | undefined,
+  own: T,
+): AxisSlotResult<T> {
+  const direct = unwrapQueryLane(explicit);
+  if (direct !== undefined) return { explicit: direct, ambient: false };
+  const ambientLane = readAxisLane<T>(key);
+  if (ambientLane !== undefined) return { explicit: ambientLane, ambient: true };
+  return { explicit: own, ambient: false };
+}
+
+/**
+ * The density named-alias normalization (§4 r5 B6, single source =
+ * the schema's DENSITY_NAMED_ALIASES): small→sm · medium→default ·
+ * large→lg; the five legacy spellings, `auto` and the coefficient
+ * number lane pass through verbatim.
+ */
+const DENSITY_ALIAS_LOOKUP: Readonly<Partial<Record<string, DensityLane>>> = DENSITY_NAMED_ALIASES;
+
+function normalizeDensityLane(lane: DensityLane): DensityLane {
+  return typeof lane === 'string' ? (DENSITY_ALIAS_LOOKUP[lane] ?? lane) : lane;
+}
+
+// ---- the §9.1 free slots (W3 additive widening) -----------------------
+//
+// The runtime twins below accept `| undefined` on the explicit lane —
+// the ABSENT-explicit case the resolver always understood at runtime
+// (undefined = no caller opinion → the ambient read runs). The frozen
+// §9.1 declare block in universal-props.schema.ts keeps its narrower
+// spelling; every frozen call shape (`sizeSlot('small')`,
+// `sizeSlot(query({...}))`) compiles verbatim against the widened
+// param — a family's optional prop (`size?: SizeLane | …`) flows in
+// without a `?? 'auto'` shim, which would WRONGLY cut off the ambient
+// read ('auto' is a resolved no-opinion, not a skip-ambient token —
+// resolveAxisLane treats direct 'auto' as the caller's explicit
+// choice to inherit).
+
+/** the size axis slot (§1): root font-size; `auto` = inherit the context. */
+export function sizeSlot(
+  explicit: SizeLane | QueryResult<SizeLane> | undefined,
+  own?: SizeLane,
+): AxisSlotResult<SizeLane> {
+  return resolveAxisLane(SIZE_KEY, explicit, own ?? 'auto');
+}
+
+/** the shape axis slot (§2): corner geometry; `auto` = inherit. */
+export function shapeSlot(
+  explicit: ShapeLane | QueryResult<ShapeLane> | undefined,
+  own?: ShapeLane,
+): AxisSlotResult<ShapeLane> {
+  return resolveAxisLane(SHAPE_KEY, explicit, own ?? 'auto');
+}
+
+/** the radius axis slot (§3): corner size; `auto` = the concentric broadcast. */
+export function radiusSlot(
+  explicit: RadiusLane | QueryResult<RadiusLane> | undefined,
+  own?: RadiusLane,
+): AxisSlotResult<RadiusLane> {
+  return resolveAxisLane(RADIUS_KEY, explicit, own ?? 'auto');
+}
+
+/**
+ * The density axis slot (§4): spacing/leading over the kernel
+ * channels. Named lanes normalize onto the five rungs (the legacy
+ * spellings and the documented vocabulary are the same axis);
+ * `auto` = exactly today's inherit law.
+ */
+export function densitySlot(
+  explicit: DensityLane | QueryResult<DensityLane> | undefined,
+  own?: DensityLane,
+): AxisSlotResult<DensityLane> {
+  const resolved = resolveAxisLane(UNIVERSAL_DENSITY_KEY, explicit, normalizeDensityLane(own ?? 'auto'));
+  return { explicit: normalizeDensityLane(resolved.explicit), ambient: resolved.ambient };
+}
+
+/** the color axis slot (§5): semantic > palette > raw; `auto` = inherit. */
+export function colorSlot(
+  explicit: ColorLane | QueryResult<ColorLane> | undefined,
+  own?: ColorLane,
+): AxisSlotResult<ColorLane> {
+  return resolveAxisLane(COLOR_KEY, explicit, own ?? 'auto');
+}
+
+/** the theme axis slot (§6): light/dark/system; `auto` = tree inheritance. */
+export function themeSlot(
+  explicit: ThemeLane | QueryResult<ThemeLane> | undefined,
+  own?: ThemeLane,
+): AxisSlotResult<ThemeLane> {
+  return resolveAxisLane(THEME_KEY, explicit, own ?? 'auto');
+}
+
+/** the elevation axis slot (§7): official M3 levels over the surface ladder. */
+export function elevationSlot(
+  explicit: ElevationLane | QueryResult<ElevationLane> | undefined,
+  own?: ElevationLane,
+): AxisSlotResult<ElevationLane> {
+  return resolveAxisLane(ELEVATION_KEY, explicit, own ?? 'auto');
+}
+
+/** the motion axis slot (§8): intensity, not duration; `auto` = inherit. */
+export function motionSlot(
+  explicit: MotionLane | QueryResult<MotionLane> | undefined,
+  own?: MotionLane,
+): AxisSlotResult<MotionLane> {
+  return resolveAxisLane(MOTION_KEY, explicit, own ?? 'auto');
+}
+
+// ---- the §11 carrier stamp (static strings per render) ----------------
+//
+// The carrier law (§10): every axis value resolves to a CSS
+// expression stamped on the component root as INLINE STYLE vars —
+// static strings within a render (SSR-safe; a runtime context change
+// re-renders and re-stamps, the reactive-density precedent). Named
+// steps NEVER inline their value: they resolve through the §12
+// var-indirection `var(--jx-<axis>-<alias>)` — the kernel/plugin CSS
+// owns the values, a remap is a var override, zero runtime resolver.
+// An `auto` (or absent) resolution stamps NOTHING for that axis — the
+// ambient carriers keep flowing (no opinion no stamp; §3's concentric
+// calc and §1's inherit are the CONSUMPTION compositions in family
+// CSS, W3's wiring). Theme never stamps a var (§11: the existing
+// `.dark` class bridge is its carrier) and density's rung scope rides
+// the `data-density` attribute half (the template, W3) — this util
+// emits the STYLE-string half only. ZERO class identities (§10).
+
+/** the per-axis resolved lanes stampCarriers accepts (all optional). */
+export interface UniversalCarriers {
+  readonly size?: AxisSlotResult<SizeLane>;
+  readonly shape?: AxisSlotResult<ShapeLane>;
+  readonly radius?: AxisSlotResult<RadiusLane>;
+  readonly density?: AxisSlotResult<DensityLane>;
+  readonly color?: AxisSlotResult<ColorLane>;
+  readonly theme?: AxisSlotResult<ThemeLane>;
+  readonly elevation?: AxisSlotResult<ElevationLane>;
+  readonly motion?: AxisSlotResult<MotionLane>;
+}
+
+/** namedSteps per axis, derived from the ONE schema source (§17). */
+const NAMED_STEPS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
+  UNIVERSAL_AXES.map((doc): [string, readonly string[]] => [doc.axis, doc.namedSteps]),
+);
+
+const isNamedStep = (axis: UniversalAxisName, lane: string | number): boolean =>
+  typeof lane === 'string' && (NAMED_STEPS[axis]?.includes(lane) ?? false) === true;
+
+/**
+ * Emit the §11 carrier declarations for the resolved lanes as ONE
+ * inline style string (declarations joined by '; ', deterministic
+ * §0 axis order). '' when nothing stamps (all auto/absent) — the
+ * family then binds no style attr for this surface.
+ */
+export function stampCarriers(results: UniversalCarriers): string {
+  const decls: string[] = [];
+
+  const size = results.size?.explicit;
+  if (size !== undefined && size !== 'auto') {
+    // §11: the carrier is --jx-size-effective (font-size + the var);
+    // §1: children size via em — ONE number moves a family
+    const value = typeof size === 'number' ? `${size}px` : `var(--jx-size-${size})`;
+    decls.push(`--jx-size-effective: ${value}`, 'font-size: var(--jx-size-effective, 1rem)');
+  }
+
+  const shape = results.shape?.explicit;
+  if (shape !== undefined && shape !== 'auto') {
+    // §14's frozen consumption chain: the resolved shape picks the
+    // alias AND the per-shape radius factor (the squircle ×2 law and
+    // its degrade reversal ride the factor vars, never branches)
+    decls.push(
+      `--jx-shape-effective: var(--jx-shape-${shape})`,
+      `--jx-radius-factor-effective: var(--jx-radius-factor-${shape})`,
+    );
+  }
+
+  const radius = results.radius?.explicit;
+  if (radius !== undefined && radius !== 'auto') {
+    // §3: a resolved radius SUPPLIES --jx-radius-effective; auto is
+    // the concentric CONSUMPTION calc in family CSS (max(0px,
+    // calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective,
+    // 0px))) — the var() fallbacks are load-bearing), never a stamp
+    const value = typeof radius === 'number' ? `${radius}px` : `var(--jx-radius-${radius})`;
+    decls.push(`--jx-radius-effective: ${value}`);
+  }
+
+  const density = results.density === undefined ? undefined : normalizeDensityLane(results.density.explicit);
+  if (density !== undefined && density !== 'auto') {
+    // §4 precedence: a NAMED lane sets the rung scope (the
+    // data-density attr, the template half) AND resets the
+    // coefficient to 1 (explicit rung = exact rung, never
+    // double-scaled); the NUMBER lane sets the coefficient and leaves
+    // the rung ambient; auto stamps neither
+    decls.push(`--jx-density-coefficient: ${typeof density === 'number' ? density : 1}`);
+  }
+
+  const color = results.color?.explicit;
+  if (color !== undefined && color !== 'auto') {
+    // §5 resolution order: semantic > palette > raw. Named → the §12
+    // indirection; a non-named string is a RAW value (passthrough
+    // verbatim — plugin names close at build, W2's table); a number
+    // is HUE DEGREES through the primary formula oklch(L C calc(H ±
+    // drift)) — the L/C/drift vars are the theme-profile contract
+    // (task 1.3 / W2's alias tables define them; the fallbacks are
+    // the light profile --primary triple, load-bearing per §3's law)
+    const value = isNamedStep('color', color)
+      ? `var(--jx-color-${color})`
+      : typeof color === 'number'
+        ? `oklch(var(--jx-color-formula-l, 0.6489) var(--jx-color-formula-c, 0.237) calc(${color} + var(--jx-color-formula-drift, 0)))`
+        : `${color}`;
+    decls.push(`--jx-color-effective: ${value}`);
+  }
+
+  // theme: NEVER a style var — §11's carrier is the existing .dark
+  // class bridge (the boot-splash head-inline precedent); results.theme
+  // is consumed by the family's class logic (W3)
+
+  const elevation = results.elevation?.explicit;
+  if (elevation !== undefined && elevation !== 'auto') {
+    // §0.1's explicit mapping (level-1→-1 … level5→12, exact dp) —
+    // ELEVATION_DP is the frozen single source; the number lane is
+    // exact dp verbatim
+    const value = typeof elevation === 'number' ? elevation : ELEVATION_DP[elevation];
+    decls.push(`--jx-elevation-effective: ${value}`);
+  }
+
+  const motion = results.motion?.explicit;
+  if (motion !== undefined && motion !== 'auto') {
+    // §8: intensity — the number lane is the coefficient verbatim;
+    // named steps resolve through the §12 indirection (the motion
+    // map, W2's task 2.4, owns their intensity values)
+    const value = typeof motion === 'number' ? `${motion}` : `var(--jx-motion-${motion})`;
+    decls.push(`--jx-motion-effective: ${value}`);
+  }
+
+  return decls.join('; ');
+}
+
+// ---- the W3 family Defaults surface (batch A, design §1/§9.1/§11) ------
+//
+// The eight-axis members for family Defaults contracts: DefaultsSlot
+// products built through defineAxisSlot (branded + WeakSet-registered,
+// the dual guard), each lazily reading its axis context inside the
+// consumer's resolve window (the 惰性律; density.svelte.ts's legacy
+// densitySlot is the construction precedent). The §9.1 free functions
+// above stay the FROZEN callable surface (AxisSlotResult and the
+// query anchor ride them); these members return the resolved LANE so
+// `XxxDefaults.resolve({ size, density, … })` lands the lane directly
+// — one resolution record per family, consumed by the root's carrier
+// stamp (stampCarriersForLanes), the legacy density stamp
+// (densityRungOf) and the §11 supply (provideUniversalLanes).
+//
+// Slot-name law (A1): the member name IS the prop name — `size`,
+// `shape`, `radius`, `density`, `color`, `theme`, `elevation`,
+// `motion` — the same words the coverage gate's vocabulary pins.
+
+/**
+ * A family Defaults member for one axis: accepts the FULL explicit
+ * lane (named · auto · number · query()) or undefined, returns the
+ * resolved lane. Deliberately NOT a DefaultsSlot<T> extension — a
+ * second (narrower) call signature would win Parameters<> inference
+ * and shut the query() lane out of resolve()'s mapped type; this
+ * single-signature shape still satisfies defineComponentDefaults'
+ * AnyBrandedSlot constraint structurally (contravariant param +
+ * the brand field), and the product underneath is the same
+ * defineAxisSlot construction the dual guard registers.
+ */
+export interface UniversalAxisSlot<T> {
+  (explicit: T | QueryResult<T> | undefined): T;
+  readonly [jxSlot]: 'defaults-slot';
+}
+
+/**
+ * The family prop surface: the eight explicit lanes, all optional.
+ * A family's Props interface declares these (verbatim member types);
+ * the same object feeds the Defaults resolve AND the §11 supply.
+ */
+export interface UniversalAxisProps {
+  readonly size?: SizeLane | QueryResult<SizeLane>;
+  readonly shape?: ShapeLane | QueryResult<ShapeLane>;
+  readonly radius?: RadiusLane | QueryResult<RadiusLane>;
+  readonly density?: DensityLane | QueryResult<DensityLane>;
+  readonly color?: ColorLane | QueryResult<ColorLane>;
+  readonly theme?: ThemeLane | QueryResult<ThemeLane>;
+  readonly elevation?: ElevationLane | QueryResult<ElevationLane>;
+  readonly motion?: MotionLane | QueryResult<MotionLane>;
+}
+
+/** the resolved-lane record a family's Defaults resolve produces. */
+export interface UniversalLanes {
+  readonly size?: SizeLane;
+  readonly shape?: ShapeLane;
+  readonly radius?: RadiusLane;
+  readonly density?: DensityLane;
+  readonly color?: ColorLane;
+  readonly theme?: ThemeLane;
+  readonly elevation?: ElevationLane;
+  readonly motion?: MotionLane;
+}
+
+/** the size-axis Defaults member (§1): explicit ?? ambient ?? own ?? 'auto'. */
+export function sizeAxisSlot(own?: SizeLane): UniversalAxisSlot<SizeLane> {
+  return defineAxisSlot<SizeLane>(
+    'size',
+    (explicit) => resolveAxisLane(SIZE_KEY, explicit, own ?? 'auto').explicit,
+  ) as unknown as UniversalAxisSlot<SizeLane>;
+}
+
+/** the shape-axis Defaults member (§2). */
+export function shapeAxisSlot(own?: ShapeLane): UniversalAxisSlot<ShapeLane> {
+  return defineAxisSlot<ShapeLane>(
+    'shape',
+    (explicit) => resolveAxisLane(SHAPE_KEY, explicit, own ?? 'auto').explicit,
+  ) as unknown as UniversalAxisSlot<ShapeLane>;
+}
+
+/** the radius-axis Defaults member (§3). */
+export function radiusAxisSlot(own?: RadiusLane): UniversalAxisSlot<RadiusLane> {
+  return defineAxisSlot<RadiusLane>(
+    'radius',
+    (explicit) => resolveAxisLane(RADIUS_KEY, explicit, own ?? 'auto').explicit,
+  ) as unknown as UniversalAxisSlot<RadiusLane>;
+}
+
+/**
+ * The density-axis Defaults member (§4, the W3 bridge): resolves
+ * through the universal `jx.density` key — legacy DENSITY_KEY
+ * providers are bridged onto it (density.svelte.ts's provideDensity
+ * writes both keys) — with the named aliases normalized onto the
+ * rungs. The legacy `data-density` stamp derives from the resolved
+ * lane via densityRungOf; the legacy context-plugin chain
+ * (resolveDensity's scope.apply) is NOT re-run on this path — the
+ * bridge note in density.svelte.ts owns that ledger.
+ */
+export function densityAxisSlot(own?: DensityLane): UniversalAxisSlot<DensityLane> {
+  return defineAxisSlot<DensityLane>(
+    'density',
+    (explicit) => {
+      const resolved = resolveAxisLane(
+        UNIVERSAL_DENSITY_KEY,
+        explicit,
+        normalizeDensityLane(own ?? 'auto'),
+      );
+      return normalizeDensityLane(resolved.explicit);
+    },
+  ) as unknown as UniversalAxisSlot<DensityLane>;
+}
+
+/** the color-axis Defaults member (§5). */
+export function colorAxisSlot(own?: ColorLane): UniversalAxisSlot<ColorLane> {
+  return defineAxisSlot<ColorLane>(
+    'color',
+    (explicit) => resolveAxisLane(COLOR_KEY, explicit, own ?? 'auto').explicit,
+  ) as unknown as UniversalAxisSlot<ColorLane>;
+}
+
+/** the theme-axis Defaults member (§6). */
+export function themeAxisSlot(own?: ThemeLane): UniversalAxisSlot<ThemeLane> {
+  return defineAxisSlot<ThemeLane>(
+    'theme',
+    (explicit) => resolveAxisLane(THEME_KEY, explicit, own ?? 'auto').explicit,
+  ) as unknown as UniversalAxisSlot<ThemeLane>;
+}
+
+/** the elevation-axis Defaults member (§7). */
+export function elevationAxisSlot(own?: ElevationLane): UniversalAxisSlot<ElevationLane> {
+  return defineAxisSlot<ElevationLane>(
+    'elevation',
+    (explicit) => resolveAxisLane(ELEVATION_KEY, explicit, own ?? 'auto').explicit,
+  ) as unknown as UniversalAxisSlot<ElevationLane>;
+}
+
+/** the motion-axis Defaults member (§8). */
+export function motionAxisSlot(own?: MotionLane): UniversalAxisSlot<MotionLane> {
+  return defineAxisSlot<MotionLane>(
+    'motion',
+    (explicit) => resolveAxisLane(MOTION_KEY, explicit, own ?? 'auto').explicit,
+  ) as unknown as UniversalAxisSlot<MotionLane>;
+}
+
+/**
+ * The §11 carrier stamp for a family's resolved LANES (the
+ * Defaults-resolve record): delegates to stampCarriers with the lanes
+ * wrapped as no-ambient results (the carrier reads only the resolved
+ * value). '' when every lane is auto/absent — the family then binds
+ * no style attr for this surface.
+ */
+export function stampCarriersForLanes(lanes: UniversalLanes): string {
+  return stampCarriers({
+    ...(lanes.size !== undefined ? { size: { explicit: lanes.size, ambient: false } } : {}),
+    ...(lanes.shape !== undefined ? { shape: { explicit: lanes.shape, ambient: false } } : {}),
+    ...(lanes.radius !== undefined ? { radius: { explicit: lanes.radius, ambient: false } } : {}),
+    ...(lanes.density !== undefined ? { density: { explicit: lanes.density, ambient: false } } : {}),
+    ...(lanes.color !== undefined ? { color: { explicit: lanes.color, ambient: false } } : {}),
+    ...(lanes.theme !== undefined ? { theme: { explicit: lanes.theme, ambient: false } } : {}),
+    ...(lanes.elevation !== undefined
+      ? { elevation: { explicit: lanes.elevation, ambient: false } }
+      : {}),
+    ...(lanes.motion !== undefined ? { motion: { explicit: lanes.motion, ambient: false } } : {}),
+  });
+}
+
+/**
+ * The resolved density lane's LEGACY rung — the `data-density` stamp
+ * (the scope half of the §4 bridge; today's CSS keys on it). 'auto'
+ * and the coefficient number lane stamp NOTHING (the rung stays
+ * ambient, exactly the fleet law); the five rungs pass verbatim.
+ */
+export type DensityRung = Exclude<DensityLane, 'small' | 'medium' | 'large' | 'auto' | number>;
+
+export function densityRungOf(
+  lane: DensityLane | QueryResult<DensityLane> | undefined,
+): DensityRung | undefined {
+  // a query() carrier NEVER carries a legacy rung (§4's degrade: the
+  // rung stays ambient until the engine resolves the lane — W3-C
+  // widened the param so the legacy edges can pass the prop verbatim)
+  if (lane === undefined || lane === 'auto' || typeof lane === 'number' || typeof lane === 'object')
+    return undefined;
+  return lane as DensityRung;
+}
+
+/**
+ * The §7 level-table KEY for a resolved elevation lane — the var
+ * fragment the consumption pair composes through (W3 batch C). Named
+ * lanes map VERBATIM onto the table (the theme's NAME LAW:
+ * `--jx-elevation-level-1-*` is the −1dp concave, `levelN` positives
+ * carry no inner hyphen). The NUMBER lane (exact dp) snaps DOWN to
+ * the enclosing table rung — the §14 degrade-ladder honesty: an
+ * exact dp between rungs never rounds UP to a shadow deeper than
+ * asked (dp ≥ 12 → level5; dp < 0 joins the concave). undefined and
+ * 'auto' carry no opinion → undefined, nothing composes.
+ */
+export type ElevationLevelKey =
+  | 'level-1'
+  | 'level0'
+  | 'level1'
+  | 'level2'
+  | 'level3'
+  | 'level4'
+  | 'level5';
+
+export function elevationLevelKeyOf(lane: ElevationLane | undefined): ElevationLevelKey | undefined {
+  if (lane === undefined || lane === 'auto') return undefined;
+  if (typeof lane === 'string') return lane;
+  if (lane < 0) return 'level-1';
+  if (lane === 0) return 'level0';
+  if (lane < 3) return 'level1';
+  if (lane < 6) return 'level2';
+  if (lane < 8) return 'level3';
+  if (lane < 12) return 'level4';
+  return 'level5';
+}
+
+/**
+ * The §7 ELEVATION × SURFACE-LADDER consumption pair (W3 batch C's
+ * batch gate): §10 CSS expressions through the level table's §12
+ * var-indirection — the per-level shadow recipe plus the PAIRED
+ * ladder-rung surface, never an inlined recipe value (a plugin
+ * remap of either table member rides the indirection verbatim). ''
+ * when the lane carries no opinion ('auto'/absent — the ambient
+ * carriers keep flowing, the family paints its historic ground).
+ */
+export function elevationPairOf(lane: ElevationLane | undefined): string {
+  const key = elevationLevelKeyOf(lane);
+  if (key === undefined) return '';
+  return [
+    `--jx-elevation-shadow: var(--jx-elevation-${key}-shadow)`,
+    `--jx-elevation-surface: var(--jx-elevation-${key}-surface)`,
+  ].join('; ');
+}
+
+/**
+ * The jx-surface flavor of the §7 pair (W3-C): the generic pair PLUS
+ * the solid-fill bridge — `--jx-surface-solid-fill` is the floating-
+ * surface law's fill channel (the theme formulas AND the motion
+ * kernels' direct var reads resolve through it), so a resolved level
+ * feeds it from the ladder rung. '' when the lane carries no opinion
+ * (the historic ground keeps painting, zero delta).
+ */
+export function elevationSurfaceOf(lane: ElevationLane | undefined): string {
+  const pair = elevationPairOf(lane);
+  return pair === '' ? '' : `${pair}; --jx-surface-solid-fill: var(--jx-elevation-surface)`;
+}
+
+/**
+ * The §11 broadcast supply over the family's EXPLICIT lanes: each axis
+ * supplies `unwrapped explicit ?? the captured PARENT payload's lane`
+ * — the eager-capture provider pattern (the r11 input-group/button-
+ * group precedent). The parent payloads are captured ONCE at init,
+ * BEFORE any write below (a later lazy read would resolve an axis key
+ * to the family's OWN write and self-reference through the very
+ * getter it feeds — derived_references_self; the contract-derived's
+ * ambient read then lands on the family's write, whose getter chain
+ * terminates at the PROP + the captured parent, never re-entering the
+ * derived). A no-opinion family (auto/absent) FORWARDS the parent's
+ * lane verbatim — no shadowing, the tree's opinion flows through.
+ * Query lanes unwrap through the runtime engine (the family-supplied
+ * anchor rides readQueryAnchor). DENSITY's legacy half (DENSITY_KEY
+ * for the ~60 unmigrated consumers) does not ride this helper —
+ * families that provide density to legacy descendants call
+ * density.svelte.ts's provideDensity directly (it bridges onto the
+ * universal key too).
+ */
+export function provideUniversalLanes(explicit: UniversalAxisProps): void {
+  const parentPayload = <T>(key: string): AxisLaneContext<T> | undefined =>
+    getContext<AxisLaneContext<T> | undefined>(key);
+  const captured = {
+    size: parentPayload<SizeLane>(SIZE_KEY),
+    shape: parentPayload<ShapeLane>(SHAPE_KEY),
+    radius: parentPayload<RadiusLane>(RADIUS_KEY),
+    density: parentPayload<DensityLane>(UNIVERSAL_DENSITY_KEY),
+    color: parentPayload<ColorLane>(COLOR_KEY),
+    theme: parentPayload<ThemeLane>(THEME_KEY),
+    elevation: parentPayload<ElevationLane>(ELEVATION_KEY),
+    motion: parentPayload<MotionLane>(MOTION_KEY),
+  };
+  provideAxisLane('size', () => {
+    const own = unwrapQueryLane(explicit.size);
+    return own !== undefined && own !== 'auto' ? own : captured.size?.lane;
+  });
+  provideAxisLane('shape', () => {
+    const own = unwrapQueryLane(explicit.shape);
+    return own !== undefined && own !== 'auto' ? own : captured.shape?.lane;
+  });
+  provideAxisLane('radius', () => {
+    const own = unwrapQueryLane(explicit.radius);
+    return own !== undefined && own !== 'auto' ? own : captured.radius?.lane;
+  });
+  provideAxisLane('density', () => {
+    const own = unwrapQueryLane(explicit.density);
+    return own !== undefined && own !== 'auto' ? normalizeDensityLane(own) : captured.density?.lane;
+  });
+  provideAxisLane('color', () => {
+    const own = unwrapQueryLane(explicit.color);
+    return own !== undefined && own !== 'auto' ? own : captured.color?.lane;
+  });
+  provideAxisLane('theme', () => {
+    const own = unwrapQueryLane(explicit.theme);
+    return own !== undefined && own !== 'auto' ? own : captured.theme?.lane;
+  });
+  provideAxisLane('elevation', () => {
+    const own = unwrapQueryLane(explicit.elevation);
+    return own !== undefined && own !== 'auto' ? own : captured.elevation?.lane;
+  });
+  provideAxisLane('motion', () => {
+    const own = unwrapQueryLane(explicit.motion);
+    return own !== undefined && own !== 'auto' ? own : captured.motion?.lane;
+  });
+}
+
+// The lane types ride the defaults module's EXISTING registry edge
+// (@jixoai/defaults already declares @jixoai/universal-props): family
+// files import every axis type from ONE seam, no new item edges.
+export type {
+  SizeLane,
+  ShapeLane,
+  RadiusLane,
+  DensityLane,
+  ColorLane,
+  ThemeLane,
+  ElevationLane,
+  MotionLane,
+  QueryResult,
+  AxisSlotResult,
+} from './universal-props.schema';

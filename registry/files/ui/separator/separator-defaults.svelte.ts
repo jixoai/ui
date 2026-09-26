@@ -15,18 +15,33 @@
  *     join the paint ladder's frozen table, so the slot stays a
  *     defineLiteralSlot forever (the kbd mode's terminal form: no
  *     upgrade path exists because none is meaningful).
- *   - density: the no-opinion axis slot. The separator carries NO
- *     density own: no provider and no explicit prop resolve
- *     undefined, stamp nothing, and the ambient css scope channel
- *     keeps flowing (fleet law).
+ *   - density: the universal §4 axis slot (W3-B — the legacy
+ *     densitySlot semantics ride the bridged lane). The separator
+ *     carries NO density own: no provider and no explicit prop
+ *     resolve 'auto', stamp nothing, and the ambient css scope
+ *     channel keeps flowing (fleet law).
+ *   - the seven other universal axes (§0/§11, W3-B, all no-own):
+ *     size · shape · radius · color · theme · elevation · motion —
+ *     the eight-axis surface (a strip consumes little of it; the
+ *     supply chain is the point).
  *
  * 惰性律: construction captures own only; context reads happen at
  * resolve time inside the consumer's $derived window. This file is a
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const separatorVariantSlot = defineLiteralSlot(
   ['fused', 'solid', 'dashed', 'dense', 'dotted', 'wavy', 'fade'],
@@ -45,5 +60,12 @@ export type SeparatorVariant = ReturnType<typeof separatorVariantSlot>;
 
 export const SeparatorDefaults = defineComponentDefaults({
   variant: separatorVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

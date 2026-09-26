@@ -258,30 +258,126 @@ describe('in-window unit own projections (unit-resolve-host, 惰性律)', () => 
   // density-bearing families: the window-bound ambient lanes and the
   // plugin-scope read make the plain unit form a hard-contract throw
   it('InlineCodeDefaults and the density-slot families resolve their own defaults', () => {
+    // W3-D5 (the hole round): inline-code joined the eight-axis
+    // surface — the silent window resolves 'auto' (the §0.1
+    // no-opinion spelling), variant keeps the frozen own 'fused'
     expect(resolveInWindow(() => InlineCodeDefaults.resolve({}))).toEqual({
       variant: 'fused',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
+    // W3-D1 (explicit-props, task 3.4): chart's contract gained the
+    // seven non-size axis members (the `size` key stays the donut
+    // diameter OPEN literal, own 96; density rides the bridged axis
+    // slot — own 'auto', not the legacy slot's undefined);
+    // ListItemDefaults gained the seven non-density members beside
+    // its literals. W3-D3 (task 3.4 r3): statistic joined the
+    // eight-axis surface too (density migrated onto the bridged axis
+    // slot — no-own 'auto', not the legacy slot's undefined)
     expect(resolveInWindow(() => ChartDefaults.resolve({}))).toEqual({
       variant: 'fill',
-      density: undefined,
+      density: 'auto',
       size: 96,
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
-    expect(resolveInWindow(() => StatisticDefaults.resolve({}))).toEqual({ density: undefined });
+    expect(resolveInWindow(() => StatisticDefaults.resolve({}))).toEqual({
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
     expect(resolveInWindow(() => ListItemDefaults.resolve({}))).toEqual({
       variant: 'auto',
-      density: undefined,
+      density: 'auto',
       inset: false,
       tone: 'muted',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
   });
 
   // pure-literal families: no slot reads context — the plain unit
   // calls hold on the legal side too
   it('AvatarDefaults / ThemeToggleDefaults / LanguageSwitcherDefaults / TourDefaults (pure literals)', () => {
-    expect(AvatarDefaults.resolve({})).toEqual({ size: 'md', variant: 'bevel' });
-    expect(ThemeToggleDefaults.resolve({})).toEqual({ variant: 'compact' });
-    expect(LanguageSwitcherDefaults.resolve({})).toEqual({ variant: 'pair' });
-    expect(TourDefaults.resolve({})).toEqual({ variant: 'auto' });
+    // W3-B (explicit-props, task 3.6): avatar's size slot is the §13
+    // ADOPTED axis (sm/md/lg alias onto small/medium/large; a silent
+    // window resolves auto — the 32px geometry baseline is the
+    // component's, not a slot own), so the call joins the in-window
+    // form like every context-reading contract
+    expect(resolveInWindow(() => AvatarDefaults.resolve({}))).toEqual({
+      size: 'auto',
+      variant: 'bevel',
+      density: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
+    // W3-D5 (the hole round): theme-toggle's contract gained the
+    // eight universal axes beside the structural variant — the axis
+    // slots read context, so the call leaves the pure-literal set and
+    // joins the in-window form (silent 'auto')
+    expect(resolveInWindow(() => ThemeToggleDefaults.resolve({}))).toEqual({
+      variant: 'compact',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
+    // W3-D1 (explicit-props, task 3.4): the switcher's contract
+    // gained the eight universal axes (all no-own — density joins
+    // fresh; variant keeps its 'pair' own)
+    expect(resolveInWindow(() => LanguageSwitcherDefaults.resolve({}))).toEqual({
+      variant: 'pair',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
+    // W3-D3 (explicit-props, task 3.4 r3): tour joined the eight-axis
+    // surface (elevation own level2 — the card's menu rung), so its
+    // contract now READS context like every axis-bearing family — the
+    // call joins the in-window form
+    expect(resolveInWindow(() => TourDefaults.resolve({}))).toEqual({
+      variant: 'auto',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level2',
+      motion: 'auto',
+    });
   });
 });

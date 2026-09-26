@@ -15,31 +15,56 @@
   law (theme .jx-press) at float scale — the --jx-press-shadow* customs
   re-point all three poses to the --shadow family.
 
-  tw4 (2026-08-24): button/stack paint as token utilities (corner is a
-  prop → conditional strings; the stack's inner button swaps fixed for
-  static the same way — the scoped descendant rule is gone); ONLY the
-  MENU panel law (anchor geometry + ::backdrop) remains in
-  float-button.css — D1-exempt residue.
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  button/stack paint rides the family's stylex ATOMS
+  (float-button.stylex.ts) joined through cx() — corner is a prop →
+  per-corner atom groups; the stack's inner button swaps fixed for
+  static the same way; ONLY the MENU panel law (anchor geometry +
+  ::backdrop) remains in float-button.css — D1-exempt residue.
 
   Motion kernel (2026-08-25): the menu panel adopts the shared surface
-  motion kernel (lib/surface-motion.ts, popover wiring verbatim) —
-  the toggle seam drives play/startTracking/stopTracking against the
+  motion kernel (lib/surface-motion.ts, popover wiring verbatim) — the
+  toggle seam drives play/startTracking/stopTracking against the
   fixed stack anchor, .jx-waapi opts into the jixoai.css formulas,
   and the real shadow rides a DOM child (data-jx-fab-menu-shadow) the
-  kernel animates in lockstep.
+  kernel animates in lockstep. MEASURED CAVEAT (docs-eight-axes-mdn
+  task 86): the shadow child animates but paints NO shadow today —
+  --jx-shadow-effective ships empty and the child renders a
+  translucent wash; the elevation STAMP (level3/6dp) arrives, the
+  recipe does not. Wire-or-retire is queued W-next (same class as
+  dialog's unpainted elevation ladder).
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { type Density } from '$lib/density.svelte';
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { cn } from '$lib/utils';
   import { FloatButtonDefaults, type FloatButtonSurfaceVariant } from './float-button-defaults.svelte';
+  import { fabStyles } from './float-button.stylex';
   import './float-button.css';
 
   interface Props {
-    /** density policy: explicit ?? ambient scope, else unstamped */
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
     /** accessible name — required (an icon-only button must say itself) */
     label: string;
     /** which corner to float in */
@@ -54,6 +79,28 @@
         Omitted → the contract own 'auto' (FloatButtonDefaults — a
         declared own, not ambient) */
     variant?: FloatButtonSurfaceVariant;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level3 = the fab's historic z-feel (6dp, M3's FAB rung — the
+     *  menu panel rides the family resolution) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** button content — an icon snippet or a glyph */
     children: Snippet;
     class?: string;
@@ -66,6 +113,13 @@
     onclick,
     actions,
     variant,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     children,
     class: className = '',
   }: Props = $props();
@@ -75,7 +129,20 @@
   // auditable in one place; the density slot resolves
   // explicit ?? ambient scope — no opinion stamps nothing, the
   // ambient css scope channel keeps flowing
-  const d = $derived(FloatButtonDefaults.resolve({ variant, density }));
+  const d = $derived(
+    FloatButtonDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (PORTAL LAW, W3-C: the carriers stamp the family's own root — the
+  // stack wrapper / the fixed button; the MENU panel's promotion
+  // keeps the DOM, so the stamps reach it by inheritance)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §7's consumption pair + the solid-fill bridge
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const rootStyle = $derived(
+    [carriers, elevationConsumed].filter(Boolean).join('; ') || undefined,
+  );
 
   const autoId = $props.id();
   const anchorName = $derived(`--jx-fab-${autoId.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
@@ -86,56 +153,89 @@
   // + HTMLButtonElement type misdescribed the binding)
   let panel = $state<HTMLDivElement | null>(null);
   let anchorEl = $state<HTMLElement | null>(null);
+  /** the actions-less fixed button (its own root — the query anchor's
+   *  fallback when no stack wrapper renders) */
+  let fabEl = $state<HTMLButtonElement | null>(null);
+  provideQueryAnchor(() => (anchorEl ?? fabEl) ?? null);
 
   // ── MOTION KERNEL — the shared declarative half (r29): see
   // lib/surface-motion.ts. WAAPI animates ONE @property number
   // (--jx-p); every visible property is a CSS formula of it (the
   // declarative motion law in jixoai.css). The kernel here only wires
   // the menu's toggle seam and the live stack anchor
-  const motion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
+  const panelMotion = createSurfaceMotion(() => panel, { anchor: () => anchorEl });
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // corner → fixed point (top corners clear the sticky bar: 5.5rem)
   const corners = {
-    'bottom-right': 'bottom-5 right-5',
-    'bottom-left': 'bottom-5 left-5',
-    'top-right': 'top-[5.5rem] right-5',
-    'top-left': 'top-[5.5rem] left-5',
+    'bottom-right': cx(fabStyles.bottomRight),
+    'bottom-left': cx(fabStyles.bottomLeft),
+    'top-right': cx(fabStyles.topRight),
+    'top-left': cx(fabStyles.topLeft),
   } as const;
 
-  // press law at float scale: rest on --shadow, hover grows to --shadow-md
-  const fabPaint =
-    'jx-press inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] appearance-none items-center justify-center rounded border border-border bg-popover text-popover-foreground cursor-pointer [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)] hover:border-primary hover:text-primary focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+  // press law at float scale (the customs re-point all three poses)
+  const fabPaint = cx(fabStyles.body);
 </script>
 
 {#if actions}
   <div
     data-jx-fab-stack=""
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
     data-jx-fab={corner}
-    class={cn('fixed z-[80] flex flex-col items-center gap-2', corners[corner], className)}
-    style="anchor-name: {anchorName}"
+    class={cn(cx(fabStyles.stack), corners[corner], className)}
+    class:dark={d.theme === 'dark'}
+    style={`anchor-name: ${anchorName}; width: fit-content${rootStyle ? `; ${rootStyle}` : ''}`}
     bind:this={anchorEl}
   >
+    <!-- position-area law (W5 sweep, 2026-09-15 — spec-true): the menu
+         occupies the region ABOVE the stack, END-aligned — `top
+         span-left` names exactly that (spanning from the left edge
+         inward to the stack's inline-end: right edges together), the
+         classic corner-FAB look and the DIRECT geometry for the
+         default bottom-right corner. The mirror corners are adapted
+         by DESIGN through the css's flip-inline (an engine-derived
+         spec-grammar flip, never an ad-hoc inset). The pre-sweep
+         literal `top span-right` (which renders start-aligned)
+         encoded the inverted model. ONE literal feeds BOTH emissions
+         (position-area + the legacy inset-area alias) -->
     <div
       id={autoId}
       popover="auto"
       role="menu"
-      class={cn('jx-fab-menu jx-surface', motion.supported && 'jx-waapi')}
+      class={cn('jx-fab-menu jx-surface', panelMotion.supported && 'jx-waapi')}
       data-variant={d.variant}
       bind:this={panel}
-      style="position-anchor: {anchorName}; inset-area: top span-right; position-area: top span-right;"
+      style="position-anchor: {anchorName}; inset-area: top span-left; position-area: top span-left;"
       ontoggle={(e: Event) => {
         const el = e.currentTarget as HTMLElement;
         open = el.matches(':popover-open');
         if (open) {
-          motion.play(1);
-          motion.startTracking();
+          panelMotion.play(1);
+          panelMotion.startTracking();
         } else {
           el.classList.remove('jx-rest');
-          motion.play(0);
-          motion.stopTracking();
+          panelMotion.play(0);
+          panelMotion.stopTracking();
         }
       }}
     >
@@ -144,14 +244,14 @@
       <div data-jx-fab-menu-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
       <!-- the REAL shadow layer: a DOM child because pseudo-elements are
            unreachable from WAAPI — the kernel animates it in lockstep -->
-      <div data-jx-fab-menu-body="" class="jx-surface-body p-1">
+      <div data-jx-fab-menu-body="" class="jx-surface-body {cx(fabStyles.menuBody)}">
         {@render actions()}
       </div>
     </div>
     <button
       type="button"
-      class={cn(fabPaint, 'static z-[80]', className)}
-      data-density={d.density}
+      class={cn('jx-press', fabPaint, cx(fabStyles.stackButton), className)}
+      data-density={densityRungOf(d.density)}
       aria-label={label}
       aria-expanded={open}
       aria-haspopup={actions ? 'menu' : undefined}
@@ -165,8 +265,11 @@
   <button
     type="button"
     data-jx-fab={corner}
-    data-density={d.density}
-    class={cn(fabPaint, 'fixed z-[80]', corners[corner], className)}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={rootStyle}
+    bind:this={fabEl}
+    class={cn('jx-press', fabPaint, cx(fabStyles.fixedButton), corners[corner], className)}
     aria-label={label}
     {onclick}
   >

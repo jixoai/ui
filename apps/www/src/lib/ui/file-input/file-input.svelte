@@ -34,16 +34,17 @@
      max-width 100% shells, ellipsized names with title tooltips; the
      component survives 390px hosts with unbroken filenames.
 
-  tw4 (2026-08-24): the static paint (size knobs as arbitrary-property
-  utilities per size, zone/trigger shells, list rows, thumbs, glyphs)
-  is token utilities in the markup; the .jx-label/.jx-error scaffolding
-  is consumed from the jx-pure sheet's Part A; the press poses ride the
-  global .jx-press law via --jx-press-shadow* custom-property utilities.
-  Only the drag-over poses (they must out-rank the unlayered .jx-press
-  law at the original (0,3,0) precedence), the sibling hairline, the
-  icon svg sizing, the hover/focus/disabled machines and the
-  reduced-motion kill remain in file-input.css (D1-exempt residue under
-  the layer law).
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  static paint (size knobs as --jx-file-* seams, zone/trigger shells,
+  list rows, thumbs, glyphs) rides the family's stylex ATOMS
+  (file-input.stylex.ts) joined through cx(); the .jx-label/.jx-error
+  scaffolding is consumed from the jx-pure sheet's Part A; the press
+  poses ride the global .jx-press law via the --jx-press-shadow*
+  custom-property atoms. Only the drag-over poses (they must out-rank
+  the unlayered .jx-press law at the original (0,3,0) precedence),
+  the sibling hairline, the icon svg sizing, the hover/focus/disabled
+  machines and the reduced-motion kill remain in file-input.css
+  (D1-exempt residue under the layer law).
 -->
 <script module lang="ts">
   /** One selected file with component-managed identity. */
@@ -63,8 +64,23 @@
   import { cn } from '$lib/utils';
   import type { Snippet } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { FileInputDefaults, type FileInputVariant } from './file-input-defaults.svelte';
+  import { fileStyles } from './file-input.stylex';
   import './file-input.css';
 
   type FileKind = 'image' | 'video' | 'audio' | 'pdf' | 'code' | 'doc';
@@ -74,7 +90,7 @@
   interface Props
     extends Omit<
       HTMLInputAttributes,
-      'type' | 'files' | 'accept' | 'multiple' | 'disabled' | 'size'
+      'type' | 'files' | 'accept' | 'multiple' | 'disabled' | 'size' | 'color'
     > {
     /** native accept attribute, passed to the platform picker; dropped
         files that violate it are gate-rejected (never enter the value) */
@@ -95,7 +111,33 @@
         omitted → the contract's own 'drop' (FileInputDefaults) */
     variant?: FileInputVariant;
     /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** overflow limit — renders an error, never truncates the array */
     maxFiles?: number;
     /** secondary hint inside the drop zone; defaults to a composed
@@ -110,6 +152,24 @@
   // $props.id() must live in its own top-level initializer (compiler law)
   const autoId = $props.id();
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   let {
     accept,
     multiple = false,
@@ -120,6 +180,13 @@
     files = $bindable([]),
     variant,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     maxFiles,
     hint,
@@ -130,11 +197,20 @@
   }: Props = $props();
 
   // Family-local geometry names are one-line aliases to the closed control contract.
-  const densityUtilities = '[--jx-file-h:var(--jx-hit)] [--jx-file-thumb:var(--jx-icon)] [--jx-file-icon:var(--jx-icon)] [--jx-file-text:var(--jx-text)] [--jx-file-zone-pad:var(--jx-inset)] [--jx-file-zone-glyph:var(--jx-icon)]';
+  const densitySeams = cx(fileStyles.density);
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): variant rides the literal slot (own 'drop'), density
   // the no-opinion axis slot
-  const d = $derived(FileInputDefaults.resolve({ variant, density }));
+  const d = $derived(
+    FileInputDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   const errorId = $derived(`${id}-error`);
   const listId = $derived(`${id}-list`);
@@ -344,7 +420,7 @@
     <Icon name="fileText" />
   {:else if kind === 'code'}
     <!-- "</>" as a font-nav text glyph — no SVG needed -->
-    <span data-jx-file-code-glyph class="font-nav font-bold text-[calc(var(--jx-file-icon)*0.72)] tracking-[-0.02em] leading-none">&lt;/&gt;</span>
+    <span data-jx-file-code-glyph class={cx(fileStyles.codeGlyph)}>&lt;/&gt;</span>
   {:else}
     <!-- 通用文档图形 (lucide file) -->
     <Icon name="file" />
@@ -358,8 +434,9 @@
       id={triggerId}
       data-jx-file={invalid ? 'invalid' : undefined}
       class={cn(
-        'jx-press jx-file-zone flex flex-col items-center justify-center gap-[var(--jx-gap)] w-full min-w-0 max-w-full min-h-[calc(var(--jx-file-h)*2.25)] p-(--jx-file-zone-pad) border border-dashed border-border rounded-none bg-background text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-        invalid && 'border-destructive',
+        'jx-press jx-file-zone',
+        cx(fileStyles.dropZone),
+        invalid && cx(fileStyles.dropZoneInvalid),
       )}
       class:jx-file-over={dragging}
       aria-label={label || (multiple ? 'choose files' : 'choose file')}
@@ -376,8 +453,9 @@
       {:else}
         <span
           class={cn(
-            'jx-file-zone-glyph inline-flex items-center justify-center w-(--jx-file-zone-glyph) h-(--jx-file-zone-glyph) text-muted-foreground transition-colors duration-150 ease-out',
-            dragging && 'text-primary',
+            'jx-file-zone-glyph',
+            cx(fileStyles.zoneGlyph),
+            dragging && cx(fileStyles.draggingInk),
           )}
           aria-hidden="true"
         >
@@ -387,11 +465,12 @@
         </span>
         <span
           class={cn(
-            'jx-file-zone-title font-nav text-[11px] tracking-[0.2em] uppercase text-foreground max-w-full [overflow-wrap:anywhere] text-center transition-colors duration-150 ease-out',
-            dragging && 'text-primary',
+            'jx-file-zone-title',
+            cx(fileStyles.zoneTitle),
+            dragging && cx(fileStyles.draggingInk),
           )}
         >{multiple ? 'click or drag files' : 'click or drag file'}</span>
-        {#if zoneHint}<span data-jx-file-zone-hint class="font-nav text-[10.5px] tracking-[0.08em] text-muted-foreground max-w-full [overflow-wrap:anywhere] text-center">{zoneHint}</span>{/if}
+        {#if zoneHint}<span data-jx-file-zone-hint class={cx(fileStyles.zoneHint)}>{zoneHint}</span>{/if}
       {/if}
     </button>
   {:else}
@@ -400,8 +479,9 @@
       id={triggerId}
       data-jx-file={invalid ? 'invalid' : undefined}
       class={cn(
-        'jx-press jx-file-trigger inline-flex items-center gap-[var(--jx-gap)] w-fit max-w-full min-h-(--jx-file-h) px-[var(--jx-inset)] py-[var(--jx-gap)] border border-border rounded-none bg-background text-foreground text-(length:--jx-file-text) font-medium [--jx-press-shadow:var(--shadow-xs)] [--jx-press-shadow-hover:var(--shadow-sm)] [--jx-press-shadow-active:var(--shadow-sm-press)]',
-        invalid && 'border-dashed border-destructive',
+        'jx-press jx-file-trigger',
+        cx(fileStyles.buttonTrigger),
+        invalid && cx(fileStyles.buttonTriggerInvalid),
       )}
       class:jx-file-over={dragging}
       aria-label={label || (multiple ? 'choose files' : 'choose file')}
@@ -414,13 +494,13 @@
       ondrop={onDrop}
     >
       <!-- lucide upload through the Icon component (sw 2 = the baked
-           component default, no override); sizing rides the consuming
-           utility -->
+           component default, no override); sizing rides the css
+           descendant rule over the trigger-glyph hook -->
       <span
         data-jx-file-trigger-glyph
         class={cn(
-          'flex-none inline-flex text-muted-foreground [&_svg]:w-[calc(var(--jx-file-icon)*0.9)] [&_svg]:h-[calc(var(--jx-file-icon)*0.9)]',
-          dragging && 'text-primary',
+          cx(fileStyles.triggerGlyph),
+          dragging && cx(fileStyles.draggingInk),
         )}
       >
         <Icon name="upload" />
@@ -430,8 +510,14 @@
   {/if}
 {/snippet}
 
-<div data-jx-file={disabled ? 'disabled' : undefined} data-density={d.density} class={cn('jx-file flex flex-col items-stretch gap-[var(--jx-gap)] w-full min-w-0 max-w-full', densityUtilities, disabled && 'opacity-50', className)}>
-  {#if label}<label class="jx-label max-w-full overflow-hidden text-ellipsis whitespace-nowrap" for={id}>{label}</label>{/if}
+<div
+  bind:this={uniRoot}
+  data-jx-file={disabled ? 'disabled' : undefined}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  class={cn('jx-file', cx(fileStyles.root), densitySeams, disabled && cx(fileStyles.rootDisabled), className)}>
+  {#if label}<label class="jx-label {cx(fileStyles.labelLine)}" for={id}>{label}</label>{/if}
 
   {@render triggerShell(id)}
 
@@ -449,7 +535,7 @@
     {...rest}
     type="file"
     data-jx-file-native
-    class="sr-only"
+    class={cx(fileStyles.srOnly)}
     tabindex={-1}
     aria-hidden="true"
     {accept}
@@ -464,27 +550,27 @@
       data-jx-file-list
       data-jx-file={invalid ? 'invalid' : undefined}
       class={cn(
-        'min-w-0 max-w-full m-0 p-0 list-none border border-border bg-background',
-        invalid && 'border-dashed',
+        cx(fileStyles.list),
+        invalid && cx(fileStyles.listInvalid),
       )}
       aria-label="selected files"
     >
       {#each items as item (item.id)}
-        <li class="jx-file-row flex items-center gap-[var(--jx-gap)] min-w-0 min-h-(--jx-file-h) px-[var(--jx-inset)]">
-          <span data-jx-file-thumb class="flex-none inline-flex items-center justify-center w-[calc(var(--jx-file-thumb)+2px)] h-[calc(var(--jx-file-thumb)+2px)] border border-border bg-muted overflow-hidden" aria-hidden="true">
+        <li class="jx-file-row {cx(fileStyles.row)}">
+          <span data-jx-file-thumb class={cx(fileStyles.thumb)} aria-hidden="true">
             {#if item.previewUrl}
-              <img data-jx-file-thumb-img class="block w-(--jx-file-thumb) h-(--jx-file-thumb) object-cover" src={item.previewUrl} alt="" loading="lazy" />
+              <img data-jx-file-thumb-img class={cx(fileStyles.thumbImg)} src={item.previewUrl} alt="" loading="lazy" />
             {:else}
-              <span data-jx-file-icon={fileKind(item.file)} class="jx-file-icon inline-flex items-center justify-center w-(--jx-file-icon) h-(--jx-file-icon) text-muted-foreground [&_svg]:stroke-[1.75]">
+              <span data-jx-file-icon={fileKind(item.file)} class="jx-file-icon {cx(fileStyles.thumbIcon)}">
                 {@render kindIcon(fileKind(item.file))}
               </span>
             {/if}
           </span>
-          <span data-jx-file-name class="flex-[1_1_0%] min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-(length:--jx-file-text) text-foreground" title={item.file.name}>{item.file.name}</span>
-          <span data-jx-file-size class="flex-none text-(length:--jx-file-text) tabular-nums text-muted-foreground">{formatSize(item.file.size)}</span>
+          <span data-jx-file-name class={cx(fileStyles.fileName)} title={item.file.name}>{item.file.name}</span>
+          <span data-jx-file-size class={cx(fileStyles.fileSize)}>{formatSize(item.file.size)}</span>
           <button
             type="button"
-            class="jx-file-remove flex-none inline-flex items-center justify-center min-w-[var(--jx-hit)] min-h-[var(--jx-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-text)] leading-[var(--jx-leading)] cursor-pointer transition-[color,transform] duration-150 ease-out disabled:cursor-not-allowed"
+            class="jx-file-remove {cx(fileStyles.removeBtn)}"
             aria-label="remove {item.file.name}"
             disabled={disabled}
             onclick={() => removeItem(item)}
@@ -492,14 +578,14 @@
         </li>
       {/each}
       {#if items.length > 1 && !disabled}
-        <li data-jx-file-clearrow class="border-t border-border">
-          <button type="button" class="jx-file-clear inline-flex items-center min-h-[calc(var(--jx-file-h)*0.75)] py-[0.15rem] border-0 bg-transparent text-muted-foreground font-nav text-[10.5px] tracking-[0.18em] uppercase cursor-pointer transition-colors duration-150 ease-out" onclick={clearAll}>remove all</button>
+        <li data-jx-file-clearrow class={cx(fileStyles.clearRow)}>
+          <button type="button" class="jx-file-clear {cx(fileStyles.clearBtn)}" onclick={clearAll}>remove all</button>
         </li>
       {/if}
     </ul>
   {/if}
 
   {#if invalid}
-    <p id={errorId} class="jx-error"><span data-jx-file-error-mark class="font-bold text-destructive" aria-hidden="true">!</span>{shownError}</p>
+    <p id={errorId} class="jx-error"><span data-jx-file-error-mark class={cx(fileStyles.errorMark)} aria-hidden="true">!</span>{shownError}</p>
   {/if}
 </div>

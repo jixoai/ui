@@ -9,6 +9,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -57,6 +58,30 @@ ${close}
     { name: 'registry/files/ui/pattern-pricing/pattern-pricing.svelte', content: patternPricingSource },
     { name: 'src/lib/pattern-pricing-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PatternPricing size={18} density="small">…</PatternPricing>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pattern-pricing-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -67,7 +92,7 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell, rt.flex, rt.col, rt.gap32)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -76,7 +101,7 @@ ${close}
       title="pattern-pricing — $ plan --compare"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">table family matrix</span>
         <span class="pill">code-card install rows</span>
         <span class="pill">badge plan labels</span>
@@ -89,7 +114,7 @@ ${close}
     <ComponentCanvas
       title="pattern-pricing"
       stage="fill"
-      description="The comparison section: the matrix rides the Table family (container-query laws intact — narrow the stage and the frame folds to card rows), each tier's install command rides a code-card, and the recommended tier is one paint law: brand rules flank the opted-in column and the recommended card takes the border-primary rung."
+      description="The comparison section: the matrix rides the Table family (container-query laws intact — narrow the stage and the frame folds to card rows), each tier's install command rides a code-card, and the recommended tier is one paint law: brand rules flank the opted-in column (the head cell takes the 14% brand tint, the flanked cells carry the 2px inset rules both sides — measured); the tier code-cards themselves stay uniform by design (the pattern css implements the column law only)."
       sourceUrl={registrySourceUrl('pattern-pricing')}
       install="pattern-pricing"
       files={canvasFiles}
@@ -132,7 +157,7 @@ ${close}
         <PlayFields>
           <PlayHelp>
             the matrix is <em>authored content</em> — thead/tbody are yours (the Table contract);
-            opt the recommended column in with <code class="text-accent">data-jx-recommended</code>
+            opt the recommended column in with <code class={cx(rt.inkAccent)}>data-jx-recommended</code>
             on the th AND its td's, and the pattern css paints the brand rules. Press a card's
             copy control: the tier's add command hits the clipboard. Narrow the stage past 30rem —
             the frame folds to card rows with <code>data-label</code> leaders.
@@ -150,19 +175,19 @@ ${close}
       title="Authoring the matrix"
       summary="Structure is yours, paint is the pattern's: rows stay authored content, the recommended column is a consumer opt-in, and the tier cards are payload."
     >
-      <ul class="flex flex-col gap-2 text-[13px] leading-6">
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+      <ul class={cx(rt.col8, rt.body13)}>
+        <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
           <span>the comparison table is the children snippet — author
-            <code class="text-accent">thead/tbody/tfoot</code> exactly as the Table docs teach;
+            <code class={cx(rt.inkAccent)}>thead/tbody/tfoot</code> exactly as the Table docs teach;
             the pattern adds no row machinery</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span><code class="text-accent">data-jx-recommended</code> on the th AND its td's opts a
+        <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span><code class={cx(rt.inkAccent)}>data-jx-recommended</code> on the th AND its td's opts a
             column into the brand paint (rules + tinted head); row hover keeps flowing — the
             recommended cells never paint a background over it</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-          <span><code class="text-accent">tiers</code> is value-domain payload: plan label, install
+        <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+          <span><code class={cx(rt.inkAccent)}>tiers</code> is value-domain payload: plan label, install
             command, recommended flag, note — code strings, the legal prop category</span></li>
-        <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <li class={cx(rt.flex, rt.gap8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
           <span>the heading stays OUT of the pattern on purpose — your page owns its h2; the
             pattern opens at the <code>$ plan --compare</code> eyebrow</span></li>
       </ul>
@@ -181,6 +206,21 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: a composition product — the size axis scales the section root, the Table/Badge/CodeCard surfaces ride the ambient chain (吃也供)."
+    >
+      <ComponentCanvas title="PatternPricing · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PatternPricing tiers={[{ plan: 'core', command: 'npx jixoai-ui add button' }]} size={16} density="small"><thead><tr><th>plan</th><th>source</th></tr></thead><tbody><tr><td>core</td><td>yours</td></tr></tbody></PatternPricing></div>
+<div class={cx(rt.panel)}><PatternPricing tiers={[{ plan: 'pro', command: 'npx jixoai-ui add dialog' }]} size="medium" radius="large"><thead><tr><th>plan</th></tr></thead><tbody><tr><td>pro</td></tr></tbody></PatternPricing></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -189,7 +229,7 @@ ${close}
       title="API"
       summary="PatternPricing props and the PricingTier payload type."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'tiers', type: 'readonly PricingTier[]', default: '—', description: 'Per-tier install cards: plan, command, recommended?, note?.', required: true },
           { name: 'children', type: 'Snippet', default: '—', description: 'The comparison matrix — author thead/tbody (the Table contract).', required: true },

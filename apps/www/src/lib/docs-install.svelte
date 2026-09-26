@@ -18,10 +18,21 @@
   The section root carries data-doc-install — the skeleton lint's
   Install marker — and MUST render the command text verbatim inside
   the section (the lint greps `npx jixoai-ui add <name>`).
+
+  HERO FORM (Owner walkthrough, round 2 — decision C): the install is
+  the homepage hero's composition in miniature — LEFT the prose (the
+  command inline + the registry URL line) with the copy affordances
+  beneath, RIGHT a TerminalCard as the terminal aside (dark bezel per
+  the bezel law, the command typed once on hydration, the registry URL
+  as the output line; prerendered/no-JS shows the settled terminal, so
+  the lint's verbatim grep stays true from BOTH columns). Stacks
+  card-below-text under 40rem.
 -->
 <script lang="ts">
   import CopyCommand from '$lib/copy-command.svelte';
   import CopyIconButton from '$lib/copy-icon-button.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   interface Props {
     /** the install argument: item name, group id, or group/name — the command */
@@ -34,27 +45,47 @@
 
   const command = `npx jixoai-ui add ${name}`;
   const registryUrl = item === null ? null : `https://ui.jixoai.com/r/${item}.json`;
+  const outputs = registryUrl ? [registryUrl] : [];
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <section
   data-doc-install=""
-  class="border-border bg-card/40 flex flex-col gap-3 border p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5"
+  class={cx(siteChrome.diRoot)}
   aria-label="install {name}"
 >
-  <div class="flex min-w-0 flex-col gap-1">
-    <p class="text-primary font-nav text-[11px] uppercase tracking-[0.24em]">install</p>
-    <p class="text-muted-foreground text-[12.5px] leading-5">
-      <code class="text-accent font-mono">{command}</code>
+  <div class={cx(siteChrome.diLeft)}>
+    <p class={cx(siteChrome.diEyebrow)}>install</p>
+    <p class={cx(siteChrome.diBody)}>
+      <code class={cx(siteChrome.diCode)}>{command}</code>
       {#if registryUrl}
-        — or point <code class="text-accent font-mono">shadcn add</code> at the item URL:
-        <code class="text-accent font-mono break-all">{registryUrl}</code>
+        — or point <code class={cx(siteChrome.diCode)}>shadcn add</code> at the item URL:
+        <code class={cx(siteChrome.diCode, siteChrome.diCodeWrap)}>{registryUrl}</code>
       {/if}
     </p>
+    <div class={cx(siteChrome.diActions)}>
+      <span class={cx(siteChrome.diAuto)}>
+        <CopyIconButton {command} />
+      </span>
+      <CopyCommand {command} label="copy command" />
+    </div>
   </div>
-  <div class="flex shrink-0 items-center gap-2">
-    <span class="pointer-events-auto">
-      <CopyIconButton {command} />
-    </span>
-    <CopyCommand {command} label="copy command" />
+  <div class={cx(siteChrome.diCard)}>
+    <TerminalCard barTitle={`install — ${name}`} {command} {outputs} />
   </div>
 </section>

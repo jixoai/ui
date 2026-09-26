@@ -62,7 +62,7 @@ const settle = async () => {
 };
 
 const warnsFor = (warn: ReturnType<typeof vi.spyOn>, id: string) =>
-  warn.mock.calls.filter((c) => String(c[0]).includes(id)).length;
+  warn.mock.calls.filter((c: unknown[]) => String(c[0]).includes(id)).length;
 
 afterEach(() => {
   vi.restoreAllMocks();

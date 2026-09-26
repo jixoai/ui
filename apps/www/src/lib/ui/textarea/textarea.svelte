@@ -37,26 +37,92 @@
   (.jx-control-shell row+hover+focus+disabled+invalid+slotted,
   .jx-field/.jx-label/.jx-error) are CONSUMED from the jx-pure sheet's
   Part A (consume-only law; the shell only adds the column direction as
-  an inline utility). The chromeless lane mirrors from textarea.css
-  (.jx-textarea, @layer components :where() — the placeholder rides
-  Part A's --jx-placeholder mix); the hairline rows, count readout and
+  an inline utility). The chromeless lane rides the jx-pure sheet's
+  element law (:where(.jx-pure) textarea — the placeholder rides
+  Part A's --jx-placeholder mix; the class twin retired with
+  textarea.css); the hairline rows, count readout and
   outer slots stay inline (one-off wrappers).
+  tailwindless one-shot Wave 1b batch A (2026-09-17): the one-off
+  wrappers ride the family's stylex ATOMS (textarea.stylex.ts) joined
+  through cx() below; the shell adds its column direction as an atom.
 -->
 <script lang="ts">
   import type { HTMLTextareaAttributes } from 'svelte/elements';
-  import { cn } from '$lib/utils';
   import { getContext } from 'svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
   import type { Snippet } from 'svelte';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TextareaDefaults } from './textarea-defaults.svelte';
+  import { textareaStyles } from './textarea.stylex';
 
-  interface Props extends HTMLTextareaAttributes {
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  interface Props extends Omit<HTMLTextareaAttributes, 'color'> {
     /** field label; renders label[for] above the control.
         skipped when outerBlockStart takes the slot over */
     label?: string;
+    /** the chrome posture (frame | bare) — the destructure reads it at
+        :164 and stamps data-chrome; declared here so the contract
+        matches the call site (the input T104 twin) */
+    chrome?: ControlChrome;
     /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     /** error text → aria-invalid + aria-describedby + dashed border */
@@ -81,6 +147,13 @@
   let {
     label,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     id = autoId,
     error,
@@ -103,7 +176,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): explicit ?? ambient scope per slot, one line, no
   // legacy helper channels
-  const d = $derived(TextareaDefaults.resolve({ density }));
+  const d = $derived(
+    TextareaDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -135,21 +217,26 @@
   }
 </script>
 
-<div class="jx-field" data-density={d.density}>
+<div
+  bind:this={uniRoot}
+  class="jx-field"
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}>
   {#if outerBlockStart}
-    <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
+    <div data-jx-outer data-jx-outer-start class={cx(textareaStyles.outerStart)}>{@render outerBlockStart()}</div>
   {:else if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <!-- the shell owns the box law; the textarea inside is chromeless.
        Part A's shell law carries the box/hover/focus/disabled/invalid
        paint — the only component-owned geometry is the column direction -->
   <div
-    class={'jx-html-control-shell flex-col ' + className}
+    class={cx('jx-html-control-shell', textareaStyles.shellColumn, typeof className === 'string' ? className : '')}
     class:jx-slotted={slotted}
     class:jx-invalid={invalid}
     data-chrome={chromeProp ?? ambientChrome ?? 'frame'}
   >
     {#if innerBlockStart}
-      <div data-jx-inner data-jx-inner-start class="flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-b border-border">{@render innerBlockStart()}</div>
+      <div data-jx-inner data-jx-inner-start class={cx(textareaStyles.inner, textareaStyles.innerStart)}>{@render innerBlockStart()}</div>
     {/if}
     <textarea
       {id}
@@ -158,21 +245,20 @@
       value={controlled ? value : undefined}
       oninput={syncValue}
       data-jx-textarea
-      class="jx-textarea"
       aria-invalid={invalidAttr}
       aria-describedby={describedBy}
     ></textarea>
     {#if innerBlockEnd || count}
-      <div data-jx-inner data-jx-inner-end class="flex items-center gap-3 py-1.5 text-muted-foreground text-xs border-t border-border">
+      <div data-jx-inner data-jx-inner-end class={cx(textareaStyles.inner, textareaStyles.innerEnd)}>
         {#if innerBlockEnd}{@render innerBlockEnd()}{/if}
         {#if count}<span
           data-jx-count
-          class="ms-auto font-nav text-[11px] tracking-[0.08em]"
+          class={cx(textareaStyles.count)}
           aria-live={countNear ? 'polite' : 'off'}
           aria-atomic="true">{countLabel}</span>{/if}
       </div>
     {/if}
   </div>
   {#if invalid}<p id={errorId} class="jx-error"><span class="jx-error-mark" aria-hidden="true">!</span>{error}</p>{/if}
-    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class="text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
+    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class={cx(textareaStyles.outerEnd)}>{@render outerBlockEnd()}</div>{/if}
 </div>

@@ -1,48 +1,89 @@
 <!--
-  jixoai scroll-area (registry/files/ui/scroll-area/scroll-area.svelte).
+  jixoai scroll-area (registry/files/ui/scroll-area/scroll-area.svelte),
+  REWORKED 2026-09-15 (Owner ruling, visual-quality-iteration W4): the
+  component IS a native scroll container (div + overflow) — wheel,
+  touch momentum, keyboard, PageUp/Home, scroll-snap, overscroll
+  chaining stay platform behavior — and the scrollbar is ALWAYS
+  HAND-DRAWN. The standing dual-mode API (`scrollbar?: ScrollbarVariant`
+  with 'native' | 'overlay') RETIRED: no mode branch exists at all
+  (breaking, no compat). The platform path is now its own sibling item,
+  native-scroll-area; both share the scroll-area-kit lib kernel — this
+  component consumes the kit's hand-drawn interaction adapter (idle
+  fade, hover growth, drag pin, keyboard, the thumb's a11y contract)
+  over the shared core (verdict, geometry, scope math). Behavior lives
+  in the kit; paint lives here (scroll-area.css — the chrome on the
+  scrollbar-token law, currentColor family, themes/dark stages
+  restyle without JS). Chrome PARAMS (Owner r2, same day): the thumb
+  is SQUARE-CUT by default (radius 0 — the hard capsule retired; the
+  `radius` prop paints any px or the 'full' capsule via the region's
+  --jx-scroll-thumb-radius) and the chrome WIDTH rides tiers (`width`
+  prop: thin 8px / auto 12px / wide 16px lanes, stamped data-width;
+  `none` is native-only vocabulary — a hand-drawn scrollbar that
+  draws nothing is the platform tier). The track runs FLUSH to the
+  region edge and the hover/drag growth is EDGE-ANCHORED: the thumb's
+  edge-side flank pins while the cross size grows INTO the content.
 
-  2026-08-22 · Scroll-area family, request 1 (Owner): 参考 shadcnui 封装专
-  门的可滚动区域组件，但立场是 W3C-first nativeHTML —— 组件 IS 一个原生滚
-  动容器（div + overflow），平台的滚动行为（滚轮、触摸惯性、键盘、
-  PageUp/Home、scroll-snap、overscroll 链）原样保留，JS 只做两件事：overlay
-  变体读几何画拇指，和读位置喂 ToC。
+  The thumb contract (the kit's adapter mounts it): role="scrollbar",
+  aria-controls → the named viewport, aria-valuenow tracking position
+  (0..100), aria-orientation, focusable + keyboard-draggable (arrows
+  step, PageUp/PageDown page, Home/End jump). Track-click pages.
 
-  Variants (scrollbar prop):
-    native   默认。主题滚动条法则的组件化封装：全局 thin/currentColor/hover
-             链直接继承；垂直向滚动口声明 scrollbar-gutter: stable
-             both-edges，环内边距通过 --jx-scroll-pad 走补偿配方（pad prop
-             是唯一的旋钮）。水平向-only 的滚动口按法则保持 auto gutter。
-    overlay  虚拟滚动条：隐藏原生条，自绘方形拇指浮在内容上（经典滚动条系
-             统也能获得 overlay 效果，内容占满全宽、无 gutter 预留）。仅
-             (pointer: fine) 生效 —— 触屏设备自动退回纯原生（系统惯性滚动
-             本来就会画原生 overlay 条，触屏自绘拇指是反模式）。拇指配色吃
-             主题 token（--scrollbar-thumb/-hover/-active），拖拽用
-             setPointerCapture 写 scrollTop（carousel 鼠标平移的既有法则），
-             自动隐藏（空闲 ~700ms 淡出；prefers-reduced-motion 时常显）。
+  The four auto-hide pins — region focus-within, thumb focus, active
+  drag, hover — each suspend the ~700ms idle fade; while any pin
+  holds, the thumb stays in the accessibility tree with its role
+  intact ("AT-engaged" is not a detectable platform state and is
+  deliberately not a pin).
 
-  ToC 联动（request 3）：getViewport() 导出滚动口元素 —— Toc 的 scrollRoot、
-  toc-outline 的 root、toc-engine 的 extents 全部从这里接线；页面即
-  「ScrollArea + Toc(outline)」零样板组合。
+  Floors: content that fits draws NOTHING (the none verdict gates the
+  chrome); coarse pointers keep the platform's own momentum bars (the
+  drawn chrome is a fine-pointer surface — an environmental floor,
+  never an API mode); no-JS/prerendered output shows the platform bar
+  (hydration upgrades to the drawn chrome, the code-card posture);
+  prefers-reduced-motion keeps the chrome statically visible.
 
-  API contract（克制原则）: orientation / scrollbar / label / pad / class +
-  restProps 透传到滚动口 + children。实例导出（bind:this）:
-  getViewport() / scrollTo()。仅此而已。
+  ToC 联动 unchanged: getViewport() feeds Toc's scrollRoot,
+  toc-outline's root, toc-engine's extents — the zero-boilerplate pair.
 
-  tw4 (2026-08-24): the container, the scrollport's orientation overflow
-  laws and the overlay thumb's static paint/geometry ride token
-  utilities in the markup (orientation is a deterministic prop branch);
-  scroll-area.css keeps the D1-exempt residue — the native scrollbar
-  gutter compensation recipe, the overlay native-bar hiding (webkit
-  pseudos), the thumb liveness state machine, hover/active repaints,
-  focus-visible and the reduced-motion kill.
+  API contract（克制原则）: orientation / label / pad / radius /
+  width / class / style / onscroll + restProps 透传到滚动口 +
+  children. Instance exports (bind:this): getViewport() / scrollTo().
+  仅此而已。
 -->
+<script lang="ts" module>
+  /** per-instance viewport ids — aria-controls targets (the thumb's
+   * contract points here; module counter keeps SSR unique + stable) */
+  let nextViewportId = 0;
+</script>
+
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { createHandDrawnScrollbar, type HandDrawnHandle } from '$lib/scroll-area-kit/hand-drawn.svelte';
+  import type { OverflowVerdict } from '$lib/scroll-area-kit/core';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { scrollAreaStyles } from './scroll-area.stylex';
+  import { ScrollAreaDefaults } from './scroll-area-defaults.svelte';
   import './scroll-area.css';
 
   export type ScrollOrientation = 'vertical' | 'horizontal' | 'both';
-  export type ScrollbarVariant = 'native' | 'overlay';
+  /** the chrome width tiers (Owner r2): the drawn lane's size —
+   *  thin 8px / auto 12px / wide 16px. `none` is native-only
+   *  vocabulary (a hand-drawn scrollbar that draws nothing is the
+   *  platform tier, not this component's). */
+  export type ScrollWidthTier = 'auto' | 'thin' | 'wide';
   export type ViewportScrollEvent = HTMLElementEventMap['scroll'] & {
     currentTarget: EventTarget & HTMLDivElement;
   };
@@ -50,13 +91,42 @@
   interface Props {
     /** which axes scroll: overflow-y/x mapping (default vertical) */
     orientation?: ScrollOrientation;
-    /** scrollbar presentation (default native — the theme scrollbar law) */
-    scrollbar?: ScrollbarVariant;
     /** a11y name for the scrollable region */
     label?: string;
-    /** ring padding (CSS length) around the content, inline-axis — feeds
-     *  the scrollbar law's gutter compensation recipe. Default 0. */
+    /** ring padding (CSS length) around the content, inline-axis —
+     *  keeps content clear of the thumb lane. Default 0. */
     pad?: string;
+    /** thumb corner radius: a px number, or 'full' for the capsule.
+     *  Default undefined → 0 (square-cut) — the hard capsule retired
+     *  (Owner r2); stamped as --jx-scroll-thumb-radius on the region.
+     *  NOT the radius axis (W3-D2): this chrome param owns the name
+     *  ('full' is outside RadiusLane and the target is the THUMB,
+     *  never the region's concentric corner; §13 rules no rename —
+     *  the chip/badge shape precedent). */
+    radius?: number | 'full';
+    /** the chrome width tier sizing the drawn lane (thin 8 / auto 12
+     *  / wide 16); stamped data-width on the region. Default 'auto'. */
+    width?: ScrollWidthTier;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     style?: string;
     onscroll?: (event: ViewportScrollEvent) => void;
@@ -65,9 +135,17 @@
 
   let {
     orientation = 'vertical',
-    scrollbar = 'native',
     label = 'scrollable content',
     pad,
+    radius,
+    width = 'auto',
+    density,
+    size,
+    shape,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
     style,
     onscroll,
@@ -75,15 +153,65 @@
     ...restProps
   }: Props = $props();
 
+  // the family Defaults is the single read point (the A1 contract +
+  // W3-D2): the thumb-corner literal keeps its absentSlot semantics —
+  // absence IS the state, resolved undefined paints nothing and the
+  // sheet's 0px default applies (square-cut, the r2 default look).
+  // SEVEN universal lanes join (density · size · shape · color ·
+  // theme · elevation · motion); the radius AXIS is left out — the
+  // chrome param owns the name (see the defaults file's collision
+  // note); the axis surface rides the family's OWN region root, the
+  // engine (the kit's hand-drawn chrome) stays outside the supply set
+  const d = $derived(
+    ScrollAreaDefaults.resolve({ radius, density, size, shape, color, theme, elevation, motion }),
+  );
+  // SEVEN lanes stamp — plus the radius NUMBER lane by the chart §13
+  // analogy (the D1 precedent, census-recorded there): a px number is
+  // load-bearing thumb chrome AND the universal radius axis' number
+  // lane verbatim, so the region becomes the concentric ANCHOR for
+  // descendants; 'full' (outside RadiusLane) and the ambient stay out
+  const carriers = $derived(
+    stampCarriersForLanes({ ...d, radius: typeof radius === 'number' ? radius : undefined }),
+  );
+  provideUniversalLanes({ density, size, shape, color, theme, elevation, motion });
+
+  // the thumb radius as a CSS value — stamped on the REGION (the
+  // sheet's var consumer)
+  const thumbRadius = $derived(
+    d.radius === undefined ? undefined : d.radius === 'full' ? 'calc(infinity * 1px)' : `${d.radius}px`,
+  );
+
+  // the region-root style: the axis carriers + the thumb-corner
+  // literal, ONE joined stamp (consumer `style` rides the VIEWPORT
+  // below, its historical lane — untouched)
+  const rootStyle = $derived(
+    [
+      carriers,
+      thumbRadius === undefined ? undefined : `--jx-scroll-thumb-radius: ${thumbRadius}`,
+    ]
+      .filter(Boolean)
+      .join('; ') || undefined,
+  );
+
+  const viewportId = `jx-scroll-viewport-${++nextViewportId}`;
+
+  // the query() anchor rides the region root — declared AFTER the
+  // anchor state (the W3-C TDZ kernel note)
+  let regionEl = $state<HTMLDivElement | null>(null);
+  provideQueryAnchor(() => regionEl ?? null);
   let viewportEl = $state<HTMLDivElement | null>(null);
   let contentEl = $state<HTMLDivElement | null>(null);
+  let trackYEl = $state<HTMLDivElement | null>(null);
+  let trackXEl = $state<HTMLDivElement | null>(null);
   let thumbYEl = $state<HTMLDivElement | null>(null);
   let thumbXEl = $state<HTMLDivElement | null>(null);
 
-  /** overlay thumbs are live: fine pointers only (mobile keeps native) */
-  let overlayOn = $state(false);
-  /** thumbs visible: scrolling / hover / drag / reduced-motion keeps them */
-  let thumbLive = $state(false);
+  /** the drawn chrome mounts on fine pointers (hydration upgrade);
+   * coarse pointers keep the platform bar — no API mode, an
+   * environmental floor */
+  let chromeOn = $state(false);
+  let verdictY = $state<OverflowVerdict>('none');
+  let verdictX = $state<OverflowVerdict>('none');
 
   export function getViewport(): HTMLDivElement | null {
     return viewportEl;
@@ -94,177 +222,93 @@
     viewportEl?.scrollTo(options);
   }
 
-  // ---- overlay geometry + interaction --------------------------------
-  // read-only stance (the toc-engine / carousel law): scroll + ResizeObserver
-  // feed one rAF-throttled sync that writes thumb styles; drag writes
-  // scrollTop/scrollLeft back through pointer capture.
-  let raf = 0;
-  let hideTimer = 0;
-  let dragging = false;
-  let hovering = false;
-  const FINE = '(pointer: fine)';
-  const REDUCED = '(prefers-reduced-motion: reduce)';
-
-  const showThumbs = (): void => {
-    thumbLive = true;
-    if (hideTimer) clearTimeout(hideTimer);
-    // auto-hide after idle — never while hovered, dragged, or under
-    // reduced motion (static visibility there)
-    if (!hovering && !dragging && !matchMedia(REDUCED).matches) {
-      hideTimer = window.setTimeout(() => {
-        if (!hovering && !dragging) thumbLive = false;
-      }, 700);
-    }
-  };
-
-  const syncThumbs = (): void => {
-    raf = 0;
-    const vp = viewportEl;
-    if (!vp) return;
-    if (thumbYEl) {
-      const scrollable = vp.scrollHeight > vp.clientHeight + 1;
-      thumbYEl.style.visibility = scrollable ? 'visible' : 'hidden';
-      if (scrollable) {
-        thumbYEl.style.height = `${(vp.clientHeight / vp.scrollHeight) * 100}%`;
-        thumbYEl.style.top = `${(vp.scrollTop / vp.scrollHeight) * 100}%`;
-      }
-    }
-    if (thumbXEl) {
-      const scrollable = vp.scrollWidth > vp.clientWidth + 1;
-      thumbXEl.style.visibility = scrollable ? 'visible' : 'hidden';
-      if (scrollable) {
-        thumbXEl.style.width = `${(vp.clientWidth / vp.scrollWidth) * 100}%`;
-        thumbXEl.style.left = `${(vp.scrollLeft / vp.scrollWidth) * 100}%`;
-      }
-    }
-  };
-
-  const scheduleSync = (): void => {
-    if (!raf) raf = requestAnimationFrame(syncThumbs);
-  };
-
   const handleScroll = (event: ViewportScrollEvent): void => {
-    if (overlayOn) showThumbs();
-    scheduleSync();
     onscroll?.(event);
   };
 
-  /** pointer drag: thumb pixels → scroll units (the reciprocal of the
-   *  geometry sync; carousel's pointer-capture law) */
-  const thumbDrag = (axis: 'y' | 'x') => (event: PointerEvent & { currentTarget: EventTarget & HTMLDivElement }) => {
-    if (event.button !== 0 || !viewportEl) return;
-    const vp = viewportEl;
-    const vertical = axis === 'y';
-    const trackSize = vertical ? vp.clientHeight : vp.clientWidth;
-    const scrollSize = vertical ? vp.scrollHeight : vp.scrollWidth;
-    const scrollRange = scrollSize - trackSize;
-    if (scrollRange <= 0) return;
-
-    event.preventDefault();
-    const thumb = event.currentTarget;
-    thumb.setPointerCapture(event.pointerId);
-    dragging = true;
-    showThumbs();
-
-    const startPointer = vertical ? event.clientY : event.clientX;
-    const startScroll = vertical ? vp.scrollTop : vp.scrollLeft;
-    // thumb px on the track: track * (viewport/scroll) — the same ratio the
-    // geometry sync paints; drag factor = scrollRange / (track - thumb)
-    const thumbPx = (trackSize * trackSize) / scrollSize;
-    const factor = scrollRange / Math.max(1, trackSize - thumbPx);
-
-    const onMove = (ev: PointerEvent): void => {
-      const pointer = vertical ? ev.clientY : ev.clientX;
-      const next = startScroll + (pointer - startPointer) * factor;
-      if (vertical) vp.scrollTop = next;
-      else vp.scrollLeft = next;
-    };
-    const onUp = (ev: PointerEvent): void => {
-      dragging = false;
-      thumb.releasePointerCapture(ev.pointerId);
-      thumb.removeEventListener('pointermove', onMove);
-      thumb.removeEventListener('pointerup', onUp);
-      thumb.removeEventListener('pointercancel', onUp);
-      // keep visible through the hide grace, then fade
-      showThumbs();
-    };
-    thumb.addEventListener('pointermove', onMove);
-    thumb.addEventListener('pointerup', onUp);
-    thumb.addEventListener('pointercancel', onUp);
-  };
-
+  // the fine-pointer gate (the old overlay variant's environmental
+  // law, now the component's only chrome condition): pointer class
+  // changes remount the chrome (a laptop + touchscreen flips live)
   $effect(() => {
-    if (scrollbar !== 'overlay') {
-      overlayOn = false;
-      return;
-    }
-    const fine = matchMedia(FINE);
+    if (typeof matchMedia !== 'function') return;
+    const fine = matchMedia('(pointer: fine)');
     const apply = () => {
-      overlayOn = fine.matches;
-      scheduleSync();
-      if (fine.matches) showThumbs();
+      chromeOn = fine.matches;
     };
     apply();
     fine.addEventListener('change', apply);
+    return () => fine.removeEventListener('change', apply);
+  });
+
+  // the kit's hand-drawn adapter: geometry sync + idle fade + the four
+  // pins + drag/keyboard/track paging + the thumb's a11y contract.
+  // Runs only while the lanes are mounted (chromeOn) — the verdicts
+  // stamp through the component's own data channels
+  let handle: HandDrawnHandle | null = null;
+  $effect(() => {
+    if (!chromeOn || !regionEl || !viewportEl || !contentEl) return;
+    handle = createHandDrawnScrollbar({
+      region: regionEl,
+      viewport: viewportEl,
+      content: contentEl,
+      viewportId,
+      thumbs: { y: thumbYEl, x: thumbXEl },
+      tracks: { y: trackYEl, x: trackXEl },
+      onverdict: ({ y, x }) => {
+        verdictY = y;
+        verdictX = x;
+      },
+    });
     return () => {
-      fine.removeEventListener('change', apply);
-      if (hideTimer) clearTimeout(hideTimer);
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
+      handle?.destroy();
+      handle = null;
     };
   });
 
-  // geometry re-sync: viewport + content resize (fonts, images, rows)
-  $effect(() => {
-    if (!overlayOn || !viewportEl || !contentEl) return;
-    const ro = new ResizeObserver(scheduleSync);
-    ro.observe(viewportEl);
-    ro.observe(contentEl);
-    scheduleSync();
-    return () => ro.disconnect();
-  });
-
-  // orientation → the scrollport's overflow law (deterministic branch)
-  const orientationUtilities = {
-    vertical: 'overflow-x-hidden overflow-y-auto',
-    horizontal: 'overflow-x-auto overflow-y-hidden',
-    both: 'overflow-x-auto overflow-y-auto',
+  // orientation → the scrollport's overflow law (deterministic branch;
+  // atom members joined through cx — the W1b flip)
+  const ORIENTATION_ATOM = {
+    vertical: scrollAreaStyles.viewportVertical,
+    horizontal: scrollAreaStyles.viewportHorizontal,
+    both: scrollAreaStyles.viewportBoth,
   } as const;
 
-  // the virtual thumb: square (radius 0 law), logical-geometry per axis.
-  // TRANSIENT INK (the law's category exit): the hover-revealed
-  // scrollbar thumb is effect ink over the scrollport's content —
-  // annotated per the annotated-use contract
-  const thumbPaint =
-    'absolute z-[1] invisible opacity-0 pointer-events-none bg-[color:var(--scrollbar-thumb)] transition-opacity duration-[180ms] ease-out';
-  const thumbGeometry = {
-    y: 'y [inline-size:var(--jx-scroll-thumb-w,8px)] [inset-block:2px] [inset-inline-end:2px] [min-block-size:24px]',
-    x: 'x [block-size:var(--jx-scroll-thumb-w,8px)] [inset-block-end:2px] [inset-inline:2px] [min-inline-size:24px]',
-  } as const;
+  // the payload's own join (separator's serialize law — the chip
+  // precedent): objects in dev, joined strings in payloads, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions (hover liveness only —
-     the interactive surface is the focusable viewport below) -->
 <div
-  class="jx-scroll-area relative"
+  class={cx('jx-scroll-area', scrollAreaStyles.region)}
   data-orientation={orientation}
-  data-scrollbar={scrollbar}
-  data-overlay={overlayOn ? 'on' : undefined}
-  data-thumb-live={thumbLive ? 'on' : undefined}
-  onpointerenter={() => {
-    hovering = true;
-    if (overlayOn) showThumbs();
-  }}
-  onpointerleave={() => {
-    hovering = false;
-    if (overlayOn) showThumbs();
-  }}
+  data-width={width}
+  data-chrome={chromeOn ? 'on' : undefined}
+  data-verdict-y={verdictY}
+  data-verdict-x={verdictX}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+  bind:this={regionEl}
 >
   <!-- svelte-ignore a11y_no_noninteractive_tabindex (the WAI scrollable-
        region pattern: role=region + name + tabindex makes it a keyboard
        scroll surface — the platform's own arrows/PageUp/Home drive it) -->
   <div
-    class={cn('jx-scroll-viewport overscroll-contain', orientationUtilities[orientation], className)}
+    id={viewportId}
+    class={cn(cx('jx-scroll-viewport', scrollAreaStyles.viewport, ORIENTATION_ATOM[orientation]), className)}
     role="region"
     aria-label={label}
     tabindex="0"
@@ -273,19 +317,23 @@
     style={[pad ? `--jx-scroll-pad: ${pad}` : null, style].filter(Boolean).join('; ') || undefined}
     {...restProps}
   >
-    <div data-jx-scroll-content class="h-full" bind:this={contentEl}>
+    <div data-jx-scroll-content class={cx(scrollAreaStyles.content)} bind:this={contentEl}>
       {@render children()}
     </div>
   </div>
 
-  {#if overlayOn}
+  {#if chromeOn}
     {#if orientation !== 'horizontal'}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div class={cn('jx-scroll-thumb', thumbPaint, thumbGeometry.y)} bind:this={thumbYEl} aria-hidden="true" onpointerdown={thumbDrag('y')}></div>
+      <!-- the drawn lanes: bare nodes — the kit's adapter stamps the
+           thumb's a11y contract (role/aria/tabindex) and geometry -->
+      <div class="jx-scroll-track y" bind:this={trackYEl}>
+        <div class="jx-scroll-thumb y" bind:this={thumbYEl} hidden></div>
+      </div>
     {/if}
     {#if orientation !== 'vertical'}
-      <!-- svelte-ignore a11y_no_static_element_interactions -->
-      <div class={cn('jx-scroll-thumb', thumbPaint, thumbGeometry.x)} bind:this={thumbXEl} aria-hidden="true" onpointerdown={thumbDrag('x')}></div>
+      <div class="jx-scroll-track x" bind:this={trackXEl}>
+        <div class="jx-scroll-thumb x" bind:this={thumbXEl} hidden></div>
+      </div>
     {/if}
   {/if}
 </div>

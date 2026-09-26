@@ -1,0 +1,321 @@
+# Tasks — the explicit props (W0..W6)
+
+## W0 — change alignment (remix round 0)
+
+- [x] 0.1 change docs written (proposal/design/tasks/spec deltas) — THIS commit
+- [x] 0.2 Codex reviews the change docs (herdr, gpt-5.6-terra/xhigh) → blocking
+      findings folded back; ≥8/10 with no blockers before W1 starts —
+      TEN rounds, 4.5→6.3→7.0→7.3→5.8→7.6→7.7→7.3→7.7→**8.4 GO**
+      (codex-explicit-final; the non-blocking notes folded: the @md/
+      empty-name rejection rule made explicit; the M3 token tables and
+      shape-alias values named as W1 deliverables)
+- [x] 0.3 research/tailwind-container-syntax.md — the named-container key
+      grammar resolved against Tailwind v4's source (design §9):
+      `@sm/card` (size-first, own --container-* scale)
+- [x] 0.4 research/migration-census.md — the 115-family batch list + the 16
+      native families + the 4 rename families (§13) pinned as the W3 map
+- [x] 0.5 Codex r1 blockers folded (NO-GO 4.5/10 → the type table §0, the
+      eight-axis supply set §11, the query interface freeze §9.1, the meta
+      pipeline freeze §17, alias-as-var-indirection §12, zero-class degrade
+      §14, the slot-honesty + context/cascade laws §1, the var() fallback
+      law §3) — re-review before W1
+- [x] 0.6 Codex r2 blockers folded (6.3/10: units unified to §0.1 across
+      docs+specs, the density coefficient carrier frozen with precedence +
+      legacy mapping, query keys branded + overload + diagnostics, §17's
+      concrete interfaces + inventory/ledger/fixtures, the registry
+      artifact chain, the ratchet receipt bound to exact constants, the
+      degrade consumption chain, census receipts reproducible)
+- [x] 0.7 the canonical `universal-props.inventory.json` (115 families,
+      unique+sorted, exemptions EMPTY, the four site-only families marked)
+      + the fixtures doc (card's REAL extracted meta + the exempt shape)
+      committed at research/ — per §18: the `--check` LOADING is task 4.6
+
+## W1 — token core (theme + slot helpers) — LANDED 5d9810e5 + b4e88525
+
+- [x] 1.1 surface ladder: light AND dark + the -1dp deepest rung
+      (`--surface-concave`), auto-dark projection regenerated, mirrors
+      byte-identical
+- [x] 1.2 elevation level table: 7 levels × (shadow recipe, surface
+      role) per profile, NO tint, M3-Expressive recipes
+- [x] 1.3 the carriers' CSS side: the §11 root invariants on :root
+      (+ --jx-color-effective across all three theme scopes)
+- [x] 1.4 the eight slot helpers, real implementations (explicit ??
+      ambient ?? own; jx.<axis> context keys; stampCarriers inline-style
+      emitter; query resolves to base until W2)
+- [x] 1.5 density rename: small/medium/large aliases over the legacy
+      rungs (zero migration; the five spellings untouched)
+- [x] 1.6 fixed micro-typography exemption receipted (caption 9px /
+      micro 10px absolute under a 1.5rem size override — probe 29/29)
+- [x] 1.7 context-coverage synced (axisContextKeys + amendment note, v2)
+- [x] 1.8 the coefficient carrier: base/effective split (the text
+      channel's inline-composition exception + toggle/slider
+      effective-operand exception reconciled into design §4), the four
+      derived channels per the frozen table, 2xs floor override kept;
+      probe `scripts/probe-density-coefficient.mjs` 29/29
+- [x] 1.9 the shared artifact EARLY: universal-props.schema.ts (§17 +
+      §9.1 verbatim) + inventory promoted + generator merge + all 32
+      metas regenerated (annotation zones byte-identical) + ir.ts's
+      minimal `universal?` field
+
+- [x] 1.1 surface ladder: `surface`, `surface-container-lowest…highest` (+ the
+      `-1dp` deepest rung) for light AND dark in `registry/files/theme/jixoai.css`
+      (mirror pair byte-identical) — 减色墨律 compliant
+- [x] 1.2 elevation level table: `level-1…level5` ↔ dp (−1/0/1/3/6/8/12) ↔
+      (shadow recipe, surface role) per theme profile; NO surface tint
+- [x] 1.3 the eight axes' expression carriers: `--jx-size(-effective)`,
+      `--jx-radius(-effective)`, `--jx-inset-effective`, `--jx-shape(-effective)`,
+      `--jx-color`, `--jx-elevation`, `--jx-motion` (+theme class bridge reuse)
+- [x] 1.4 `defaults.svelte.ts`: generalized `sizeSlot`/`radiusSlot`/`colorSlot`/
+      `shapeSlot`/`elevationSlot`/`motionSlot` beside `densitySlot` (same
+      explicit ?? ambient ?? own law); registry mirror pair updated
+- [x] 1.5 density rename lands: docs vocabulary small|medium|large, legacy
+      rungs re-exposed as aliases; `density.svelte.ts` mirror pair updated
+- [x] 1.6 fixed micro-typography exemption verified (caption 9px / micro 10px
+      stay absolute under em-scaling — probe receipt)
+- [x] 1.7 `context-coverage.config.json` synced to the eight-axis supply set
+      (design §11 — the coverage gate knows every context key)
+- [x] 1.8 the density coefficient carrier lands: every kernel channel
+      splits base/effective per the frozen §4 pattern (the four guardrail
+      channels ride their max() forms); precedence + legacy-alias mapping
+      (small→sm · medium→default · large→lg) + computed-style probe
+      receipts incl. the --jx-hit guardrail case
+- [x] 1.9 the shared artifact lands EARLY (moved from W4 — the W3 batch
+      gate and PropsTable both consume it, it cannot arrive after):
+      `universal-props.schema.ts` (the §17 interfaces + UNIVERSAL_AXES) +
+      the generator's merge step + the inventory promoted beside the schema
+
+## W2 — plugin layer — LANDED (this commit)
+
+- [x] 2.1 alias schema: per-axis `[$alias]: value` tables; `auto`/number
+      reserved-literal enforcement (schema rejects remaps) —
+      packages/vite-plugin/src/universal-props/alias-tables.ts (the
+      plugin-layer tables + validateAliasTables(), the generation-time
+      gate; the scale tables carry §15.5's remap-rights thresholds,
+      Tailwind v4's own container values grep-verified)
+- [x] 2.2 @supports verdicts: corner-shape global stamp + the §2 degrade table
+      (incl. the squircle ×2 law + its degrade reversal) — generated
+      universal-props.css (both mirrors, byte-identical): the §14
+      ladder stamps VARS never classes (shape aliases scoop|bevel|
+      notch→square, squircle→round; per-shape radius factors round 1/1,
+      squircle 2/1; §3's inert-radius law as factor 0)
+- [x] 2.3 `query()`: compile-time desugar (media/container custom-prop
+      re-assignment) + the JS shim shell (progressive module); named-container
+      key grammar per research/0.3; container-supply build warning —
+      the desugarer (src/universal-props/desugar.ts + vite-plugin.ts,
+      default-OFF `universalProps` umbrella feature) emits
+      ladder-ordered blocks on `[data-jx-q-<axis>]` with all four
+      diagnostics (`@md/` = §9's FATAL parse error, the other three
+      warnings); the shim at the FROZEN `./universal-props/query-shim`
+      export (auditTree + mountQueryShim + the manifest schema); the
+      RUNTIME ENGINE in the kernel lib
+      (universal-props-query.svelte.ts, both mirrors) — §9 semantics:
+      registered-scale order (authoring-order-independent), matchMedia
+      media lane reactive through $state ticks, ResizeObserver'd
+      container lane via the nearest qualifying ancestor,
+      missing-container = never-matches, SSR = base; slots resolve
+      through it (defaults.svelte.ts unwrapQueryLane)
+- [x] 2.4 motion map: intensity → surface-motion/press-effect/SMIL presets —
+      MOTION_ALIASES (the css vars' coefficients) +
+      MOTION_KERNEL_PRESETS (every normal row the kernels' own
+      defaults VERBATIM: 460/600/2500/4000) + the number lane's knot
+      law (motionPresetForCoefficient, anchor-pinned by the battery)
+- [x] 2.5 plugin test battery (the vite-plugin suite pattern, 500+ precedent)
+      — test/universal-props/ ×6 files, 79 tests (alias reserved-
+      literals + twin-table lockstep pins, generator golden + the
+      committed-mirror drift pin, desugar snapshots × the §9.1 matrix
+      + all four diagnostics, shim manifest schema + restamp
+      idempotence, vite build e2e, the §9.1 tsc fixture pair
+      positive/negative pinned byte-identical to design.md's frozen
+      block) + the kernel engine spec in apps/www (16 tests); full
+      suite 605/605; engine SMOKE green in real Chrome
+      (scripts/probe-universal-props-smoke.mjs — a stamped query flips
+      the var at media AND container boundaries through the live
+      reactive chain)
+- [x] 2.6 the registered exceptions absorbed: press-effect-runtime's inline
+      CSS.supports + avatar's component degrade route through the ladder
+      vars (or exemption-ledgered with reasons) — design §14 —
+      press-effect-runtime's bevelInk reads the LADDER VAR
+      (--jx-shape-bevel from the cascade, CSS.supports only as the
+      sheet-absent fallback); avatar.css composes the alias ladder +
+      the bevel radius factor (degrade → §2's square ruling); squircle
+      EXEMPTION-LEDGERED in the sheet with reasons (50% is a px-law
+      boundary: the ×2 law cannot ride a percentage radius)
+- [x] 2.7 alias-as-var-indirection receipt: a consumer override of
+      `--jx-<axis>-<alias>` remaps a named step with zero resolver code
+      — the generated sheet IS the receipt vehicle: named steps stamp
+      var(--jx-<axis>-<alias>) everywhere (defaults.svelte.ts +
+      desugarer twins), zero inline values at use sites; the full
+      consumer-side override proof (computed px flip) is W5 task 5.4's
+      clean-install gate per the registry spec's three-way receipt
+
+## W3 — component migration (batched, the 0.4 map; EVERY batch closes on
+its own gate — slot-surface lint green for its families + doc pages
+rendering the shared section from the 1.9 artifact + svelte-check clean —
+before the next batch opens; a batch is the rollback unit)
+
+- [x] 3.1 batch A — the 16 native families: collision rule (destructured prop
+      wins, rest forwards), axis surface, supply set — LANDED 6bb88ae0 (+
+      the pulled-forward 4.3 PropsTable shared section + the catalog-repair
+      first slice of the 4.5 route; probe-w3a 14/14; deviations
+      census-recorded: native-select 7 lanes — the native `size` passthrough
+      owns the name; ghostty-term 7 lanes — `theme` is the shell-theme
+      object, no unruled rename; orchestrator re-run: mirror/tailwindless
+      2·7·7/meta/context/deps + `Type Errors: no errors`; suite failures
+      100-baseline → 87, all pre-existing categories)
+- [x] 3.2 batch B — primitives (press-button, icon-button, chip, badge,
+      card…): full eight axes + concentric radius receipts — LANDED 4a96996f
+      (18 families; probe-w3b 18/18 incl. squircle ×2 + IACVT fallback;
+      chip/badge 7 lanes — the unruled family-local `shape` collision,
+      census-recorded + W6-dossier-flagged; suite delta EXACTLY zero vs the
+      87/2782 standing baseline; orchestrator gates re-run green)
+- [x] 3.3 batch C — overlays/surfaces (dialog, sheet, popover, tooltip,
+      system-dialog…): elevation × surface ladder pairing receipts —
+      LANDED 09d64fb0 (18 families incl. the sheet §13 rename
+      size→width; probe-w3c 17/17 light+dark+portal; terminal-card/header
+      7 lanes — the shell-theme-literal collision, census-recorded +
+      W6-dossier-flagged; glass = no-component-root material lib,
+      exemption-ledger candidate for 4.6; own-elevation mapping table in
+      the census; orchestrator gates re-run green)
+- [x] 3.4 batch D — composite/long-tail (the rest of the 115), batched ~15/round —
+      D1 3e8c38ec (+ sweep 2b28536c) · D2 45aeb6ff · D3 c6959e78 ·
+      D4 a946d336 (siteOnly four + docs infra + the completeness sweep
+      that found the 13 holes) · D5 f3a82dce (the hole round) —
+      **115/115 ZERO HOLES: W3 CLOSES** (105 surface · 4 siteOnly ·
+      4 context-only · 1 engine-wrapper · 1 rootless-lib; the batch
+      receipts + every deviation live in the census LANDED paragraphs)
+- [x] 3.5 the 4 rename families (§13: sheet/prose size→width/measure …) —
+      CLOSED: sheet LANDED with batch C (09d64fb0), prose LANDED with D2
+      (45aeb6ff); avatar/icon/spin were 3.6 (done)
+- [x] 3.6 avatar/icon/spin mapping verified (aliases + number lanes) —
+      LANDED with batch B (4a96996f): avatar adopts size via the
+      sm/md/lg→small/medium/large alias table; icon/spin take the number
+      lane verbatim (named/auto unadopted per the no-ambient-size law)
+
+## W4 — canvas + docs (the §17 contract; the shared artifact itself landed
+## EARLY as 1.9 — W4 wires the consumers)
+
+- [x] 4.1 ir.ts gains the prescribed additions (ControlHint's three new
+      members + ComponentMeta.universal) + schema2form/playground render
+      the per-axis controls (axis-enum / axis-number / query-editor) —
+      LANDED with W4 (64a4f3e9; §17 verbatim; lower.ts's one-grammar-node
+      axis lowering; parseQuerySource in the query engine)
+- [x] 4.2 schema2form/playground: per-axis control hints (enum select,
+      number spinner, query editor); componentCanvas controls adapted —
+      LANDED with W4 (the six-lane canvas surface + the press-button
+      flagship dogfooding seven axes; probe 22/22 incl. the live 40rem
+      query boundary + aria-invalid on bad source)
+- [x] 4.3 PropsTable: the universal section rendered from the ONE shared
+      source (no per-page duplication) — LANDED with batch A (6bb88ae0),
+      receipted by W4's manifest gate: 110/110 pages · 110 markers GREEN
+- [x] 4.4 110 doc pages: universal props section + per-page example updates
+      (batched with W3 batches where possible) — LANDED batch-wise +
+      W4's `verify:docs-universal` receipt; docs-structure pins moved in
+      lockstep (layout 20→24, the prototype-kit carve) — 2 standing
+      failures cleared
+- [x] 4.5 registry.json `docs` strings + the universal-props concept page
+      (route frozen: docs/universal-props.html) + llms mirror regenerated
+      — LANDED with W4 (the full concept page: grammar 总纲, three lanes,
+      query() sm-vs-@sm, carrier law, §14 degrade table, three LIVE
+      dogfoods; llms 129→131 files; payload rebuild cleared the parity
+      debt — standing set 86F→82F)
+- [x] 4.6 the `--check` gate LOADS and asserts both research fixtures
+      (card's real extract + the exempt shape) per design §17.4 — LANDED
+      with W4 (inside component-metadata-gen --check: the 740-byte
+      boundary, the member-for-member merge assertion, the exempt ledger
+      + glass's no-component-root entry)
+
+## W5 — gates
+
+- [x] 5.1 `verify:explicit-props` (design §16.1: axis surface + carrier law +
+      broadcast duty + native forwarding ban) — LANDED with W5-r1
+      (628ca6e7): six machine clauses — the single-class census vocabulary,
+      the TS-AST axis surface with the 14 pinned departures (deviation
+      allowlist; unlisted-or-stale = red), the provider-snapshot kernel law
+      (E4, 28 bridge files), the §1 native forwarding ban (E5, svelte-AST),
+      the carrier composition (E6, delegated zero-class census to
+      tailwindless per §16.1(b)) — GREEN on 115, negative-tested
+- [x] 5.2 existing gates adapted; tailwindless ratchet receipt asserts the
+      exact constants (files=2 · identities=7 · occurrences=7 ·
+      zones{routes:1, site-libs:0, ui:6} · forms=42) — LANDED with W5-r1:
+      the RECEIPT constant deep-equal-bound in --check (drift EITHER
+      direction red) + the --receipt mode; the two Codex regression tests
+      landed beside it ({lg,sm}≡{sm,lg} byte-equivalence incl. through the
+      vite transform; the @md/ FATAL text pinned verbatim) — battery 610/610
+- [x] 5.3 full verify-all green in the MAIN dir (Owner ruling: no worktree)
+      — LANDED with W5-r2 (e5e694e9): the 82-failure standing set
+      reconciled to ZERO by evidence-first triage (ENV-WASM 39: the
+      three-tier wasm resolver extracted to a helper; ENV-TW 11: the
+      ffc9c4e1-dropped tailwind vite resolved from the design-tool tree;
+      STYLEX ~26: dev-name pins re-keyed through shared source per the
+      compile-lane contract; print-gate/tree-view/list-item/docs-ambient/
+      blueprints each root-caused with citations; two real docs bugs fixed
+      en route — avatar's stale size row, heading's unwrapped demo h3s);
+      both ledgers closed (shadcn-add 24/24 — the closure list re-pinned to
+      the one-seam density import; budgets 4/4 — B-source 41682→46304 dated
+      receipt for the W1 CSS core); full suite 190/3170 **0 failed**
+      (orchestrator re-run confirms); verify:all GREEN 35/35 with the env
+      vars set. Dossier notes: the stale 2026-09-04 archive tasks.md (the
+      sweep kept the pre-rename copy — the test carries the cited overlay;
+      archives stay frozen), 84 pre-existing stale blueprint SVGs (not
+      this change's scope)
+- [x] 5.4 shadcn-add clean-consumer receipt: named steps resolve + an alias
+      override remaps, pure CSS, no resolver runtime (design §12) — LANDED
+      with W5-r1: a REAL `npx shadcn add @jixoai/heading` three-way receipt
+      (13/13 GREEN; the consumer's `:root{--jx-size-large:24px}` flip with
+      byte-identical js digests) — and it caught the REAL registry defect
+      (the query engine missing from every payload; fixed per the
+      import-honesty law + the registry spec folded)
+
+## W6 — acceptance (multi-round, release-ready NOT released)
+
+- [x] 6.1 vision walkthrough rounds (light+dark, pinned phases, the splash-fan
+      capture discipline) — dogfood pages: tokens, canvas, dialog/sheet,
+      press-button, a native family, density demo — LANDED: six rounds
+      (r1 capture 65 → four-judge r2 → r3 19-fix → r4 re-judge → r5 harness
+      close-out → r6 final confirm); ALL GROUPS READY; the loop's laws and
+      receipts live in the census's W6 sections
+- [x] 6.2 Codex review loop over the working tree (score + blockers;
+      iterate) — LANDED: the final review (exec track, 810K-token
+      source-level audit) ruled **NO-GO 7.6/10** with one real P1 (the
+      W5 docs-ambient blanket replaceAll = input weakening) + a P2
+      wording drift → both fixed in 4f1cd484 (the auditable RENAME
+      LEDGER: premise-assert + single mapping + downstream
+      PARSE-VIOLATION hard-fail; the census reword) → the focused
+      re-review verified closure line-by-line, ran the thought
+      experiment (a regenerated archive THROWS, never silently passes),
+      re-ran the gates itself → **GO, 9.4/10** — released to the
+      Owner's visual acceptance. (Channel record: the herdr TUI track's
+      tool channel died mid-wave — the node outage the Owner's fix
+      recovered; the review completed via the codex exec track.)
+- [x] 6.3 Owner walkthrough dossier (dev server, the eight axes live) —
+      LANDED bb4bebf7 + the final-status update: research/owner-dossier.md
+- [x] 6.4 RELEASE-READY state: all green, nothing pushed past the branch;
+      publish waits for the Owner's word — LANDED: verify-all GREEN
+      (re-run post-fixes, incl. the registry/test twin sync), suite
+      3170/3170, every gate green, Codex final GO 9.4/10. **Nothing
+      pushed — the publish word is the Owner's.**
+
+## W7 — the Owner's eight-axis playground bar (post-acceptance directive)
+
+- [x] 7.1 the bar itself — LANDED e6f477dc: the canvas-playground chrome
+      cluster speaks the axis grammar — theme (the existing cycle
+      icon-button, driving the page-owned stage bindable) + seven
+      icon-button+DropdownMenu controls (size/shape/radius/density/
+      color/elevation/motion; auto + named steps, check state, auto
+      default stamps nothing), one scrollable ButtonGroup run, the head
+      shrunk 46→28px, whisper-seam idiom preserved; the legacy
+      density select retired; SUPPLY-NOT-FORCE (the Owner's ruling):
+      the lanes resolve `consumer-explicit ?? bar-lane` (getter-fielded)
+      and stamp on the workbench root — DomCanvas consumes at its
+      freedom. Probe 9/9; all gates green; suite 3170/3170.
+- [x] 7.2 the bar's vision round — LANDED ed7d6fa9: r1 judged NEEDS-FIX
+      (4 MAJOR) → all fixed with pixel receipts — bar/panel ONE truth
+      (the panel's selects reflect the resolved lanes; either path
+      sets, both display), set-state brand ink + wash (was a ≤3/255
+      no-op), the dark scroll chip theme-swapped at the family
+      (scroll-run.css, mirrored), the stray full-height accent bars
+      root-caused as the scrollport-clipped :focus-visible outline →
+      the run's members carry the INSET ring, plus the ramp() scroll
+      fade and scroll-into-view on set. r3 re-judged READY, zero
+      regressions, 8/8 glyphs legible, elevation/motion coverage
+      closed. Gates green, suite 3171/3171.

@@ -42,6 +42,26 @@
 //      (openspec spin-ora-svg-lane design §5).
 //   4. Named-fix error surface (check-tw4-prereq style): resolution
 //      failures tell the consumer exactly how to unblock.
+//   5. `stylex` (stylex-kernel phase 0, 2026-09-15) is the fourth
+//      feature: the StyleX engine wiring, build-side ONLY (F11 —
+//      registry consumers never owe @stylexjs/*). Default-OFF like
+//      icons/spinners. Like icons it rides a BRIDGE (memoized dynamic
+//      import of ./stylex/vite-plugin.js) so the engine graph (babel
+//      ×20 + lightningcss + browserslist) stays out of this entry's
+//      static module graph; the bridge owns registration shape (the
+//      official example-sveltekit `enforce: undefined` plugin-order
+//      trick) and the delegate owns the kernel-scope gate, the F9
+//      canonical layer law, and the css-entry trap warning (see
+//      src/stylex/vite-plugin.ts header). The dist graph-purity gate
+//      now pins TWO dynamic imports: the icons bridge and this one.
+//   6. `universalProps` (explicit-props W2, 2026-09-21) is the fifth
+//      feature: the query() desugar pass (the four key diagnostics +
+//      ladder-ordered custom-property blocks from literal query()
+//      calls). Default-OFF; small and pure, wired DIRECTLY like
+//      spinners (the purity gate's dynamic-import count is
+//      untouched). The alias tables + css generator ship from the
+//      ./universal-props sub-entry; the browser shim from
+//      ./universal-props/query-shim (§9.1's frozen export).
 //
 // Owner original demand: 2026-08-28 "ghostty-term / packages/vite-plugin".
 // merge-alignment A1 (2026-08-29): icons fold in as a feature option.
@@ -52,6 +72,12 @@ import type { IconProviderFactory, SafetyCheckerConfig } from './icons/types.js'
 import type { IconLibraryOptions } from './icons/library/types.js';
 import type { IconPluginHooks, IconPluginOptions } from './icons/vite-plugin.js';
 import type { SpinnersPluginOptions } from './spinners/types.js';
+import type {
+  StylexEngineContext,
+  StylexEngineHooks,
+  StylexHookContext,
+  StylexTransformContext,
+} from './stylex/vite-plugin.js';
 import { createSpinnersPlugin } from './spinners/vite-plugin.js';
 import {
   chunkIndexOf,
@@ -72,6 +98,24 @@ import { resolveGhosttyWasm, type ResolvedGhosttyWasm, type ResolveGhosttyWasmOp
 // parse rides a memoized dynamic import (the bridge law) — this entry
 // chunk stays svelte-free either way (F1/F7).
 export { canvasPlugin } from './canvas/vite-plugin.js';
+
+// the F9 canonical layer law — ONE source (layer-law.ts), part of the
+// public surface so the payload tooling (phase 0 P0.4) and the
+// verification probes read the same bytes the plugin bakes (Gate-2
+// P1-1: the statement is dynamic over the css's highest priority tier,
+// and the tiers nest under `components` — see layer-law.ts)
+export {
+  CANONICAL_STATEMENT_PATTERN,
+  canonicalLayerStatement,
+  countCanonicalStatements,
+  maxStylexPriority,
+  parseCanonicalStatement,
+  stripCanonicalStatements,
+  STYLEX_LAYERS_AFTER,
+  STYLEX_LAYERS_BEFORE,
+  STYLEX_LAYER_PREFIX,
+} from './stylex/layer-law.js';
+export type { CanonicalStatement } from './stylex/layer-law.js';
 
 export { readPin, resolveGhosttyWasm };
 export type { ResolvedGhosttyWasm, ResolveGhosttyWasmOptions };
@@ -241,6 +285,17 @@ export interface IconsPluginOptions {
  *  pure, wired directly (no bridge) */
 export type { SpinnersPluginOptions } from './spinners/types.js';
 
+// the universal-props feature (explicit-props W2, design §12/§9): the
+// query() desugar pass — small and pure (scanner + diagnostics +
+// virtual-css emission), wired DIRECTLY like spinners (no bridge; the
+// dist graph-purity gate's dynamic-import count is untouched). The
+// css GENERATOR and the alias tables ship from the
+// ./universal-props sub-entry; the browser shim from
+// ./universal-props/query-shim (§9.1's frozen export — never this
+// entry, so the node graph never rides into a page)
+import { createUniversalPropsPlugin } from './universal-props/vite-plugin.js';
+export type { UniversalPropsPluginOptions } from './universal-props/vite-plugin.js';
+
 /**
  * the design §1 matrix startup error — byte-identical to the icons
  * sub-entry's MISSING_ICONS_FACES_ERROR (a test pins the two together;
@@ -350,6 +405,139 @@ function iconsBridgePlugin(options: IconsPluginOptions): Plugin {
 }
 
 /**
+ * `stylex` feature options (stylex-kernel phase 0, P0.2). The structural
+ * twin of StylexEngineOptions in ./stylex/vite-plugin.ts — the bridge
+ * law keeps the two modules unlinked at type time (the icons
+ * IconPluginOptions precedent), so this interface must evolve in step.
+ */
+export interface StylexPluginOptions {
+  /**
+   * the kernel trees: directories whose modules MAY enter the stylex
+   * transform (absolute or vite-root-relative) — in this repo,
+   * `registry/files` and the `apps/www/src/lib` mirror. Everything
+   * else (docs routes, consumer trees, node_modules) is NEVER
+   * transformed. Non-empty and REQUIRED: the scope is the law.
+   */
+  readonly include: readonly string[];
+}
+
+/** the stylex engine module failed to load — the named fix (check-tw4-prereq style) */
+const STYLEX_ENGINE_UNAVAILABLE_ERROR =
+  '[jixoai-stylex] the stylex engine failed to load — @stylexjs/unplugin ' +
+  'must be installed at EXACTLY 0.19.0 (the research F-series pin; bumps ' +
+  're-run the dossier D1 fixtures). It ships as a devDependency of ' +
+  '@jixoai/ui-vite-plugin: run npm install in the plugin package (or the ' +
+  'workspace that consumes it) — and note the engine is BUILD-side only ' +
+  '(F11): registry consumers never owe any @stylexjs/* package.';
+
+/**
+ * The stylex bridge (the icons-bridge law): a thin proxy keeping
+ * jixoai() SYNC while the engine graph stays out of this entry's
+ * static module graph. The delegate is created in the `config` hook
+ * (vite's env.command and config.root are known there) and memoized;
+ * every hook awaits it, resurfacing any failure as the named error.
+ *
+ * Registration shape (load-bearing): NO `enforce` on this plugin —
+ * the official example-sveltekit trick. The unplugin hardcodes
+ * `enforce: 'pre'`, which would babel-parse RAW .svelte source before
+ * the svelte plugin compiles it; as a normal-order plugin sorted
+ * after sveltekit() in the consumer's plugins array, the transform
+ * sees COMPILED svelte js (spike-report §3).
+ *
+ * NOT delegated on purpose: the unplugin's own `config` hook
+ * (optimizeDeps excludes for npm packages shipping stylex source —
+ * our kernel stylex is in-tree and compiles away before resolution,
+ * so the hook has nothing to do for us).
+ */
+function stylexBridgePlugin(options: StylexPluginOptions): Plugin {
+  let delegate: StylexEngineHooks | undefined;
+  // created ONCE — the first ctx wins (vite always calls `config`
+  // first, so env.command + config.root are known before anything
+  // else needs the engine)
+  let pending: Promise<StylexEngineHooks> | undefined;
+
+  const ensureDelegate = (ctx: StylexEngineContext): Promise<StylexEngineHooks> => {
+    if (delegate !== undefined) return Promise.resolve(delegate);
+    pending ??= import('./stylex/vite-plugin.js')
+      .then((mod) => {
+        delegate = mod.createStylexEngine(options, ctx);
+        return delegate;
+      })
+      .catch((err: Error) => {
+        throw new Error(`${STYLEX_ENGINE_UNAVAILABLE_ERROR} — ${err.message}`);
+      });
+    return pending;
+  };
+
+  return {
+    name: 'jixoai-stylex',
+    // `enforce` deliberately absent — see the doc comment above
+
+    async config(config, env) {
+      await ensureDelegate({ root: config.root ?? process.cwd(), command: env.command });
+    },
+
+    async configResolved(config) {
+      await (await ensureDelegate({
+        root: config.root,
+        command: 'build',
+      })).configResolved(config);
+    },
+
+    async buildStart() {
+      // buildStart may run outside a config cycle (vitest in-process
+      // builds) — the fallback ctx keeps the bridge total
+      await (
+        await ensureDelegate({ root: process.cwd(), command: 'build' })
+      ).buildStart();
+    },
+
+    shouldTransformCachedModule(arg) {
+      // sync hook — best-effort against the warmed delegate (watch
+      // mode always ran config/buildStart first)
+      return delegate?.shouldTransformCachedModule(arg) ?? false;
+    },
+
+    async resolveId(id) {
+      return (await ensureDelegate({ root: process.cwd(), command: 'build' })).resolveId(id);
+    },
+
+    async load(id) {
+      return (await ensureDelegate({ root: process.cwd(), command: 'build' })).load(id);
+    },
+
+    async transform(code, id) {
+      const hooks = await ensureDelegate({ root: process.cwd(), command: 'build' });
+      return hooks.transform.call(this as unknown as StylexTransformContext, code, id);
+    },
+
+    transformIndexHtml() {
+      // sync hook — dev only; configureServer (async, awaited by vite
+      // before the first html transform) has warmed the delegate
+      return delegate?.transformIndexHtml() ?? null;
+    },
+
+    async handleHotUpdate(ctx) {
+      (await ensureDelegate({ root: process.cwd(), command: 'build' })).handleHotUpdate(ctx);
+    },
+
+    async configureServer(server) {
+      (await ensureDelegate({ root: process.cwd(), command: 'serve' })).configureServer(server);
+    },
+
+    async generateBundle(options, bundle) {
+      const hooks = await ensureDelegate({ root: process.cwd(), command: 'build' });
+      hooks.generateBundle.call(this as unknown as StylexHookContext, options, bundle);
+    },
+
+    async writeBundle(options, bundle) {
+      const hooks = await ensureDelegate({ root: process.cwd(), command: 'build' });
+      await hooks.writeBundle.call(this as unknown as StylexHookContext, options, bundle);
+    },
+  };
+}
+
+/**
  * `jixoai()` — THE umbrella entry. One call wires every jixoai build-time
  * feature; each feature is an option on this object (default-on where it
  * has no cost for projects that don't touch it — opting out is explicit;
@@ -392,6 +580,27 @@ export interface JixoaiOptions {
    * is read; the committed artifact stays plugin-free.
    */
   spinners?: SpinnersPluginOptions | false;
+  /**
+   * The stylex engine feature (stylex-kernel phase 0, P0.2): the
+   * kernel-scoped StyleX transform + the F9 canonical layer law baked
+   * into every emitted css (see StylexPluginOptions). Build-side ONLY
+   * (F11): registry consumers never owe @stylexjs/*. Default:
+   * `false` — no plugin is registered and the engine graph is never
+   * loaded unless the kernel trees are explicitly named.
+   */
+  stylex?: StylexPluginOptions | false;
+  /**
+   * The universal-props query() desugar pass (explicit-props W2,
+   * design §9/§12): a PRE-transform over Svelte sources raising the
+   * four key diagnostics (unknown-scale / duplicate-key /
+   * missing-container-ancestor as warnings; the `@md/` empty
+   * container name as §9's parse ERROR) and compiling statically
+   * provable literal query({...}) calls into ladder-ordered
+   * custom-property blocks on a virtual css module. Default:
+   * `false` — nothing is scanned until the W3 family wiring adopts
+   * the instance attribute.
+   */
+  universalProps?: UniversalPropsPluginOptions | false;
 }
 
 export function jixoai(options: JixoaiOptions = {}): Plugin[] {
@@ -413,6 +622,24 @@ export function jixoai(options: JixoaiOptions = {}): Plugin[] {
   // bridge; the dist graph-purity gate stays one-dynamic-import)
   if (options.spinners !== false && options.spinners !== undefined) {
     plugins.push(createSpinnersPlugin(options.spinners));
+  }
+  // the engine feature (phase 0 P0.2): the SECOND bridge — the babel
+  // graph must never enter this entry's static graph. An empty
+  // `include` is the named startup error (the scope is the law)
+  if (options.stylex !== false && options.stylex !== undefined) {
+    if (options.stylex.include.length === 0) {
+      throw new Error(
+        '[jixoai-stylex] the stylex option requires a non-empty include — ' +
+          'name the kernel trees (transform scope = the kernel ONLY, docs ' +
+          'routes never enter the transform)',
+      );
+    }
+    plugins.push(stylexBridgePlugin(options.stylex));
+  }
+  // the universal-props query() desugar pass (explicit-props W2): a
+  // small, pure face — wired DIRECTLY like spinners (no bridge)
+  if (options.universalProps !== false && options.universalProps !== undefined) {
+    plugins.push(createUniversalPropsPlugin(options.universalProps));
   }
   return plugins;
 }

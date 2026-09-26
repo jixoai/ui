@@ -22,9 +22,36 @@
  * registry:ui item (installs with the family, byte mirrored, zero
  * kernel imports).
  */
-import { defineComponentDefaults } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  absentSlot,
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+} from '$lib/defaults.svelte';
+import type { GhosttyTermTheme } from './ghostty-term';
+
+/**
+ * theme (vocabulary v2, 2026-09-19): the shell-color escape hatch —
+ * a STRUCTURED object (background/foreground/selectionBackground…),
+ * and ABSENCE IS the meaningful state: no theme = the jixoai token
+ * sheet owns every shell color (the component's own law — ANSI/256/
+ * truecolor CONTENT colors are never themed through this prop,
+ * D5.1). The absent overload is the exact contract shape.
+ */
+export const ghosttyTermThemeSlot = absentSlot<GhosttyTermTheme>();
 
 export const GhosttyTermDefaults = defineComponentDefaults({
-  density: densitySlot('default'),
+  density: densityAxisSlot('default'),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
+  theme: ghosttyTermThemeSlot,
 });

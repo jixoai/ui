@@ -1,0 +1,255 @@
+@layer theme, base, components, utilities;
+
+/* jixoai range — native rebase (2026-09-01). The native face below is
+ * GENERATED from packages/css-laws/src/laws/range.ts — the SAME law
+ * that paints the bare element under jx-pure (Part B face) and the
+ * .jx-html-range utility, re-anchored on the component's own hook
+ * [data-jx-range]: the 4th mounting surface (E-1, 2026-09-02). A
+ * registry component cannot assume the consumer mounted .jx-pure, but
+ * the visual law is ONE. The mount rides @layer components (it beats
+ * nothing unfairly — consumer utilities still win) and keeps the law's
+ * own :not(.no-jx-pure) escape hatch. NEVER hand-edit between the
+ * markers — `npx tsx src/build.ts --check` (packages/css-laws) gates
+ * freshness exactly like the theme-sheet projections.
+ * The .jx-field / .jx-label / .jx-error scaffolding is consumed from
+ * the jx-pure sheet (Part A). */
+
+@layer components {
+  :where(.jx-slider-value) {
+    font-size: var(--jx-text);
+    line-height: var(--jx-line);
+  }
+
+  /* tick ruler: the thumb's TRAVEL box made visible. The native thumb
+     center runs inset half a thumb from each end, so the ruler carries
+     the same inline inset — the thumb IS the input's height (100cqh of
+     its own container = the icon token), and the ruler lives in the
+     same density scope, so half the icon token is the exact inset
+     (owner ruling, 2026-09-02). The ruler is also a live surface:
+     pointerdown snaps to the nearest mark, the wheel steps one detent
+     at a time (range.svelte, 2026-09-02 ruling). The MARKS are drawn
+     by RangeTick strips (the ruler componentization, 2026-09-02): one
+     absolutely-positioned layer per scale, its repeating gradient
+     period = the snap step × the scale, its length graded by the
+     parent's value-ranking — the ruler metaphor, minor ticks short,
+     major ticks long. */
+  :where(.jx-slider-ticks) {
+    position: relative;
+    height: 0.25rem;
+    margin-block-start: 0.125rem;
+    margin-inline: calc(var(--jx-icon, 1.5rem) / 2);
+    cursor: pointer;
+  }
+  :where(.jx-slider-ticks)::after {
+    content: '';
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+  }
+
+  /* one RangeTick strip: a layer of marks at scale × step periods */
+  :where(.jx-range-tick) {
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: var(--jx-tick-len, 100%);
+    background: repeating-linear-gradient(
+      to right,
+      var(--border) 0 1px,
+      transparent 1px var(--jx-tick-step)
+    );
+  }
+  :where(.jx-range-tick):dir(rtl) {
+    background: repeating-linear-gradient(
+      to left,
+      var(--border) 0 1px,
+      transparent 1px var(--jx-tick-step)
+    );
+  }
+
+  /* vertical face (orientation round, 2026-09-02): input + ruler share
+     one row (data-jx-range-body renders as plain block horizontally);
+     the ruler becomes a vertical strip on the inline end, inset on the
+     BLOCK axis — half a thumb top and bottom, so the marks run exactly
+     over the thumb's vertical travel (min at the physical bottom, the
+     law pins it). The ::after end tick moves to the block-end (the min
+     mark at the bottom); the strips' gradient runs to bottom, so marks
+     paint from the TOP (= max) downward — min is the pinned end. */
+  .jx-field[data-orient='vertical'] [data-jx-range-body] {
+    display: flex;
+    align-items: stretch;
+    gap: 0.375rem;
+  }
+  .jx-field[data-orient='vertical'] :where(.jx-slider-ticks) {
+    width: 0.75rem;
+    height: auto;
+    align-self: stretch;
+    margin-block: calc(var(--jx-icon, 1.5rem) / 2);
+    margin-inline: 0;
+  }
+  .jx-field[data-orient='vertical'] :where(.jx-slider-ticks)::after {
+    inset-inline-end: auto;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 1px;
+  }
+  .jx-field[data-orient='vertical'] :where(.jx-range-tick) {
+    inset-inline: auto;
+    inset-block: 0;
+    top: auto;
+    inset-inline-start: 0;
+    width: var(--jx-tick-len, 100%);
+    height: auto;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--border) 0 1px,
+      transparent 1px var(--jx-tick-step)
+    );
+  }
+}
+
+/* ---- the native face — GENERATED from laws/range.ts (E-1) ------------- */
+/* @jixoai/css-laws:begin:range-mount — GENERATED, do not edit (source: packages/css-laws/src/laws) */
+@layer components {
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *) {
+  --jx-range-thumb: 100cqh;
+  --jx-range-track: calc(100cqh / 2.5);
+  --jx-range-ring: calc(100cqh / 8);
+  --jx-slider-fill-color: var(--primary);
+  --jx-range-length: calc(var(--jx-unit, 0.25rem) * 40);
+  appearance: none;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  display: block;
+  width: 100%;
+  height: var(--jx-icon, 1.5rem);
+  margin: 0;
+  border: 0;
+  border-radius: calc(infinity * 1px);
+  background: transparent;
+  container-type: size;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-runnable-track {
+  height: var(--jx-range-track);
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  width: var(--jx-range-thumb);
+  height: var(--jx-range-thumb);
+  margin-top: calc((var(--jx-range-track) - var(--jx-range-thumb)) / 2);
+  border-radius: 50%;
+  border: var(--jx-range-ring) solid var(--primary);
+  background: var(--background);
+  box-shadow: calc(-100cqw - var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *):dir(rtl)::-webkit-slider-thumb {
+  box-shadow: calc(100cqw + var(--jx-range-thumb) / 2) 0 0 100cqw var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"] {
+  --jx-range-thumb: 100cqw;
+  --jx-range-track: calc(100cqw / 2.5);
+  --jx-range-ring: calc(100cqw / 8);
+  writing-mode: vertical-lr;
+  direction: rtl;
+  width: var(--jx-icon, 1.5rem);
+  height: var(--jx-range-length);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]::-webkit-slider-runnable-track {
+  width: var(--jx-range-track);
+  height: auto;
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]::-webkit-slider-thumb {
+  margin-top: 0;
+  margin-left: calc((var(--jx-range-track) - var(--jx-range-thumb)) / 2);
+  box-shadow: 0 calc(100cqh + var(--jx-range-thumb) / 2) 0 100cqh var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]:dir(rtl)::-webkit-slider-thumb {
+  box-shadow: 0 calc(100cqh + var(--jx-range-thumb) / 2) 0 100cqh var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]::-moz-range-track {
+  width: var(--jx-range-track);
+  height: auto;
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)[orient="vertical"]::-moz-range-progress {
+  width: var(--jx-range-track);
+  height: auto;
+  border-radius: calc(infinity * 1px);
+  background: var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-moz-range-track {
+  height: var(--jx-range-track);
+  border-radius: calc(infinity * 1px);
+  background: var(--muted);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-moz-range-progress {
+  height: var(--jx-range-track);
+  border-radius: calc(infinity * 1px);
+  background: var(--jx-slider-fill-color);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *)::-moz-range-thumb {
+  box-sizing: border-box;
+  corner-shape: var(--corner-shape, bevel);
+  width: var(--jx-range-thumb);
+  height: var(--jx-range-thumb);
+  border-radius: 50%;
+  border: var(--jx-range-ring) solid var(--primary);
+  background: var(--background);
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *):focus-visible {
+  outline: 1px solid var(--ring);
+  outline-offset: 2px;
+}
+
+[data-jx-range]:not(.no-jx-pure, .no-jx-pure *):disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+}
+/* @jixoai/css-laws:end:range-mount */
+
+/* invalid dashes the thumb's ring (the family's error law — the old
+   custom build's dashed-border thumb, carried to the native face).
+   Hand residue: the .jx-invalid class is the component's own state,
+   not the law's — it wins because these rules are UNLAYERED while the
+   mount slot rides @layer components: an unlayered rule beats any
+   layered rule regardless of source order (CR-1 P3-3, 2026-09-02 —
+   the previous "source order" attribution would mislead a reorder) */
+[data-jx-range].jx-invalid::-webkit-slider-thumb {
+  border-style: dashed;
+  border-color: var(--foreground);
+}
+[data-jx-range].jx-invalid::-moz-range-thumb {
+  border-style: dashed;
+  border-color: var(--foreground);
+}

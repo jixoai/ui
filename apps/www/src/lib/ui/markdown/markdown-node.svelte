@@ -100,10 +100,12 @@
 
   // The override lookup is ONE documented cast at the trust boundary:
   // MarkdownComponents keys each type to Component<{ node: NodeOf<K> }>,
-  // but at lookup time the node is the already-parsed ParsedNode — the
-  // map is app-authored, so the app owns both sides of the contract.
+  // but at lookup time the node is the ALREADY-PARSED input — the union
+  // the renderer itself accepts (MarkdownNodeInput, widened past
+  // ParsedNode for the accordion_group synthetic — task 132) — the map
+  // is app-authored, so the app owns both sides of the contract.
   const overrides = $derived(
-    components as unknown as Record<string, Component<{ node: ParsedNode }> | undefined> | undefined,
+    components as unknown as Record<string, Component<{ node: MarkdownNodeInput }> | undefined> | undefined,
   );
   const Override = $derived(overrides?.[node.type]);
 
@@ -113,30 +115,34 @@
   }
 
   /** Scalar-only text extraction (labels, unknown-node fallback) — never renders structure. */
+  function isNodeSequence(candidate: ParsedNode | readonly ParsedNode[] | undefined): candidate is readonly ParsedNode[] {
+    return Array.isArray(candidate);
+  }
+
   function extractText(nodes: ParsedNode | readonly ParsedNode[] | undefined): string {
     if (nodes === undefined) return '';
-    if (Array.isArray(nodes)) return nodes.map(extractText).join('');
-    switch (nodes.type) {
-      case 'text':
-      case 'html_block':
-      case 'html_inline':
-      case 'math_inline':
-      case 'math_block':
-        return nodes.content;
-      case 'inline_code':
-      case 'code_block':
-        return nodes.code;
-      case 'emoji':
-        return nodes.markup || nodes.raw;
-      case 'image':
-        return nodes.alt;
-      default: {
-        let text = '';
-        if (nodes.code !== undefined) text += nodes.code;
-        if ('children' in nodes && Array.isArray(nodes.children)) text += extractText(nodes.children);
-        return text;
-      }
+    // Array.isArray cannot narrow a `readonly ParsedNode[]` member (the
+    // predicate drops it from the union where the bare call cannot)
+    if (isNodeSequence(nodes)) return nodes.map(extractText).join('');
+    // the field reads ride the SAME Extract guards the renderer
+    // branches use — CustomComponentNode/UnknownNode drop out of each
+    // arm, so content/code/markup/alt typecheck
+    if (isNodeType(nodes, 'text') || isNodeType(nodes, 'html_block') || isNodeType(nodes, 'html_inline') || isNodeType(nodes, 'math_inline') || isNodeType(nodes, 'math_block')) {
+      return nodes.content;
     }
+    if (isNodeType(nodes, 'inline_code') || isNodeType(nodes, 'code_block')) {
+      return nodes.code;
+    }
+    if (isNodeType(nodes, 'emoji')) {
+      return nodes.markup || nodes.raw;
+    }
+    if (isNodeType(nodes, 'image')) {
+      return nodes.alt;
+    }
+    let text = '';
+    if ('code' in nodes && nodes.code !== undefined) text += nodes.code;
+    if ('children' in nodes && Array.isArray(nodes.children)) text += extractText(nodes.children);
+    return text;
   }
 
   /** Column alignment from the delimiter row — the only cell style we mint. */
@@ -183,6 +189,25 @@
 
 {#if Override}
   <Override {node} />
+{:else if isAccordionGroup(node)}
+  <!-- the merged consecutive-details run (design §8.3): ONE accordion
+       group — the frame and seams the pile of bare <details> lacks.
+       The root escapes the face so its own summary/details rules
+       never fight the accordion's W3C-first paint; `<details open>`
+       carries through to the item. HEAD POSITION (task 132): the
+       guard narrows MarkdownNodeInput's AccordionGroupNode member
+       OUT of the union — it is not a ParsedNode (no `raw`), so every
+       later isNodeType call needs it gone to typecheck -->
+  <Accordion class="no-jx-pure">
+    {#each node.items as item, i (i)}
+      <AccordionItem open={item.open}>
+        {#snippet summary()}
+          {#each item.summary as child, j (j)}<MarkdownNode node={child} {components} />{/each}
+        {/snippet}
+        {#each item.children as child, j (j)}<MarkdownNode node={child} {components} />{/each}
+      </AccordionItem>
+    {/each}
+  </Accordion>
 {:else if isNodeType(node, 'code_block')}
   <!-- the neutral carrier div owns the RHYTHM (boxed chrome's own m-0
        utility would kill a root-level margin; the wrapper carries none,
@@ -358,22 +383,6 @@
   <Checkbox bare checked={node.checked} disabled />
 {:else if isNodeType(node, 'label_open') || isNodeType(node, 'label_close')}
   <!-- plugin wrapper tokens render nothing -->
-{:else if isAccordionGroup(node)}
-  <!-- the merged consecutive-details run (design §8.3): ONE accordion
-       group — the frame and seams the pile of bare <details> lacks.
-       The root escapes the face so its own summary/details rules
-       never fight the accordion's W3C-first paint; `<details open>`
-       carries through to the item -->
-  <Accordion class="no-jx-pure">
-    {#each node.items as item, i (i)}
-      <AccordionItem open={item.open}>
-        {#snippet summary()}
-          {#each item.summary as child, j (j)}<MarkdownNode node={child} {components} />{/each}
-        {/snippet}
-        {#each item.children as child, j (j)}<MarkdownNode node={child} {components} />{/each}
-      </AccordionItem>
-    {/each}
-  </Accordion>
 {:else if isNodeType(node, 'html_block')}
   <!-- the html equivalence law at BLOCK position (design §8.2): owned
        tags route to their markdown equivalents; everything else keeps
@@ -405,9 +414,9 @@
        does not inherit markdown-it's validateLink); unknown tags stay
        escaped text -->
   {@const htmlTag = (node.tag ?? '').toLowerCase()}
-  {@const htmlMark = HTML_INLINE_TAG_TO_MARK[htmlTag]}
+  {@const htmlMark = HTML_INLINE_TAG_TO_MARK[htmlTag as keyof typeof HTML_INLINE_TAG_TO_MARK]}
   {#if htmlMark !== undefined}
-    {@const MarkComponent = HTML_MARK_COMPONENTS[htmlMark]}
+    {@const MarkComponent = HTML_MARK_COMPONENTS[htmlMark as keyof typeof HTML_MARK_COMPONENTS]}
     <MarkComponent>
       {#each node.children as child, i (i)}<MarkdownNode node={child} {components} />{/each}
     </MarkComponent>

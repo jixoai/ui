@@ -36,6 +36,22 @@ import StatisticCountdownHost from './fixtures/statistic-countdown-host.svelte';
 import TableRecipesHost from './fixtures/table-recipes-host.svelte';
 import TourNonmodalHost from './fixtures/tour-nonmodal-host.svelte';
 import TransferOnewayHost from './fixtures/transfer-oneway-host.svelte';
+import { tourStyles } from '../src/lib/ui/tour/tour.stylex';
+
+// tailwindless Wave 1 (2026-09-17): the tour hole's utilities ride
+// stylex atoms now — asserted through the same cx join the component
+// rides (the progressive-blur.spec precedent)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const specDir = resolve(fileURLToPath(import.meta.url), '..');
 const tablePage = readFileSync(
@@ -379,9 +395,10 @@ describe('tour recipes: non-modal + custom indicators', () => {
     expect(document.documentElement.style.overflow).toBe('');
     expect(document.body.className).not.toContain('overflow');
     expect(document.documentElement.className).not.toContain('overflow');
-    // the tint hints but never intercepts pointers
+    // the tint hints but never intercepts pointers (the hole atom's
+    // pointerEvents: none)
     const hole = rendered.container.querySelector('.jx-tour-hole')!;
-    expect(hole.classList.contains('pointer-events-none')).toBe(true);
+    expect(hole.className).toContain(cx(tourStyles.hole));
   });
 
   it('card(api) renders custom step indicators tracking the live index', async () => {

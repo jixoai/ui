@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -53,6 +54,28 @@ ${close}
     { name: 'registry/files/ui/pattern-login/pattern-login-otp.svelte', content: patternLoginOtpSource },
     { name: 'src/lib/pattern-login-usage.svelte', content: usage, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PatternLogin size={18} density="small">…</PatternLogin>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pattern-login-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -63,7 +86,7 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell, rt.flex, rt.col, rt.gap32)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -72,7 +95,7 @@ ${close}
       title="pattern-login — ssh user@host, the card"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">input + innerInlineStart slots</span>
         <span class="pill">input-otp 2FA</span>
         <span class="pill">press-button submit</span>
@@ -94,11 +117,11 @@ ${close}
       {#snippet playground()}
         <PlayFields>
           <PlayHelp>
-            type into the <code class="text-accent">user</code> lane — the header echo recomposes
+            type into the <code class={cx(rt.inkAccent)}>user</code> lane — the header echo recomposes
             <code>ssh …@deploy.jixoai.dev</code> live. Press the eye in the passphrase shell: only
             the input's type flips, focus and value stay put (there is no pattern-local toggle —
-            the reveal is the Input's contract). <code class="text-accent">connect</code> submits
-            the form; <code class="text-accent">copy</code> in the footer puts the bootstrap
+            the reveal is the Input's contract). <code class={cx(rt.inkAccent)}>connect</code> submits
+            the form; <code class={cx(rt.inkAccent)}>copy</code> in the footer puts the bootstrap
             command on the clipboard and flips to the copied surface for 1.4s.
           </PlayHelp>
         </PlayFields>
@@ -163,6 +186,21 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: a composition product — the size axis scales the card root, the Input/PressButton lanes ride the ambient chain (吃也供)."
+    >
+      <ComponentCanvas title="PatternLogin / PatternLoginOtp · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PatternLogin size={16} density="small" /></div>
+<div class={cx(rt.panel)}><PatternLoginOtp hint="one-time, scaled" size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -171,7 +209,7 @@ ${close}
       title="API"
       summary="PatternLogin props — plus PatternLoginOtp (the named export) below."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'host', type: 'string', default: "'jixoai.dev'", description: 'The host the card addresses (echo line + host lane value).' },
           { name: 'user', type: 'string', default: "''", description: 'The user lane; bindable — the echo line mirrors it live.' },

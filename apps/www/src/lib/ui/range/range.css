@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai range — native rebase (2026-09-01). The native face below is
  * GENERATED from packages/css-laws/src/laws/range.ts — the SAME law

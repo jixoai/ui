@@ -8,6 +8,7 @@ const toc: TocSection[] = [
   { id: 'async-paths', label: 'Two paths, one box' },
   { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
 ];
 

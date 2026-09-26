@@ -148,9 +148,11 @@
      *  mints these from any CSS color against the context base), or
      *  null for TRANSPARENT — the true border-area cutout where the
      *  engine supports it, the white/black + darken/lighten blend
-     *  emulation where it does not. Default: undefined = the
-     *  context's theme token var(--background) — light/dark follows
-     *  the Context live (「默认不透明」) */
+     *  emulation where it does not. Default: undefined = the host
+     *  context's EFFECTIVE CANVAS (W1: the nearest opaque ancestor
+     *  background, scope-resolved light/dark when nothing opaque
+     *  sits behind) — the face follows the HOST's theme scope, live
+     *  on class/data-theme flips (「默认不透明」) */
     fill?: number | null;
   }
   export interface ShimmerEffect {
@@ -222,8 +224,8 @@ export interface PulseOptions {
     ringW?: number | string;
     /** the FACE — the same channel as shimmer's fill: an opaque
      *  0xRRGGBB number (solidFill() mints these), null for the true
-     *  cutout / blend emulation, undefined (default) for Canvas (the
-     *  color-scheme system color, theme-live) */
+     *  cutout / blend emulation, undefined (default) for the host
+     *  context's effective canvas (W1's scope law, theme-live) */
     fill?: number | null;
   }
   export interface RainbowEffect {
@@ -291,8 +293,24 @@ export interface PulseOptions {
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import Icon from '$lib/ui/icon';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    elevationPairOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { PressButtonDefaults } from './press-button-defaults.svelte';
+  import { pressButtonStyles } from './press-button.stylex';
   import './press-button.css';
 
   /* the REST LANE (floating-flesh-sweep, 2026-09-09 — the props
@@ -319,12 +337,35 @@ export interface PulseOptions {
    * lane never leaks button-only attributes onto the <a> */
   interface Props extends Omit<
     HTMLAttributes<HTMLElement>,
-    'onclick' | 'class' | 'aria-disabled' | 'aria-label' | 'type'
+    'onclick' | 'class' | 'color' | 'aria-disabled' | 'aria-label' | 'type'
   > {
-    /** DENSITY override: explicit ?? ambient ?? no-opinion — resolved
-     *  through PressButtonDefaults (the family contract); undefined
-     *  stamps nothing and the ambient css scope channel flows */
-    density?: Density;
+    /** inline style passthrough — composed AFTER the family's carrier
+     *  stamp (the #4 seam law: never clobbered, never dropped) */
+    style?: string | null;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; `auto` (the default)
+     *  is the CONCENTRIC consumption — press-button.css composes
+     *  §3's max(0px, radius-effective − inset-effective) × the §14
+     *  per-shape factor (an explicit lane supplies instead) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the ladder rung; semantic hue is injected through the grammar
      *  tokens (--jx-fill/--jx-fill-ink, --jx-tonal, --jx-outline) at
      *  the call site, never a variant. Ambient-manageable: an absent
@@ -362,9 +403,11 @@ export interface PulseOptions {
      *  button's) */
     popovertarget?: string;
     ariaLabel?: string;
-    /** square pose: a size-10.5 (42px) frame with no padding — the
-     *  icon/toolbar idiom, level with the text button's own band;
-     *  press law and every variant ride unchanged */
+    /** square pose: a size-10.5 frame with no padding — the
+     *  icon/toolbar idiom, level with the text button's own band; the
+     *  rendered square rides the density hit channel (40.0px measured at
+     *  default — not a literal), press law and every variant ride
+     *  unchanged */
     square?: boolean;
     /** THE PHYSICS AXIS (Owner 2026-09-03), orthogonal to the paint
      *  ladder: raised=true (default) keeps the convex law byte-identical;
@@ -388,6 +431,13 @@ export interface PulseOptions {
 
   let {
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     variant = undefined,
     href,
     external = undefined,
@@ -401,6 +451,7 @@ export interface PulseOptions {
     'aria-disabled': ariaDisabledAttr = undefined,
     square = false,
     raised = undefined,
+    style: callerStyle,
     class: className = '',
     children,
     ...rest
@@ -414,8 +465,54 @@ export interface PulseOptions {
   // the same frame), the density slot wraps resolveDensity's full
   // semantics (plugin chain included, no-opinion stays undefined).
   // explicit prop → ambient → the frozen own 'outline': the
-  // stamped-attribute law's consumer face (explicit ALWAYS wins)
-  const d = $derived(PressButtonDefaults.resolve({ variant, density }));
+  // stamped-attribute law's consumer face (explicit ALWAYS wins).
+  // W3-B: the eight universal axes ride the same resolve record.
+  const d = $derived(
+    PressButtonDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+
+  // ---- the §3/§14 radius consumption (the concentric wiring) --------
+  // The consumed radius lands as ONE custom-property expression per
+  // render (§10 carrier law — a CSS expression on the root, zero
+  // class identities). An EXPLICIT lane supplies
+  // --jx-radius-effective (stampCarriers) and resets its own inset to
+  // 0 (the §3 supply: a button's descendants sit flush to its own
+  // radius, and the own paint must not subtract an ANCESTOR's inset);
+  // `auto` (the default) consumes the concentric broadcast — §3's
+  // frozen calc against the nearest supplying ancestor, falling to
+  // the root sheet's 0px invariants when none does (the var()
+  // fallbacks are load-bearing, IACVT). The §2 ×2 law rides the §14
+  // factor var in BOTH branches: the squircle doubling follows the
+  // RESOLVED shape (inherited shape × concentric radius is a legal
+  // composition) and square zeroes the lane outright.
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1)); --jx-inset-effective: 0px'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // ---- the §7 elevation consumption (W6-r3) ------------------------
+  // A resolved elevation lane composes the §7 pair through the level
+  // table's var indirection (the batch-C pattern, the same helper
+  // dialog/sheet/toast ride): --jx-elevation-shadow re-points the
+  // press law's REST pose (press-button.css — the toast.css
+  // precedent) and --jx-elevation-surface rides for descendants.
+  // '' when the lane carries no opinion — the historic ground keeps
+  // painting, zero delta (no own default: the census's batch-C table
+  // records NONE for press-button; the axis is ambient-first).
+  const elevationConsumed = $derived(elevationPairOf(d.elevation));
+  // the #4 composition: carriers + the radius/elevation stamps + the
+  // caller's own style LAST (the consumer escape hatch always wins)
+  const rootStyle = $derived(
+    [carriers, radiusConsumed, elevationConsumed, callerStyle].filter(Boolean).join('; ') || undefined,
+  );
+
   // the flat-pose block reads the resolved variant through this alias —
   // same value as d.variant, named beside resolvedRaised for the
   // pose-vs-texture pairing
@@ -463,39 +560,49 @@ export interface PulseOptions {
     if (flashTimer !== undefined) clearTimeout(flashTimer);
   });
 
-  // the square swaps ONLY geometry: one band (42px, the text button's
+  // the square swaps ONLY geometry: one band (the density hit channel's
+  // square — 40.0px measured at default, level with the text button's
   // own height) with the glyph centered — paint, physics and effects
   // are identical to the text pose. The forced-colors trio pins the
   // focus law for every rung: 2px Highlight, offset 2, never removed
   // (design §6 — the site ring var does not survive forced colors).
-  const focusForced = 'forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight]';
-  const base = $derived(
-    square
-      ? `inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium ${focusForced}`
-      : `inline-flex min-h-[var(--jx-hit)] items-center gap-[var(--jx-gap)] px-[var(--jx-inset)] text-[length:var(--jx-text)] leading-[var(--jx-line)] font-medium ${focusForced}`,
-  );
+  // The payload's own join (separator's serialize law) builds the
+  // atom groups below — the ladder's map stays collision-free by
+  // construction (variant grammar, openspec/changes/variant-grammar).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  const BASE_POSE = {
+    square: cx(pressButtonStyles.base, pressButtonStyles.baseSquare),
+    text: cx(pressButtonStyles.base, pressButtonStyles.baseText),
+  } as const;
   // the bordered, shadow-bearing body (link opts out entirely). The
   // frame contributes width + physics ONLY: every rung below supplies
-  // all three paint channels itself, so no two same-property utilities
-  // ever meet in one class list — named border-color utilities sort
-  // AFTER arbitrary ones in the sheet, and same-family utility order
-  // is not consumer-guaranteed; the map stays collision-free by
-  // construction (variant grammar, openspec/changes/variant-grammar).
-  // Each rung also carries its design §6 forced-colors degradation:
-  // fill → ButtonFace/ButtonText, tonal/outline → Canvas/CanvasText
-  // (the color-mix tints do NOT drop on their own — probed), ghost →
-  // transparent rest, ButtonFace/ButtonText hover.
-  const frame = 'jx-press border';
-  const variants = {
-    fill: `${frame} [background:var(--jx-fill)] [border-color:var(--jx-fill)] text-[color:var(--jx-fill-ink)] forced-colors:bg-[ButtonFace] forced-colors:border-[ButtonText] forced-colors:text-[ButtonText]`,
-    tonal: `${frame} bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]`,
-    outline: `${frame} bg-transparent [border-color:var(--jx-outline)] text-foreground hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]`,
-    // ghost keeps the box geometry (width-only border + transparent
-    // color) but presses without a shadow — r2 blocker fix: the width
-    // class is load-bearing, border-transparent alone computes to 0px
-    ghost: `jx-press border border-transparent bg-transparent hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)] hover:text-[color:var(--jx-tonal)] [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none] forced-colors:bg-transparent forced-colors:border-transparent forced-colors:text-[CanvasText] forced-colors:hover:bg-[ButtonFace] forced-colors:hover:text-[ButtonText]`,
-    // link: the interaction exception — no frame, no press shadow, primary text
-    link: 'text-primary underline-offset-4 hover:underline forced-colors:text-[LinkText]',
+  // all three paint channels itself, so no two same-property atoms
+  // ever meet in one join. Each rung carries its design §6
+  // forced-colors degradation: fill → ButtonFace/ButtonText,
+  // tonal/outline → Canvas/CanvasText (the color-mix tints do NOT
+  // drop on their own — probed), ghost → transparent rest,
+  // ButtonFace/ButtonText hover. Ghost's none-trio pose customs and
+  // the flat pose live in press-button.css keyed on the data hooks
+  // (custom-property seams never ride atoms).
+  const VARIANT_CLASS = {
+    fill: cx(pressButtonStyles.frame, pressButtonStyles.fill),
+    tonal: cx(pressButtonStyles.frame, pressButtonStyles.tonal),
+    outline: cx(pressButtonStyles.frame, pressButtonStyles.outlineVar),
+    ghost: cx(pressButtonStyles.frame, pressButtonStyles.ghost),
+    link: cx(pressButtonStyles.link),
   } as const;
 
   // ---- the activation lock (the anchor contract's enforcement seam) --
@@ -521,23 +628,21 @@ export interface PulseOptions {
     }
   }
 
-  // THE FLAT POSE (raised={false}): the variant's own pose customs are
-  // stripped FIRST (ghost's none-trio would collide with the flat block
-  // — no two same-property utilities in one class list), then the flat
-  // block supplies all four seams: no rest shadow, no hover shadow,
-  // the press pose re-pointed to the engrave tier (an inset — pressed
-  // INTO the plane), and the press vector nulled (the body never
-  // moves; the inset alone creates the illusion). Link carries no
-  // jx-press: the strip is a no-op and the block is skipped.
-  const flatPose =
-    '[--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:var(--shadow-engrave)] [--jx-press-move:none]';
-  const variantClasses = $derived(
-    !resolvedRaised && resolvedVariant !== 'link'
-      ? `${variants[resolvedVariant].replace(/\s*\[--jx-press-shadow[^\]]*\]\s*/g, ' ')} ${flatPose}`
-      : variants[resolvedVariant],
+  // THE FLAT POSE (raised={false}): the flat block's four seams (no
+  // rest shadow, no hover shadow, the press pose re-pointed to the
+  // engrave tier, the press vector nulled) live in press-button.css
+  // keyed on [data-jx-press-flat] — the ghost none-trio it used to
+  // strip first is outranked there by pure source order, so the old
+  // string surgery is gone. Link carries no jx-press: the attr is a
+  // no-op and the rule is skipped. (String concat, not cn(): this
+  // family declares no $lib/utils edge — its closure is utils-free.)
+  const classes = $derived(
+    `${resolvedVariant === 'link' ? '' : 'jx-press '}${cx(
+      pressButtonStyles.base,
+      square ? pressButtonStyles.baseSquare : pressButtonStyles.baseText,
+      VARIANT_CLASS[resolvedVariant],
+    )}${className ? ` ${className}` : ''}`,
   );
-
-  const classes = $derived(`${base} ${variantClasses}${className ? ` ${className}` : ''}`);
   // #5 (2026-09-13): link.svelte's codified external law — ONLY an
   // absolute http(s) URL is external (no origin comparison: window.
   // location has no place in an SSR-safe registry component). The old
@@ -556,11 +661,11 @@ export interface PulseOptions {
     <!-- the bracket-cursor spinner, the spin family's glyph inlined
          (registry items stay dependency-free); keyframes + the
          reduced-motion static-frame freeze live in press-button.css -->
-    <span data-jx-press-spin="" class="jx-press-spin font-mono text-primary" aria-hidden="true">[&nbsp;<span class="jx-press-spin-frames relative inline-grid w-[1ch] text-center align-bottom"><i class="not-italic row-start-1 col-start-1 visible animate-[jx-press-spin-frame_800ms_steps(1)_infinite]">/</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:200ms]">—</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:400ms]">\\</i><i class="invisible not-italic row-start-1 col-start-1 animate-[jx-press-spin-frame_800ms_steps(1)_infinite] [animation-delay:600ms]">|</i></span>&nbsp;]</span>
+    <span data-jx-press-spin="" class={cx(pressButtonStyles.spinner)} aria-hidden="true">[&nbsp;<span class={'jx-press-spin-frames ' + cx(pressButtonStyles.spinnerFrames)}><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameVisible)}>/</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>—</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>\\</i><i class={cx(pressButtonStyles.spinnerFrame, pressButtonStyles.frameHidden)}>|</i></span>&nbsp;]</span>
   {:else if leadingGlyph === 'check'}
     <!-- the one-shot success flash glyph (flash() painted it; it
          rests after 1.2s) -->
-    <span data-jx-press-check="" class="inline-flex flex-none items-center text-primary" aria-hidden="true">
+    <span data-jx-press-check="" class={cx(pressButtonStyles.checkGlyph)} aria-hidden="true">
       <Icon name="check" size={14} />
     </span>
   {/if}
@@ -568,6 +673,7 @@ export interface PulseOptions {
 
 {#if href}
   <a
+    bind:this={uniRoot}
     {...rest}
     {href}
     target={isExternal ? '_blank' : undefined}
@@ -575,11 +681,13 @@ export interface PulseOptions {
     aria-label={ariaLabel ?? ariaLabelAttr}
     aria-disabled={loading || disabled ? 'true' : ariaDisabledAttr}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     data-jx-press-button={d.variant}
     data-jx-press-flat={flat ? '' : undefined}
     data-jx-attach="root"
     class={classes}
+    style={rootStyle}
     onclick={onAnchorClick}
   >
     {@render leadingLane()}
@@ -587,6 +695,7 @@ export interface PulseOptions {
   </a>
 {:else}
   <button
+    bind:this={uniRoot}
     {...rest}
     {type}
     onclick={onButtonClick}
@@ -594,12 +703,14 @@ export interface PulseOptions {
     aria-label={ariaLabel ?? ariaLabelAttr}
     aria-disabled={loading || disabled ? 'true' : ariaDisabledAttr}
     data-jx-press-state={flashState === 'success' ? 'success' : undefined}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
     data-jx-press-button={d.variant}
     data-jx-press-flat={flat ? '' : undefined}
     popovertarget={popovertarget}
     data-jx-attach="root"
     class={classes}
+    style={rootStyle}
   >
     {@render leadingLane()}
     {@render children()}

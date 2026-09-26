@@ -7,6 +7,7 @@ const toc: TocSection[] = [
   { id: 'marquee', label: 'Badge-marquee hero' },
   { id: 'pick', label: 'Picking a form' },
   { id: 'usage', label: 'Usage' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
 ];
 

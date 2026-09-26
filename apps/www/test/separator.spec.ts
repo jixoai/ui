@@ -24,6 +24,14 @@ const css = readFileSync(
   resolve(process.cwd(), 'src/lib/ui/separator/separator.css'),
   'utf8',
 );
+// tailwindless-site P0 (2026-09-17): the ink engine moved to the
+// family's stylex atoms — the engine laws are asserted at the ATOM
+// source now (the css sheet keeps only the layer statement + the law
+// text)
+const atom = readFileSync(
+  resolve(process.cwd(), 'src/lib/ui/separator/separator.stylex.ts'),
+  'utf8',
+);
 
 describe('separator DOM hooks', () => {
   it('renders the native hr with the valued variant hook, defaulting to fused', () => {
@@ -71,51 +79,51 @@ describe('separator DOM hooks', () => {
   });
 });
 
-describe('separator ink engine (css source law)', () => {
+describe('separator ink engine (atom source law)', () => {
   it('the default ink is the contrast ghost — the only color token is solid', () => {
-    expect(css).toContain('backdrop-filter: contrast(0.5)');
+    expect(atom).toContain("backdropFilter: 'contrast(0.5)'");
     // the subtraction ink law's named exception (Owner amendment,
     // 2026-09-08): outside COMMENTS, var(--border) may appear ONLY
-    // inside the solid rules — exactly twice, one per orientation
-    const rules = css.replace(/\/\*[\s\S]*?\*\//g, '');
-    const borderUses = [...rules.matchAll(/var\(--border\)/g)];
+    // inside the solid atoms — exactly twice, one per orientation
+    const rules = atom.replace(/\/\/[^\n]*|\/\*[\s\S]*?\*\//g, '');
+    const borderUses = [...rules.matchAll(/tokens\['--jx-border'\]/g)];
     expect(borderUses).toHaveLength(2);
-    const solidBlocks = [...rules.matchAll(/\[data-jx-separator='solid'\]/g)];
-    expect(solidBlocks).toHaveLength(2);
+    const solidAtoms = [...rules.matchAll(/solid(?:Horizontal|Vertical): \{/g)];
+    expect(solidAtoms).toHaveLength(2);
   });
 
   it('solid is the plain-fill escape: ghost OFF, --border ON, per orientation', () => {
-    for (const orientation of ['horizontal', 'vertical']) {
-      expect(css).toMatch(
+    for (const orientation of ['Horizontal', 'Vertical']) {
+      expect(atom).toMatch(
         new RegExp(
-          `\\[data-jx-separator='solid'\\]\\[data-orientation='${orientation}'\\]\\) \\{\\s*backdrop-filter: none;\\s*background: var\\(--border\\);`,
+          `solid${orientation}: \\{\\s*backdropFilter: 'none',\\s*backgroundColor: tokens\\['--jx-border'\\],`,
         ),
       );
     }
   });
 
   it('shaped variants are masks over the ghost (dashed, dense, dotted, wavy)', () => {
-    expect(css).toMatch(/repeating-linear-gradient\(90deg, #000 0 6px/);
-    expect(css).toMatch(/repeating-linear-gradient\(90deg, #000 0 3px/);
-    expect(css).toMatch(/radial-gradient\(circle 1px/);
-    expect(css).toMatch(/data:image\/svg\+xml/);
+    expect(atom).toMatch(/GRAD\(90, 6, 10\)/);
+    expect(atom).toMatch(/GRAD\(90, 3, 6\)/);
+    expect(atom).toMatch(/radial-gradient\(circle 1px/);
+    expect(atom).toContain('data:image/svg+xml');
     // the mask axis swaps with orientation
-    expect(css).toMatch(/repeating-linear-gradient\(180deg/);
-    expect(css).toMatch(/mask-repeat: repeat-y/);
+    expect(atom).toMatch(/GRAD\(180, /);
+    expect(atom).toMatch(/maskRepeat: 'repeat-y'/);
   });
 
   it('fade rides the blend engine: difference over an alpha ramp', () => {
-    expect(css).toContain('mix-blend-mode: difference');
-    expect(css).toMatch(/rgb\(255 255 255 \/ 0\.6\) 50%/);
+    expect(atom).toContain("mixBlendMode: 'difference'");
+    expect(atom).toMatch(/rgb\(255 255 255 \/ 0\.6\) 50%/);
     // the blend variant drops the filter (one engine at a time)
-    expect(css).toMatch(/fade'\]\[data-orientation='horizontal'\]\) \{\s*backdrop-filter: none/);
+    expect(atom).toMatch(/fade[HV]: \{\s*backdropFilter: 'none'/);
   });
 
   it('the fade peak stays capped (0.6): a 0.9 white-difference layer slams bright grounds to near-black — and exact mid-gray is the engine blind spot either way', () => {
     // the peak stop is the only alpha allowed above the 0.35 shoulders
-    const peaks = [...css.matchAll(/rgb\(255 255 255 \/ ([\d.]+)\) 50%/g)].map((m) => m[1]);
+    const peaks = [...atom.matchAll(/rgb\(255 255 255 \/ ([\d.]+)\) 50%/g)].map((m) => m[1]);
     expect(peaks.length).toBe(2); // both orientations
     for (const alpha of peaks) expect(Number(alpha)).toBeLessThanOrEqual(0.6);
-    expect(css).not.toContain('rgb(255 255 255 / 0.9)');
+    expect(atom).not.toContain('rgb(255 255 255 / 0.9)');
   });
 });

@@ -141,7 +141,21 @@
     import { cn } from '$lib/utils';
   import { getContext } from 'svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { InputDefaults } from './input-defaults.svelte';
   import type { Snippet } from 'svelte';
   import { onDestroy } from 'svelte';
@@ -154,13 +168,39 @@
   import Editor from '../color-picker/editor.svelte';
   import { parseColor, formatColor } from '$lib/color-utils';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import { inputStyles } from './input.stylex';
   import './input.css';
 
-  interface Props extends HTMLInputAttributes {
+  interface Props extends Omit<HTMLInputAttributes, 'size' | 'color' | 'onselect'> {
     /** any native input type (default 'text') */
     type?: string;
-    /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (explicit-props §1): root font-size — named
+     *  steps · auto (inherit) · a px number · query(). CONSUMED by the
+     *  family (the native <input> NEVER receives a size attribute from
+     *  it — the §1 native collision rule; everything the family does
+     *  not own still rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** field label; renders label[for] above the control.
         skipped when outerBlockStart takes the slot over */
     label?: string;
@@ -227,6 +267,10 @@
     locale?: string;
     /** fires when the custom picker commits a value */
     onselect?: (value: string) => void;
+    /** frame posture: explicit ?? the integration ambient ?? 'frame'
+     *  (the control-chrome axis — a frame-owning row declares its
+     *  controls bare; the family's OWN css paints the bare state) */
+    chrome?: ControlChrome;
     /** fine-grained panel content — takes precedence over the embedded
         default panel. Renders inside the popover; ctx = value/commit/close */
     picker?: Snippet<[PickerCtx]>;
@@ -248,6 +292,13 @@
   let {
     type = 'text',
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     label,
     id = autoId,
@@ -273,7 +324,7 @@
     /** frame posture: explicit ?? the integration ambient ?? 'frame'
      *  (the control-chrome axis — a frame-owning row declares its
      *  controls bare; the family's OWN css paints the bare state) */
-    chrome: chromeProp = undefined,
+    chrome: chromeProp,
     locale,
     onselect,
     picker,
@@ -285,9 +336,19 @@
 
   const errorId = $derived(`${id}-error`);
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.1): explicit ?? ambient scope per slot, one line, no
-  // legacy helper channels
-  const d = $derived(InputDefaults.resolve({ density }));
+  // economy 3.1 + explicit-props W3-A): explicit ?? ambient scope per
+  // slot, one line, no legacy helper channels — the eight universal
+  // axes ride the same resolve record
+  const d = $derived(
+    InputDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the field root's ANCESTORS
+  // are the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let fieldEl = $state<HTMLDivElement>();
+  provideQueryAnchor(() => fieldEl ?? null);
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : ariaDescribedBy);
   const invalidAttr = $derived(invalid ? 'true' : ariaInvalid);
@@ -482,8 +543,8 @@
   let timeStepperRef = $state<{ focusFirst: () => void } | null>(null);
   // the shared surface motion kernel (popover.svelte wiring law):
   // WAAPI drives --jx-p; the axis tracks the control↔panel vector
-  const motion = createSurfaceMotion(() => pickerPanelEl, { anchor: () => pickerAnchorEl });
-  onDestroy(() => motion.destroy());
+  const panelMotion = createSurfaceMotion(() => pickerPanelEl, { anchor: () => pickerAnchorEl });
+  onDestroy(() => panelMotion.destroy());
   const pickerAnchor = $derived(`--jx-input-${id.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
 
   /** the date part of the current value ("YYYY-MM-DD" or undefined) */
@@ -540,8 +601,8 @@
       light dismiss, Escape, our own calls) — popover.svelte law */
   function onPickerToggle(e: ToggleEvent): void {
     if (e.newState === 'open') {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
       // type-routed focus: exactly one fragment is mounted per panel,
       // the others' refs stay null — the calls are inert no-ops
       calendarRef?.focusGrid();
@@ -549,8 +610,8 @@
       monthGridRef?.focusGrid();
       timeStepperRef?.focusFirst();
     } else {
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       inputEl?.focus();
     }
   }
@@ -580,19 +641,39 @@
     commit: commitFromPanel,
     close: closePicker,
   });
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 {#if isHidden}
   <!-- hidden: bare native passthrough (value rides as a plain attribute) -->
-  <input {id} {type} {value} {placeholder} {...rest} data-density={d.density} />
+  <input {id} {type} {value} {placeholder} {...rest} data-density={densityRungOf(d.density)} />
 {:else}
   <div
-  class="jx-field"
-  data-density={d.density}
+    bind:this={fieldEl}
+    class="jx-field"
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={carriers || undefined}
     data-self-inset={showClear || customPicker || innerInlineEnd || (semanticGlyph && iconPosition !== 'start') ? '' : undefined}
->
+  >
     {#if outerBlockStart}
-      <div data-jx-outer data-jx-outer-start class="text-muted-foreground text-xs -mb-1">{@render outerBlockStart()}</div>
+      <div data-jx-outer data-jx-outer-start class={cx(inputStyles.outerStart)}>{@render outerBlockStart()}</div>
     {:else if label && !floating}<label class="jx-label" for={id}>{label}</label>{/if}
     {#if isRange}
       <input
@@ -677,12 +758,12 @@
             class="jx-input-prefix-icon-button"
             data-jx-step-minus
             aria-label="decrease"
-            disabled={rest.disabled}
+            disabled={rest.disabled ?? undefined}
             onpointerdown={beginHold.bind(null, -1)}
           ><Icon name="minus" /></button>
         {/if}
         {#if innerInlineStart}
-          <span data-jx-slot data-jx-inline-start class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineStart()}</span>
+          <span data-jx-slot data-jx-inline-start class={cx(inputStyles.slotRow)}>{@render innerInlineStart()}</span>
         {/if}
         <!-- the interception selector anchors on the INPUT: the
              picker indicator pseudo belongs to it, not the shell -->
@@ -711,13 +792,13 @@
           <span
             data-jx-semantic-icon
             aria-hidden="true"
-            class="flex-none inline-flex items-center text-muted-foreground text-xs leading-none"
+            class={cx(inputStyles.iconLane)}
           >
             {#if icon}{@render icon()}{:else if semanticGlyphName}<Icon name={semanticGlyphName} />{/if}
           </span>
         {/if}
         {#if innerInlineEnd}
-          <span data-jx-slot data-jx-inline-end class="flex-none inline-flex items-center gap-1.5 text-muted-foreground text-xs leading-none">{@render innerInlineEnd()}</span>
+          <span data-jx-slot data-jx-inline-end class={cx(inputStyles.slotRow)}>{@render innerInlineEnd()}</span>
         {/if}
         {#if customStepper}
           <button
@@ -725,7 +806,7 @@
             class="jx-input-suffix-icon-button"
             data-jx-step-plus
             aria-label="increase"
-            disabled={rest.disabled}
+            disabled={rest.disabled ?? undefined}
             onpointerdown={beginHold.bind(null, 1)}
           ><Icon name="plus" /></button>
         {/if}
@@ -753,7 +834,7 @@
             class="jx-input-reveal"
             aria-pressed={revealed}
             aria-label={revealed ? 'hide password' : 'show password'}
-            disabled={rest.disabled}
+            disabled={rest.disabled ?? undefined}
             onclick={() => (revealed = !revealed)}
           >
             <Icon name={revealed ? 'eyeOff' : 'eye'} />
@@ -769,7 +850,7 @@
         bind:this={pickerPanelEl}
         id="{id}-picker-panel"
         popover="auto"
-        class={cn('jx-picker-panel jx-surface', motion.supported && 'jx-waapi')}
+        class={cn('jx-picker-panel jx-surface', panelMotion.supported && 'jx-waapi')}
         data-variant="auto"
         style="position-anchor: {pickerAnchor}; inset-area: bottom span-all; position-area: bottom span-all;"
         ontoggle={onPickerToggle}
@@ -781,7 +862,7 @@
         <!-- the floating-surface law (arch r3): the popover element is
              the PLATFORM (paints nothing); the bezel fill + border live
              on the surface-body child -->
-        <div class="jx-surface-body px-3.5 py-3">
+        <div class={cn('jx-surface-body', cx(inputStyles.surfaceBodyPad))}>
           {#if picker}
             {@render picker(pickerCtx)}
           {:else if type === 'color'}
@@ -823,7 +904,7 @@
               bind:this={timeStepperRef}
               value={timeValue}
               oncommit={(v) => commitFromPanel(v)}
-              disabled={rest.disabled}
+              disabled={rest.disabled ?? undefined}
               idPrefix="{id}-ptime"
             />
           {:else}
@@ -849,12 +930,12 @@
               <!-- the time part gets a REAL control (Owner catch
                    2026-08-29): the stepper commits the T part live; an
                    absent date part defaults to today -->
-              <div class="-mx-3.5 my-3 border-t border-border" aria-hidden="true"></div>
+              <div data-jx-picker-divider="" class={cx(inputStyles.panelDivider)} aria-hidden="true"></div>
               <TimeStepper
                 bind:this={timeStepperRef}
                 value={timeValue}
                 oncommit={(v) => commitFromPanel(`${datePart ?? todayIso()}T${v}`)}
-                disabled={rest.disabled}
+                disabled={rest.disabled ?? undefined}
                 idPrefix="{id}-ptime"
               />
             {/if}
@@ -867,10 +948,10 @@
       <!-- the hint lane: the "n / max" code-point readout. aria-live sits
            at OFF and flips to polite near the limit (from 90% of the
            maxlength cap) — the readout never chatters per keystroke -->
-      <div data-jx-hint class="flex items-center">
+      <div data-jx-hint class={cx(inputStyles.hintRow)}>
         <p
           data-jx-count
-          class="ms-auto m-0 font-nav text-[11px] tracking-[0.08em] text-muted-foreground"
+          class={cx(inputStyles.countReset, inputStyles.countRow)}
           aria-live={countNear ? 'polite' : 'off'}
           aria-atomic="true"
         >
@@ -878,6 +959,6 @@
         </p>
       </div>
     {/if}
-    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class="text-muted-foreground text-xs -mt-1">{@render outerBlockEnd()}</div>{/if}
+    {#if outerBlockEnd}<div data-jx-outer data-jx-outer-end class={cx(inputStyles.outerEnd)}>{@render outerBlockEnd()}</div>{/if}
   </div>
 {/if}

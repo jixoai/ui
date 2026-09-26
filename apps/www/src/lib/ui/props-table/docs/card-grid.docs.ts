@@ -3,9 +3,10 @@
  * (docs-demo-standard pilot migration; zero-content-drift pinned by
  * test/props-table-meta-drift.spec.ts).
  *
- * Nothing hidden, nothing corrected: all three rows are the GENERATED
- * truth (`import('svelte').Snippet` normalizes to `Snippet` in the
- * projection) — curation is prose only.
+ * Nothing hidden, nothing corrected: the served rows are the GENERATED
+ * truth (min/foot/children/class + the eight axis rows — the W3-B
+ * surface joined after this curation was written; `Snippet` normalizes
+ * in the projection) — curation is prose only.
  */
 import type { PropsDocs } from '../from-meta';
 
@@ -16,6 +17,10 @@ export const CARD_GRID_DOCS: PropsDocs = {
     },
     children: {
       description: 'The cards; each child spans the two shared rows.',
+    },
+    foot: {
+      description:
+        "declares the third shared row — zone-trio cards' FEET align at the bottom; false = head/body only.",
     },
     class: {
       description: 'Forwarded to the grid container.',

@@ -32,19 +32,33 @@
  *     `size` — it would enter the detection vocabulary AND collide
  *     with the typography `size` the reading family refuses
  *     (ruleSize is the honest compound).
- *   - density: the no-opinion axis slot. The blockquote carries NO
- *     density own: no provider and no explicit prop resolve
- *     undefined, stamp nothing, and the ambient css scope channel
- *     keeps flowing (fleet law).
+ *   - density: the universal §4 axis slot (W3-B — the legacy
+ *     densitySlot semantics ride the bridged lane). The blockquote
+ *     carries NO density own: no provider and no explicit prop
+ *     resolve 'auto', stamp nothing, and the ambient css scope
+ *     channel keeps flowing (fleet law).
+ *   - the seven other universal axes (§0/§11, W3-B, all no-own):
+ *     size · shape · radius · color · theme · elevation · motion —
+ *     the eight-axis surface (ruleSize stays per §13: no collision).
  *
  * 惰性律: construction captures own/values only; context reads happen
  * at resolve time inside the consumer's $derived window. This file is
  * a member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import { definePaintSlot } from '$lib/paint.svelte';
-import { densitySlot } from '$lib/density.svelte';
 
 /** the quote/admonition prominence ladder — the frozen table's
  *  Blockquote row (the alert two-rung shape: a quote never shouts
@@ -70,5 +84,12 @@ export const BlockquoteDefaults = defineComponentDefaults({
   variant: blockquoteVariantSlot,
   rule: blockquoteRuleSlot,
   ruleSize: blockquoteRuleSizeSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

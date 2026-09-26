@@ -12,6 +12,8 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes, HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { densityRungOf } from '$lib/defaults.svelte';
+  import { breadcrumbStyles } from './breadcrumb.stylex';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
 
   interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
@@ -26,13 +28,29 @@
   // the ambient density stamp resolves through the family contract
   // (no-opinion slot: no explicit prop, inherited else nothing)
   const d = $derived(BreadcrumbDefaults.resolve({}));
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 {#if href}
   <a
     data-jx-breadcrumb-current=""
-    data-density={d.density}
-    class={cn('text-foreground no-underline', className)}
+    data-density={densityRungOf(d.density)}
+    class={cn(cx(breadcrumbStyles.page), className)}
     {href}
     {...rest}
     aria-current="page"
@@ -44,8 +62,8 @@
        (anchor-only attrs cannot appear — href is destructured out) -->
   <span
     data-jx-breadcrumb-current=""
-    data-density={d.density}
-    class={cn('text-foreground no-underline', className)}
+    data-density={densityRungOf(d.density)}
+    class={cn(cx(breadcrumbStyles.page), className)}
     {...(rest as HTMLAttributes<HTMLSpanElement>)}
     aria-current="page"
   >

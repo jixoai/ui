@@ -1,0 +1,163 @@
+@layer theme, base, components, utilities;
+
+/* jixoai code-card — D1-exempt residue (tw4, 2026-08-24). Card/head/
+ * foot/copy statics and the fill/vscroll branches live as token
+ * utilities in the markup; what remains (all @layer components behind
+ * :where() per the placement law — consumer utilities win):
+ *   - the --tok-* Shiki css-variables palette + its .dark adaptation
+ *     (theme wiring, the documented contract with lib/shiki) and the
+ *     --readonly-code-* meta tints;
+ *   - the pre scrollport law: the scrollbar-gutter compensation
+ *     recipe (both-edges gutters, padding-inline hands the gutter
+ *     back) — a coherent law;
+ *   - focus-visible rings and the reduced-motion kill — state
+ *     machines on the UNLAYERED :where() carve-out (they override the
+ *     component's own utility paint; the toggle/Part A precedent). */
+
+@layer components {
+  /* readonly-code law (design-tokens.md supplements): the scoped token
+     definitions mirror the documented values so the card is self-sufficient
+     with only the jixoai-theme sheet installed. The variable names are the
+     Shiki css-variables theme contract (--tok-foreground / --tok-token-*),
+     so lib/shiki's default theme paints straight from here. */
+  :where(.jx-code-card) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+    --readonly-code-border: color-mix(in oklab, var(--border) 18%, transparent);
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+
+    /* Shiki css-variables palette: primary family + muted, per the visual law */
+    --tok-foreground: var(--foreground);
+    --tok-background: transparent;
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 44%, transparent);
+    --tok-token-string: var(--accent);
+    --tok-token-string-expression: var(--accent);
+    --tok-token-keyword: var(--primary);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 62%, transparent);
+    --tok-token-link: var(--accent);
+    --tok-token-inserted: var(--success);
+    --tok-token-deleted: var(--error);
+    --tok-token-changed: var(--warning);
+  }
+  :where(.dark .jx-code-card) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 78%, var(--background));
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 18%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 60%, oklch(1 0 0));
+
+    /* dark: brighter primary family; the oklch one-hue law's complete
+       pairing — every mixed token carries its dark form so both themes
+       read the SAME emphasis hierarchy (统一明暗, the Owner ruling
+       2026-09-08); inserted/deleted/changed ride the semantic tokens,
+       which carry their own dark values in the theme sheet */
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 30%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 70%, oklch(0 0 0));
+    --tok-token-function: color-mix(in oklch, var(--primary) 58%, oklch(1 0 0));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 76%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 36%, transparent);
+  }
+  /* the light re-flip (the paper-is-white law, 2026-09-03; the
+     jx-pure icon-stroke precedent): `.dark` keys off ANCESTRY, so a
+     dark document's `.jx-light` scope (the print artifact's forced-
+     light stamp, a component-canvas light stage) still matches the
+     override above — and its literal oklch(1 0 0) mixes read washed
+     on white paper. This block re-declares the light formulas AFTER
+     the dark one, so the declared light scope wins by order. var()-
+     bearing formulas stay scope-correct under deeper nested islands
+     (an inner .dark stage resolves its own dark vars through them) */
+  :where(.jx-light .jx-code-card) {
+    --readonly-code-bg: color-mix(in oklab, var(--muted) 42%, var(--background));
+    --readonly-code-meta-bg: color-mix(in oklab, var(--accent) 12%, var(--background));
+    --readonly-code-meta-fg: color-mix(in oklab, var(--accent) 58%, var(--foreground));
+
+    --tok-token-comment: color-mix(in oklch, var(--foreground) 44%, transparent);
+    --tok-token-constant: color-mix(in oklch, var(--secondary) 78%, var(--foreground));
+    --tok-token-function: color-mix(in oklch, var(--primary) 62%, var(--foreground));
+    --tok-token-parameter: color-mix(in oklch, var(--foreground) 78%, var(--accent));
+    --tok-token-punctuation: color-mix(in oklch, var(--foreground) 62%, transparent);
+  }
+
+  /* the pre is the scrollport: native Tab characters stay tabs, long lines
+     scroll instead of wrapping; scrollbar paint is the THEME scrollbar law
+     (thin, currentColor, hover chain) with containment so a horizontal
+     wheel/flick never chains to the page */
+  :where(.jx-code-card pre) {
+    font-size: 12.5px;
+    line-height: 1.6;
+    margin: 0;
+    overflow-x: auto;
+    overflow-y: visible;
+    overscroll-behavior-x: contain;
+    /* scrollbar law: both-edges gutters; padding-inline hands the gutter
+       back so the line inset stays 0.875rem */
+    scrollbar-gutter: stable both-edges;
+    padding-block: 0.875rem;
+    padding-inline: max(0.875rem - var(--jx-scrollbar-thin, 0px), 0px);
+    tab-size: 4;
+  }
+
+  /* horizontal scroll affordance (V1-8/V2-8, 2026-09-02): the wrapper
+   * ([data-jx-code-card-scroll], the pre's veil host) fades its start/end
+   * edges ONLY while that direction can still scroll — the component
+   * toggles the data flags from scroll events + ResizeObserver. On
+   * classic-scrollbar systems the thin thumb already announces the
+   * lane; on overlay-scrollbar systems these veils are the only rest-
+   * state hint, so a long line never just hard-clips at the edge.
+   * Veil ink is the SUBTRACTION INK LAW (design-tokens, Owner ruling
+   * 2026-09-01; the tabs shadow-veil dialect): backdrop contrast()
+   * pulls the backdrop toward mid tone — no added ground, so a named
+   * Shiki theme that paints its own pre ground is followed for free
+   * (the old --readonly-code-bg gradient's known limit, retired) —
+   * and the mask ramp shapes the range (backdrop-filter only paints
+   * where the element draws). The scrollbar law above stays the
+   * interactive affordance; code reads left-to-right, so the ramp
+   * directions are physical by design. */
+  :where([data-jx-code-card-scroll])::before,
+  :where([data-jx-code-card-scroll])::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inline-size: 1.75rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 150ms ease-out;
+    backdrop-filter: contrast(0.5);
+    -webkit-backdrop-filter: contrast(0.5);
+  }
+  :where([data-jx-code-card-scroll])::before {
+    inset-inline-start: 0;
+    mask: linear-gradient(to right, rgb(0, 0, 0), transparent);
+    -webkit-mask-image: linear-gradient(to right, rgb(0, 0, 0), transparent);
+  }
+  :where([data-jx-code-card-scroll])::after {
+    inset-inline-end: 0;
+    mask: linear-gradient(to left, rgb(0, 0, 0), transparent);
+    -webkit-mask-image: linear-gradient(to left, rgb(0, 0, 0), transparent);
+  }
+  :where([data-jx-code-card-scroll][data-hscroll-start])::before,
+  :where([data-jx-code-card-scroll][data-hscroll-end])::after {
+    opacity: 1;
+  }
+}
+
+:where(.jx-code-card pre:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: -2px;
+}
+:where(.jx-code-card-copy:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-code-card-copy) {
+    transition: none;
+  }
+  /* the edge veils settle without a transition (static by construction) */
+  :where([data-jx-code-card-scroll])::before,
+  :where([data-jx-code-card-scroll])::after {
+    transition: none;
+  }
+}

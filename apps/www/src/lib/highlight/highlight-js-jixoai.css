@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai theme for the highlight.js backend (lib/highlight/
  * highlight-js-jixoai.css, highlight-engine-matrix, 2026-09-06).

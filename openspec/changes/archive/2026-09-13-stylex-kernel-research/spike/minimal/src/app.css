@@ -1,0 +1,6 @@
+/* app.css — the vite CSS entry. The unplugin appends collected stylex
+   CSS to an EXISTING vite css asset (generateBundle → hashed copy);
+   without any css entry it writes a stray assets/stylex.css that
+   index.html never links (blind spot confirmed 2026-09-13 on
+   vite 8.3.0 + unplugin 0.19.0 — see spike-report "key findings"). */
+/* spike/minimal carries no Tailwind and no authored rules. */

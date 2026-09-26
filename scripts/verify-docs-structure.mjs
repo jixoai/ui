@@ -73,7 +73,13 @@ export function headings(html) {
     out.push({
       level: Number(m[1]),
       text: stripTags(m[3]),
-      chrome: /\bdata-jx-[a-z-]+-title\b/.test(attrs),
+      // chrome: component-owned structural titles stay exempt — EXCEPT
+      // section-card's data-jx-section-title (tailwindless W1): that is
+      // the PAGE's own section voice riding SectionCard's title element;
+      // the docs pages' Usage/Install H2s carry it and must COUNT as
+      // page sections (the broad pattern went blind on every page the
+      // day section-card stamped its hook — 109 pages "lost" Usage)
+      chrome: /\bdata-jx-(?!section-)[a-z-]+-title\b/.test(attrs),
       demoData: /\bdata-doc-demo-heading\b/.test(attrs),
     });
   }
@@ -219,7 +225,9 @@ function usageHeadingIndex(html) {
   let m;
   let found = -1;
   while ((m = re.exec(html))) {
-    if (/\bdata-jx-[a-z-]+-title\b/.test(m[1])) continue;
+    // same narrowing as headings(): section-card's data-jx-section-title
+    // is the PAGE's voice, not component chrome (tailwindless W1)
+    if (/\bdata-jx-(?!section-)[a-z-]+-title\b/.test(m[1])) continue;
     if (stripTags(m[2]).toLowerCase() !== 'usage') continue;
     if (found !== -1) return found; // duplicates are the old rule's catch
     found = m.index;
@@ -235,7 +243,9 @@ export function numberedDemoTitles(html) {
   const re = /<h[23]\b([^>]*)>([\s\S]*?)<\/h[23]>/gi;
   let m;
   while ((m = re.exec(html))) {
-    if (/\bdata-jx-[a-z-]+-title\b/.test(m[1])) continue;
+    // same narrowing as headings(): section-card's data-jx-section-title
+    // is the PAGE's voice, not component chrome (tailwindless W1)
+    if (/\bdata-jx-(?!section-)[a-z-]+-title\b/.test(m[1])) continue;
     const text = stripTags(m[2]);
     if (/\b(?:demo|example)\s+\d+\b/i.test(text)) out.push(text);
   }

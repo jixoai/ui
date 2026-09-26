@@ -9,9 +9,10 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import Mermaid from '$lib/ui/mermaid';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -184,6 +185,40 @@ ${close}
     { name: 'mermaid-theme-demo.svelte', content: mermaidThemeDemo, kind: 'usage' },
   ];
 
+  // ---- backdrop demo (Owner 2026-09-15, W2): the fixture pair the
+  // contrast probe samples — dark pin on the light stage, veil on/off
+  // (TD + short labels: the fixture renders inside the half-grid card
+  // without pan overflow, so sampling never meets a scrollbar)
+  const backdropSource = `flowchart TD
+    A[source floor] --> B[hydrated svg]
+    B -- theme flip --> C[re-derived palette]
+    B --> D[zoom + pan]
+    C --> E([registry payload])
+    D --> E`;
+
+  const mermaidBackdropDemo = `<script lang="ts">
+  import Mermaid from '@ui/mermaid';
+${close}
+
+<div class="grid gap-5 min-[760px]:grid-cols-2">
+  <div class="flex flex-col gap-2">
+    <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+      theme="dark" + backdrop (default on)
+    </p>
+    <Mermaid theme="dark" source={backdropSource} zoomable={false} copyable={false} class="w-full" />
+  </div>
+  <div class="flex flex-col gap-2">
+    <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+      theme="dark" + backdrop={'{false}'}
+    </p>
+    <Mermaid theme="dark" backdrop={false} source={backdropSource} zoomable={false} copyable={false} class="w-full" />
+  </div>
+</div>`;
+
+  const mermaidBackdropFiles: TreeFile[] = [
+    { name: 'mermaid-backdrop-demo.svelte', content: mermaidBackdropDemo, kind: 'usage' },
+  ];
+
   const mermaidZoomDemo = `<script lang="ts">
   import Mermaid from '@ui/mermaid';
 
@@ -217,6 +252,29 @@ ${close}
   const mermaidErrorFiles: TreeFile[] = [
     { name: 'mermaid-error-demo.svelte', content: mermaidErrorDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<Mermaid size={18} density="small">…</Mermaid>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/mermaid-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -227,8 +285,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <!-- page head -->
     <div data-reveal="">
       <SectionCard
@@ -238,7 +296,17 @@ ${close}
         title="mermaid — the diagram surface, source floor first"
         summary={heroSummary}
       >
-        <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install mermaid">
+          <TerminalCard
+            barTitle="install — mermaid"
+            command="npx jixoai-ui add mermaid"
+            outputs={['https://ui.jixoai.com/r/mermaid.json']}
+          />
+        </div>
+      {/snippet}
+
+        <div class={cx(rt.wrap12)}>
           <span class="pill">based on Mermaid</span>
           <span class="pill">floor → lazy svg swap</span>
           <span class="pill">token-derived palette · auto follow</span>
@@ -249,9 +317,6 @@ ${close}
 
     <!-- the demo-standard skeleton: Install then Usage sit ABOVE the
          demos — Intro → Install → Usage → Examples → API → See Also -->
-    <div data-reveal="">
-      <DocsInstall name="mermaid" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard
@@ -277,7 +342,7 @@ ${close}
         output={[{ label: 'theme', value: theme }]}
         resolveFileContent={resolveUsage}
       >
-        <Mermaid name="deploy-flow.mmd" {theme} source={flowchartSource} class="w-full max-w-[34rem]" />
+        <Mermaid name="deploy-flow.mmd" {theme} source={flowchartSource} class={cx(rt.wFull, rt.mmW34)} />
         {#snippet playground()}
           <PlayFields>
             <PlayRow label="theme">
@@ -305,25 +370,25 @@ ${close}
         summary="The surface is grammar-agnostic: whatever mermaid parses renders. Each card here is a separate instance — distinct render ids, one shared lazy engine, renders serialized through the engine's promise chain."
       >
         <ComponentCanvas title="mermaid · kinds" stage="fill" files={mermaidKindsFiles}>
-          <div class="flex flex-col gap-5">
-            <div class="border border-border p-4">
-              <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+          <div class={cx(rt.col20)}>
+            <div class={cx(rt.panel)}>
+              <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>
                 sequenceDiagram — the surface's own lifecycle
               </p>
-              <Mermaid source={sequenceSource} class="w-full max-w-[40rem]" />
+              <Mermaid source={sequenceSource} class={cx(rt.wFull, rt.maxW40)} />
             </div>
-            <div class="grid gap-5 min-[760px]:grid-cols-2">
-              <div class="border border-border p-4">
-                <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            <div class={cx(rt.grid760a)}>
+              <div class={cx(rt.panel)}>
+                <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>
                   stateDiagram-v2 — the data-state machine
                 </p>
-                <Mermaid source={stateSource} class="w-full" />
+                <Mermaid source={stateSource} class={cx(rt.wFull)} />
               </div>
-              <div class="border border-border p-4">
-                <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+              <div class={cx(rt.panel)}>
+                <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>
                   pie showData — the cScale rides the chart tokens
                 </p>
-                <Mermaid source={pieSource} class="w-full" />
+                <Mermaid source={pieSource} class={cx(rt.wFull)} />
               </div>
             </div>
           </div>
@@ -340,31 +405,89 @@ ${close}
         title="Theme follow is automatic — pins read the target sheet"
         summary="Every themed fill below is derived from the live design tokens: probes inside each figure resolve the var() chains, color-utils converts to mermaid-safe hex, and the one-source-per-field table maps them onto theme 'base'. Auto follows any ancestor flip; an explicit pin stays put."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <ComponentCanvas title="mermaid · theme pins" stage="fill" files={mermaidThemeFiles}>
-            <div class="grid gap-5 min-[760px]:grid-cols-2">
-              <div class="flex flex-col gap-2">
-                <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            <div class={cx(rt.grid760a)}>
+              <div class={cx(rt.col8)}>
+                <p class={cx(rt.eyebrow, rt.inkMuted)}>
                   theme="light" (pinned)
                 </p>
-                <Mermaid theme="light" source={stateSource} zoomable={false} copyable={false} class="w-full" />
+                <Mermaid theme="light" source={stateSource} zoomable={false} copyable={false} class={cx(rt.wFull)} />
               </div>
-              <div class="flex flex-col gap-2">
-                <p class="font-nav text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+              <div class={cx(rt.col8)}>
+                <p class={cx(rt.eyebrow, rt.inkMuted)}>
                   theme="dark" (pinned)
                 </p>
-                <Mermaid theme="dark" source={stateSource} zoomable={false} copyable={false} class="w-full" />
+                <Mermaid theme="dark" source={stateSource} zoomable={false} copyable={false} class={cx(rt.wFull)} />
               </div>
             </div>
           </ComponentCanvas>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
-            Flip the site's theme toggle and every <code class="text-accent">auto</code> card on
+          <p class={cx(rt.para)}>
+            Flip the site's theme toggle and every <code class={cx(rt.inkAccent)}>auto</code> card on
             this page re-renders — the surface passes its own figure as the engine's
-            <code class="text-accent">themeRoot</code>, so scoped containers (a
-            <code class="text-accent">.jx-light</code> canvas stage, a dark panel) resolve
+            <code class={cx(rt.inkAccent)}>themeRoot</code>, so scoped containers (a
+            <code class={cx(rt.inkAccent)}>.jx-light</code> canvas stage, a dark panel) resolve
             THEIR tokens, never the page's. The pinned pair above does not move: explicit
             modes read the target sheet through a temporary local wrapper — the values come
             out right even under the opposite live root, and the global root is never mutated.
+          </p>
+        </div>
+      </SectionCard>
+    </div>
+
+    <!-- the dark backdrop (Owner 2026-09-15, W2) -->
+    <div id="mermaid-backdrop" data-region="mermaid-backdrop" data-reveal="">
+      <SectionCard
+        family="mermaid-backdrop"
+        headerRegion="mermaid-backdrop"
+        eyebrow="backdrop"
+        title="The dark backdrop is subtractive ink — never a tint"
+        summary="When the EFFECTIVE theme is dark, the viewport paints a designed veil built on backdrop-filter: a blur + contrast/brightness chain SUBTRACTS the page behind toward the dark ground. The veil layer itself paints zero background (the subtraction ink law), in a rounded, padded, 1px-bordered box — replacing the opaque hard-edge fill this surface used to paint."
+      >
+        <div class={cx(rt.col20)}>
+          <ComponentCanvas title="mermaid · backdrop" stage="fill" files={mermaidBackdropFiles}>
+            <div class={cx(rt.grid760a)}>
+              <div class={cx(rt.col8)}>
+                <p class={cx(rt.eyebrow, rt.inkMuted)}>
+                  theme="dark" + backdrop (default on)
+                </p>
+                <Mermaid
+                  theme="dark"
+                  source={backdropSource}
+                  zoomable={false}
+                  copyable={false}
+                  class={cx(rt.wFull)}
+                  data-testid="backdrop-on"
+                />
+              </div>
+              <div class={cx(rt.col8)}>
+                <p class={cx(rt.eyebrow, rt.inkMuted)}>
+                  theme="dark" + backdrop={'{false}'}
+                </p>
+                <Mermaid
+                  theme="dark"
+                  backdrop={false}
+                  source={backdropSource}
+                  zoomable={false}
+                  copyable={false}
+                  class={cx(rt.wFull)}
+                  data-testid="backdrop-off"
+                />
+              </div>
+            </div>
+          </ComponentCanvas>
+          <p class={cx(rt.para)}>
+            The veil rides the <code class={cx(rt.inkAccent)}>EFFECTIVE</code> theme — the same token
+            resolution the palette uses: a dark pin on this light stage veils (the left card),
+            <code class={cx(rt.inkAccent)}>theme="auto"</code> inside a dark scope veils, and light
+            themes never paint a backdrop. <code class={cx(rt.inkAccent)}>backdrop={'{false}'}</code>
+            (the right card) opts out to full transparency. Where
+            <code class={cx(rt.inkAccent)}>backdrop-filter</code> is unsupported, the component's own
+            opaque theme-ground fill returns — the diagram never loses its ground. The dark
+            palette's node fills are lifted toward white through their own tokens so fills,
+            borders, labels, and connectors clear the WCAG thresholds on the subtractive ground
+            (labels ≥ 4.5:1, graphics ≥ 3:1 — probe-sampled receipts in this change's
+            research/w2/).
           </p>
         </div>
       </SectionCard>
@@ -379,16 +502,16 @@ ${close}
         title="Zoom & pan — a pure transform"
         summary="The zoom trio steps ±0.25 (clamped 0.5–3) and resets to 1; the scale rides a transform on the inner wrapper while the viewport becomes the pan surface. No re-render, no engine call — zooming never queues a render."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <ComponentCanvas title="mermaid · zoom & pan" stage="fill" files={mermaidZoomFiles}>
-            <div class="border border-border p-4">
-              <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            <div class={cx(rt.panel)}>
+              <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>
                 zoom the sequence above 100% and pan
               </p>
-              <Mermaid source={sequenceSource} class="w-full max-w-[36rem]" />
+              <Mermaid source={sequenceSource} class={cx(rt.wFull, rt.maxWXl)} />
             </div>
           </ComponentCanvas>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          <p class={cx(rt.para)}>
             The viewport is the recorded two-axis exemption from the shared scroll-run system:
             a pan surface for scaled content is not a linear overflow strip, so it rides the
             theme's thin currentColor scrollbars on BOTH axes and mounts no nudge chips or
@@ -408,19 +531,19 @@ ${close}
         title="A parse failure keeps the floor standing"
         summary="data-state=error paints the error summary strip (the diagnostic's first line) ABOVE the source floor — the floor never disappears on failure, the same fallback law as code-card."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <ComponentCanvas title="mermaid · error floor" stage="fill" files={mermaidErrorFiles}>
-            <div class="border border-border p-4">
-              <p class="font-nav mb-3 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">
+            <div class={cx(rt.panel)}>
+              <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>
                 a source the parser rejects
               </p>
-              <Mermaid source={invalidSource} class="w-full max-w-[36rem]" />
+              <Mermaid source={invalidSource} class={cx(rt.wFull, rt.maxWXl)} />
             </div>
           </ComponentCanvas>
-          <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+          <p class={cx(rt.para)}>
             Fix the source and the next render succeeds — the engine's serial queue is
             rejection-recovering, so a failed render never poisons the next one. The summary
-            strip's vocabulary is localizable through <code class="text-accent">labels.renderError</code>.
+            strip's vocabulary is localizable through <code class={cx(rt.inkAccent)}>labels.renderError</code>.
           </p>
         </div>
       </SectionCard>
@@ -428,7 +551,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"
@@ -471,19 +594,35 @@ ${close}
       />
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. SEVEN lanes — the engine-token theme literal owns the theme name (the code-card precedent, §13 rules no rename); the axis surface rides the figure root, the diagram engine itself stays outside the supply set."
+    >
+      <ComponentCanvas title="Mermaid · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Mermaid source={'flowchart LR\n  axes[size] --> engine{render}'} name="axes.mmd" size={18} density="small" /></div>
+<div class={cx(rt.panel)}><Mermaid source={'flowchart LR\n  named[steps resolve via the alias ladder]'} name="steps.mmd" size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
       headerRegion="api"
       eyebrow="api"
       title="API"
-      summary="Nine props plus the HTML rest; source is the only required one — everything else is composition."
+      summary="Ten props plus the HTML rest; source is the only required one — everything else is composition."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'source', type: 'string', default: '—', description: 'Diagram source (runtime prop — the code-card rule: never markup-inlined text).', required: true },
           { name: 'name', type: 'string', default: '—', description: 'Head tab label + the render-id base (sanitized to [a-z0-9-]; illegal input falls to the jx-mermaid default).' },
           { name: 'theme', type: "'auto' | 'light' | 'dark'", default: "'auto'", description: "'auto' follows the live theme across the figure's effective scope (any ancestor flip re-renders); explicit pins read the target sheet." },
+          { name: 'backdrop', type: 'boolean', default: 'true', description: 'The dark veil switch: when the EFFECTIVE theme is dark, the viewport paints a subtractive backdrop-filter veil (blur + contrast/brightness chain, zero background ink — the subtraction ink law) in a rounded, padded, 1px-bordered box; false = no veil and no ground (transparent, exactly as a light surface). Degrades to the component\u2019s own opaque theme-ground fill where backdrop-filter is unsupported.' },
           { name: 'copyable', type: 'boolean', default: 'true', description: 'Copy control on the footer bar (payload = the raw source, press physics, clipboard fallback).' },
           { name: 'zoomable', type: 'boolean', default: 'true', description: 'Zoom trio — ±0.25 steps clamped 0.5–3, reset; a pure transform, no engine call.' },
           { name: 'labels', type: 'MermaidLabels', default: '—', description: 'Localization payload: { copy, copied, zoomIn, zoomOut, zoomReset, renderError, diagram }; absent = English verbatim.' },

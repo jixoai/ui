@@ -11,7 +11,9 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { BreadcrumbDefaults } from './breadcrumb-defaults.svelte';
+  import { densityRungOf } from '$lib/defaults.svelte';
   import { cn } from '$lib/utils';
+  import { breadcrumbStyles } from './breadcrumb.stylex';
 
   interface Props extends HTMLAttributes<HTMLOListElement> {
     class?: string;
@@ -23,15 +25,28 @@
   // the ambient density stamp resolves through the family contract
   // (no-opinion slot: no explicit prop, inherited else nothing)
   const d = $derived(BreadcrumbDefaults.resolve({}));
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <ol
   data-jx-breadcrumb-list=""
-  data-density={d.density}
-  class={cn(
-    'm-0 flex list-none flex-wrap items-center gap-1.5 font-nav text-xs uppercase tracking-[0.08em]',
-    className,
-  )}
+  data-density={densityRungOf(d.density)}
+  class={cn(cx(breadcrumbStyles.list), className)}
   {...rest}
   role="list"
 >

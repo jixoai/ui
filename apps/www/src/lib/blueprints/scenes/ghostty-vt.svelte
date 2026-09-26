@@ -4,27 +4,44 @@
      cell bit is read from ghostty_type_json() at load time, zero
      hardcoded offsets). No wasm load here — the surface, not a race. -->
 <script lang="ts">
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
+
   const surface = [
     'loadGhosttyVT({ url | bytes })',
     'vtWrite(bytes) ⇄ dirtyRows()',
     'keyEncode(event) · paste.isSafe / encode',
     'reset · resize · scrollViewport · snapshotEncode()',
   ];
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full items-center justify-center gap-10 p-10">
-  <div class="flex flex-col items-start gap-4 font-mono text-[13px]">
-    <div class="text-muted-foreground">// one manifest, zero hardcoded offsets</div>
-    <div class="rounded-none border border-border bg-muted px-2 py-1 shadow-2xs">
+<Stack align="center" justify="center" gap="40" class={cx(bpA.ghosttyVtStage)}>
+  <Stack direction="column" align="start" gap="16" class={cx(bpA.ghosttyVtPanel)} }>
+    <div class={cx(bpA.ghosttyVtComment)}>// one manifest, zero hardcoded offsets</div>
+    <div class={cx(bpA.ghosttyVtHead)}>
       ghostty_type_json()
     </div>
-    <div class="text-primary">→ structs · enums · cell bits @ load time</div>
-    <div class="text-muted-foreground mt-2">// the frozen GhosttyVT surface</div>
+    <div class={cx(bpA.ghosttyVtArrow)}>→ structs · enums · cell bits @ load time</div>
+    <div class={cx(bpA.ghosttyVtComment, bpA.ghosttyVtGap)}>// the frozen GhosttyVT surface</div>
     {#each surface as line (line)}
-      <div class="border-border border-l-2 pl-2">{line}</div>
+      <div class={cx(bpA.ghosttyVtLine)}>{line}</div>
     {/each}
-    <div class="text-muted-foreground mt-2">
+    <div class={cx(bpA.ghosttyVtComment, bpA.ghosttyVtGap)}>
       GhosttyVTError with cause — typed failure, no message sniffing
     </div>
-  </div>
-</div>
+  </Stack>
+</Stack>

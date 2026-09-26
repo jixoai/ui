@@ -37,6 +37,12 @@
   data-jx-scroll-run, chips, or veils inside; the negative contract).
   math-block (a true horizontal strip) rides the full shared contract
   instead.
+
+  Backdrop (Owner 2026-09-15, W2): a dark EFFECTIVE theme paints the
+  viewport as a subtractive backdrop-filter veil with ZERO ink (the
+  subtraction ink law) — see the veil effect below + mermaid.css; the
+  opaque theme-ground fill survives ONLY as the no-backdrop-filter
+  floor. `backdrop={false}` opts out to full transparency.
 -->
 <script module lang="ts">
   /** the control + a11y vocabulary — absent entries fall to shipped English */
@@ -57,7 +63,22 @@
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
+  import {
     createRenderIdMinter,
+    isDarkHex,
     MermaidRenderError,
     readThemeTokens,
     renderDiagram,
@@ -65,33 +86,88 @@
     type MermaidConfig,
     type MermaidThemeMode,
   } from '$lib/mermaid-engine';
+  import { mermaidStyles } from './mermaid.stylex';
+  import { MermaidDefaults } from './mermaid-defaults.svelte';
   import './mermaid.css';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     /** diagram source (runtime prop — the code-card rule: never markup-inlined text) */
     source: string;
     /** head tab label + render-id base */
     name?: string;
     theme?: MermaidThemeMode;
+    /** the dark veil switch (Owner 2026-09-15): on = the subtractive
+     *  backdrop-filter veil when the effective theme is dark; off = no
+     *  veil and no ground (transparent, exactly as a light surface) */
+    backdrop?: boolean;
     copyable?: boolean;
     zoomable?: boolean;
     labels?: MermaidLabels;
     /** mermaid's own config — the engine's precedence ladder applies (§3.3) */
     config?: MermaidConfig;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
   let {
     source,
     name,
-    theme = 'auto',
+    theme,
+    backdrop = true,
     copyable = true,
     zoomable = true,
     labels = {},
     config,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
     ...rest
   }: Props = $props();
+
+  // the family Defaults is the single read point (context-defaults
+  // round 2 + W3-D2): theme rides its literal slot — own 'auto'
+  // (resolve against the figure's effective scope) lives in the
+  // contract, never a destructure default. SEVEN universal lanes
+  // join (density · size · shape · radius · color · elevation ·
+  // motion); the theme AXIS is left out — the engine-token literal
+  // owns the name ('system' has no engine meaning; the code-card
+  // precedent, §13 rules no rename)
+  const d = $derived(
+    MermaidDefaults.resolve({ theme, density, size, shape, radius, color, elevation, motion }),
+  );
+  // SEVEN lanes stamp on the family's OWN figure root (the axis
+  // surface; the diagram ENGINE — the rendered SVG — is outside the
+  // supply set); theme feeds the literal, never the axis carriers
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
 
   // rest spreads BEFORE the component's own stamps (Svelte: later
   // attributes win) — consumer data-testid/title/aria-*/handlers pass
@@ -105,6 +181,9 @@
   const ids = createRenderIdMinter(name);
 
   let figureEl = $state<HTMLElement>();
+  // the query() anchor sits AFTER the anchor state declaration (the
+  // W3-C TDZ kernel note — the getter stays lazy either way)
+  provideQueryAnchor(() => figureEl ?? null);
   /** null = the floor paints (also the error fallback — never a blank) */
   let svg = $state<string | null>(null);
   let dataState = $state<'floor' | 'rendering' | 'rendered' | 'error'>('floor');
@@ -127,7 +206,7 @@
     dataState = 'rendering';
     renderDiagram(source, {
       id: ids.next(),
-      theme,
+      theme: d.theme,
       config,
       themeRoot: root,
     })
@@ -144,29 +223,54 @@
       });
   });
 
-  /** the crossed-pin canvas (Owner acceptance, 2026-09-07): an explicit
-   *  pin against the page's live theme paints the viewport with the
-   *  TARGET sheet's own background + ink — target-designed nodes and
-   *  edges never float on the opposite canvas (contrast safety), and
-   *  the card reads as pinned at a glance (the always-dark terminal
-   *  bezel precedent). Auto and same-direction pins keep the page's
-   *  canvas (transparent). Runs alongside the render effect — the
-   *  tokens read is the SAME explicit-theme read the engine performs
-   *  (local wrapper, never a global mutation). */
+  /** THE DARK BACKDROP VEIL (Owner 2026-09-15, W2): when the EFFECTIVE
+   *  theme is dark and `backdrop` is on (default), the viewport paints a
+   *  designed dark veil built on backdrop-filter with ZERO ink (the
+   *  subtraction ink law — design-tokens: no dark background, no
+   *  hand-mixed tint): the CSS chain blurs + subtracts whatever sits
+   *  behind the viewport toward the dark ground. The verdict rides the
+   *  EFFECTIVE theme — the SAME token resolution the palette uses
+   *  (readThemeTokens through the figure, pin wrapper for explicit
+   *  themes): a dark pin on a light page reads DARK tokens and veils,
+   *  an `auto` surface inside a dark scope veils, a scoped `.jx-light`
+   *  stage reads LIGHT tokens and never veils, and light themes never
+   *  paint a backdrop at all.
+   *
+   *  `backdrop={false}`: no veil AND no ground — the inline paints clear
+   *  (transparent, exactly as a light-theme surface today).
+   *
+   *  THE SURFACE-GROUND FLOOR (this change's named boundary): where
+   *  backdrop-filter is unsupported (the data-jx-mermaid-veil='floor'
+   *  lane + the CSS @supports-not block in mermaid.css), the component's
+   *  OWN opaque theme-ground fill returns — the standing PRE-VEIL
+   *  behavior. A surface may paint its ground; a VEIL may not add ink —
+   *  the opaque fill under no-support is the surface's ground, not a
+   *  tint over content. */
   let viewportEl = $state<HTMLElement>();
   $effect(() => {
     void themeEpoch;
     const viewport = viewportEl;
-    if (!viewport || theme === 'auto') return;
-    const crossed = resolveTheme(theme) !== resolveTheme('auto');
-    if (!crossed) {
+    const root = figureEl;
+    if (!viewport || !root) return;
+    const tokens = readThemeTokens(root, d.theme === 'auto' ? undefined : resolveTheme(d.theme));
+    if (!(backdrop && isDarkHex(tokens.background))) {
+      viewport.removeAttribute('data-jx-mermaid-veil');
+      viewport.style.removeProperty('--jx-mermaid-veil-ground');
       viewport.style.removeProperty('background-color');
       viewport.style.removeProperty('color');
       return;
     }
-    const tokens = readThemeTokens(figureEl, resolveTheme(theme));
-    viewport.style.backgroundColor = tokens.background;
+    // ZERO ink on the veil layer: `background` is never set here — the
+    // ground var feeds ONLY the no-support floor (the @supports-not
+    // block + the 'floor' lane in mermaid.css); the supported branch
+    // paints none (probe-asserted: computed background transparent)
+    viewport.style.setProperty('--jx-mermaid-veil-ground', tokens.background);
     viewport.style.color = tokens.foreground; // the scrollbar law's currentColor link
+    const supported =
+      typeof CSS !== 'undefined' &&
+      typeof CSS.supports === 'function' &&
+      CSS.supports('backdrop-filter', 'blur(1px)');
+    viewport.setAttribute('data-jx-mermaid-veil', supported ? 'on' : 'floor');
   });
 
   // theme='auto' effective-scope watch: a class observer on the document
@@ -178,7 +282,11 @@
   // trigger nothing. Explicit pins observe nothing (the engine's local
   // wrapper owns the sheet read). Debounced; disconnected on cleanup.
   $effect(() => {
-    if (theme !== 'auto') return;
+    // d.theme, NEVER the raw prop: since the Defaults round the 'auto'
+    // default lives in the contract — the raw prop is undefined for auto
+    // instances and gating on it would never mount the observer (the
+    // km-gate regression: scoped flips stopped re-rendering autos)
+    if (d.theme !== 'auto') return;
     const root = figureEl;
     if (!root) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -253,6 +361,24 @@
   // the trimmed ladder: an empty/whitespace name falls THROUGH (never a
   // nameless img), a localized diagram name rides second, 'Diagram' ships
   const accessibleName = $derived(name?.trim() || labels.diagram?.trim() || 'Diagram');
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <figure
@@ -261,17 +387,20 @@
   data-kind="diagram"
   data-jx-mermaid
   data-state={dataState}
+  data-density={densityRungOf(d.density)}
+  style={rootStyle}
   class={cn(
-    'jx-mermaid bg-[color:var(--readonly-code-bg)] border border-[color:var(--readonly-code-border)] m-0 min-w-0',
+    'jx-mermaid',
+    cx(mermaidStyles.figure),
     className,
   )}
 >
   {#if name}
     <figcaption
       data-jx-mermaid-head
-      class="flex items-center gap-3 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.08em] bg-[color:var(--readonly-code-meta-bg)] border-b border-[color:var(--readonly-code-border)] text-[color:var(--readonly-code-meta-fg)]"
+      class={cx(mermaidStyles.caption)}
     >
-      <span data-jx-mermaid-file class="font-nav truncate">{name}</span>
+      <span data-jx-mermaid-file class={cx(mermaidStyles.captionFile)}>{name}</span>
     </figcaption>
   {/if}
   {#if dataState === 'error'}
@@ -280,10 +409,10 @@
     <div
       data-jx-mermaid-error
       role="status"
-      class="flex items-center gap-2 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.04em] border-b border-[color:var(--readonly-code-border)] text-[color:var(--error)]"
+      class={cx(mermaidStyles.error)}
     >
-      <span class="whitespace-nowrap">{renderErrorLabel}</span>
-      <span data-jx-mermaid-diagnostic class="truncate opacity-80">{diagnostic.split('\n')[0]}</span>
+      <span class={cx(mermaidStyles.errorLabel)}>{renderErrorLabel}</span>
+      <span data-jx-mermaid-diagnostic class={cx(mermaidStyles.errorDiagnostic)}>{diagnostic.split('\n')[0]}</span>
     </div>
   {/if}
   <!-- the TWO-AXIS pan viewport (the recorded scroll-run exemption):
@@ -300,29 +429,27 @@
   {#if copyable || zoomable}
     <div
       data-jx-mermaid-foot
-      class="flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
+      class={cx(mermaidStyles.foot)}
     >
-      <span class="flex items-center min-w-0">
+      <span class={cx(mermaidStyles.footLead)}>
         {#if copyable}
           <button
             type="button"
             class={cn(
-              'jx-press jx-mermaid-copy inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
-              '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-              copied
-                ? 'copied bg-secondary text-secondary-foreground hover:bg-secondary'
-                : 'hover:bg-muted',
+              'jx-press jx-mermaid-copy',
+              cx(mermaidStyles.copyBtn),
+              copied && `copied ${cx(mermaidStyles.copyBtnCopied)}`,
             )}
             onclick={copySource}
             aria-label={copied ? copiedLabel : copyLabel}
           >
             {#if copied}
-              <span data-jx-mermaid-icon class="inline-flex [&_svg]:h-3 [&_svg]:w-3 [&_svg]:stroke-[2.5]">
+              <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}>
                 <Icon name="check" size={12} strokeWidth={2.5} />
               </span>
               <span>{copiedLabel}</span>
             {:else}
-              <span data-jx-mermaid-icon class="inline-flex">
+              <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}>
                 <Icon name="copy" size={12} />
               </span>
               <span>{copyLabel}</span>
@@ -331,33 +458,33 @@
         {/if}
       </span>
       {#if zoomable}
-        <span data-jx-mermaid-zoom-controls class="flex items-center gap-1.5">
+        <span data-jx-mermaid-zoom-controls class={cx(mermaidStyles.zoomControls)}>
           <button
             type="button"
             data-jx-mermaid-zoom-out
-            class="jx-press jx-mermaid-zoom-btn inline-flex items-center bg-background border border-border text-foreground cursor-pointer p-[0.32rem] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] hover:bg-muted"
+            class="jx-press jx-mermaid-zoom-btn {cx(mermaidStyles.zoomBtn)}"
             onclick={() => stepZoom(-1)}
             aria-label={zoomOutLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex"><Icon name="minus" size={12} /></span>
+            <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}><Icon name="minus" size={12} /></span>
           </button>
           <button
             type="button"
             data-jx-mermaid-zoom-reset
-            class="jx-press jx-mermaid-zoom-btn inline-flex items-center bg-background border border-border text-foreground cursor-pointer p-[0.32rem] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] hover:bg-muted"
+            class="jx-press jx-mermaid-zoom-btn {cx(mermaidStyles.zoomBtn)}"
             onclick={() => (scale = 1)}
             aria-label={zoomResetLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex"><Icon name="rotateCcw" size={12} /></span>
+            <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}><Icon name="rotateCcw" size={12} /></span>
           </button>
           <button
             type="button"
             data-jx-mermaid-zoom-in
-            class="jx-press jx-mermaid-zoom-btn inline-flex items-center bg-background border border-border text-foreground cursor-pointer p-[0.32rem] [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)] hover:bg-muted"
+            class="jx-press jx-mermaid-zoom-btn {cx(mermaidStyles.zoomBtn)}"
             onclick={() => stepZoom(1)}
             aria-label={zoomInLabel}
           >
-            <span data-jx-mermaid-icon class="inline-flex"><Icon name="plus" size={12} /></span>
+            <span data-jx-mermaid-icon class={cx(mermaidStyles.iconLane)}><Icon name="plus" size={12} /></span>
           </button>
         </span>
       {/if}

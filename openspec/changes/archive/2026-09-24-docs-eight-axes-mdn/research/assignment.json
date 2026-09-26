@@ -1,0 +1,1212 @@
+{
+ "seed": 20260922,
+ "agents": [
+  "quill",
+  "vellum",
+  "scribe",
+  "marginalia"
+ ],
+ "counts": {
+  "quill": 27,
+  "vellum": 26,
+  "scribe": 30,
+  "marginalia": 27
+ },
+ "pages": [
+  {
+   "page": "accordion",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "alert",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "anchor",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "avatar",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "badge",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "badge-indicator",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "closure": "#29 — quill 1st + scribe 2nd PASS (zero findings requiring fixes; chrome positive exemplar); EXTRA corrected form byte-for-byte across both reviewers"
+  },
+  {
+   "page": "blockquote",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "boot-splash",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #54 (marginalia 34 + scribe 36 1st + vellum 73 2nd PASS); the oldest coded page closed; both closure clauses verified both paths; LAW #16 pair digit-exact THREE voices (prop-alone, ancestor, behavioral prefers-color-scheme); her additions: the dogfood probe-timing captor (the scaffold's own splash races early probes), the noscript raw-bytes distinction, the toc rail double-render dedup"
+  },
+  {
+   "page": "breadcrumb",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "button-group",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "card",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at scribe's T136 2nd (PASS 0/0/0/0 — Tier 2 confirmed; the rail navigates — his fresh axis; family 0 errors)"
+  },
+  {
+   "page": "card-grid",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "closure": "#27 — vellum 1st + marginalia 2nd PASS; tenant-swap fix double-verified (ladder 8/12·12/16·12/20 + inert 20px gap); MEDIUM drawer mismatch fixed by orchestrator (own themeFiles const)"
+  },
+  {
+   "page": "carousel",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "cascader",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 3,
+   "status": "done"
+  },
+  {
+   "page": "chart",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at scribe's T134 2nd (PASS 0/0/0/0 — Tier 2 confirmed)"
+  },
+  {
+   "page": "checkbox",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "chip",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "code-card",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "closure": "#25 — marginalia 1st PASS + scribe 2nd PASS; id anchors landed with closure (verified +2/-2); W-next #3 description-arm author-side-confirmed"
+  },
+  {
+   "page": "color-picker",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "combobox",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "closure": "#30 — vellum 1st (self-review exception, strictest independence) + scribe 2nd (first fully-independent eyes; third time base discharged both ways); zero findings; id anchors landed at closure"
+  },
+  {
+   "page": "command",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T140 2nd (PASS 0M/0m/0L/0N — Tier 2 confirmed; BOTH drives verified — the trigger path closes end-to-end, the Meta+K collision double-opens with the site search persisting exactly as the api row teaches; the filter/active RE-JUMP fresh axis with dual-instrument agreement)"
+  },
+  {
+   "page": "component-canvas",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "date-picker",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "descriptions",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "dialog",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CODE round + 2nd CLOSED at vellum's T123 (PASS 0M/0m/0L/0N — Tier 2): every 85 NEEDS-WORK finding carries a landed verified disposition; the missed-sixth-seat catch verified at all four seats press-for-press (press-2 = skip link, openCount 1, Escape restores); elevation stamped-not-painted re-verified (level4 stamp + all paint channels none); scrim + rail 14/14; FRESH AXIS: the query() stamp re-evaluates LIVE on resize-while-open (1200->500->1200 reversible, equal to reopen) — one rung stronger than the page's teaching, ledgered; W-next #17/#18 stay Owner items; the context-coverage fixture's stale dialog typing flagged fixture-lane."
+  },
+  {
+   "page": "dropdown-menu",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "empty",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "figure",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at scribe's T136 2nd (PASS 0/0/0/0 — Tier 2 confirmed; the walkthrough anchor lands 106px in-viewport; the cleanest family lane 0/0)"
+  },
+  {
+   "page": "file-input",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "closure": "#32 — marginalia 1st + quill 2nd PASS; the drop-gate MAJOR ADJUDICATED BY ORCHESTRATOR: no leak — quill's locator grabbed the ungated trigger (first button in the shared demo root); gated-trigger drops reject verbatim (txt excluded, error line, describedby); id prop row + id anchors landed at closure"
+  },
+  {
+   "page": "float-button",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/0/0): the MAJOR-1 menu geometry verified FIXED — panel END-aligned minus exactly the documented 12px --jx-gap; usage-id, toc 8==8, shadow-hedge all landed."
+  },
+  {
+   "page": "form",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at quill's T107 2nd (PASS): the --jx-text row served 10/11/12/13/15 exact; 0 diagnostics; the hub waiver still reads true."
+  },
+  {
+   "page": "ghostty-term",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "task 27 tier-2; live misfold fixed via EXTRA (density+theme rows reference-identity); theme=SHADOWED SLOT; 3 open questions to reviewers",
+   "closure": "#31 — quill 1st + scribe 2nd PASS; the SHADOWED SLOT wording refined at closure per scribe (surface=alias-freeze, canvas=no-observer — the lock is on scope observation, not time; KEEP×3 concurred independently)"
+  },
+  {
+   "page": "grid",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at marginalia's T122 2nd (PASS 0M/0m/0L/1N — Tier 2 confirmed): the MAJOR dead — 3-state re-measure 34/106/34 (her 1st's 70px was the unclipped content floor; the 34px residue decomposes exactly 16+16 padding + 1+1 border, the lane's own box); toc 7/7 live; twins cmp-identical; FRESH AXIS: minmax(0,1fr) holds through resize + cols swaps (spread 0); NIT landed (the snap-vs-'the track IS the animation' softened — instantly by default, family ships no duration)."
+  },
+  {
+   "page": "heading",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "hero-section",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "highlight-detect-default",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at scribe's T136 2nd (PASS 0/0/0/0 — Tier 1 confirmed; no-rail structurally affirmed; the no-root dialect covered on BOTH card and inline halves)"
+  },
+  {
+   "page": "hover-card",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T107 2nd (PASS): the demo card SERVES the link (Tab crosses focus INTO the card, stays open); api sixteen members; family 0 ERRORs; Node-guard in dist bytes."
+  },
+  {
+   "page": "icon",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at quill's T107 2nd (PASS): toc 6/6 click-navigates; ui/icon family 0 ERRORs post-f92d6555; NEW INFO: the dock's 44 is the DEV-INCREMENTAL scanner set — fresh server 44 -> 54 after poking authoring pages; dist '54 today' true; one stale vite cache (42M) served 48 mid-isolation, cleared."
+  },
+  {
+   "page": "icon-button",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T133 2nd (PASS 0M/0m/1L/1N — Tier 2; toc label landed)"
+  },
+  {
+   "page": "image",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "inline-code",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 3,
+   "status": "done"
+  },
+  {
+   "page": "input",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/1/0): her T106-correction withdrawal honored (rendered [18,8] table verified); toc rebuild verified + her LOW-1 (the #true/#deploy phantom anchors) landed at consolidation — live anchors #field-workbench/#tier1-native + the toc re-ordered DOM-true (tier1 follows all-types, its own prose says 'every native lane above'); five family errors closed MIRRORED."
+  },
+  {
+   "page": "input-group",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done"
+  },
+  {
+   "page": "input-otp",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "task 29 tier-2; slot geometry max(--jx-hit, --jx-line×2) rung-winner reversal; dual-voice theme split; copied-template claims purged; 3 open questions",
+   "closure": "#33 — marginalia 1st + scribe 2nd PASS; the dashed-border MAJOR root-caused and FIXED family-side (atom-vs-atom cascade kill: unlayered carve-outs in both families' css, live-verified); adjudications a/b/c consolidated"
+  },
+  {
+   "page": "kbd",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "task 30 tier-2; inheritance caption falsified (density-kernel own voice); typed-LITERAL vs typed-STREAM theme split; EXTRA channel limitation recorded; 3 open questions",
+   "closure": "#34 — quill 1st NEEDS-WORK (captions survived in two surfaces; vocabulary-grep law) fixed by orchestrator; scribe 2nd PASS (purge verified clean, all claims re-derived, adjudications concurred ×3)"
+  },
+  {
+   "page": "language-switcher",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at scribe's T134 2nd (PASS 0/0/0/0 — Tier 1 confirmed)"
+  },
+  {
+   "page": "link",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "closure": "#24 — scribe 1st PASS + marginalia 2nd PASS; consolidation fixes by orchestrator (toc-order trio restored api→axes→accessibility; install/see-also id anchors)"
+  },
+  {
+   "page": "list",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0): BOTH nav paints verified live (in-scope disc+24px; standalone none+0px; Chapters decimal+ps-0 the fine print); toc 8/8; the B8-defeat teaching stands."
+  },
+  {
+   "page": "list-item",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T133 2nd (PASS 0M/0m/1L/0N — Tier 2; hero pill 5->7 landed)"
+  },
+  {
+   "page": "markdown",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T140 2nd (PASS 0M/0m/0L/0N — Tier 2 confirmed; the 47->0 guard pass holds on his independent run, twins identical; the PlayRow ID law visible on-page — the duplicate ids gone; his no-jx-pure census 45 with the per-tag SHAPE as the stable receipt, the count the environment line)"
+  },
+  {
+   "page": "math-block",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at quill's T107 2nd (PASS): the scroll-run tabindex=0 stamped at the verdict (c6ba1f1f, mirrored) — real Tab lands ON the strip in one press, <-/-> scrolls it; both MINORs closed with the one fix; the verdict follows the VIEWPORT (1920 none -> 1440 start-closed -> 1920 none)."
+  },
+  {
+   "page": "math-inline",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T120 2nd (PASS 0/0/0/0 — Tier 2 confirmed): toc usage-first rail 6==DOM; the theme-flip NIT recorded-true with the mechanism completed from both sides (3343->3343 innerHTML across a flip; stage-pinned subtree + :root-pinned aliases, measured both directions); FRESH AXIS: registerMacros empty on this site — unknown macros render LITERAL TEXT via throwOnError:false, only parse errors take the in-place path (a sharper contract than her source receipt)."
+  },
+  {
+   "page": "menubar",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "task 31 tier-2; panel IN-PLACE (third DOM shape); radius panel-only live chain 0/12/8; glide ONE HOP measured; 3 open questions",
+   "closure": "#36 — quill 1st + scribe 2nd PASS; W-next #7 CONFIRMED with source line (triggerOpen stylex atom vs hover's raw chain); consolidation: fold-honest api summary + the bar-gap flip-limit note in a live seat (TokenTable description is dead — W-next #3 second instance)"
+  },
+  {
+   "page": "mermaid",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T137 2nd (PASS 0/0/0/0 — Tier 2 confirmed; the render-id contract EXPANDED to eleven instances at twice the census, zero collision; zoom pure-transform across three seats)"
+  },
+  {
+   "page": "native-scroll-area",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "closure": "#26 — vellum 1st PASS + scribe 2nd PASS (both NITs co-signed); observer-consumed fifth mechanism double-verified live; incident disclosure truthful"
+  },
+  {
+   "page": "native-select",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/1/0/0): marginalia's retraction INDEPENDENTLY VERIFIED at the real path (inline color-scheme flips live with the OS signal); her carried LOW (the page cx overload :286) closed at consolidation."
+  },
+  {
+   "page": "navigation-menu",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "task 22 tier-2 the image model; hand universal table 13 rows; matrix re-pinned 0→1 + scope-marked size",
+   "closure": "#28 — scribe 1st + marginalia 2nd PASS (both LOWs fixed at closure: tabindex row reworded to the plain-span truth; install/see-also ids) + the fleet id-anchor sweep (40 wrappers / 22 closed pages)"
+  },
+  {
+   "page": "number-input",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "task 32 tier-2; full 5-rung ladder (2xs=WCAG 24px floor); hold clock receipts; same dashed-border defect independently found",
+   "closure": "#37 — marginalia 1st + scribe 2nd PASS; consolidation: api summary corrected (21/7 + fold note), the false cell-ink clause replaced with the invisible-value disclosure (W-next #7's first hard legibility failure), dense specimen re-runged to sm, family comments fixed MIRRORED (drift #11)"
+  },
+  {
+   "page": "pagination",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T137 2nd (PASS 0/0/0/0 — Tier 2 confirmed; the five-pose window law digit-exact through real drives with zero aria-current drift; the :93 cast residual receipted as the ledgered known seat)"
+  },
+  {
+   "page": "pattern-cta",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/0/0): PlayHelp hedge SERVED (TreeWalker receipt); copy CTA re-derived end-to-end incl. restore; clipboard payload exact."
+  },
+  {
+   "page": "pattern-faq",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at vellum's T137 2nd (PASS 0/0/0/0 — Tier 1 CONFIRMED; the exclusive guard scoped + real-key Enter toggle; the coincident-pair NIT standing cosmetic)"
+  },
+  {
+   "page": "pattern-hero-set",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T137 2nd (PASS 0/0/0/0 — Tier 2 confirmed; copyCommand three-jobs digit-exact one-prop; the marquee duplicate census at element layer)"
+  },
+  {
+   "page": "pattern-login",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at marginalia's T138 2nd (PASS 0/0/0/0 — Tier 2 confirmed; the Tab-order fresh axis walked the claim TRUE exactly as written)"
+  },
+  {
+   "page": "pattern-pricing",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/1/0): hedge served (2+/2-, zero attribute changes); column law re-derived; her census correction recorded — recommended cells are 4 in the live DOM, not 13 (byte-greps count prose; element census the honest instrument — against report 92, not the page)."
+  },
+  {
+   "page": "popconfirm",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "task 24 tier-2; DEAD-TRIGGER defect found+fixed page-side (PressButton claimed-prop clobber); family flag W-next #5; siblings-not-carriers (panel self-carried)",
+   "closure": "#35 — marginalia 1st + 2nd PASS (self-continuation, reproduce-don't-trust + drift audit); dead-trigger workaround documented; W-next #5 carries the family fix"
+  },
+  {
+   "page": "popover",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T114 2nd (PASS 0M/0m/1L/1N) — Tier 2 confirmed; the NEEDS-WORK bank (2M/4m/2L/1N) fully landed and verified (childrenScoped quartet: 4 distinct ids + anchor names + ZERO hydration flips in a 1.8s MutationObserver watch; the quartet matrix fresh axis — every rung opens its OWN panel on its OWN --jx-pop-density-pop-* name; flush 0/0; the nine-grid master-switch with position-try collapse to --jx-try-top; elevation quartet 3/6/8/-1; wrap-in-place no body-append). His L (the platform delta) hedged on-page + ledgered; his N's two family seats closed (:109 cx clone — 20th family; :399 the false-union ternary) MIRRORED."
+  },
+  {
+   "page": "press-button",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #39 (vellum 33 + marginalia 38 1st + scribe 41 2nd PASS); closure clauses verified landed: 42px mirrored byte-identical x7 + ?raw endpoint serves fixed text; hue L/C signature digit-exact with the wall-clock's THIRD sample (129->125->137); fill-ink seam live; W-next #5 teaching verified; residue INFO: family typing debt :451"
+  },
+  {
+   "page": "progress",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #49 (vellum 34+39 + marginalia 40 1st NEEDS-WORK->51 re-verify + quill 53 2nd PASS); settle criterion NAMED; RM persistence confirmed on a second instrument; the discriminator's SLOPE is the invariant (147-148px/s vs theoretical 149.3; her 2.25s span arithmetically exact — the playground overlay explained it); three instruments rejected on the record, browser-side decode the working answer"
+  },
+  {
+   "page": "progressive-blur",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at marginalia's T138 2nd (PASS 0/0/0/0 — Tier 2 confirmed; the degraded-path fresh axis: animations-off leaves every layer opacity 0 at rest AND scrolled — never a wrongly-painted band, live-true)"
+  },
+  {
+   "page": "prose",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at marginalia's T138 2nd (PASS 0/0/0/0 — Tier 2 confirmed; sovereignty's markdown half live — 16/28 beats the outer knobs by cascade)"
+  },
+  {
+   "page": "prototype-flex",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #42 (vellum 35 + scribe 43 1st + marginalia 52 2nd PASS); her LOW landed at closure: the rig-usage predicate never fired (rig.svelte vs prototype-flex-usage.svelte — the dock's live mirror was dead since integration; predicate fixed); the NIT word fixed (dock, not drawer)"
+  },
+  {
+   "page": "prototype-grid",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #45 (vellum 36 + marginalia 44 1st + scribe 56 2nd PASS, zero new findings); concordance to the third decimal; no-blowout re-proven by rect geometry; the auto-fit re-count ladder (4x145.25 -> 3x149.7 -> 2x160.5, floor never breached); 12-flip LAW #18 stress clean at the law's birthplace; width-naming clause verified at its named seats"
+  },
+  {
+   "page": "prototype-waterfall",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #44 (vellum 37 + scribe 47 1st + marginalia 55 2nd NEEDS-WORK -> 57 re-verify PASS); the missed-seat arc: SSR old-claim census caught the query-panel prose teaching the falsified rem mechanism (scribe's five-seat list had inferred the receipts paragraph); predicate fix made the dock mirror + PlayHelp claim true; instrument lesson: protocol selectOption/fill, not manual synthetic events"
+  },
+  {
+   "page": "radio",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/0/0): ALL FIVE landed verified — 6 match :indeterminate with 0 paint primary, childrenScoped x4 distinct names (hydration flip gone), meta reworded, cx closed, the error seat s4 landed."
+  },
+  {
+   "page": "range",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T110 2nd (PASS 0/0/0/0): cx closed 0 diagnostics; keyboard re-derived (ArrowRight/Home/End -> aria-valuetext '100')."
+  },
+  {
+   "page": "reference",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "task 28 tier-2; the inheritance pole (kbd's contrast); bridge-only measured; numbered-domain rig discovery",
+   "closure": "#38 — marginalia 1st + scribe 2nd PASS; consolidation: the unnumbered specimen MOVED outside every domain + the join-rule note; the SSR census corrected (5 fallbacks + 6 resolved-label — pre-settle, not blind); the spec implicit-any fixed"
+  },
+  {
+   "page": "result",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at marginalia's T138 2nd (PASS 0/0/0/0 — Tier 2 confirmed; the token-equality strongest form — the glyph == the live --primary EXACTLY across two vintages with different hues)"
+  },
+  {
+   "page": "scaffold-float",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at vellum's T115 2nd (PASS 0/0/1/0): import fix MIRRORED both trees; cx closed; pos row landed. Her LOW 1 = the rail-digits fleet drift — the float-button prose hedged + W-next #21 carries the content-dependent note."
+  },
+  {
+   "page": "scroll-area",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #47 (vellum 38 + scribe 50 1st + marginalia 63 2nd PASS); frozen-ink negative verified AT THE PAINT (element's computed backgroundColor, both directions); the 9-cell radius x width matrix receipted per cell; family MINOR -> W-next #12: module-level nextViewportId drifts across SSR requests (warm-reload byte-identity fails; the source comment's 'SSR unique + stable' half-true; fix shape $props.id())"
+  },
+  {
+   "page": "scroll-run",
+   "owner": "marginalia",
+   "reviewers": [
+    "quill",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at scribe's T139 2nd (PASS 0/0/0/0 new — Tier 2 confirmed; his mid-traverse drive completed the machine's FIVE-value enumeration live — 'open' at exactly 0.479; MINOR-2's six type seats resolved by the fleet sweep; MINOR-1 chips tabindex + NIT remain at T141)"
+  },
+  {
+   "page": "scroll-virtual",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #43 (quill 30 + marginalia 40 1st + scribe 54 2nd PASS); RECORD CORRECTION at closure: 1st review's '110 wrappers @100k' superseded — 14 at rest / 20 post-jump (scribe census + page readout + quill's original agree); baseline fetch re-verified (toc == data.toc); windowing digit-exact incl. 4e+06px raw style"
+  },
+  {
+   "page": "section-card",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T115 2nd (PASS 0/0/0/0): cx closed; hero caption reword SERVED; the clone shape = ledger EXACT (17 h2, 'Acquire a Backend.' x5)."
+  },
+  {
+   "page": "select",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at scribe's T139 2nd (PASS 0/0/0/0 — Tier 2 reconfirmed zero-findings; the selection-vs-active split verified never conflated; the focus-restores law's instrument lesson banked — evaluate-click never focuses the opener)"
+  },
+  {
+   "page": "separator",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #51 (vellum 40 + marginalia 61 1st + scribe 70 2nd PASS); the three corrected seats verified as CONSISTENT (axis row teaches the solid variant's token path; overview/theming teach the served ghost's physics holds); HOLD anchor re-confirmed via the two-read protocol; FIFTH fleet data point: system-dialog FLIP on --jx-foreground (same chain as tabs — the :root==html mechanism's second confirmation); census 117/116/113 = commit-time drift, quote at-read-time"
+  },
+  {
+   "page": "sheet",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #40 (quill 31 + marginalia 42 1st + scribe 45 2nd PASS); the wheel saga settled by the genuine-boundary test: wheel swallowed at EVERY hit target while open, scroller never locked (programmatic works) — clause reworded at closure; entry pixels digit-exact; LAW #19 pre/post exhibit page"
+  },
+  {
+   "page": "skeleton",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #41 (quill 32 + marginalia 46 1st + scribe 49 2nd PASS, zero findings); three-way concordance — three instruments converge on the pulse envelope (120/2s, 100/1.65s, 91/1.5s); dead-selector honesty scan: zero elements on ten retired selectors"
+  },
+  {
+   "page": "spin",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #50 (vellum 41 + scribe 62 1st + marginalia 65 2nd PASS); THE ADJUDICATION SETTLED: FLEET-WIDE FROZEN for the root-pinned-alias class (A/B same-session: spin glyph AND separator fill hold at the element while html vars re-derive — scribe's FLIP was an html-level read); five seats corrected; drift #14 both faces (console + SSR hash census, 7 lines/request); SMIL verified at the API (animationsPaused on all 16)"
+  },
+  {
+   "page": "stack",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #46 (quill 33 + marginalia 48 1st + scribe 59 2nd PASS, zero new); mutation envelope reproduced exactly (root 16-to-32 moves gap 8-to-16, stamp voice never moves); source chain receipted (gap atom -> var(--space-N) -> calc(var(--jx-unit)*N/4), --jx-unit 0.25rem); record note: the eaches are UNKEYED static literals (1st review's keyed label wrong, conclusion unchanged)"
+  },
+  {
+   "page": "statistic",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T120 2nd (PASS 0/0/0/0 — Tier 2 confirmed): all three T111 landeds verified served; precision matrix + width-stable countdown + density trio re-derived; the trend-voice digit made ENVIRONMENT-HONEST (up L/C 0.6489/0.237 == --jx-primary exactly — the brand hue itself is per-load variable; the law is the L/C identity); FRESH AXIS GREEN: pause/resume arithmetic continuity (resume -> next tick exactly -1s, no reset, no double-step)."
+  },
+  {
+   "page": "steps",
+   "owner": "scribe",
+   "reviewers": [
+    "quill",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T115 2nd (PASS 0/0/0/0): cx closed; orphan extent LANDED+served (rail 8/8); the duplicate-ordinal seat LANDED."
+  },
+  {
+   "page": "system-dialog",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "scribe"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #48 (quill 34+35 + marginalia 58 1st + scribe 64 2nd PASS, zero new findings); width split at FULL CENSUS level (whole served CSSOM walked: zero max-width rules, zero 24rem — the atom never ships); anchored rise + mechanics battery + imperative trio full resolution matrix all reproduced; var-vs-paint applied (paint read at the promoted element)"
+  },
+  {
+   "page": "table",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #52 (quill 36 + scribe 60 1st + marginalia 69 2nd PASS); radius flip digit-exact three lanes; frame-width law both ends; a11y battery on real clicks (tri-state via button, indeterminate rule, caption 20/20); the NIT landed (dense no-op at EVERY rung: gap==inset 8px sm / 16px lg — strengthens W-next #10); the MINOR rides #11 with its AT cost (both PlayRows' aria-labelledby resolve the FIRST label — page-size announces 'frame width')"
+  },
+  {
+   "page": "tabs",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #55 (vellum 42 + scribe 68 1st + marginalia 76 2nd PASS); THE SWEEP CONFIRMATION: every unpinned instance flips (7/7 + 9/9 + 12/12, no data-theme ancestor), the 29 holds = exactly the 29 stage pins, moves-to-flip — the alias-theme law's fourth family clean; scribe's pre-74 canvas-ground insight honored (the stage-pin truth before task 74 named it); family flag: tabs-list.svelte:158 missing TabsScrollEffect import (drift #16, type-layer only)"
+  },
+  {
+   "page": "tags-input",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #53 (vellum 43 + scribe 66 1st + marginalia 72 2nd PASS); THE ADJUDICATION OVERTURNED with the pin-finder: 22-chip census splits 14 FLIP / 8 HOLD under root dark — every HOLD pinned by a demo-stage data-theme=light; the three-tier model retires both earlier stories (slot-block AND root-pinned-frozen); her first single-sample falsify retracted in-report with the full arc; real-clipboard paste used (synthetic ClipboardEvent silently no-ops)"
+  },
+  {
+   "page": "terminal-card",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T115 2nd (PASS 0/0/0/0): 6px->0 residue, 4px x5 served (exactly 8 x 4px shadows, zero 6px); content->index key MIRRORED; cx closed."
+  },
+  {
+   "page": "terminal-footer",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #56 (quill 67 + vellum 75 1st + marginalia 81 2nd PASS, zero new); the MINOR verified fixed at BOTH stamps (12.5/12.5/11px constant under 18px AND 13px); HER LAW REFINEMENT: the alias-theme law classifies per CHAIN, not per element (one footer: the direct var(--border) stroke flips, the :root-alias ink freezes)"
+  },
+  {
+   "page": "terminal-header",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at scribe's T139 2nd (PASS 0/0/0/0 new — Tier 2 confirmed; the drawer-tree census is point-in-time — 222 links today vs 279 at T131, the 6164px class; the Components→Docs rename remains T141's one-liner)"
+  },
+  {
+   "page": "text",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CODE round (quill T135) + 2nd (vellum T142) — CLOSED PASS 0M/0m/0L/0N, Tier 2 confirmed. The scanner-feed MAJOR verified dead at every layer: the failing triple computes 500/14px/21px, the strong row MOVES, the raw div computes, the full vocabulary serves in the dist sheet, the NIT wording paint-verified (preflight sub/sup arithmetic exact). Fresh axes: the inline-code shared feed (27 chips, kernel chip computes 500) + the bracket-token edge (six tokens all compute). THE FLEET'S LAST SECOND REVIEW."
+  },
+  {
+   "page": "textarea",
+   "owner": "quill",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0 — closure over her 77 + marginalia 84): L3 latent-ink theme row landed (#7 eighth voice); spellcheck/wrap served both layers; boundary 251/252 re-derived. Her trio of family seats + the chrome declaration + ClassValue guard closed at consolidation (MIRRORED)."
+  },
+  {
+   "page": "theme-toggle",
+   "owner": "marginalia",
+   "reviewers": [
+    "vellum",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at quill's T133 2nd (PASS 0M/0m/0L/1N — Tier 2 confirmed; the two-channel lockstep fresh axis)"
+  },
+  {
+   "page": "timeline",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T115 2nd (PASS 0/0/0/0): cx closed + the TokenTable union fixed; beam ids axis-keyed both trees + live; the keyed twin LANDED. 42 hosts/42 drawn/129 items exact."
+  },
+  {
+   "page": "toast",
+   "owner": "vellum",
+   "reviewers": [
+    "scribe",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at marginalia's T119 2nd (PASS 0M/0m/0L/0N — Tier 2 confirmed). All three T71 landed items verified at FOUR layers (the order move incl. dist bytes 25414<28176; family 0 error seats; the digit reconciliation ledger-only — zero contrast hits on the page). Scribe's receipts re-derived TRUE (the MutationObserver census with the +3 queued arithmetic 7-4=3; push-exact 5240/5275 with ghost windows 216/211 vs EXIT_MS 220; FIFO click-promote; density 13/15/12 + the 48rem flip). FRESH AXIS end-to-end: queue-expiry-arms-at-first-visibility — the promoted oldest unmounts at exactly promotion+5000ms of its OWN window; a queued toast never expires unseen. Her port flag (a stale 5245 orchestrator server) verified mine + killed by PID with receipt."
+  },
+  {
+   "page": "toc",
+   "owner": "quill",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at marginalia's T116 2nd (PASS 0M/0m/1L/2N) — tier 1 CONFIRMED. The three landed clauses verified at copy+byte layers; headline receipts re-derived; FRESH AXIS: the pick-line landing (one click cross-receipts engine + shell scroll-padding + a11y row). LOW-1 landed (toc-link $derived-named-props circular cluster -> linkProps, mirrored); NITs landed (107->120 drift-aware; theme digits attributed task-69-era)."
+  },
+  {
+   "page": "toggle",
+   "owner": "marginalia",
+   "reviewers": [
+    "scribe",
+    "vellum"
+   ],
+   "tier": 1,
+   "status": "done",
+   "closure": "marginalia 147 (owner round, reviewers scribe/vellum pending) — Tier 1 alignment landed: DocsInstall + DocsSeeAlso served (the skeleton's missing halves), Usage reordered before the demos (the six-keep-order law), toc 9 == DOM == rail, and every mechanism claim trued to the native-contract-fusion family (ONE input[role=switch]; the input IS the rail via the standard layer's jx-html-switch capsule + ::before knob; measured rungs xs 32×16 / sm 36×18 / default 40×20 / lg 48×24 — width = 2×track, track = --jx-line; slide = width − track = 20px at default over 200ms cubic-bezier; label = sibling label[for] stacked inline-start). The pre-fusion copy (visually-hidden checkbox, sibling-selector rail, 28×16/36×20/44×24 literals, inline-end posture, role:checkbox) retired from the page, head meta, canvas description, PlayHelp, a11y rows AND the registry.json item description. 420 laws hold (tglGrid900 minmax(0,1fr) pair pre-dated; no overflow at 420). Gates: fresh build rc=0, verify:docs rc=0 (zero toggle mentions — the backlog entries are theme-toggle/toggle-group), universal 110/110, smoke 200, LAW #19 82/0."
+  },
+  {
+   "page": "toggle-group",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0 — Tier 1 CONFIRMED): marker census-unique (12 roots/0 empty divs/2 markers==2 checked); three api rows served; the item's cx twin closed at consolidation (MIRRORED)."
+  },
+  {
+   "page": "tooltip",
+   "owner": "scribe",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0): Escape attribution verbatim; Node guard landed; 6px rest gap re-derived at translate 0."
+  },
+  {
+   "page": "tour",
+   "owner": "vellum",
+   "reviewers": [
+    "quill",
+    "scribe"
+   ],
+   "tier": 1,
+   "status": "done",
+   "notes": "CLOSED at quill's T113 2nd (PASS 0M/0m/0L/1N new-info flag) — RE-TIERED Tier 2 -> 1 (confirmed). All receipts re-derived concordant on real-event drives; FRESH AXIS: the lease's restore-existing branch behavior-receipted 4/4 (planted prior restored exactly, dataset cleaned). The family's 3 standing errors closed at consolidation: :430 cx (17th family), :353 explicit null narrowing, :456 {autoId} shorthand -> id={autoId} (a REAL attribute bug — the dialog id never landed; compile-verified, the dialog mounts only when open so SSR bytes show neither)."
+  },
+  {
+   "page": "transfer",
+   "owner": "vellum",
+   "reviewers": [
+    "marginalia",
+    "quill"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED #57 (vellum 46 + quill 80 1st + marginalia 83 2nd PASS, zero new); the HOST stratum naming verified live (unpinned flips 1.0->0.3211, staged holds — one capture); THE FIFTH FAMILY'S CHAIN MAP: the dark seat's tier-2 signature (grounds hold, leans flip at the var layer); instrument lessons: checkbox value keys read 'on', the empty-state placeholder li"
+  },
+  {
+   "page": "tree-view",
+   "owner": "scribe",
+   "reviewers": [
+    "vellum",
+    "marginalia"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at vellum's T117 2nd (PASS 0/0/0/0): TreeSlotRender whole-arrow casts landed (page 0 diagnostics); roving tabindex re-derived; her cx twins closed at consolidation (MIRRORED)."
+  },
+  {
+   "page": "website-scaffold",
+   "owner": "quill",
+   "reviewers": [
+    "marginalia",
+    "vellum"
+   ],
+   "tier": 2,
+   "status": "done",
+   "notes": "CLOSED at scribe's T118 2nd (PASS 0M/0m/0L/0N — Tier 2 confirmed; reassignment from vellum). All four T108 landed items verified at FOUR layers (source/registry twin/served bytes/live DOM); the immersive law's mechanism PINNED (the -74.74 = the band's OWN box percentage at translateY(-101%) — why every reviewer's digit carries .74); FRESH AXIS: scroll-padding is IMMERSIVE-STATIC (106 both states) and reveal-safe by construction; cross-receipt with the closed toc page (pick-line 74 vs scaffold 106 — same var, two scopes, one instrument). His tension note ledgered: the unmapped fleet + the successor global-gate flip = the Owner's reorder-or-scope ruling."
+  }
+ ]
+}

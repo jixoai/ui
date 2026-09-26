@@ -35,6 +35,8 @@ export type ItemEndInset = 'auto' | number | boolean;
     /** the declared ladder — sizes THIS lane and joins the narrow fold */
     fit?: ItemEndFit;
     class?: string;
+    /** the trailing-inset contract ('auto' | number | boolean) */
+    inset?: ItemEndInset;
     children: Snippet;
   }
 

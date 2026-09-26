@@ -31,7 +31,7 @@
   import { BUTTON_GROUP_KEY, type ButtonGroupApi } from './button-group.svelte';
   import Separator from '../separator/separator.svelte';
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     class?: string;
   }
 
@@ -56,5 +56,5 @@
   data-jx-btngroup-divider
   aria-orientation={lineOrientation}
   class={cn(className)}
-  {...(rest as HTMLAttributes<HTMLHRElement>)}
+  {...(rest as Omit<HTMLAttributes<HTMLHRElement>, 'color'>)}
 ></Separator>

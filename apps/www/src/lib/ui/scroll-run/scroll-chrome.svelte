@@ -36,11 +36,42 @@
   import type { Snippet } from 'svelte';
   import type { ScrollEffect } from './scroll-run.svelte';
   import { nudgeRun } from './scroll-run.svelte';
+  import {
+    provideUniversalLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { ScrollRunDefaults } from './scroll-run-defaults.svelte';
   import ProgressiveBlur from '../progressive-blur/progressive-blur.svelte';
+  import { scrollChromeStyles } from './scroll-run.stylex';
   // the law sheet rides the chrome (every chrome consumer needs the
   // run/chip/veil rules; a chrome-less run consumer imports it
   // explicitly)
   import './scroll-run.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   let {
     scrollEffect,
@@ -51,6 +82,14 @@
     forwardContent,
     backwardDisabled = false,
     forwardDisabled = false,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
   }: {
     /** the active scrollEffect — veil types mount the layer, all
      *  types mount the chips */
@@ -73,7 +112,47 @@
      *  cannot-scroll run never paints) */
     backwardDisabled?: boolean;
     forwardDisabled?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   } = $props();
+
+  // ── the eight-axis surface, the NO-ROOT (fragment) dialect (W3-D3
+  // — FIRST-TIME contract, all no-own; the pattern-hero-set
+  // precedent): the chrome renders a FRAGMENT (the optional veil
+  // layer + the two chevron chips — every root conditional, nothing
+  // guaranteed), so the family supplies the resolved lanes through
+  // CONTEXT only — the veil's composed ProgressiveBlur children
+  // stamp their own roots through the ambient chain. No carriers and
+  // no query() anchor here (a fragment has no single element to
+  // bind; the run and its one-cell host are consumer-authored per
+  // the raw contract — an @ query() addresses the consumer's own
+  // containers). The record is the family's read point (the A3 law)
+  const d = $derived(
+    ScrollRunDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  void d;
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
 
   const vertical = $derived(run?.getAttribute('data-axis') === 'vertical');
 
@@ -130,7 +209,6 @@
   // component's grid dialect; the old vertical shadow substitution
   // retired — the two effects must read differently on either axis)
   const veil = $derived(scrollEffect.type === 'shadow' || scrollEffect.type === 'progressBlur');
-  const veilIsLadder = $derived(scrollEffect.type === 'progressBlur');
 </script>
 
 {#if veil}
@@ -138,8 +216,8 @@
        veils; each ENTERS by scroll-driven translate along the run's
        axis (the host's --jx-scroll-progress drives it), gated by the
        scroll-state verdict (the unlayered rules in scroll-run.css) -->
-  <div class="jx-scroll-veil-layer pointer-events-none grid [grid-area:1/1]">
-    {#if veilIsLadder}
+  <div class={cx('jx-scroll-veil-layer', scrollChromeStyles.veilLayer)}>
+    {#if scrollEffect.type === 'progressBlur'}
       <!-- hold = 50: with snap retired there is no flush lane to cover —
            the ramp owns half the band and the peak the other half;
            the positions ride the axis (inline start/end, block
@@ -173,12 +251,12 @@
            vertical rules and collapse the auto-width bands to 0 (the
            vertical no-paint bug, caught live) -->
       <div
-        class="jx-scroll-shadow jx-scroll-veil [grid-area:1/1] [transform:translateZ(0)]"
+        class={cx('jx-scroll-shadow jx-scroll-veil', scrollChromeStyles.shadowVeil)}
         data-position="start"
         aria-hidden="true"
       ></div>
       <div
-        class="jx-scroll-shadow jx-scroll-veil [grid-area:1/1] [transform:translateZ(0)]"
+        class={cx('jx-scroll-shadow jx-scroll-veil', scrollChromeStyles.shadowVeil)}
         data-position="end"
         aria-hidden="true"
       ></div>

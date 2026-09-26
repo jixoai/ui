@@ -1,5 +1,6 @@
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import CodeBlock from '$lib/code-block.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -73,6 +74,22 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
       }),
     ].join('\n'),
   );
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -84,12 +101,12 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: DOM-first aside — desktop sticky right column, mobile the
        glass bar under the scaffold header (height 0, see toc.css) -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -98,7 +115,7 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
         title="llms-txt — the AI export pass"
         summary="jixoai sites are AI-friendly by design, so the scaffold ships the export natively: after the final static build, one pass scans the published HTML and writes llms.txt, llms-full.txt and a .md mirror beside every page. No routing takeover — the generator consumes the artifact agents will actually fetch."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">llmstxt.org proposal v2</span>
           <span class="pill">zero deps</span>
           <span class="pill">absolute URLs</span>
@@ -117,27 +134,27 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
       >
         {#snippet children()}
           <SectionCard
-            class="w-full max-w-3xl"
+            class={cx(rt.wFull, rt.maxW3xl)}
             eyebrow="pipeline · no routing takeover"
             title="What one build pass does"
             summary="The generator never touches the routing layer or the source tree — it reads what the site actually published."
           >
-            <div class="flex flex-col gap-5">
+            <div class={cx(rt.col20)}>
               <pre class="jx-arch-diagram" aria-label="llms-txt pipeline diagram"><code>final dist/                      outputs (same tree)
 ├── index.html        ─┐          ├── index.md
 ├── components/*.html  ├─ extract ├── components/*.md
 │    &lt;main&gt; → markdown  │          ├── llms.txt        (index, absolute URLs)
 │    strip nav/forms   │          └── llms-full.txt    (cap-guarded)
 └── en/… zh/… (i18n)  ─┘              └── en/llms.txt … (locale split)</code></pre>
-              <ul class="flex flex-col gap-2 text-[13px] leading-6">
-                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-                  <span><strong class="font-semibold">content root</strong> — each page's <code class="text-accent">&lt;main&gt;</code> (body fallback); chrome stripped by platform semantics only: nav/forms/scripts, <code class="text-accent">button</code> controls, <code class="text-accent">aria-hidden</code> decoration, <code class="text-accent">inert</code> collapsed panels</span></li>
-                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-                  <span><strong class="font-semibold">whitelist converter</strong> — a stack-based tokenizer, not regex chains: headings, lists, tables (colspan degrades instead of lying), fenced code with language detection, entity decoding, and dangerous links dropped</span></li>
-                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-                  <span><strong class="font-semibold">agent-first links</strong> — the index links each page's .md mirror by absolute URL; <code class="text-accent">linkStyle: 'root-relative'</code> exists for preview builds</span></li>
-                <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-                  <span><strong class="font-semibold">machine-readable registry</strong> — this site's own index also points agents at <code class="text-accent">/r/registry.json</code> under an Optional section</span></li>
+              <ul class={cx(rt.col8, rt.body13)}>
+                <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+                  <span><strong class={cx(rt.semibold)}>content root</strong> — each page's <code class={cx(rt.inkAccent)}>&lt;main&gt;</code> (body fallback); chrome stripped by platform semantics only: nav/forms/scripts, <code class={cx(rt.inkAccent)}>button</code> controls, <code class={cx(rt.inkAccent)}>aria-hidden</code> decoration, <code class={cx(rt.inkAccent)}>inert</code> collapsed panels</span></li>
+                <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+                  <span><strong class={cx(rt.semibold)}>whitelist converter</strong> — a stack-based tokenizer, not regex chains: headings, lists, tables (colspan degrades instead of lying), fenced code with language detection, entity decoding, and dangerous links dropped</span></li>
+                <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+                  <span><strong class={cx(rt.semibold)}>agent-first links</strong> — the index links each page's .md mirror by absolute URL; <code class={cx(rt.inkAccent)}>linkStyle: 'root-relative'</code> exists for preview builds</span></li>
+                <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+                  <span><strong class={cx(rt.semibold)}>machine-readable registry</strong> — this site's own index also points agents at <code class={cx(rt.inkAccent)}>/r/registry.json</code> under an Optional section</span></li>
               </ul>
             </div>
           </SectionCard>
@@ -169,19 +186,19 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
         title="Two shapes, one core"
         summary="generateLlmsTxt(distDir, config) is the only implementation. The vite adapter exists for plain-build sites; orchestrated sites call the core directly as their last step."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <div>
-            <p class="mb-3 text-[13px] leading-6">
-              Plain <code class="text-accent">vite build</code> sites (the openspecui pattern) use
+            <p class={cx(rt.body13, rt.mb12)}>
+              Plain <code class={cx(rt.inkAccent)}>vite build</code> sites (the openspecui pattern) use
               the plugin — it runs exactly once, in the SSR build's closeBundle, after SvelteKit's
               adapter has written the final dist:
             </p>
             <CodeBlock code={viteUsage} lang="ts" meta="vite.config.ts" />
           </div>
           <div>
-            <p class="mb-3 text-[13px] leading-6">
+            <p class={cx(rt.body13, rt.mb12)}>
               Orchestrated sites (the unipty pattern — build scripts that inject artifacts after
-              vite) call the core on the <strong class="font-semibold">final</strong> output:
+              vite) call the core on the <strong class={cx(rt.semibold)}>final</strong> output:
             </p>
             <CodeBlock code={orchestratorUsage} lang="js" meta="scripts/build.mjs" />
           </div>
@@ -197,22 +214,22 @@ console.log('llms-txt:', report.pages, 'pages,', report.files.length, 'files');`
         title="The laws"
         summary="The generator is a guest in your dist: it only touches what it declares, it never guesses, and it fails loudly rather than shipping something subtly wrong."
       >
-        <ul class="flex flex-col gap-2 text-[13px] leading-6">
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><strong class="font-semibold">scan the final artifact</strong> — what agents fetch
+        <ul class={cx(rt.col8, rt.body13)}>
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><strong class={cx(rt.semibold)}>scan the final artifact</strong> — what agents fetch
               is what got published, not what the source tree promised</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><strong class="font-semibold">declared outputs only</strong> — llms.txt,
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><strong class={cx(rt.semibold)}>declared outputs only</strong> — llms.txt,
               llms-full.txt, and .md mirrors; nothing is deleted, robots.txt and sitemap are never
               touched</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><strong class="font-semibold">hand-written .md is sacred</strong> — every
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><strong class={cx(rt.semibold)}>hand-written .md is sacred</strong> — every
               generated mirror starts with a provenance marker; a conflicting file aborts the run</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><strong class="font-semibold">byte-deterministic</strong> — same dist in, same
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><strong class={cx(rt.semibold)}>byte-deterministic</strong> — same dist in, same
               bytes out; re-runs converge, never duplicate</span></li>
-          <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-            <span><strong class="font-semibold">llms-full.txt is capped</strong> — over
+          <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+            <span><strong class={cx(rt.semibold)}>llms-full.txt is capped</strong> — over
               full.maxBytes the run fails naming the size; no silent truncation</span></li>
         </ul>
       </SectionCard>

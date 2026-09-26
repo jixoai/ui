@@ -98,11 +98,25 @@ function resolveSpec(spec, importerFs, aliases, ownerOf) {
  * @param {Record<string, string>} aliases components.json aliases (consumer contract)
  */
 export function analyze(items, loadSource, aliases) {
-  const ownerOf = new Map();
+  // ownership in SOURCE-PATH space (tailwindless W4-r2): relative
+  // import specifiers are authored against the SOURCE tree
+  // (registry/files/…), where ../../tokens.stylex from ui/<family>/ is
+  // correct — the delivered-fs layout (@ui adds a lib/ui level,
+  // @lib flattens) shifts relative joins into nonexistent paths, and
+  // last-writer fs ownership crowned phantom owners (alphabetically
+  // late mermaid owned the shared tokens file). fs and source-path
+  // spaces map uniformly: src/lib/X ⇄ registry/files/X.
+  const ownerByPath = new Map(); // source-path space (relative specifiers)
+  const ownerByFs = new Map(); // delivered-fs space ($lib specifiers)
+  const pathByFs = new Map(); // fs → the file's source path
   for (const item of items) {
     for (const file of item.files ?? []) {
+      if (file.path) ownerByPath.set(file.path, item.name);
       const fsPath = targetToFs(file.target ?? '', aliases);
-      if (fsPath) ownerOf.set(fsPath, item.name);
+      if (fsPath && file.path) {
+        ownerByFs.set(fsPath, item.name);
+        pathByFs.set(fsPath, file.path);
+      }
     }
   }
   const dangling = [];
@@ -116,17 +130,59 @@ export function analyze(items, loadSource, aliases) {
         dangling.push({ item: item.name, dep });
       }
     }
+    // SELF-CONTAINMENT (tailwindless W1's delivery design): an item's
+    // files[] may carry a SHARED dep source directly (e.g. 84 items
+    // deliver tokens.stylex.ts alongside their own modules) — an
+    // import that resolves INSIDE the item's own delivered set is
+    // self-contained, never a cross-item edge.
+    const selfPaths = new Set((item.files ?? []).map((f) => f.path).filter(Boolean));
+    const selfFs = new Set();
+    for (const file of item.files ?? []) {
+      const fsPath = targetToFs(file.target ?? '', aliases);
+      if (fsPath) selfFs.add(fsPath);
+    }
     const imported = new Map(); // owner item → [{ file, spec }]
+    const note = (owner, file, spec) => {
+      if (!imported.has(owner)) imported.set(owner, []);
+      imported.get(owner).push({ file, spec });
+    };
     for (const file of item.files ?? []) {
       const fsPath = targetToFs(file.target ?? '', aliases);
       const content = loadSource(file.path);
       if (!content) continue; // absent source: shadcn build / mirror own that failure
       for (const spec of extractSpecs(content, file.path.endsWith('.css'))) {
-        const owner = resolveSpec(spec, fsPath ?? '', aliases, ownerOf);
-        if (owner && owner !== item.name) {
-          if (!imported.has(owner)) imported.set(owner, []);
-          imported.get(owner).push({ file: file.path, spec });
+        if (spec.startsWith('$lib/')) {
+          // $lib specs resolve in DELIVERED-FS space (single-owner lib
+          // files: defaults/density/paint/utils — the shared-dep files
+          // ride relative specifiers, never $lib)
+          const fsBase = `${aliases.lib}/${spec.slice(5)}`;
+          for (const suffix of CANDIDATE_SUFFIXES) {
+            const candidate = fsBase + suffix;
+            if (selfFs.has(candidate)) break; // self-contained
+            if (ownerByFs.has(candidate)) {
+              const owner = ownerByFs.get(candidate);
+              if (owner !== item.name) note(owner, file.path, spec);
+              break;
+            }
+          }
+          continue;
         }
+        if (spec.startsWith('./') || spec.startsWith('../')) {
+          // relative specs ride the SOURCE tree (the authored geometry)
+          const srcBase = posix.join(posix.dirname(file.path), spec);
+          for (const suffix of CANDIDATE_SUFFIXES) {
+            const candidate = srcBase + suffix;
+            if (selfPaths.has(candidate)) break; // self-contained
+            if (ownerByPath.has(candidate)) {
+              const owner = ownerByPath.get(candidate);
+              if (owner !== item.name) note(owner, file.path, spec);
+              break;
+            }
+          }
+        }
+        // bare specifiers (npm packages) and unresolvable ids are not
+        // registry edges — css-side @import of the theme rides
+        // INSTALL_PREREQUISITES below
       }
     }
     for (const dep of declared) {

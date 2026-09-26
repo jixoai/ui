@@ -40,10 +40,36 @@ const children = (() => {}) as unknown as Snippet;
 describe('the clean-consumer families\' contract surfaces', () => {
   it('each declares exactly its slot set, shallow-frozen', () => {
     for (const [defaults, keys] of [
-      [PaginationDefaults, ['density']],
-      [StepsDefaults, ['density']],
-      [SectionCardDefaults, ['tone']],
-      [TimelineDefaults, ['density', 'variant']],
+      // pagination W3-D2: the eight-axis surface joined the landmark
+      // nav's contract (density rides the bridged lane)
+      [
+        PaginationDefaults,
+        ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
+      ],
+      // W3-D3: the eight-axis surface joined the three clean
+      // consumers (all no-own beside their literals/floors)
+      [
+        StepsDefaults,
+        ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
+      ],
+      [
+        SectionCardDefaults,
+        ['tone', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
+      ],
+      [
+        TimelineDefaults,
+        [
+          'density',
+          'size',
+          'shape',
+          'radius',
+          'color',
+          'theme',
+          'elevation',
+          'motion',
+          'variant',
+        ],
+      ],
     ] as const) {
       expect(Object.isFrozen(defaults.slots)).toBe(true);
       expect(Object.keys(defaults.slots).sort()).toEqual([...keys].sort());
@@ -62,6 +88,10 @@ describe('the clean-consumer families\' contract surfaces', () => {
           StepsDefaults.resolve({ density: 'xs' }),
           TimelineDefaults.resolve({}),
           TimelineDefaults.resolve({ variant: 'ring' }),
+          // W3-D3: the section's contract reads context now (the
+          // eight axes ride beside the tone literal) — the in-window
+          // form replaces the retired plain unit call
+          SectionCardDefaults.resolve({}),
         ],
         onvalue: (value, error) => {
           holder.value = value as unknown[] | undefined;
@@ -71,15 +101,65 @@ describe('the clean-consumer families\' contract surfaces', () => {
     });
     flushSync();
     expect(holder.error).toBeUndefined();
+    // W3-D2/D3: every axis silent-'auto' absent an opinion (§0.1 —
+    // no opinion, nothing stamps); an explicit rung normalizes
+    // verbatim; timeline's dot variant and section-card's tone keep
+    // their literal owns
     expect(holder.value).toEqual([
-      { density: undefined },
-      { density: 'xs' },
-      { density: undefined, variant: 'square' },
-      { density: undefined, variant: 'ring' },
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      {
+        density: 'xs',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+        variant: 'square',
+      },
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+        variant: 'ring',
+      },
+      {
+        tone: 'default',
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
     ]);
-    // SectionCard's tone slot reads no context — the plain unit form
-    // holds on the legal side too
-    expect(SectionCardDefaults.resolve({})).toEqual({ tone: 'default' });
   });
 });
 
@@ -111,10 +191,15 @@ describe('the read consolidation through the contracts', () => {
   });
 
   it('section-card: tone literal slot drives the title register (own default, hero explicit)', () => {
+    // tailwindless one-shot (2026-09-16): the tone register rides the
+    // root's data-tone + the title data-hook (section-card.css rules)
+    // instead of a utility class string
     const everyday = render(SectionCard, { props: { title: 't', children } });
-    const everydayTitle = everyday.container.querySelector('h2')!;
-    expect(everydayTitle.className).not.toContain('text-[clamp');
+    const everydayRoot = everyday.container.querySelector('[data-jx-section]')!;
+    expect(everydayRoot.getAttribute('data-tone')).toBe('default');
+    expect(everyday.container.querySelector('h2')!.hasAttribute('data-jx-section-title')).toBe(true);
     const hero = render(SectionCard, { props: { title: 't', tone: 'hero', children } });
-    expect(hero.container.querySelector('h2')!.className).toContain('text-[clamp');
+    expect(hero.container.querySelector('[data-jx-section]')!.getAttribute('data-tone')).toBe('hero');
+    expect(hero.container.querySelector('h2')!.hasAttribute('data-jx-section-title')).toBe(true);
   });
 });

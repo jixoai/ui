@@ -1,0 +1,65 @@
+@layer theme, base, components, utilities;
+
+/* popover.css — the folder-css RESIDUE of the floating-surface family.
+ * CARRIED VERBATIM from registry/files/ui/popover/popover.css (the
+ * anchor-geometry machinery is StyleX-inexpressible: anchor-name/
+ * position-area/position-try are not authorable through stylex.create
+ * object keys on the pinned set, the @supports joint fallback has no
+ * StyleX container, and :popover-open/:has()/::backdrop are outside
+ * the supported pseudo surface — each verified empirically in this
+ * spike; ledger corpus-report).
+ * The trigger button, caret, surface body/shadow, and scroll ring
+ * paint ARE StyleX-side (popover.styles.ts). */
+@layer components {
+.jx-pop {
+  position: fixed;
+  margin: var(--jx-pop-gap, 0px);
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  position-try: flip-block, flip-inline, flip-block flip-inline;
+  position-visibility: anchors-visible;
+  width: fit-content;
+  height: fit-content;
+  max-width: min(92vw, 22rem);
+  padding: 0;
+  font-size: 13px;
+  color: var(--popover-foreground);
+}
+@supports not (
+  (anchor-name: --jx-pop-fallback) and
+  (position-anchor: --jx-pop-fallback) and
+  (position-area: bottom) and
+  (position-try-fallbacks: flip-block)
+) {
+  .jx-pop {
+    position-anchor: auto !important;
+    inset-area: none !important;
+    position-area: none !important;
+    inset: 0;
+    margin: auto !important;
+  }
+}
+.jx-pop::backdrop {
+  background: transparent;
+}
+/* the surface host paint contract (from jixoai.css .jx-surface): the
+   platform element paints NOTHING; body/shadow children carry it.
+   The resting open pose rides :popover-open (StyleX-inexpressible) */
+.jx-pop:popover-open {
+  opacity: 1;
+  translate: 0 0;
+}
+.jx-pop.jx-surface::after {
+  content: none;
+}
+}
+
+/* caret flip — :has + ::popover-open (progressive; kept verbatim) */
+:where(.jx-pop-anchor:has(+ .jx-pop:popover-open)) .jx-pop-caret {
+  transform: rotate(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :where(.jx-pop-caret) {
+    transition: none;
+  }
+}

@@ -55,7 +55,24 @@
   import CardBody from '$lib/ui/card/card-body.svelte';
   import CardHeader from '$lib/ui/card/card-header.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { SheetDefaults, type SheetSurfaceVariant } from './sheet-defaults.svelte';
+  import { sheetStyles } from './sheet.stylex';
   // THE STICKER'S RULE SET (the load-bearing import — stamping
   // data-jx-card without this sheet loads nothing)
   import '$lib/ui/card/card.css';
@@ -74,11 +91,42 @@
     header?: Snippet;
     /** optional sticky footer (action row) */
     footer?: Snippet;
-    /** drawer width for left/right (CSS length); default 24rem */
-    size?: string;
+    /** drawer width for left/right (CSS length); default 24rem.
+     *  RENAMED from `size` (explicit-props §13, W3-C): a css WIDTH is
+     *  not the scale axis — the freed name now belongs to the
+     *  universal size lane below */
+    width?: string;
     /** floating-surface variant: solid | acrylic | auto (acrylic unless
         the environment asks for reduced transparency) */
     variant?: SheetSurfaceVariant;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size — an explicit lane
+     *  makes the drawer the CONCENTRIC ANCHOR (the carrier stamps
+     *  --jx-radius-effective on the top-layered root — self-carried
+     *  across the promotion, the batch C portal law); auto consumes
+     *  the broadcast against the panel's own ancestors */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level4 = the drawer's historic z-feel (8dp, the dialog rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -88,16 +136,51 @@
     children,
     header,
     footer,
-    size,
+    width,
     variant,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
   }: Props = $props();
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 2.2): one line —
-  // variant and size resolve through the family contract (owns 'auto'
-  // and '24rem' live in SheetDefaults, auditable in one place; density
-  // is the no-opinion axis slot — nothing stamps, the ambient css
-  // scope channel keeps flowing)
-  const d = $derived(SheetDefaults.resolve({ variant, size }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 2.2 + W3-C):
+  // one record — variant/width resolve their declared owns ('auto' /
+  // '24rem' live in SheetDefaults, auditable in one place); the eight
+  // universal axes ride the same record (elevation's own level4 is the
+  // drawer's historic z-feel on the §7 table)
+  const d = $derived(
+    SheetDefaults.resolve({ variant, width, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp + the broadcast supply + the query() anchor
+  // (PORTAL LAW, W3-C: the carriers stamp the top-layered root — the
+  // resolved axes are self-carried across the promotion)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideQueryAnchor(() => dialog ?? null);
+  // §3/§14 radius consumption — the card's law, the drawer's dialect
+  // (the fallback is the auto concentric form verbatim; a bare sheet
+  // resolves 0px through the root sheet's invariants)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair: the resolved level's shadow recipe + the
+  // PAIRED ladder-rung surface, through the level-table indirection
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const rootStyle = $derived(
+    [
+      carriers,
+      radiusConsumed,
+      elevationConsumed,
+      `--jx-sheet-size: ${d.width}`,
+    ].filter(Boolean).join('; ') || undefined,
+  );
 
   let dialog = $state<HTMLDialogElement | null>(null);
   let closing = $state(false);
@@ -108,21 +191,38 @@
     typeof window.matchMedia === 'function' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   /** edge docking per side: the margin that hugs the panel to its edge
    *  (inset: 0 + the auto margin on the cross axes pins it there) */
-  const dockUtilities = {
-    left: 'mr-auto',
-    right: 'ml-auto',
-    top: 'mb-auto',
-    bottom: 'mt-auto',
+  const DOCK = {
+    left: cx(sheetStyles.dockLeft),
+    right: cx(sheetStyles.dockRight),
+    top: cx(sheetStyles.dockTop),
+    bottom: cx(sheetStyles.dockBottom),
   } as const;
   /** the docked axis geometry: full-height side panels, full-width
    *  top/bottom panels with a dvh cap */
-  const axisUtilities = {
-    left: 'h-dvh w-[min(var(--jx-sheet-size),92vw)] max-h-none',
-    right: 'h-dvh w-[min(var(--jx-sheet-size),92vw)] max-h-none',
-    top: 'w-screen max-w-[100vw] max-h-[85dvh]',
-    bottom: 'w-screen max-w-[100vw] max-h-[85dvh]',
+  const AXIS = {
+    left: cx(sheetStyles.axisSide),
+    right: cx(sheetStyles.axisSide),
+    top: cx(sheetStyles.axisEdge),
+    bottom: cx(sheetStyles.axisEdge),
   } as const;
 
   $effect(() => {
@@ -172,14 +272,17 @@
 <dialog
   bind:this={dialog}
   class={cn(
-    `jx-sheet jx-sheet-${side} jx-surface inset-0 m-0 p-0 rounded-none text-popover-foreground`,
-    dockUtilities[side],
-    axisUtilities[side],
+    `jx-sheet jx-sheet-${side} jx-surface`,
+    cx(sheetStyles.frame),
+    DOCK[side],
+    AXIS[side],
     closing && 'closing',
   )}
   data-variant={d.variant}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   aria-label={title}
-  style="--jx-sheet-size: {d.size}"
   onclose={handleClose}
   oncancel={handleCancel}
 >
@@ -190,14 +293,14 @@
        host ride h-full on left/right so the kernel's absorbing body
        row bounds the scroll — the old hard cap (100dvh-4.25rem, whose
        68px chrome guess drifted from the real band heights) retires -->
-  <div data-jx-sheet-surface="" class={cn('jx-surface-body', (side === 'left' || side === 'right') && 'h-full')}>
+  <div data-jx-sheet-surface="" class={cn('jx-surface-body', (side === 'left' || side === 'right') && cx(sheetStyles.fill))}>
   <!-- THE STICKER HOST: the kernel's three-band ruler carries the
        drawer (card.css); the stamps carry the band presence -->
   <div
     data-jx-card
     data-sep-head=""
     data-sep-foot={footer ? '' : undefined}
-    class={cn((side === 'left' || side === 'right') && 'h-full')}
+    class={cn((side === 'left' || side === 'right') && cx(sheetStyles.fill))}
   >
     <!-- the head band: ghost zone over the title face + the × seat -->
     <div data-jx-card-head="">
@@ -206,13 +309,13 @@
              content in the content seat — the sheet's own compact
              uppercase rhythm, self-carried) -->
         <CardHeader>
-          <div class="flex w-full min-w-0 items-center gap-3 px-[1.125rem] py-3.5">
+          <div class={cx(sheetStyles.titleRow)}>
             <h2
               data-jx-sheet-title=""
-              class="font-nav text-[0.8125rem] tracking-[0.12em] uppercase text-foreground"
+              class={cx(sheetStyles.title)}
             >{title}</h2>
             {#if header}
-              <div data-jx-sheet-head-extra="" class="flex flex-1 items-center min-w-0">
+              <div data-jx-sheet-head-extra="" class={cx(sheetStyles.headExtra)}>
                 {@render header()}
               </div>
             {/if}
@@ -235,12 +338,13 @@
       class={cn(
         // same-property overrides of the cell's own utilities need the
         // consumer's `!` (the class-append law — order is not
-        // consumer-guaranteed); the max-h cap beats the cell's
-        // max-height:100% by LAYER, no `!` needed
-        '!px-[max(1.125rem-var(--jx-scrollbar-thin,0px),0px)] !py-[1.125rem] text-[0.8125rem] !text-[color:var(--popover-foreground)]',
+        // consumer-guaranteed); the sheet's rhythm/ink escape hatch
+        // lives in sheet.css keyed on .jx-sheet-body-cell (same
+        // !important semantics the former ! utilities carried)
+        'jx-sheet-body-cell',
       )}
     >
-      <div class="flex flex-col gap-4">
+      <div class={cx(sheetStyles.bodyStack)}>
         {@render children()}
       </div>
     </CardBody>

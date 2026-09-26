@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai markdown — the prose face's residue (2026-09-06, markdown-streaming:
  * original request "推出 markdown 渲染组件，支持流式渲染，AST 映射内部组件";

@@ -58,16 +58,81 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
   import { resolveTextStyle, type TextStyleProps } from '$lib/text-style.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TextDefaults, type TextMark } from './text-defaults.svelte';
+  import { textStyles } from './text.stylex';
 
-  interface Props extends HTMLAttributes<HTMLElement>, TextStyleProps {
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'>, TextStyleProps {
     /** the element vocabulary — prop value = sugar name = HTML
      *  element; omitted → the literal slot's frozen own 'p' */
     mark?: TextMark;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the modifier kernel's
+     *  fontSize prop is a different, non-colliding name) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
     mark,
+    style: callerStyle,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     lineHeight,
     weight,
     italic,
@@ -81,43 +146,52 @@
 
   // the family Defaults is the single read point (the kbd resolution
   // path): explicit ?? frozen own 'p' — a literal slot never reads
-  // context, an element choice is never zone-ambient
-  const d = $derived(TextDefaults.resolve({ mark }));
+  // context, an element choice is never zone-ambient — W3-B: the
+  // eight universal axes ride the same record
+  const d = $derived(TextDefaults.resolve({ mark, density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the #4 composition: carriers first, the caller's own style LAST
+  const rootStyle = $derived([carriers, callerStyle].filter(Boolean).join('; ') || undefined);
 
-  // the form map (design §1.5, verbatim) — element + own utilities
-  // per mark; '' means the member owns nothing on any channel (the
-  // semantic element alone IS the form)
+  // the form map (design §1.5, verbatim) — element + own ATOM group
+  // per mark (tailwindless W1b: the utility strings became the
+  // family's stylex atoms, text.stylex.ts); undefined means the
+  // member owns nothing on any channel (the semantic element alone IS
+  // the form) — cn() flattens the undefined away
   const forms = {
-    p: { element: 'p', utilities: '' },
-    strong: { element: 'strong', utilities: 'font-semibold' },
-    em: { element: 'em', utilities: 'italic' },
-    del: { element: 'del', utilities: 'line-through' },
-    mark: {
-      element: 'mark',
-      // the recorded override: the ground is a low-alpha primary tint
-      // (18% over transparent), the padding box mirrors the face's
-      // 0.05em/0.25em, the corner is the fleet 2px settle; forced
-      // colors drop to the Highlight system pair
-      utilities:
-        'bg-[color-mix(in_oklab,var(--primary)_18%,transparent)] px-[0.25em] py-[0.05em] rounded-[2px] forced-colors:bg-[Highlight] forced-colors:text-[HighlightText]',
-    },
-    ins: { element: 'ins', utilities: 'underline' },
-    sub: { element: 'sub', utilities: '' },
-    sup: { element: 'sup', utilities: '' },
+    p: { element: 'p', atoms: undefined },
+    strong: { element: 'strong', atoms: textStyles.strong },
+    em: { element: 'em', atoms: textStyles.em },
+    del: { element: 'del', atoms: textStyles.del },
+    mark: { element: 'mark', atoms: textStyles.mark },
+    ins: { element: 'ins', atoms: textStyles.ins },
+    sub: { element: 'sub', atoms: undefined },
+    sup: { element: 'sup', atoms: undefined },
   } as const;
 </script>
 
-<!-- the merge order: the form's own utilities, then the modifier
-  kernel's classes, then the consumer class LAST — a modifier lands
-  AFTER its form (weight='bold' beats strong's own 600), the consumer
-  beats both (a not-italic class still wins); absent modifiers
-  contribute NOTHING (the absent-ambient law) -->
+<!-- the merge order: the form's own atoms, then the modifier
+  kernel's utility classes, then the consumer class LAST — a modifier
+  lands AFTER its form and rides the utilities LAYER (font-bold beats
+  strong's own 600 by layer order), the consumer beats both (a
+  not-italic utility still wins); absent modifiers contribute NOTHING
+  (the absent-ambient law) -->
 <svelte:element
   this={forms[d.mark].element}
+  bind:this={uniRoot}
   {...rest}
   data-jx-text={d.mark}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   class={cn(
-    forms[d.mark].utilities,
+    cx(forms[d.mark].atoms),
     resolveTextStyle({ lineHeight, weight, italic, tracking, family, fontSize }),
     className,
   )}

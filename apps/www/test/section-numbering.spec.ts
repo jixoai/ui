@@ -26,6 +26,9 @@ import { render } from '@testing-library/svelte';
 import { tick } from 'svelte';
 import { describe, expect, it, vi } from 'vitest';
 import Host from './fixtures/section-tree-host.svelte';
+import { sectionCardStyles } from '../src/lib/ui/section-card/section-card.stylex';
+import { separatorStyles } from '../src/lib/ui/separator/separator.stylex';
+import { cx } from './helpers/stylex-atom';
 
 /** the settle protocol: Svelte flush + observer microtask + rAF (the
  *  provider-lifecycle precedent — mutation observers deliver per
@@ -54,13 +57,54 @@ const headingNumber = (container: HTMLElement, id: string) =>
 // Captured 2026-09-05 from the pristine HEAD section-card.svelte (see
 // header): the plain lane — sections outside every numbering domain.
 // Re-pinned 2026-09-08: the separator default variant renamed line→fused.
+// Re-pinned 2026-09-17 (tailwindless W1): section-card + separator ride
+// stylex atoms now — the baseline holds the atomic member prefixes (the
+// dev-compiled x-hash tails are normalized away before the compare) and
+// the semantic data-tone/-title/-summary stamps; structure byte-exact.
 const BASELINE =
-  '<!----><!----><section data-jx-section="" class="border border-border bg-card shadow-2xs " data-family="docs" data-region="guide" data-role="entry" data-ordering="tree"><div data-jx-section-header="" class="flex flex-col [gap:calc(var(--jx-stack)_+_var(--jx-unit))] [padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_var(--jx-unit))]" data-region="head"><p class="font-nav text-primary [font-size:calc(var(--jx-text-secondary)_-_calc(var(--jx-unit)_/_4))] uppercase tracking-[0.24em]">The Eyebrow</p><!----> <div class="flex flex-col [gap:calc(var(--jx-stack)_+_calc(var(--jx-unit)_/_2))]"><h1 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">Outside Rich</h1><!----> <p class="max-w-[64ch] text-pretty [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground">The summary line.</p><!----></div></div> <!----><hr data-jx-separator="fused" data-orientation="horizontal" class="flex-none m-0 border-0" data-jx-section-sep="true" aria-hidden="true"><!----> <div data-jx-section-body="" class="[padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_calc(var(--jx-unit)_*_2))]">rich body<!----></div></section><!----> <section data-jx-section="" class="border border-border bg-card shadow-2xs " data-role="section"><div data-jx-section-header="" class="flex flex-col [gap:calc(var(--jx-stack)_+_var(--jx-unit))] [padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_var(--jx-unit))]"><!----> <div class="flex flex-col [gap:calc(var(--jx-stack)_+_calc(var(--jx-unit)_/_2))]"><h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">Outside Bare</h2><!----> <!----></div></div> <!----><hr data-jx-separator="fused" data-orientation="horizontal" class="flex-none m-0 border-0" data-jx-section-sep="true" aria-hidden="true"><!----> <div data-jx-section-body="" class="[padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_calc(var(--jx-unit)_*_2))]">bare body<!----></div></section><!---->';
+  '<!----><!----><section data-jx-section="" data-tone="default" class="section-card__sectionCardStyles.card" data-family="docs" data-region="guide" data-role="entry" data-ordering="tree"><div data-jx-section-header="" class="section-card__sectionCardStyles.header" data-region="head"><p class="section-card__sectionCardStyles.eyebrow">The Eyebrow</p><!----> <div class="section-card__sectionCardStyles.titleBlock"><h1 data-jx-section-title="">Outside Rich</h1><!----> <p data-jx-section-summary="">The summary line.</p><!----></div></div> <!----><hr data-jx-separator="fused" data-orientation="horizontal" class="separator__separatorStyles.horizontal" data-jx-section-sep="true" aria-hidden="true"><!----> <div data-jx-section-body="" class="section-card__sectionCardStyles.body">rich body<!----></div></section><!----> <section data-jx-section="" data-tone="default" class="section-card__sectionCardStyles.card" data-role="section"><div data-jx-section-header="" class="section-card__sectionCardStyles.header"><!----> <div class="section-card__sectionCardStyles.titleBlock"><h2 data-jx-section-title="">Outside Bare</h2><!----> <!----></div></div> <!----><hr data-jx-separator="fused" data-orientation="horizontal" class="separator__separatorStyles.horizontal" data-jx-section-sep="true" aria-hidden="true"><!----> <div data-jx-section-body="" class="section-card__sectionCardStyles.body">bare body<!----></div></section><!---->';
+
+/** strip the stylex dev hashes (x…) that trail an atomic member prefix —
+ *  they are compiler-generated, every other byte stays pinned */
+/** strip atom class tokens from BOTH sides of the compare: the dev-name
+ *  prefixes (…__…Styles.member) of the pre-compile lane AND the bare
+ *  x-hashes of the compile lane (012335c4: dev:false — hashed classes
+ *  everywhere, dev names gone from the DOM). The atom MEMBER identity
+ *  the baseline used to carry inline is re-asserted below through the
+ *  compiled atom strings (cx(sectionCardStyles.…)) — identity through
+ *  the shared source module, strength unchanged. Every other byte
+ *  (structure, data-* stamps) stays pinned. */
+const stripAtomClasses = (html: string): string =>
+  html
+    .replace(/[a-z][a-z0-9-]*__[A-Za-z]+Styles\.[\w.]+/gu, '')
+    .replace(/\bx[0-9a-z]+\b/gu, '')
+    .replace(/\s+/g, ' ')
+    .replace(/class=" "/g, 'class=""');
+
+const normalizeAtoms = (html: string): string => stripAtomClasses(html);
+const normalizeBaseline = (html: string): string =>
+  stripAtomClasses(
+    html.replace(/([a-z][a-z0-9-]*__[A-Za-z]+Styles\.[\w.]+)(?:\s+x[a-z0-9]+)+/gu, '$1'),
+  );
 
 describe('1.3 — the status-quo gate (sections outside every domain)', () => {
   it('byte-identical to the pre-change baseline; no data-number, no number node', () => {
     const { container } = render(Host, { props: { variant: 'plain' } });
-    expect(container.innerHTML).toBe(BASELINE);
+    expect(normalizeAtoms(container.innerHTML)).toBe(normalizeBaseline(BASELINE));
+    // the atom member identity the baseline's dev names used to carry
+    // (compile-lane re-pin W5-r2 — the atom STRINGS after 012335c4):
+    // the section-card + separator members, membership through cx
+    const first = container.querySelector('section[data-jx-section]')!;
+    expect(first.className).toContain(cx(sectionCardStyles.card));
+    expect(first.querySelector('[data-jx-section-header]')!.className).toContain(
+      cx(sectionCardStyles.header),
+    );
+    expect(first.querySelector('[data-jx-section-body]')!.className).toContain(
+      cx(sectionCardStyles.body),
+    );
+    expect(first.querySelector('hr[data-jx-separator]')!.className).toContain(
+      cx(separatorStyles.horizontal),
+    );
     expect(container.querySelectorAll('[data-number]')).toHaveLength(0);
     expect(container.querySelectorAll('[data-jx-number]')).toHaveLength(0);
   });

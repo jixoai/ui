@@ -2,7 +2,7 @@
   jixoai terminal card (registry/files/ui/terminal-card/terminal-card.svelte).
   The Broadside hero terminal, composed after the openspecui reference:
   traffic-light title bar, one large typed command line, outputs that
-  surface line by line, 6px hard offset shadow. Commands type in
+  surface line by line, 4px hard offset shadow. Commands type in
   character by character (one-time entrance — never looping); the cursor
   is a STATIC block (the jixoai motion law; the reference's blink
   predates it). Prerendered/no-JS shows the settled terminal; reduced
@@ -26,10 +26,35 @@
   (the color-mix output tint too); ONLY the line-reveal state machine
   (.jx-out/.jx-out-shown + reduced-motion) stays in terminal-card.css —
   D1-exempt residue on the unlayered carve-out.
+
+  tailwindless one-shot W1 (2026-09-17): bezel/bar/dots/cursor paint
+  ride the family's stylex atoms (terminal-card.stylex.ts); the body
+  padding seam (sm), the command display voice (weight + size seam),
+  and the output sibling rhythm joined the css residue (media and
+  `> * + *` seams atoms cannot own).
 -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationPairOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
+  import { terminalCardStyles } from './terminal-card.stylex';
+  import { TerminalCardDefaults } from './terminal-card-defaults.svelte';
+  import { watchTerminalScope } from '$lib/terminal-scope.svelte';
+  import { tokenScope } from '../../tokens.stylex';
   import './terminal-card.css';
 
   interface Props {
@@ -38,24 +63,107 @@
     outputs: readonly string[];
     theme?: 'dark' | 'light' | 'system';
     speed?: number;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query(). NO own — the bezel's 4px hard offset shadow is its
+     *  own documented law (the elevation grammar's terminal
+     *  exemption); an explicit lane steps the §7 table */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
-  let { barTitle, command, outputs, theme = 'dark', speed = 1 }: Props = $props();
+  let {
+    barTitle,
+    command,
+    outputs,
+    theme,
+    speed = 1,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
+  }: Props = $props();
 
-  // scoped token class: dark (default lock) or jx-light (css-defined)
-  let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
+  // the family Defaults is the single read point (context-defaults
+  // round 2): theme rides its literal slot — own 'dark' (the bezel
+  // law) lives in the contract, never a destructure default.
+  // W3-C: the seven non-theme axes ride the same record — the THEME
+  // axis is DELIBERATELY ABSENT (the unruled-collision law): the
+  // bezel theme is the SHELL lock (own-before-ambient, dark-locked
+  // regardless of the tree), NOT the theme axis' ambient-first law —
+  // a §13 rename would be required to adopt it, and none is ruled.
+  // The theme lane therefore forwards ambient, unadopted
+  const d = $derived(
+    TerminalCardDefaults.resolve({ theme, density, size, shape, radius, color, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // §3/§14 radius consumption (the fallback is the auto concentric
+  // form verbatim — the root sheet's invariants close it)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair — the GENERIC form (no jx-surface bridge):
+  // the bezel consumes the pair in terminal-card.css
+  const elevationConsumed = $derived(elevationPairOf(d.elevation));
+  const rootStyle = $derived(
+    [carriers, radiusConsumed, elevationConsumed].filter(Boolean).join('; ') || undefined,
+  );
 
-  $effect(() => {
-    if (theme !== 'system') {
-      scope = theme === 'light' ? 'light' : 'dark';
-      return;
-    }
-    const media = matchMedia('(prefers-color-scheme: dark)');
-    const apply = () => (scope = media.matches ? 'dark' : 'light');
-    apply();
-    media.addEventListener('change', apply);
-    return () => media.removeEventListener('change', apply);
-  });
+  // scoped token class: dark (default lock) or jx-light
+  // (css-defined) — the SHARED resolution (lib/terminal-scope: one
+  // law, one implementation). Held as the OBJECT: the watch's scope
+  // is a getter — destructuring would copy the value once and kill
+  // reactivity
+  const scopeWatch = watchTerminalScope(() => d.theme);
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    // `object` (not a keyed shape): stylex's Theme products (the
+    // same-map createTheme stamp) are branded interfaces with NO
+    // index signature — their runtime truth IS the compiled styles
+    // map ({<varGroupHash>: 'cls1 cls2', $$css: true}); the joiner
+    // narrows by VALUE typeof, the parameter just admits the shape
+    ...styles: (object | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : style === undefined
+            ? ''
+            : Object.entries(style ?? {}).flatMap(([key, value]) =>
+                key !== '$$css' && typeof value === 'string' ? [value] : [],
+              ).join(' '),
+      )
+      .join(' ');
+
+  // scoped token class: dark (default lock) or jx-light — retired
+  // into the shared watch above
 
   // Prerendered/no-JS output shows the settled terminal; hydration
   // restarts the typing story.
@@ -105,26 +213,38 @@
 </script>
 
 <div
+  bind:this={uniRoot}
   data-jx-terminal
+  data-density={densityRungOf(d.density)}
+  style={rootStyle}
   class={cn(
-    'border-border bg-terminal text-terminal-foreground w-full border shadow',
-    scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
+    cx(terminalCardStyles.card),
+    // cx(tokenScope): the vars-group theme class — the --jx-* map
+    // re-resolves against THIS card's own scope (the .dark island),
+    // not :root's frozen light literals (the bezel law the header
+    // carries since the scope-stamp round; the card joins it here)
+    cx(tokenScope),
+    scopeWatch.scope === 'dark'
+      ? `dark ${cx(terminalCardStyles.schemeDark)}`
+      : `jx-light ${cx(terminalCardStyles.schemeLight)}`,
   )}
 >
-  <div
-    class="text-terminal-foreground/55 flex items-center gap-1.5 border-b px-3.5 py-2 font-nav text-xs tracking-[0.1em]"
-  >
-    <span data-jx-light-dot class="w-2 h-2 flex-none border border-current bg-[oklch(0.7_0.18_25)]" aria-hidden="true"></span>
-    <span data-jx-light-dot data-jx-light-yellow class="w-2 h-2 flex-none border border-current bg-[oklch(0.85_0.17_95)]" aria-hidden="true"></span>
-    <span data-jx-light-dot data-jx-light-green class="w-2 h-2 flex-none border border-current bg-[oklch(0.75_0.17_150)]" aria-hidden="true"></span>
-    <span class="ml-2 truncate">{barTitle}</span>
+  <div class={cx(terminalCardStyles.bar)}>
+    <span data-jx-light-dot class={cx(terminalCardStyles.dot, terminalCardStyles.dotRed)} aria-hidden="true"></span>
+    <span data-jx-light-dot data-jx-light-yellow class={cx(terminalCardStyles.dot, terminalCardStyles.dotYellow)} aria-hidden="true"></span>
+    <span data-jx-light-dot data-jx-light-green class={cx(terminalCardStyles.dot, terminalCardStyles.dotGreen)} aria-hidden="true"></span>
+    <span class={cx(terminalCardStyles.barTitle)}>{barTitle}</span>
   </div>
-  <div class="p-4 sm:p-5">
-    <p class="text-lg font-semibold tracking-tight sm:text-xl">
-      <span class="text-primary mr-2">$</span><span>{typed}</span><span class="jx-cursor inline-block w-[0.58em] h-[1.05em] bg-terminal-foreground align-text-bottom ml-0.5" aria-hidden="true"></span>
+  <!-- the body's padding (p-4 → sm:p-5), the command voice
+       (font-semibold + its sm size seam), and the output stack's
+       sibling rhythm live in terminal-card.css (media/sibling seams
+       atoms cannot own) -->
+  <div data-jx-terminal-body="">
+    <p data-jx-terminal-command="">
+      <span class={cx(terminalCardStyles.prompt)}>$</span><span>{typed}</span><span class="jx-cursor {cx(terminalCardStyles.cursor)}" aria-hidden="true"></span>
     </p>
-    <div class="mt-3 space-y-1 text-[13px] leading-5">
-      {#each outputs as line, index (line)}
+    <div data-jx-terminal-outputs="" class={cx(terminalCardStyles.outputs)}>
+      {#each outputs as line, index (index)}
         <p class={cn('jx-out', index < shownLines && 'jx-out-shown')}>{line}</p>
       {/each}
     </div>

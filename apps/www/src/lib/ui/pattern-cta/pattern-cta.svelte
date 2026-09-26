@@ -15,17 +15,40 @@
   patched, no atom paint re-implemented.
 
   Elevation (F-7, adversarial-review 2026-09-02): the band floats on
-  the `shadow` utility (--shadow, the elevation grammar's float tier)
-  — the old `[box-shadow:4px_4px_0_0_var(--shadow)]` arbitrary value
-  was doubly wrong: hardcoded geometry OFF the tokens, and var(--shadow)
-  is a full shadow LIST, not a color — the substitution produced five
-  lengths and the whole declaration computed to none (the band rendered
-  shadowless). Geometry lives only in the theme sheet.
+  the --shadow token (the elevation grammar's float tier) — the old
+  `[box-shadow:4px_4px_0_0_var(--shadow)]` arbitrary value was doubly
+  wrong: hardcoded geometry OFF the tokens, and var(--shadow) is a
+  full shadow LIST, not a color — the substitution produced five
+  lengths and the whole declaration computed to none (the band
+  rendered shadowless). Geometry lives only in the theme sheet.
+
+  tailwindless Wave 1 batch 3 (2026-09-17): the paint rides the
+  family's stylex ATOMS (pattern-cta.stylex.ts) joined through cx();
+  the 820px two-track seam rides the band atom's media block at the
+  ORIGINAL threshold (breakpoint parity); the `+` corner brackets
+  stay in pattern-cta.css (pseudo-element content, lane-2).
 -->
 <script lang="ts">
   import Icon from '$lib/ui/icon';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { PatternCtaDefaults } from './pattern-cta-defaults.svelte';
+  import { ctaStyles } from './pattern-cta.stylex';
   import './pattern-cta.css';
 
   interface Props {
@@ -40,6 +63,30 @@
     /** an outline escape beside the heading block; renders when set */
     secondaryLabel?: string;
     secondaryHref?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the composed children ride
+     *  the ambient chain — the composition law) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -50,8 +97,29 @@
     actionLabel = 'copy command',
     secondaryLabel = '',
     secondaryHref = '#',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D2 — FIRST-TIME contract, all
+  // no-own: a composition product over batch A-D1 children; the size
+  // axis scales the band root, the children's axis surfaces ride the
+  // ambient chain — the whole point of 吃也供)
+  const d = $derived(
+    PatternCtaDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   let copied = $state(false);
   let copyTimer: ReturnType<typeof setTimeout> | undefined;
@@ -72,30 +140,51 @@
     clearTimeout(copyTimer);
     copyTimer = setTimeout(() => (copied = false), 1400);
   }
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <section
   data-jx-pattern-cta=""
-  class={`jx-pattern-cta box-border grid w-full gap-8 border border-border bg-card px-4 py-8 rounded-(--radius) shadow min-[820px]:grid-cols-[minmax(0,1fr)_minmax(19rem,24rem)] min-[820px]:items-center min-[820px]:px-8 ${className}`}
+  bind:this={uniRoot}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+  class={`jx-pattern-cta ${cx(ctaStyles.band)} ${className}`}
   aria-label="call to action"
 >
-  <div class="min-w-0">
-    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary">$ npx jixoai-ui add …</p>
+  <div class={cx(ctaStyles.lead)}>
+    <p class={cx(ctaStyles.eyebrow)}>$ npx jixoai-ui add …</p>
     <h2
       data-jx-cta-title=""
-      class="mt-3 max-w-[24ch] text-[clamp(1.6rem,3.2vw,2.4rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
+      class={cx(ctaStyles.heading)}
     >
       {heading}
     </h2>
-    <p class="mt-3 max-w-[52ch] text-pretty text-[15px] leading-6 text-muted-foreground">
+    <p class={cx(ctaStyles.summary)}>
       {summary}
     </p>
     {#if secondaryLabel}
-      <PressButton variant="outline" href={secondaryHref} class="mt-6">{secondaryLabel}</PressButton>
+      <PressButton variant="outline" href={secondaryHref} class={cx(ctaStyles.escape)}>{secondaryLabel}</PressButton>
     {/if}
   </div>
 
-  <CodeCard lang="bash" code={command} filename="install" copyable={false} class="min-w-0">
+  <CodeCard lang="bash" code={command} filename="install" copyable={false} class={cx(ctaStyles.lead)}>
     {#snippet footer()}
       <PressButton
         variant={copied ? 'tonal' : 'fill'}
@@ -104,10 +193,10 @@
         ariaLabel={`${copied ? 'copied' : actionLabel} ${command}`}
       >
         {#if copied}
-          <span class="inline-flex"><Icon name="check" size={14} strokeWidth={2.5} /></span>
+          <span class={cx(ctaStyles.iconLane)}><Icon name="check" size={14} strokeWidth={2.5} /></span>
           <span>copied</span>
         {:else}
-          <span class="inline-flex"><Icon name="copy" size={14} /></span>
+          <span class={cx(ctaStyles.iconLane)}><Icon name="copy" size={14} /></span>
           <span>{actionLabel}</span>
         {/if}
       </PressButton>

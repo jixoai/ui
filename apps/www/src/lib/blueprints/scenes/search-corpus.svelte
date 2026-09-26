@@ -3,30 +3,48 @@
      the left, one pass keyed on STRUCTURE not guesses, and the
      engine-neutral corpus landing for any client engine (minisearch
      first) to compile. Terminal diagram idiom; no live component (it
-     is a build tool). -->
-<div class="flex h-full w-full items-center justify-center p-8">
-  <div
-    class="flex w-full max-w-2xl flex-col gap-3 border border-[color:var(--border)] bg-[color:var(--card)] p-6 font-mono text-[13px] leading-6"
-  >
-    <div class="flex items-center justify-between border-b border-[color:var(--border)] pb-3">
-      <span class="font-bold uppercase tracking-widest text-[color:var(--primary)]">search-corpus</span>
-      <span class="text-[11px] uppercase tracking-widest text-[color:var(--muted-foreground)]"
+     is a build tool). (tailwindless BP-B 2026-09-16: utilities →
+     surface atoms.) -->
+<script lang="ts">
+  import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+</script>
+
+<Stack align="center" justify="center" class={cx(bpB.searchCorpusStage)}>
+  <Stack direction="column" gap="12" class={cx(bpB.searchCorpusCard)} }>
+    <Stack align="center" justify="between" class={cx(bpB.searchCorpusHead)} }>
+      <span class={cx(bpB.searchCorpusTitle)}>search-corpus</span>
+      <span class={cx(bpB.searchCorpusTag)}
         >structure, not guesses</span
       >
-    </div>
-    <div class="grid grid-cols-[1fr_auto_1fr] items-center gap-4">
-      <pre class="text-[color:var(--muted-foreground)]">dist/*.html
+    </Stack>
+    <div class={cx(bpB.searchCorpusGrid)}>
+      <pre class={cx(bpB.searchCorpusTree)}>dist/*.html
 ├── h2/h3 (the tree law)
 ├── §eyebrow/title/summary
 └── figure/figcaption</pre>
-      <span class="text-[color:var(--primary)]">─▶</span>
+      <span class={cx(bpB.searchCorpusArrow)}>─▶</span>
       <pre>/search/corpus.json
   pages[] sections[] blocks[]
   kind: prose|code|table
   preset: null (点线面 ready)</pre>
     </div>
-    <div class="border-t border-[color:var(--border)] pt-3 text-[11px] text-[color:var(--muted-foreground)]">
+    <div class={cx(bpB.searchCorpusFoot)}>
       engine-pluggable (minisearch ▸ fuse ▸ …) · Intl.Segmenter CJK · byte-deterministic
     </div>
-  </div>
-</div>
+  </Stack>
+</Stack>

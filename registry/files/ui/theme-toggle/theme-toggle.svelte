@@ -15,6 +15,11 @@
   bezel's currentColor color-mix paint rides arbitrary-value utilities;
   the segmented group's last-slot border and the data-active fill are
   JS-known, so conditional strings carry them.
+  tailwindless one-shot Wave 1b batch A (2026-09-17): the paint rides
+  the family's stylex ATOMS (theme-toggle.stylex.ts) joined through
+  cx() below — the last-slot rail and the data-active fill walk
+  conditional atom groups; the data-active attribute stays the valued
+  hook. Still zero css residue.
 
   Localization (2026-09-06, consumer-feedback-fixes P0-1): the mode
   vocabulary is a presentation payload, not structure — the OPTIONAL
@@ -31,8 +36,41 @@
 -->
 <script lang="ts">
   import Icon from '$lib/ui/icon';
-  import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { ThemeToggleDefaults, type ThemeToggleVariant } from './theme-toggle-defaults.svelte';
+  import { themeToggleStyles } from './theme-toggle.stylex';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   type Theme = 'light' | 'dark' | 'system';
 
@@ -52,13 +90,64 @@
     /** localize the mode labels and the group aria name; absent =
      *  English (the shipped defaults) — no behavioral change */
     labels?: ThemeToggleLabels;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): tree-scoped paint (class:dark on
+     *  the control's own root); auto = inheritance — deliberately NOT
+     *  the global flip (the §6 system lane keeps driving html.dark +
+     *  localStorage through set/cycle below, untouched by this
+     *  lane) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
-  let { variant, hideLabels = false, labels = undefined }: Props = $props();
+  let {
+    variant,
+    hideLabels = false,
+    labels = undefined,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+  }: Props = $props();
   // the family Defaults is the single read point (context-defaults-
   // economy 3.4): variant rides a literal slot (own 'compact', never
-  // reads context — a structural selector, not a paint rung)
-  const d = $derived(ThemeToggleDefaults.resolve({ variant }));
+  // reads context — a structural selector, not a paint rung); W3-D5
+  // widens the record to the EIGHT-axis surface (all no-own) — the
+  // carriers stamp whichever root renders (the segmented group or
+  // the cycle button), the supply + the query() anchor ride the
+  // standard wiring. The GLOBAL flip machinery below is never
+  // touched by the axis surface
+  const d = $derived(
+    ThemeToggleDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement | undefined>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
+  const rootDensity = $derived(densityRungOf(d.density));
 
   const ORDER: Theme[] = ['light', 'dark', 'system'];
   // the resolved vocabulary: explicit labels over the English own — one
@@ -99,26 +188,31 @@
     return () => media.removeEventListener('change', onChange);
   });
 
-  // the bezel recipe theme-toggle/language-switcher share: 1px
-  // currentColor border, transparent fill, hover leans the border in
-  const bezel =
-    'inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_35%,transparent)] bg-transparent text-[11px] text-inherit transition-[color,border-color,background-color] duration-150 ease-out';
 </script>
 
 {#snippet iconFor(theme: Theme)}
   <!-- sun/moon/monitor glyphs through the Icon component; the wrapper
        keeps the data hook, the component owns the 13px box -->
   {#if theme === 'light'}
-    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="sun" size={13} /></span>
+    <span data-jx-theme-icon="" class={cx(themeToggleStyles.icon)}><Icon name="sun" size={13} /></span>
   {:else if theme === 'dark'}
-    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="moon" size={13} /></span>
+    <span data-jx-theme-icon="" class={cx(themeToggleStyles.icon)}><Icon name="moon" size={13} /></span>
   {:else}
-    <span data-jx-theme-icon="" class="flex-none inline-flex"><Icon name="monitor" size={13} /></span>
+    <span data-jx-theme-icon="" class={cx(themeToggleStyles.icon)}><Icon name="monitor" size={13} /></span>
   {/if}
 {/snippet}
 
 {#if d.variant === 'full'}
-  <div data-jx-theme-segmented="" class="font-nav inline-flex" role="group" aria-label={labels?.groupAriaLabel ?? 'Color theme'}>
+  <div
+    bind:this={uniRoot}
+    data-jx-theme-segmented=""
+    class={cx(themeToggleStyles.group)}
+    data-density={rootDensity}
+    class:dark={d.theme === 'dark'}
+    style={rootStyle}
+    role="group"
+    aria-label={labels?.groupAriaLabel ?? 'Color theme'}
+  >
     {#each ORDER as theme, index (theme)}
       <button
         type="button"
@@ -126,12 +220,11 @@
         aria-pressed={current === theme}
         aria-label={hideLabels ? LABEL[theme] : undefined}
         data-jx-theme-seg=""
-        class={cn(
-          'py-1',
-          bezel,
-          index === ORDER.length - 1 ? 'border-r' : 'border-r-0',
-          'px-[9px]',
-          current === theme && 'bg-[color-mix(in_oklab,currentColor_16%,transparent)]',
+        class={cx(
+          themeToggleStyles.bezel,
+          themeToggleStyles.seg,
+          index === ORDER.length - 1 ? themeToggleStyles.segRail : themeToggleStyles.segFlush,
+          current === theme ? themeToggleStyles.segActive : undefined,
         )}
         data-active={current === theme || undefined}
       >
@@ -144,10 +237,14 @@
   </div>
 {:else}
   <button
+    bind:this={uniRoot}
     type="button"
     onclick={cycle}
     data-jx-theme-btn=""
-    class={cn('font-nav px-2.5 py-1', bezel, 'hover:border-[color-mix(in_oklab,currentColor_70%,transparent)]')}
+    class={cx(themeToggleStyles.bezel, themeToggleStyles.cycle)}
+    data-density={rootDensity}
+    class:dark={d.theme === 'dark'}
+    style={rootStyle}
     aria-label={`theme: ${current}`}
   >
     {#if d.variant === 'compact'}

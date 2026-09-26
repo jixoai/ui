@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer properties, theme, base, components;
 
 /* jixoai press-button — effect loops (tw4, 2026-08-24; recipes re-ruled
  * r4 2026-09-10 and re-ruled AGAIN r5 the same day — the Owner's
@@ -32,6 +32,106 @@
    the corners as-is, a round rim would render square). */
 
 @layer components {
+/* ── the tailwindless lane-2 seam (Wave 1, 2026-09-17) ──────────────
+   The button body rides press-button.stylex.ts atoms; four things
+   atoms cannot carry live here (all keyed on the family's own data
+   hooks, :where() zero specificity — consumer utilities keep
+   winning):
+   1. font-medium — NO weight token yet (reported MISSING:
+      --jx-weight-medium); applies to every rung including link;
+   2. ghost's none-trio press customs — custom-property seams;
+   3. the FLAT pose (raised={false}) — the four seams, AFTER ghost in
+      source order so the engrave re-point outranks ghost's none (the
+      old string-surgery strip is pure css order now);
+   4. the spinner frames' animation + per-frame delays — motion
+      literals (the reduced-motion kill below already targets this
+      selector UNLAYERED and keeps winning). */
+:where([data-jx-press-button]) {
+  font-weight: 500;
+}
+/* ── the §3/§14 radius + shape consumption (explicit-props W3-B) ────
+   The CONCENTRIC LAW: the button's corner geometry reads the §11
+   carrier chain, never a literal. --jx-radius-consumed is stamped by
+   the component per render (the explicit lane: radius-effective ×
+   the per-shape factor; auto: §3's max(0px, R − P) × the factor —
+   the ×2-follows-resolved-shape law, §2); the fallback below is the
+   auto form verbatim, so a bare button with NO supplying ancestor
+   resolves 0px through the root sheet's invariants (the var()
+   fallbacks are load-bearing — IACVT never reaches the property).
+   corner-shape rides the alias ladder the same way: the resolved
+   shape picks --jx-shape-<shape> under the §14 @supports verdict,
+   round by default. */
+:where([data-jx-press-button]) {
+  corner-shape: var(--jx-shape-effective, round);
+  border-radius: var(
+    --jx-radius-consumed,
+    calc(
+      max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) *
+      var(--jx-radius-factor-effective, 1)
+    )
+  );
+}
+/* ── the §5 color-axis consumption (explicit-props W6-r3, the vision
+   round's AXIS-NOT-VISIBLE fix) ────────────────────────────────────
+   The paint ladder's PRIMARY-derived slots re-derive from the §11
+   carrier ON the family root (the canvas-bug law: the :root-declared
+   --jx-fill/--jx-tonal substituted var(--primary) at :root already —
+   an inline carrier stamp on the button would never reach them). At
+   rest the root invariant --jx-color-effective: var(--primary) keeps
+   the historic paint byte-identical; an explicit color lane re-hues
+   fill/tonal live (the stage scope's own re-declaration re-runs the
+   substitution per theme profile). --jx-outline does NOT follow — its
+   historic ground is --border, not the primary family, and re-pointing
+   it would repaint every outline button's frame; --jx-fill-ink keeps
+   the primary pair's ink (the §5 hue formula pins L, so the contrast
+   pair holds at every hue). The unlayered hue/pair utilities
+   (jx-hue-*, jx-pair-*) still outrank this layered rule — call-site
+   semantic injection wins over the axis default, the state-paint law. */
+:where([data-jx-press-button]) {
+  --jx-fill: var(--jx-color-effective, var(--primary));
+  --jx-fill-ink: var(--primary-foreground);
+  --jx-tonal: var(--jx-color-effective, var(--primary));
+}
+/* ── the §7 elevation-axis consumption (W6-r3; the toast.css
+   precedent, toast owns level3 the same way) ───────────────────────
+   A resolved elevation lane's pair (--jx-elevation-shadow, stamped by
+   elevationPairOf in the component) re-points the press law's REST
+   pose to the level recipe; hover/active keep the family's own
+   xs→sm/anchored signatures — the axis steps the GROUND, the press
+   law stays the PHYSICS. No lane → the historic shadow-xs ground,
+   byte-identical (the leading var is absent, the fallback holds).
+   Source order keeps the ghost none-trio and the flat pose winning
+   below — quiet/flat rungs never grow a shadow from the axis. */
+:where([data-jx-press-button]) {
+  --jx-press-shadow: var(--jx-elevation-shadow, var(--shadow-xs));
+}
+:where([data-jx-press-button='ghost']) {
+  --jx-press-shadow: none;
+  --jx-press-shadow-hover: none;
+  --jx-press-shadow-active: none;
+}
+:where([data-jx-press-flat]) {
+  --jx-press-shadow: none;
+  --jx-press-shadow-hover: none;
+  --jx-press-shadow-active: var(--shadow-engrave);
+  --jx-press-move: none;
+}
+:where(.jx-press-spin-frames i) {
+  animation-name: jx-press-spin-frame;
+  animation-duration: 800ms;
+  animation-timing-function: steps(1);
+  animation-iteration-count: infinite;
+}
+:where(.jx-press-spin-frames i:nth-child(2)) {
+  animation-delay: 200ms;
+}
+:where(.jx-press-spin-frames i:nth-child(3)) {
+  animation-delay: 400ms;
+}
+:where(.jx-press-spin-frames i:nth-child(4)) {
+  animation-delay: 600ms;
+}
+
 /* The effect scenery sits at NEGATIVE z-index under the in-flow label
    (the host carries relative z-0 — its own stacking context, stamped by
    the runtime), so nothing escapes and the label is never occluded. */
@@ -65,7 +165,14 @@
       from var(--jx-shimmer-angle),
       var(--shimmer-base, currentColor) 0deg,
       var(--shimmer-base, currentColor) var(--shimmer-shine-start, 280deg),
-      var(--shimmer-shine) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg) / 2),
+      /* the PLATFORM stop set (the frozen-frame contrast fix,
+         2026-09-19): a soft two-slope peak reads at 1.1–1.7:1 along
+         most of its arc on a 1px ring — the visible shine collapsed
+         to the peak pixel alone. The arc now spends its middle third
+         at FULL saturation (a ~6px solid band on the reference 228px
+         perimeter) with thirds ramping in and out */
+      var(--shimmer-shine) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg) / 3),
+      var(--shimmer-shine) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg) * 2 / 3),
       var(--shimmer-base, currentColor) calc(var(--shimmer-shine-start, 280deg) + var(--shimmer-shine-width, 30deg)),
       var(--shimmer-base, currentColor) 360deg
     ) !important;
@@ -77,6 +184,21 @@
   background-origin: padding-box, border-box !important;
   background-repeat: no-repeat !important;
   animation: jx-shimmer-spin var(--shimmer-speed, 3000ms) linear infinite;
+}
+
+/* THE EFFECT-HOST STACKING POSE (the overflow round, 2026-09-20):
+   every effect host (pulse/rainbow/ripple mounts) carries
+   position: relative + z-index: 0 — the negative-z effect layers
+   resolve against the HOST and stay under the in-flow label. This
+   was once stamped as the UTILITY classes relative/z-0; the
+   tailwindless sweep deleted those rules and the stamps went mute —
+   computed position: static, every absolute layer resolved against
+   a foreign containing block, and the sonar/glow geometry spilled
+   far outside its host. The pose is FAMILY-OWNED now, behind
+   :where() so consumer utilities keep winning (the layer law). */
+:where(.jx-fx-host) {
+  position: relative;
+  z-index: 0;
 }
 
 /* pulse — sonar rings cast by a silhouette copy of the body. r4 ruling
@@ -129,7 +251,7 @@
   border-color: transparent !important;
   border-image: none !important;
   background-image:
-    linear-gradient(var(--rainbow-fill, Canvas), var(--rainbow-fill, Canvas)),
+    linear-gradient(var(--rainbow-fill, transparent), var(--rainbow-fill, transparent)),
     linear-gradient(
       90deg,
       var(--c1) 0%,
@@ -229,7 +351,16 @@
 @property --jx-shimmer-angle {
   syntax: '<angle>';
   inherits: false;
-  initial-value: 0deg;
+  /* the FROZEN-FRAME DESIGN ANGLE (the r8 freeze law meets the
+     contrast fix, 2026-09-19): the reduced-motion freeze lands here,
+     and at 0deg the shine arc's center (shine-start 280deg + half the
+     30deg width = 295deg) sat on the TOP-LEFT CORNER — corner
+     curvature compressed the arc into a directionless blob. 65deg
+     puts the frozen arc's center at 0deg = straight-up, mid-edge of
+     the top run: the frozen pose reads as an arc ON the ring. The
+     running spin starts here too (to 360deg, linear — loop-start is
+     arbitrary by construction) */
+  initial-value: 65deg;
 }
 
 /* the shimmer cadence, r9: ONE uniform revolution — the reference's

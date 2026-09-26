@@ -213,7 +213,8 @@ const glassCss = readFileSync(resolve(process.cwd(), 'src/lib/ui/glass/glass.css
 
 describe('glass · the law sheet (glass.css, source-pinned)', () => {
   it('literal @layer wrapper — the scroll-run posture, zero-specificity :where()', () => {
-    expect(glassCss).toContain('@layer theme, base, components, utilities;');
+    // PFINAL (tailwindless W4-r2): the utilities tier died with the engine
+    expect(glassCss).toContain('@layer theme, base, components;');
     expect(glassCss).toContain('@layer components {');
     expect(glassCss).toMatch(/:where\(\[data-jx-effect='blur'\],\s*\[data-jx-effect='liquid-glass'\]\)/);
   });
@@ -446,13 +447,18 @@ describe('glass · forced-colors consumer map', () => {
     expect(fc).toMatch(/outline-color:\s*CanvasText/);
   });
 
-  it('toast: keeps its precedent forced-colors:bg-[Canvas] utility on the glass ground', () => {
-    const src = readFileSync(
-      resolve(process.cwd(), 'src/lib/ui/toast/toast-viewport.svelte'),
-      'utf8',
+  it('toast: keeps its precedent Canvas forced-colors ground on the glass rung', () => {
+    // tailwindless W1 (2026-09-17): the glass tuning vars and the §6
+    // forced-colors degradation moved from the markup line
+    // (--jx-glass-radius:12px + forced-colors:bg-[Canvas]) into
+    // toast.css keyed on the family's data hooks — same law, new home
+    const css = readFileSync(resolve(process.cwd(), 'src/lib/ui/toast/toast.css'), 'utf8');
+    expect(css).toMatch(
+      /:where\(\[data-jx-toast\]\[data-jx-effect='blur'\]\)\s*\{[^}]*--jx-glass-radius:\s*12px;/s,
     );
-    const line = src.split('\n').find((l) => l.includes('--jx-glass-radius:12px')) ?? '';
-    expect(line).not.toBe('');
-    expect(line).toMatch(/forced-colors:bg-\[Canvas\]/);
+    // every rung — glass included — collapses to the Canvas ground
+    // under the system palette
+    const fc = css.slice(css.indexOf('@media (forced-colors: active)'));
+    expect(fc).toMatch(/:where\(\[data-jx-toast\]\)\s*\{[^}]*background:\s*Canvas;/s);
   });
 });

@@ -14,6 +14,7 @@ const toc: TocSection[] = [
   { id: 'types', label: 'Metric states' },
   { id: 'accessibility', label: 'Accessibility' },
   { id: 'theming', label: 'Density and tokens' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
   { id: 'see-also', label: 'See also' },
 ];

@@ -10,44 +10,74 @@ one system instead of per-component forks.
 
 ### Requirement: the placement law
 
-Styling SHALL live in exactly one place per kind:
+Styling SHALL live in exactly one place per kind — the ORIGINAL
+placement law with its first lane rewritten atom-first, its fourth
+lane rewritten tailwindless, every other clause carried verbatim:
 
-1. Paint expressible as Tailwind v4 utilities → utilities composed in
-   component markup (no CSS file).
-2. CSS utilities cannot express (pseudo-element geometry,
+1. Paint expressible as typed static atoms → `stylex.create` in the
+   component's `<item>.stylex.ts` OR the site surface's atom module
+   (the tailwindless extension, 2026-09-17: the site rides the SAME
+   atom lane — the first-consumer law; site atom modules live UNDER
+   THE TRANSFORM ROOT `apps/www/src/lib/surface/<name>.stylex.ts`
+   because the kernel-scope gate transforms only `src/lib` +
+   `registry/files` — routes import them, never author outside the
+   root, NO plugin include change; the component-authoring shorthand
+   law: engine-throw-table properties forbidden), compiled by the
+   kernel build into atom classes; dynamic
+   values ride CSS-var bindings (atoms consume
+   `var(--jx-*)`/component vars; the component computes the vars) —
+   factories and vars-keys are forbidden (see component-authoring).
+   [CHANGED LANE — was: Tailwind v4 utilities composed in component
+   markup; the site extension — was: site markup composing Tailwind
+   utilities]
+2. CSS atoms cannot express (pseudo-element geometry,
    `@container`/`@keyframes`/scroll-driven/view-transition at-rules,
    press-physics custom properties) → colocated
-   `ui/<item>/<item>.css` loaded by a relative side-effect import from
-   the component file, containing ONLY standard CSS (token custom
-   properties, `@layer components` scoped with `:where()`, the at-rules
-   above). `@utility` MUST NOT appear in folder css (a standalone css
-   file has no Tailwind context); custom utilities, if ever needed,
-   MUST live in the single Tailwind entry/theme item with their own
-   compiled-output probe. Every folder sheet MUST open with the
-   canonical layer statement `@layer theme, base, components,
-   utilities;` so sheet injection order can never reorder the cascade
-   (P0.1 finding: a bare `@layer components` in a sheet injected
-   before the Tailwind entry sorts components before base, and
-   preflight then beats folder rules).
+   `ui/<item>/<item>.css` (or the site module's named css) loaded by a
+   relative side-effect import from the component/module file,
+   containing ONLY standard CSS (token custom properties, `@layer
+   components` scoped with `:where()`, the at-rules above). `@utility`
+   MUST NOT appear in folder css (a standalone css file has no
+   Tailwind context); custom utilities, if ever needed, MUST live in
+   the single Tailwind entry/theme item with their own
+   compiled-output probe — THE LEGACY MIGRATION WINDOW CLAUSE
+   (tailwindless, 2026-09-17): the existing `@utility` inventory in
+   jixoai.css is FROZEN (growth is gate-red); the clause dies at
+   Pfinal with the engine (every `@utility` deleted, the
+   compiled-output probe retired with it). Every folder sheet MUST
+   open with the
+   canonical layer statement (the FULL form per the canonical layer
+   law). [carried verbatim except the canonical-statement extension,
+   the site-module wording, and the legacy-window clause]
 3. Tokens + element-default sheets → `registry/files/theme/`
    (jixoai.css, jx-pure.css) — consume-only EXCEPT during the
    density-adoption change, whose K0 and F packets are the sanctioned
-   owners of these two sheets (the ctl aliases and the v2 rebuild).
+   owners of these two sheets. [verbatim]
 4. Site-only surfaces → colocated with the route/module they serve.
-   `app.css` keeps the site's global Tailwind context INTACT: the sole
-   `@import 'tailwindcss'`, the theme imports, ALL global
-   `@theme`/`@custom-variant`/`@layer base` rules, and the import
-   order. ONLY selectors that are demonstrably site-only and outside
-   the compiler context (data tables, token-lab panels, skip-link,
-   …) move to named site module css — global Tailwind context MUST
-   NOT be scattered across route css files.
+   [CHANGED — the tailwindless edition, 2026-09-17] app.css's
+   Tailwind context RETIRES in phases (the tailwindless program):
+   NEW site styling lands as stylex atoms (lane 1) or registered
+   site-module css (lane 2 semantics); during migration the Tailwind
+   entry remains ONLY for unmigrated surfaces, with the
+   `verify:tailwindless` per-file allowlists pinning the retreat; at
+   program end the sole `@import 'tailwindcss'`, the global
+   `@theme`/`@custom-variant` rules, and the tailwindcss dependency
+   are deleted and app.css carries only token imports + site base
+   rules in plain CSS.
 
 Every authored-CSS file MUST carry a top comment listing its
-orthogonal intents (with timestamps) per the repo law.
+orthogonal intents (with timestamps) per the repo law. [verbatim]
+
+BOUNDARY (explicit): the Tier-2 unlayered exception, the
+state-machine carve-out, the surface-kernel override, the print
+whitelist, the derived-scale/density laws, and every OTHER
+requirement of this spec are UNCHANGED by this delta — atoms ride
+the same layer/specificity physics the utilities lane rode.
 
 #### Scenario: a new component needs a pseudo-element build
 
-- WHEN the paint cannot be a utility
+- WHEN the paint cannot be expressed as atoms (pseudo-element
+  geometry, at-rules)
 - THEN it lands in `ui/<item>/<item>.css` under `@layer components`
   with `:where()`, imported relatively by the component
 - AND a consumer utility overrides it (Tier-1-owned css loses to
@@ -55,8 +85,18 @@ orthogonal intents (with timestamps) per the repo law.
 
 #### Scenario: component paint IS utility-able
 
-- WHEN a surface is boxes/borders/spacing/typography on the token sheet
-- THEN it is composed as utilities in markup and NO css file is created
+- WHEN a surface is boxes/borders/spacing/typography on the token
+  sheet (the atom-first edition of this scenario: "utility-able"
+  paint now means atom-able)
+- THEN it is authored as static atoms in `<item>.stylex.ts`, NO css
+  file is created, and consumer utilities still override it (the
+  canonical layer law)
+
+#### Scenario: a dynamic width is authored
+
+- WHEN a component needs a runtime-dependent size
+- THEN the atom consumes `var(--component-size)` and the component
+  computes the var — a factory call fails verify:stylex-authoring
 
 #### Scenario: css loads exactly once
 
@@ -67,10 +107,20 @@ orthogonal intents (with timestamps) per the repo law.
 
 #### Scenario: a family packet edits the theme sheet
 
-- GIVEN packet A running after K0/F
+- GIVEN packet A running after the foundations
 - WHEN it needs a new token
-- THEN it reports the desired delta; the orchestrator (K0 ownership)
-  applies it — packets never edit the canonical theme directly
+- THEN it reports the desired delta; the orchestrator applies it —
+  packets never edit the canonical theme directly
+
+#### Scenario: a site page needs layout paint
+
+- GIVEN a site surface needing boxes/spacing/typography (the
+  tailwindless edition)
+- WHEN the edit lands
+- THEN it is authored as static atoms in the surface's
+  `<surface>.stylex.ts` over typed tokens (theme-able values) and
+  structural constants — Tailwind utility composition in site markup
+  is closed to new code (the file's allowlist may only shrink)
 
 ### Requirement: utilities win over Tier-1-owned css; three documented exceptions
 
@@ -303,13 +353,14 @@ for these CATEGORIES (each USE carries a site comment naming its
 category — the exemption list is open by category, closed by
 un-annotated use):
 
-- TRANSIENT INK — effect pseudos (toast pulse/sweep, timeline beam,
-  press-button shimmer/spark) and decorative carriers (the liquid-SVG
-  zero-size filter def);
+- TRANSIENT INK — effect pseudos (toast pulse/sweep, press-button
+  shimmer/spark — the timeline beam retired into the drawn spine layer,
+  2026-09-15) and decorative carriers (the liquid-SVG zero-size filter
+  def);
 - CONTAINING-BLOCK NEEDS — the indicator span inside the scroll run
-  (its containing block is the scroller so it travels with content);
-  the timeline scroll-progress spine's absolute channel (geometry
-  that must span implicit tracks, 2026-09-02);
+  (its containing block is the scroller so it travels with content) —
+  the timeline scroll-progress spine's absolute channel (2026-09-02)
+  retired with the drawn-spine stroke draw (2026-09-15);
 - PLATFORM POSITIONING — popover/anchor engines (position-anchor,
   top layer) and visually-hidden skip targets.
 
@@ -480,3 +531,284 @@ the sim shell stylesheet SHALL never appear in the preview() inputs
 - GIVEN kernel-print.css accidentally gains a sim selector
 - WHEN the AST gate runs
 - THEN it fails, naming the offending rule
+
+### Requirement: the canonical layer law (F9)
+
+There SHALL be EXACTLY ONE canonical layer statement, and every
+kernel stylesheet MUST establish it — the statement's GENERAL form
+(priority1..N, utilities CONSTANTLY last; the O1-H measurement of
+1..3 was that corpus's special case, not the law):
+
+```
+@layer properties, theme, base, components,
+  components.stylex.priority1, …, components.stylex.priorityN,
+  utilities;
+```
+
+- N = the HIGHEST stylex priority layer the css in question carries
+  (derived from the engine's own emission at bake time — never a
+  hand-fixed constant). The statement MUST cover every priority tier
+  appearing in that css; listing tiers a css does not carry is
+  harmless, omitting one it carries is the escape. `utilities` is
+  CONSTANTLY the last name.
+- THE NESTING LAW: the engine's priority tiers NEST UNDER
+  `components` (`components.stylex.priorityN` — the useCSSLayers
+  prefix), never as top-level layer names. Cascade-layer registration
+  is append-only by first mention, so a TOP-LEVEL stylex tier first
+  mentioned after the consumer's `utilities` registration sorts AFTER
+  it and permanently beats utilities (the Gate-2 measured failure);
+  nested under `components`, the tiers ride the position Tailwind's
+  own prelude (`@layer properties, theme, base, components,
+  utilities;`) already gives `components` — BEFORE `utilities` —
+  whichever stylesheet arrives first.
+- THE GUARANTEE'S SCOPE: a consumer whose utilities are unlayered, or
+  layered behind Tailwind's standing prelude (the registry contract's
+  named consumer shape), wins under BOTH import orders. A consumer
+  hand-rolling a prelude that registers `utilities` BEFORE
+  `components` (no known engine does) is outside the guarantee —
+  mechanically no arriving stylesheet can demote itself below an
+  already-registered layer.
+- ENGINE-EMITTED CSS: the statement is generated by the build tooling
+  (@jixoai/ui-vite-plugin — layer-law.ts is the single source; the
+  payload generator imports it) — never hand-authored. The dev
+  virtual css, the build assets, and the payload item css carry the
+  same law.
+- FOLDER SHEETS (`ui/<item>/<item>.css`): the standing law that every
+  folder sheet opens with the canonical layer statement CONTINUES —
+  TRANSITIONALLY SCOPED: NEW and MIGRATED sheets (any sheet touched
+  by the stylex phase train) MUST open with the canonical statement
+  (the sheet form — the five standing layers; a sheet carries no
+  engine output, so it lists no priority tiers); LEGACY sheets (~147
+  today) keep the old four-layer form LAWFULLY until their family's
+  migration lands (the header update rides each family's migration
+  commit). The authoring gate scans ONLY stylex-touched trees (the
+  migration ledger's file list), so legacy sheets never fail it — no
+  mass-failure, no silent exemption.
+- Any import order composes: whichever sheet arrives first
+  establishes the same full order (the nesting law + the statement
+  jointly).
+
+#### Scenario: consumer utility beats a kernel atom
+
+- GIVEN a kernel element whose paint is a compiled atom class, in a
+  consumer page that also loads Tailwind utilities (the consumer css
+  = Tailwind's standing prelude + a utility in `@layer utilities`)
+- WHEN the consumer adds a conflicting utility on the element, with
+  the kernel CSS imported as ONE SEPARATE stylesheet BEFORE the
+  consumer's entry, and AGAIN with the kernel CSS imported AFTER it
+- THEN in BOTH orders the element's computed value equals the
+  utility's (mechanically: verify:stylex-payload loads a payload item
+  css and the consumer stylesheet in both orders in headless
+  Chromium and reads getComputedStyle — the assertion is the computed
+  value, never css text)
+- AND the same fixture loaded with an ESCAPED kernel css (top-level
+  stylex.* tier blocks after a statement that stops short of them)
+  shows the ATOM's value winning — the negative control proving the
+  green arms are meaningful and the planted-escape detector has a
+  real target
+
+#### Scenario: an engine-emitted statement is hand-authored
+
+- GIVEN an engine-output CSS file carrying a hand-written layer
+  statement instead of the plugin's
+- WHEN verify:stylex-authoring runs
+- THEN it fails naming the file — the plugin owns engine statements
+
+#### Scenario: a folder sheet carries a varied statement
+
+- GIVEN a folder sheet whose opening statement reorders the standing
+  layers, or omits priority tiers the sheet itself carries
+- WHEN verify:stylex-authoring runs
+- THEN it fails naming the file and the divergence — the canonical
+  text is exact
+
+#### Scenario: a legal folder sheet passes the gate
+
+- GIVEN a folder sheet opening with the exact canonical statement
+- WHEN verify:stylex-authoring runs
+- THEN the sheet passes (no false positive on lawful folder CSS)
+
+#### Scenario: a priority tier escapes past utilities
+
+- GIVEN a kernel css whose canonical statement stops at priorityK
+  while the css carries top-level tiers beyond it (or nests them as
+  top-level stylex.* names at all)
+- WHEN verify:stylex-payload runs
+- THEN it FAILS naming the item, the uncovered tier, and the
+  top-level block — the browser arm's negative control is this exact
+  shape
+
+### Requirement: same-build payload consistency
+
+The registry's compiled outputs SHALL be described by a payload
+manifest produced by the generator in the SAME pass that emits the
+artifacts:
+
+```
+payload-manifest.json := {
+  buildId: sha256(generatorVersion ‖ engineVersion ‖ sorted
+                  (itemPath ‖ sha256(itemSourceFiles…))… ),
+  items: { "<item>": {
+    classModule: { path, sha256 },
+    css:         { path, sha256 },
+    sourceSnapshot: [ { path, sha256 }… ] } } }
+```
+
+- Canonical paths: `classModule` → the registry payload's compiled
+  constants module; `css` → the payload's item CSS. buildId
+  serialization is CANONICAL: UTF-8; fields joined by U+000A with a
+  trailing separator; paths POSIX-normalized relative to the
+  repository root (the Gate-2 discretion promoted from code comment
+  to law: the manifest outlives any single registry layout, and the
+  migration ledger already anchors repo-root-relative); the source
+  list sorted by path bytes; hashes lowercase hex sha256.
+- Reverse lookup: EVERY class-constant string in a classModule
+  SHALL appear as an (escaped) selector in that item's css.
+- verify:stylex-payload re-derives the manifest from the payload
+  artifacts and FAILS on: (1) a constant whose rule is missing
+  (missing-rule); (2) artifacts whose buildIds disagree
+  (cross-build mix); (3) any sha256 mismatch vs the recorded
+  content (manual edit). Each failure mode carries a self-test that
+  plants the defect and asserts the gate catches it.
+- The generator is wired into the registry build (`shadcn build`
+  pipeline): the build PUBLISHES the payload tree + manifest into the
+  deploy tree (`public/payload/stylex/` — the zero-engine consumer
+  surface at /payload/stylex/<item>/), and verify:shadcn-add installs
+  a compiled item FROM that published manifest in its consumer
+  fixture (class module + item css, one css import, zero @stylexjs/*
+  in the built consumer).
+
+#### Scenario: a desynced payload fails the gate
+
+- GIVEN a payload whose class-constant module references a class
+  absent from the item CSS
+- WHEN verify:stylex-payload runs
+- THEN it FAILS naming the item and the missing rule (self-test 1)
+
+#### Scenario: cross-build artifacts are caught
+
+- GIVEN a classModule from build A paired with css from build B
+- WHEN verify:stylex-payload runs
+- THEN it FAILS on buildId mismatch (self-test 2)
+
+#### Scenario: a manual edit is caught
+
+- GIVEN a hand-edited constant or css whose content no longer
+  matches its recorded sha256
+- WHEN verify:stylex-payload runs
+- THEN it FAILS naming the artifact and the mismatch (self-test 3)
+
+### Requirement: the tailwindless law — the site is the first consumer of its own tokens (Owner 2026-09-17)
+
+jixoai-ui's own site (apps/www routes + site libs) and every registry
+component SHALL express ALL styling through the EXISTING placement-law
+lanes, with NO second utility system: typed static atoms
+(`stylex.create`, lane 1 — now extended to site surfaces), colocated
+scoped CSS for what atoms cannot express (lane 2), and the token
+sheets (lane 3). The Tailwind engine RETIRES from the whole repo in
+phases (the blueprint's P0..Pfinal): during migration a
+`verify:tailwindless` gate pins a per-file ALLOWLIST of surviving
+utility identities + counts (growth is CI-red; a finished file's
+allowlist is zero); at program end the budget is EMPTY and the
+engine's every trace is deleted.
+
+THE VALUE RULE (three tiers, enforced over `.stylex.ts` sources and
+authored CSS by `verify:stylex-authoring` + the tailwindless gate):
+(a) STRUCTURAL constants are lawful (display, flex-direction,
+position, geometry in atoms' own terms — `display: 'flex'`,
+`blockSize: '1px'`); (b) THEME-ABLE values (color, spacing steps,
+typography sizes/tracking/leading, radii, shadows, motion durations)
+MUST reference tokens (`var(--jx-*)`/the typed `tokens.stylex`
+members) — a literal in a theme-able slot is a MISSING TOKEN STEP:
+the value is promoted into the design-tokens sheet (the 收纳 process)
+and the atom references the step; (c) recurring composite clusters
+become REGISTERED semantic rules (lane-2 sheets with owner + selector
+family + declaration scope recorded in the sheet's intent comment) —
+never an unregistered utility lookalike.
+
+THE JOINER LAW (Wave 1 ruling, 2026-09-17): a `.stylex.ts` module's
+only legal exports are `stylex.create` results — the class joiner
+(`cx`) lives INSIDE each consuming component's script (the separator
+serialize law), never exported from the module. The canonical joiner
+tolerates plain strings (passthrough whole — a pre-joined group
+string must not explode per-character through `Object.entries`),
+stylex dev objects (string members joined, `$$css` dropped), and
+falsy values. The gate's per-export verification keeps zero helper
+exceptions (the STYLEX_MODULE_HELPERS registry stays empty; its
+machinery and selftests remain for future deliberate use).
+
+Dynamic class producers (any code path building class strings —
+`cn()`, `resolveTextStyle`, slot resolvers) are REGISTERED in the
+gate's source with an enumeration of the identities they may emit;
+an unregistered producer or identity is gate-red.
+
+PFINAL (the negative end-state, each item a task with its own
+receipt): no `@import 'tailwindcss'`, `@tailwindcss`, `@theme`,
+`@custom-variant`, or `@utility` anywhere in repo CSS; no
+`@tailwindcss/vite` in either vite config; no `tailwind-merge` in
+`cn()` (the class-merge seam retires with a documented replacement);
+the print clone's `dark:`-stripping logic replaced by scope-native
+handling; `check-tw4-prereq.mjs` and the registry install
+prerequisite RETIRED (the registry spec's consumer contract flips:
+migrated items need the jixoai theme sheet ONLY); `tailwindcss`
+absent from production `package.json` files (design-tool and test
+fixtures' scope frozen by explicit decision before Pfinal — the
+design-tool studio is the ONE frozen Tailwind-CONSUMER enclave: its
+`packages/design-tool/src/studio/studio-static.css` keeps the engine
+fan-in BY DESIGN, exactly the way any external consumer may; the
+repo-css cleanliness conditions apply to every OTHER css, and the
+tailwindless gate pins the enclave as an allowlist of exactly one
+file — a second `@import 'tailwindcss'` anywhere else is red); the
+tailwindless gate runs with an EMPTY allowlist; the stylex payload's
+layer contract re-proven post-Tailwind (dual import-order browser
+probe — the cascade proof must not keep assuming the utilities layer
+rides last), and the canonical layer statement FROZEN for the
+post-engine world: the utilities tier is REMOVED from the prelude
+(the layer dies with the engine), the generator emits the shortened
+statement, and a negative test pins both (a stale utilities-tier
+prelude is red).
+
+#### Scenario: the gate pins the migration budget
+
+- GIVEN any state of the migration program
+- WHEN `verify:tailwindless` runs
+- THEN every class identity in apps/www/src and the mirrored registry
+  components resolves against the atom vocabulary, registered
+  semantic/producer identities, or the file's ALLOWLIST (identity +
+  count) — any GROWTH or unlisted identity fails the gate, and a
+  finished file's allowlist is exactly zero
+
+#### Scenario: a bracket value is promoted, not tolerated
+
+- GIVEN a migration edit touching a surviving utility with an
+  arbitrary value (a `[...]` form)
+- WHEN the edit lands
+- THEN the recurring value has become a token step (or an existing
+  step covers it) and the site references it through an atom or
+  semantic rule — the bracket form is gone from the file
+
+#### Scenario: the no-Tailwind consumer contract is proven early
+
+- GIVEN the P0 consumer fixture (a plain-vite spot project, zero
+  Tailwind and zero @stylexjs, installing the migrated REGISTRY
+  families — separator first — plus the jixoai theme sheet)
+- WHEN it renders
+- THEN the families style correctly through atoms + tokens alone —
+  the fixture is the standing receipt that migration increments
+
+#### Scenario: the joiner stays component-local
+
+- GIVEN any migrated family's `.stylex.ts` module
+- WHEN the gate classifies its exports
+- THEN every export is a `stylex.create` result — an exported joiner
+  (or any other non-create export) is rogue-red, and each consuming
+  component carries the canonical local `cx` (string-passthrough
+  superset form) in its own script
+
+#### Scenario: the engine's retirement is total
+
+- GIVEN the program's final phase
+- THEN every Pfinal negative condition above holds verbatim — the
+  repo greps clean of Tailwind directives, plugins, the merge
+  dependency, and the prerequisite machinery, and the gate runs with
+  an EMPTY allowlist

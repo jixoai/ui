@@ -29,23 +29,21 @@
  *   resync after aborts, the observer buffer cap, title reads/changes — are
  *   the rest of this file.
  */
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { GhosttyVTError, loadGhosttyVT, type GhosttyOsc52Request, type GhosttyVT } from '../../../registry/files/lib/ghostty-vt';
+import { acquireWasmBytes } from './helpers/ghostty-wasm';
 
-const wasmPath = process.env.JIXOAI_GHOSTTY_WASM_PATH ?? '/tmp/ghostty-research/ghostty-vt.wasm';
 /** explicit copy so the array's buffer is a plain ArrayBuffer (BufferSource-safe) */
-function wasmBytes(): Uint8Array<ArrayBuffer> {
-  const raw = readFileSync(resolve(wasmPath));
-  const copy = new Uint8Array(new ArrayBuffer(raw.length));
-  copy.set(raw);
+async function wasmBytes(): Promise<Uint8Array<ArrayBuffer>> {
+  const acquired = await acquireWasmBytes();
+  const copy = new Uint8Array(new ArrayBuffer(acquired.length));
+  copy.set(acquired);
   return copy;
 }
 const enc = (text: string): Uint8Array => new TextEncoder().encode(text);
 
 async function loadVT(): Promise<GhosttyVT> {
-  const vt = await loadGhosttyVT({ bytes: wasmBytes() });
+  const vt = await loadGhosttyVT({ bytes: await wasmBytes() });
   vt.new(80, 24);
   return vt;
 }
@@ -56,12 +54,12 @@ async function loadVT(): Promise<GhosttyVT> {
 
 describe('OSC 52 route 1 evidence — OPT callbacks are unreachable from JS', () => {
   it('the wasm imports NOTHING: no import boundary exists for host functions', async () => {
-    const module = await WebAssembly.compile(wasmBytes());
+    const module = await WebAssembly.compile(await wasmBytes());
     expect(WebAssembly.Module.imports(module)).toEqual([]);
   });
 
   it('the exported indirect function table rejects plain JS functions (funcref discipline)', async () => {
-    const module = await WebAssembly.compile(wasmBytes());
+    const module = await WebAssembly.compile(await wasmBytes());
     const table = WebAssembly.Module.exports(module).find((e) => e.kind === 'table');
     expect(table?.name).toBe('__indirect_function_table');
     const instance = await WebAssembly.instantiate(module, {});
@@ -82,7 +80,7 @@ describe('OSC 52 route 2 evidence — byte pump + end, type only, no data channe
     const vt = await loadVT(); // manifest source for enum values
     const CLIPBOARD = vt.typeLayout.types.GhosttyOscCommandType?.values?.CLIPBOARD_CONTENTS;
     vt.free();
-    const instance = await WebAssembly.instantiate(await WebAssembly.compile(wasmBytes()), {});
+    const instance = await WebAssembly.instantiate(await WebAssembly.compile(await wasmBytes()), {});
     const ex = instance.exports as unknown as Record<string, (...args: number[]) => number>;
     const slot = ex.ghostty_wasm_alloc_opaque();
     expect(ex.ghostty_osc_new(0, slot)).toBe(0);
@@ -98,7 +96,7 @@ describe('OSC 52 route 2 evidence — byte pump + end, type only, no data channe
     const vt = await loadVT();
     const CLIPBOARD = vt.typeLayout.types.GhosttyOscCommandType?.values?.CLIPBOARD_CONTENTS;
     vt.free();
-    const instance = await WebAssembly.instantiate(await WebAssembly.compile(wasmBytes()), {});
+    const instance = await WebAssembly.instantiate(await WebAssembly.compile(await wasmBytes()), {});
     const ex = instance.exports as unknown as Record<string, (...args: number[]) => number>;
     const slot = ex.ghostty_wasm_alloc_opaque();
     ex.ghostty_osc_new(0, slot);

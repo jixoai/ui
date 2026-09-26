@@ -126,9 +126,49 @@ const BASELINES = {
   // fast path died, smaller than the comment noise it shed); B-face
   // 13368->13483 measured under threshold (+0.9%, the icons page's
   // define-your-own-channel section) — both left at their baselines.
-  'B-source': 37636,
+  //
+  // re-recorded 2026-09-15 (stylex-kernel-phase0 P0.2):
+  // B-consumer-vite 2710->3865 — the umbrella entry gains the stylex
+  // bridge: the delegated dynamic-import loader (./stylex/vite-
+  // plugin.js), the kernel-scope realpath gate (vite passes
+  // /private/var while configs say /var — lexical startsWith never
+  // matched), the F9 layer-law statement source, and the stylex
+  // options surface. The ENGINE stays external (the bare
+  // @stylexjs/unplugin specifier survives in dist; zero engine
+  // symbols in the entry — the F11 build-side law); the wrapper
+  // itself rides the sub-chunk. Still build-time dist only — the
+  // consumer-shipped runtime stays the artifact lane
+  // (verify:shadcn-add clean-consumer probes, 22 cases green).
+  // B-consumer-icons 857->858 measured under threshold (rebuild
+  // jitter) — left at its baseline.
+  //
+  // re-recorded 2026-09-19 (tailwindless one-shot W4-r2): B-source
+  // 37636->41682 (+10.7%) — the PREFLIGHT HANDOVER lands the engine's
+  // invisible base layer (148 bytes-verbatim lines from the Owner's
+  // :5199 receipt: universal border-box + the zero slate, typography
+  // normalization, form-control inheritance) in the theme sheet's
+  // base layer, and the PFINAL flip retires the TW-era @theme mapping
+  // block (−54 lines) plus the utilities tier from every prelude.
+  // Net: the sheet now OWNS the canvas consumers were implicitly
+  // borrowing from the engine — the registry spec's "the theme sheet
+  // is the whole styling prerequisite" made literal. Receipted
+  // growth: base-layer law only, zero utility-layer leakage
+  // (B-consumer rows unchanged).
+  //
+  // re-recorded 2026-09-22 (explicit-props W5-r2): B-source
+  // 41682->46304 (+11.1%) — the explicit-props W1 CSS core
+  // (5d9810e5: the §4 density coefficient carrier — 89
+  // --jx-density-coefficient composition sites across the rung
+  // scopes' channels; the §7 elevation level table + surface ladder
+  // — 38 --jx-elevation members; the §11 carrier invariants) plus
+  // W3 batch C's sheet §13 amendments (09d64fb0) and jx-pure's +53
+  // rule lines. Decomposition: jixoai.css 28123 + jx-pure.css 18181.
+  // Receipted growth: generated axis law only (theme mirror pair +
+  // jx-auto-dark regenerated in the same commits), zero
+  // utility-layer leakage (B-consumer rows unchanged).
+  'B-source': 46304,
   'B-face': 13368,
-  'B-consumer-vite': 2710,
+  'B-consumer-vite': 3865,
   'B-consumer-icons': 857,
 };
 const THRESHOLD_FACTOR = 1.05;

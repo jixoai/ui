@@ -33,9 +33,19 @@ const children = (() => {}) as unknown as Snippet;
 // 1 · the contract surface — auditable in one place
 // =========================================================================
 describe('DialogDefaults — the contract surface', () => {
-  it('declares exactly { variant, density }, shallow-frozen', () => {
+  it('declares variant + the eight universal axes (elevation own level4), shallow-frozen', () => {
     expect(Object.isFrozen(DialogDefaults.slots)).toBe(true);
-    expect(Object.keys(DialogDefaults.slots).sort()).toEqual(['density', 'variant']);
+    expect(Object.keys(DialogDefaults.slots).sort()).toEqual([
+      'color',
+      'density',
+      'elevation',
+      'motion',
+      'radius',
+      'shape',
+      'size',
+      'theme',
+      'variant',
+    ]);
   });
 
   it('resolves own-only inside a rootless component window (惰性律)', () => {
@@ -54,7 +64,17 @@ describe('DialogDefaults — the contract surface', () => {
     });
     flushSync();
     expect(holder.error).toBeUndefined();
-    expect(holder.value).toEqual({ variant: 'auto', density: undefined });
+    expect(holder.value).toEqual({
+      variant: 'auto',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level4',
+      motion: 'auto',
+    });
 
     const explicit: { value?: unknown; error?: unknown } = {};
     render(UnitResolveHost, {
@@ -68,7 +88,7 @@ describe('DialogDefaults — the contract surface', () => {
     });
     flushSync();
     expect(explicit.error).toBeUndefined();
-    expect(explicit.value).toEqual({ variant: 'solid', density: undefined });
+    expect(explicit.value).toMatchObject({ variant: 'solid' });
   });
 });
 

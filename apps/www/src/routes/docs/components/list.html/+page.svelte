@@ -7,8 +7,9 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import InlineCode from '$lib/ui/inline-code/inline-code.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -47,6 +48,30 @@
     { name: 'registry/files/ui/list/list.svelte', content: listSource },
     { name: 'src/lib/ui/list-nav-usage.svelte', content: navUsage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<List size="medium">…</List>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/list-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -57,17 +82,27 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
         eyebrow="registry:ui · Data Display"
         title="list — the prose list, the list itself"
-        summary="A native <ol|ul> by the ordered prop — the separator's dual-root cast, with start and reversed passed explicitly on the ol branch only. What it owns is the reading channel set: the marker (a 7-word frozen vocabulary — disc|circle|square|decimal|alpha|roman|none, element-agnostic, lowercase only; omitted keeps the per-element platform default byte-parity, explicit overrides), padding-inline-start 1.5rem (none keeps it: the indent is structural), muted marker ink. And nav mode: a nav prop (the aria-label) wraps the list in a landmark <nav data-jx-list-nav> defaulting marker none + ps-0 — class/rest stay on the LIST element, the wrapper carries only the semantics. What it refuses: block margins (the rhythm and flush laws own spacing, as with heading) and any opinion about the rows — children stay native <li> elements, so the element-based rhythm selectors, the flush law and the container-inner sibling stack keep matching the native roots (the markdown map composes exactly this way; list_item stays bare). Not to be confused with list-item: that item is the antd/F7 settings-row system — ItemGroup frames, media/end lanes, five control adapters — a different taxonomy entirely."
+        summary="A native <ol|ul> by the ordered prop — the separator's dual-root cast, with start and reversed passed explicitly on the ol branch only. What it owns is the reading channel set: the marker (a 7-word frozen vocabulary — disc | circle | square | decimal | alpha | roman | none, element-agnostic, lowercase only; omitted keeps the per-element platform default byte-parity, explicit overrides), padding-inline-start 1.5rem (none keeps it: the indent is structural), muted marker ink. And nav mode: a nav prop (the aria-label) wraps the list in a landmark <nav data-jx-list-nav> defaulting marker none + ps-0 — a default that paints standalone; inside a jx-pure scope the face's B8 restore out-cascades it (no-jx-pure is the escape). class/rest stay on the LIST element, the wrapper carries only the semantics. What it refuses: block margins (the rhythm and flush laws own spacing, as with heading) and any opinion about the rows — children stay native <li> elements, so the element-based rhythm selectors, the flush law and the container-inner sibling stack keep matching the native roots (the markdown map composes exactly this way; list_item stays bare). Not to be confused with list-item: that item is the antd/F7 settings-row system — ItemGroup frames, media/end lanes, ItemField + seven control adapters (Toggle / Checkbox / Radio / Select / Input / Segmented / Stepper — the list-item 1st review ruling) — a different taxonomy entirely."
       >
-        <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install list">
+          <TerminalCard
+            barTitle="install — list"
+            command="npx jixoai-ui add list"
+            outputs={['https://ui.jixoai.com/r/list.json']}
+          />
+        </div>
+      {/snippet}
+
+        <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;ul&gt; | &lt;ol&gt;</span>
           <span class="pill">ordered · start · reversed</span>
           <span class="pill">marker — 7-word frozen set</span>
@@ -77,9 +112,6 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="list" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard
@@ -102,10 +134,10 @@
         files={shapesFiles}
         stage="fill"
       >
-        <div class="grid w-full max-w-3xl gap-8 min-[760px]:grid-cols-2">
+        <div class={cx(rt.liGrid)}>
           <List>
             <li>prefix keys freeze while the tail grows</li>
-            <li>the tail mutates in place on its <code class="font-mono text-[0.85em]">:tail</code> key</li>
+            <li>the tail mutates in place on its <code class={cx(rt.fontMono, rt.liCode85)}>:tail</code> key</li>
             <li>
               nesting composes:
               <List>
@@ -143,8 +175,8 @@
         files={markersFiles}
         stage="fill"
       >
-        <div class="grid w-full max-w-3xl gap-x-10 gap-y-6 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-4">
+        <div class={cx(rt.liGridXY)}>
+          <div class={cx(rt.flex, rt.col, rt.gap16)}>
             <List marker="disc">
               <li>disc — the ul platform default</li>
               <li>a core utility; the byte-parity stamp</li>
@@ -162,7 +194,7 @@
               <li>the indent is structural, not decorative</li>
             </List>
           </div>
-          <div class="flex flex-col gap-4">
+          <div class={cx(rt.flex, rt.col, rt.gap16)}>
             <List ordered marker="decimal">
               <li>decimal — the ol platform default</li>
               <li>continues from start when set</li>
@@ -200,29 +232,34 @@
       <ComponentCanvas
         id="nav"
         title="list"
-        description="Nav mode — presence of the nav prop switches the container: a <nav aria-label data-jx-list-nav> wrapper around the list, defaulting marker none + ps-0 (a nav list is chrome; the structural indent belongs to document flow — ps-0 stays even with an explicit marker). class/rest stay on the LIST element; the wrapper carries ONLY the landmark semantics. And the lane split, stated: bare <a> children inside a jx-pure scope get the face B2 chrome lane free — standalone, this component does not re-implement B2; the Link part is the prose lane."
+        description="Nav mode — presence of the nav prop switches the container: a <nav aria-label data-jx-list-nav> wrapper around the list, defaulting marker none + ps-0 (a nav list is chrome; the structural indent belongs to document flow — ps-0 stays even with an explicit marker). That default paints STANDALONE; inside a jx-pure face scope the face's B8 restore law out-cascades the component's channel atoms and re-paints disc + the 1.5rem pad — class no-jx-pure is the escape, the same stamp the markdown map puts on every List it mounts. class/rest stay on the LIST element; the wrapper carries ONLY the landmark semantics. And the lane split, stated: bare <a> children inside a jx-pure scope get the face B2 chrome lane free — standalone, this component does not re-implement B2; the Link part is the prose lane."
         sourceUrl={registrySourceUrl('list')}
         files={navFiles}
         stage="fill"
       >
-        <div class="grid w-full max-w-3xl gap-8 min-[760px]:grid-cols-2">
-          <div class="jx-pure flex flex-col gap-2">
-            <span class="text-[11px] text-muted-foreground">in a jx-pure scope — bare anchors ride the B2 lane</span>
+        <div class={cx(rt.liGrid)}>
+          <div class="jx-pure {cx(rt.col8)}">
+            <span class={cx(rt.text11, rt.inkMuted)}>in a jx-pure scope — bare anchors ride the B2 lane; the B8 restore out-cascades the nav default (disc + ps-6 paint here, not none + ps-0)</span>
             <List nav="On this page">
               <li><a href="#usage">Usage</a></li>
               <li><a href="#markers">The marker matrix</a></li>
               <li><a href="#api">API</a></li>
             </List>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="text-[11px] text-muted-foreground">with an explicit marker — the list-style default yields, ps-0 stays</span>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.text11, rt.inkMuted)}>standalone — the defaults paint: nav alone gives marker none + ps-0; an explicit marker overrides the list-style default only, ps-0 stays</span>
+            <List nav="Contents">
+              <li>Getting started</li>
+              <li>Components</li>
+              <li>Themes</li>
+            </List>
             <List nav="Chapters" ordered marker="decimal">
               <li>the arrival</li>
               <li>the turn</li>
             </List>
-            <p class="m-0 text-[12.5px] leading-6 text-muted-foreground">
+            <p class={cx(rt.m0, rt.text125, rt.lead6, rt.inkMuted)}>
               Standalone (no face scope), a bare anchor is unstyled by design — compose the
-              <a class="text-accent underline underline-offset-2" href="/docs/components/link.html">Link part</a>
+              <a class={cx(rt.linkAccent)} href="/docs/components/link.html">Link part</a>
               for the prose lane; chrome lists inside app chrome use their own controls.
             </p>
           </div>
@@ -247,18 +284,18 @@
         title="Task lists live in the markdown face"
         summary="The GFM task-item rules — marker suppression on li:has(> input), checkbox middle-alignment — are container-level DOM-shape laws, not list paint, and they stay in the markdown sheet where the li shape is known. This component takes no checkbox wiring: render task lists through the markdown component and the jx-pure bare-checkbox face paints the markers."
       >
-        <div class="flex flex-col gap-4">
-          <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+        <div class={cx(rt.flex, rt.col, rt.gap16)}>
+          <p class={cx(rt.m0, rt.bodyMuted)}>
             A task item is a <em>container</em> judgment: the sheet sees the raw
             <InlineCode lang="text">li:has(&gt; input)</InlineCode>
             shape and suppresses the marker. A standalone list component that rendered checkboxes
             would have to re-own those rules — the double-marker bug would return. The markdown
             map keeps task checkboxes as native disabled inputs for exactly this reason.
           </p>
-          <p class="m-0 text-[13px] leading-6 text-muted-foreground">
-            See the <a class="text-accent underline underline-offset-2" href="/docs/components/markdown.html">markdown page</a>
+          <p class={cx(rt.m0, rt.bodyMuted)}>
+            See the <a class={cx(rt.linkAccent)} href="/docs/components/markdown.html">markdown page</a>
             for the task-list face — and the
-            <a class="text-accent underline underline-offset-2" href="/docs/components/list-item.html">list-item page</a>
+            <a class={cx(rt.linkAccent)} href="/docs/components/list-item.html">list-item page</a>
             for the settings-row system this component deliberately is not.
           </p>
         </div>
@@ -267,7 +304,7 @@
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"
@@ -289,6 +326,20 @@
     </SectionCard>
   </div>
 
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the B8 marker channels and the no-margins rhythm law own the paint — the axes ride the LIST element (the nav wrapper is a landmark shell)."
+    >
+      <ComponentCanvas title="List · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>The prose list forwards the axes; marker/indent laws unchanged.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -297,15 +348,15 @@
       title="API"
         summary="Five props and a verbatim spread; one boolean flips the root, one word moves the marker, one string switches the landmark."
     >
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'ordered', type: 'boolean', default: 'false', description: 'false → <ul> (disc markers); true → <ol> (decimal markers). The Props shape is typed on the ul form; the ol branch spreads the same rest through the ol element type.' },
         { name: 'marker', type: "'disc' | 'circle' | 'square' | 'decimal' | 'alpha' | 'roman' | 'none'", default: 'per-element platform default', description: "The 7-word frozen vocabulary, element-agnostic and lowercase only (upper is the escape hatch). Omitted keeps today's per-element restoration byte-parity (decimal on ol, disc on ul; none in nav mode); an explicit marker overrides — the list-style default only, never the structural pad. circle/square ride the arbitrary [list-style:] form (no core utility under TW 4.2.1)." },
-        { name: 'nav', type: 'string', default: '—', description: 'The aria-label; PRESENCE switches the container: a <nav aria-label data-jx-list-nav> wrapper around the list, defaulting marker none + ps-0 (an explicit marker overrides the list-style default only — ps-0 stays: a nav list is chrome). class/rest stay on the LIST element; the wrapper carries only the landmark semantics.' },
+        { name: 'nav', type: 'string', default: '—', description: 'The aria-label; PRESENCE switches the container: a <nav aria-label data-jx-list-nav> wrapper around the list, defaulting marker none + ps-0 (an explicit marker overrides the list-style default only — ps-0 stays: a nav list is chrome). The default paints standalone; inside a jx-pure face scope the B8 restore law out-cascades it — class no-jx-pure is the escape (the markdown map\'s own stamp). class/rest stay on the LIST element; the wrapper carries only the landmark semantics.' },
         { name: 'start', type: 'number', default: '—', description: 'The first marker value of an ordered list (ol-only passthrough — the native ul element carries no such attribute, so it is ignored there).' },
         { name: 'reversed', type: 'boolean', default: '—', description: 'Descending marker order — the ol-only native pair with start (ignored on ul). ' },
         { name: 'children', type: 'Snippet', default: '—', description: 'The list items — native <li> children or component trees that render them.' },
         { name: 'class', type: 'string', default: "''", description: 'Forwarded to the rendered list root; consumer classes land last.' },
-        { name: '...rest', type: 'HTMLAttributes<HTMLUListElement>', default: 'spread', description: 'Every other attribute passes through to the native list element untouched.' },
+        { name: '...rest', type: 'HTMLAttributes<HTMLUListElement>', default: 'spread', description: 'Every other attribute passes through to the native list element untouched — except the eight universal axes, which the component intercepts, resolves through ListDefaults, and stamps as carriers + data-density on the list root (see Universal props).' },
       ]} />
     </SectionCard>
   </div>

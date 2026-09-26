@@ -8,16 +8,22 @@
  * is no own, no fallback, no manufactured default anywhere in the
  * family: an unset knob resolves undefined, the provider emits
  * nothing for it, and the ambient channel (an outer prose region's
- * declarations/vars, or no opinion at all) keeps flowing. The
- * absentSlot discipline is also what keeps the context-coverage
- * vocabulary gate cold: only `size` hits the v1 word list and an
- * absent slot covers it without a version bump (F1).
+ * declarations/vars, or no opinion at all) keeps flowing.
  *
- * DENSITY IS DELIBERATELY ABSENT: prose has no density opinion — the
- * word belongs to the UI control-surface ladder, and the markdown
- * trio already made the same naming argument for the prose scale
- * (`<Markdown typography=…>`, never density). A prose region stamps
- * no data-density and never re-scopes control chrome inside it.
+ * THE §13 RENAME (W3-D2, Owner table ruling): the type-scale knob is
+ * `measure` now — never `size`; a css line-length/type scale is not
+ * the base-scale axis. The rename frees the axis name, which the
+ * universal size lane below now owns (the sheet width precedent,
+ * batch C). The knob keeps its absentSlot discipline — only its NAME
+ * moved.
+ *
+ * DENSITY, REVISED (W3-D2): the eight-axis surface brings the
+ * universal density LANE (densityAxisSlot, no-own) — the founding
+ * naming argument survives at the STAMP level: the region stamps
+ * data-density only for an EXPLICIT lane (the markdown trio's
+ * founding law — the root never stamps a rung for an ambient lane),
+ * so ambient control chrome inside the region keeps flowing
+ * un-re-scoped.
  *
  * 惰性律: construction captures nothing (absentSlot has no own);
  * resolution happens at the provider's $derived window. This file is
@@ -25,7 +31,18 @@
  * mirrored; its TYPE imports from the typography lib item are the
  * registry edge Lane C declares).
  */
-import { defineComponentDefaults, absentSlot } from '$lib/defaults.svelte';
+import {
+  absentSlot,
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import type {
   CssLength,
   Family,
@@ -39,7 +56,7 @@ import type {
 } from '$lib/typography.svelte';
 
 export const ProseDefaults = defineComponentDefaults({
-  size: absentSlot<CssLength>(),
+  measure: absentSlot<CssLength>(),
   leading: absentSlot<number>(),
   family: absentSlot<Family>(),
   ink: absentSlot<Ink>(),
@@ -50,4 +67,12 @@ export const ProseDefaults = defineComponentDefaults({
   initialLetter: absentSlot<InitialLetterStep>(),
   wrap: absentSlot<ProseWrap>(),
   hyphens: absentSlot<ProseHyphens>(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

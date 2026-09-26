@@ -80,9 +80,42 @@
 <script lang="ts">
   import { onDestroy, onMount, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
-  import { cn } from '$lib/utils';
-  import type { Density } from '$lib/density.svelte';
+
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { GhosttyTermDefaults } from './ghostty-term-defaults.svelte';
+  import { ghosttyTermStyles } from './ghostty-term.stylex';
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
   // type-only: erased at compile time.
   import type { GhosttyOsc52Request, RowSnapshot } from '$lib/ghostty-vt';
   // VALUE import: the xterm-convention Terminal facade (owner directive
@@ -246,7 +279,30 @@
 
   /** Fires when the auto-mode grid derivation changes. */
     onResize?: (detail: GhosttyTermResizeDetail) => void;
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     /** Overlay slot; when provided it also replaces the default error
      * fallback UI (the consumer owns the degraded face). */
@@ -264,6 +320,12 @@
     onData,
     onResize,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     cursor = true,
     selection = true,
     mouse = true,
@@ -355,8 +417,20 @@
   // 'default' — the design-frozen migration path for the terminal's
   // always-concrete cell math (explicit ?? ambient scope ?? 'default';
   // the plugin chain rides the terminal value inside the slot)
-  const d = $derived(GhosttyTermDefaults.resolve({ density }));
-  const resolvedDensity: Density = $derived(d.density ?? 'default');
+  const d = $derived(
+    GhosttyTermDefaults.resolve({ density, theme, size, shape, radius, color, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  // the root already binds rootEl (the keyboard surface) — it IS the
+  // query anchor; no second element state
+  provideQueryAnchor(() => rootEl ?? null);
+  // the legacy-typed view (Density rung) over the universal lane —
+  //  auto/number resolve the group default rung for the ruler math
+  const resolvedDensity = $derived(densityRungOf(d.density) ?? 'default');
 
   let warnedFontSize = '';
 
@@ -465,9 +539,9 @@
     const token = (name: string): string =>
       probeEl === null ? '' : getComputedStyle(probeEl).getPropertyValue(name).trim();
     shell = {
-      bg: toCanvasColor(theme?.background ?? token('--terminal'), 'rgb(0, 0, 0)'),
-      fg: toCanvasColor(theme?.foreground ?? token('--terminal-foreground'), 'rgb(255, 255, 255)'),
-      selectionBg: theme?.selectionBackground !== undefined ? toCanvasColor(theme.selectionBackground, 'rgb(255, 255, 255)') : undefined,
+      bg: toCanvasColor(d.theme?.background ?? token('--terminal'), 'rgb(0, 0, 0)'),
+      fg: toCanvasColor(d.theme?.foreground ?? token('--terminal-foreground'), 'rgb(255, 255, 255)'),
+      selectionBg: d.theme?.selectionBackground !== undefined ? toCanvasColor(d.theme.selectionBackground, 'rgb(255, 255, 255)') : undefined,
       selectionFg: theme?.selectionForeground !== undefined ? toCanvasColor(theme.selectionForeground, 'rgb(0, 0, 0)') : undefined,
       cursor: theme?.cursor !== undefined ? toCanvasColor(theme.cursor, 'rgb(255, 255, 255)') : undefined,
       cursorAccent: theme?.cursorAccent !== undefined ? toCanvasColor(theme.cursorAccent, 'rgb(0, 0, 0)') : undefined,
@@ -1529,22 +1603,19 @@
      because the canvas itself is aria-hidden) -->
 <div
   bind:this={rootEl}
-  class={cn(
-    'relative block w-full overflow-hidden bg-terminal text-terminal-foreground',
-    'outline-none focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1',
-    // the IME textarea takes over focus from the root (composition needs
-    // an editable surface) — the keyboard ring survives the dock because
-    // the root matches on its FOCUSED DESCENDANT (focus-visible carries
-    // through programmatic focus after keyboard interaction)
-    'has-[:focus-visible]:outline-1 has-[:focus-visible]:outline-ring has-[:focus-visible]:-outline-offset-1',
+  class={cx(
+    ghosttyTermStyles.root,
     // auto mode FILLS its host (block-size:100%) and the canvas is
     // absolutely inset — sizing must not feed back through content flow
     // (otherwise the intrinsic grid height drives root height and the
     // host's definite height is ignored, owner acceptance 2026-08-28).
     // explicit cols/rows (or auto=false) keeps the intrinsic grid size.
-    !fixedGrid && 'h-full',
+    // (the IME textarea takes over focus from the root — the keyboard
+    // ring survives the dock through the root atom's :has(:focus-visible)
+    // form; focus-visible carries through programmatic focus)
+    !fixedGrid && ghosttyTermStyles.fill,
     // selection owns the pointer — native text selection stays off
-    selection && 'select-none',
+    selection && ghosttyTermStyles.selectNone,
     className,
   )}
   tabindex="0"
@@ -1558,13 +1629,14 @@
   onfocus={handleRootFocus}
   onblur={handleFocusOut}
   {...rest}
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  style={carriers || undefined}
   data-state={phase}
   data-jx-ghostty-term
 >
   <canvas
     bind:this={canvasEl}
-    class={cn('block', !fixedGrid && 'absolute inset-0')}
+    class={cx(ghosttyTermStyles.canvas, !fixedGrid && ghosttyTermStyles.canvasInset)}
     aria-hidden="true"
   ></canvas>
 
@@ -1575,7 +1647,7 @@
        target; the ring stays on the root via has-[:focus-visible]. -->
   <textarea
     bind:this={imeEl}
-    class="sr-only"
+    class={cx(ghosttyTermStyles.sr)}
     style="pointer-events: none; outline: none;"
     tabindex="-1"
     aria-hidden="true"
@@ -1595,10 +1667,10 @@
     {@render children()}
   {:else if phase === 'error'}
     <div
-      class="p-4 font-mono text-[13px] leading-5 whitespace-pre-wrap break-words"
+      class={cx(ghosttyTermStyles.error)}
       role="status"
     >
-      <span class="text-primary mr-2" aria-hidden="true">$</span>ghostty-term: {errorMessage}
+      <span class={cx(ghosttyTermStyles.errorPrompt)} aria-hidden="true">$</span>ghostty-term: {errorMessage}
     </div>
   {/if}
 </div>

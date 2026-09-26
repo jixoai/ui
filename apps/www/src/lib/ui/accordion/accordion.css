@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai accordion (group) — D1-exempt residue (tw4, 2026-08-24):
  * ONLY the sibling seam (a `> * + *` boundary — utilities never own

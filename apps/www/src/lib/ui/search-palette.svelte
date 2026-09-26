@@ -12,9 +12,22 @@
    * results, the IME cancel guard, backdrop-click close, and focus
    * handed back to the opener. ⌘K/Ctrl-K toggles; results are
    * SECTION-granularity (page × heading, deep-linked via the corpus's
-   * converging ids); the palette speaks ONLY the SearchEngine
-   * interface (engine-minisearch today).
+       converging ids); the palette speaks ONLY the SearchEngine
+       interface (engine-minisearch today).
+
+   * The EIGHT-AXIS SURFACE (explicit-props W3-D4): size · shape ·
+   * radius · density · color · theme · elevation · motion ride
+   * SearchPaletteDefaults (first-time, all no-own) on the palette
+   * root. The PORTAL LAW rides the composition: the root stamps its
+   * own resolved carriers AND supplies the lanes downward (§11 吃也供)
+   * — the composed Dialog (a batch C surface) resolves them as
+   * AMBIENT and stamps its own carriers on the promoted <dialog>,
+   * self-carried across the top-layer boundary. As mounted today (no
+   * lanes) nothing stamps and the Dialog resolves exactly as before.
    */
+  import { cn } from '$lib/utils';
+  import { searchPaletteStyles as sp } from './search-palette.stylex';
+  import './search-palette.css';
   import Dialog from '$lib/ui/dialog/dialog.svelte';
   import CardHeader from '$lib/ui/card/card-header.svelte';
   import Input from '$lib/ui/input/input.svelte';
@@ -22,11 +35,79 @@
   import { tokenize } from '$lib/search/tokenizer';
   import type { SearchHit } from '$lib/search/engine-types';
   import Icon from '$lib/ui/icon';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { SearchPaletteDefaults } from './search-palette-defaults.svelte';
+
+  interface Props {
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — supplied to the composed Dialog as the
+     *  ambient chain (the Dialog's own surface stamps the panel) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
+  }
+
+  let { density, size, shape, radius, color, theme, elevation, motion }: Props = $props();
 
   // the palette's own root; the Dialog's platform element is found
   // beneath it (bind:this on a component yields its bindings, not its
   // DOM — a wrapper query is the composition-safe route)
   let rootEl = $state<HTMLDivElement | undefined>(undefined);
+
+  // ── the eight-axis surface (W3-D4 — FIRST-TIME contract, all
+  // no-own): one resolution record AFTER the root state declaration
+  // (the W3-C TDZ law); the root stamps its OWN carriers (the portal
+  // law — the wrapper stays in place while the <dialog> promotes, so
+  // an ancestor's stamps never span the boundary either way) and
+  // SUPPLIES the lanes the composed Dialog resolves as ambient
+  const d = $derived(
+    SearchPaletteDefaults.resolve({
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideQueryAnchor(() => rootEl ?? null);
+  const rootStyle = $derived(carriers || undefined);
   const platform = (): HTMLDialogElement | null =>
     rootEl?.querySelector('dialog') ?? null;
   // the native field, found under the Dialog's platform (bind:this on
@@ -200,6 +281,22 @@
     });
   });
 
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const MARK_OPEN = '\x01';
   const MARK_CLOSE = '\x02';
   const highlight = (text: string, terms: string[]): string => {
@@ -224,12 +321,18 @@
      overrides (the 14vh top anchor, the wider 44rem); the motion, the
      scrim, the entity depth, and the animated cancel exit all come
      from the component -->
-<div bind:this={rootEl} class="contents">
+<div
+  bind:this={rootEl}
+  class={cx(sp.contents)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
 <Dialog
   bind:open={open}
   title="Search the docs"
   variant="auto"
-  class="mt-[14vh] w-[min(92vw,44rem)] max-h-[calc(100dvh-14vh-2rem)]"
+  class={cx(sp.dialog)}
   cancelGuard={() => composing}
 >
   {#snippet head()}
@@ -243,9 +346,9 @@
          prefix-icon lane carries the magnifier, its suffix lane the
          flight cue, its own shell the row's height and padding.
          Dialog's x rides the band's end seat -->
-    <CardHeader class="col-start-1">
+    <CardHeader class={cx(sp.headerCol)}>
       <Input
-        class="w-full min-w-0 flex-1"
+        class={cx(sp.inputFlex)}
         bind:value={query}
         onkeydown={onKey}
         oncompositionstart={() => (composing = true)}
@@ -258,12 +361,12 @@
       >
         {#snippet innerInlineStart()}
           <span
-            class="flex-none select-none text-muted-foreground"
+            class={cx(sp.searchIcon)}
             aria-hidden="true"><Icon name="search" /></span>
         {/snippet}
         {#snippet innerInlineEnd()}
           {#if busy}
-            <span class="jx-flight flex flex-none gap-1" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="jx-flight {cx(sp.flightGap)}" aria-hidden="true"><i></i><i></i><i></i></span>
           {/if}
         {/snippet}
       </Input>
@@ -275,42 +378,40 @@
          the field until there is something to say -->
   {:else if busy}
     <!-- PENDING: a named state, not a trailing ellipsis -->
-    <div class="flex items-center gap-3 px-5 py-8" data-jx-search-pending role="status" {@attach fromAction(riseIn)}>
-      <span class="jx-flight flex gap-1" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span class="font-mono text-[12px] text-muted-foreground">Searching…</span>
+    <div class={cx(sp.pending)} data-jx-search-pending role="status" {@attach fromAction(riseIn)}>
+      <span class="jx-flight {cx(sp.flightRow)}" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class={cx(sp.pendingText)}>Searching…</span>
     </div>
   {:else if hits.length === 0}
     <!-- NO RESULT: a real empty state, not a stray line -->
-    <div class="flex flex-col items-center gap-2 px-5 py-9 text-center" data-jx-search-empty {@attach fromAction(riseIn)}>
-      <span
-        class="select-none text-muted-foreground/50"
-        aria-hidden="true"><Icon name="search" size={24} /></span>
-      <p class="font-mono text-[12.5px] text-foreground/80">
-        No results for <span class="text-foreground">“{query.trim()}”</span>
+    <div class={cx(sp.empty)} data-jx-search-empty {@attach fromAction(riseIn)}>
+      <span class={cx(sp.emptyIcon)} aria-hidden="true"><Icon name="search" size={24} /></span>
+      <p class={cx(sp.emptyTitle)}>
+        No results for <span class={cx(sp.emptyTitleInk)}>“{query.trim()}”</span>
       </p>
-      <p class="text-[11px] text-muted-foreground/70">try a shorter or different term</p>
+      <p class={cx(sp.emptyHint)}>try a shorter or different term</p>
     </div>
   {:else}
     <!-- the list rides the Dialog's OWN scroll ring (r14-3: the body
          zone is the only scroller — no nested max-h/overflow, the
          panel ceiling below is what lets the ring engage) -->
-    <ul class="p-2" role="listbox" {@attach fromAction(riseIn)}>
+    <ul class={cx(sp.list)} role="listbox" {@attach fromAction(riseIn)}>
       {#each hits as hit, i (hit.href)}
         <li role="option" aria-selected={i === active}>
           <a
             href={hit.href}
-            class="block rounded-md px-3.5 py-2.5 {i === active ? 'bg-primary/10' : ''}"
+            class={cx(sp.option, i === active && sp.optionActive)}
             onclick={() => close()}
             onmousemove={() => (active = i)}
           >
-            <p class="font-mono text-[10.5px] uppercase tracking-[0.14em] text-muted-foreground/70">
+            <p class={cx(sp.optionPage)}>
               {hit.pageTitle}
             </p>
-            <p class="mt-1 font-mono text-[13px] font-medium leading-snug">{hit.heading}</p>
+            <p class="jx-search-heading {cx(sp.optionHeading)}">{hit.heading}</p>
             {#if hit.summary !== ''}
-              <p class="mt-1 line-clamp-2 text-[12px] leading-relaxed text-muted-foreground">
+              <p class={cx(sp.optionSummary)}>
                 {#each parts(highlight(hit.summary, hit.terms)) as part}{#if part.mark}<mark
-                      class="bg-transparent text-primary">{part.text}</mark
+                      class={cx(sp.summaryMark)}>{part.text}</mark
                     >{:else}{part.text}{/if}{/each}
               </p>
             {/if}

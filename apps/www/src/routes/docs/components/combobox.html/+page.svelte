@@ -1,11 +1,14 @@
 <!--
-  combobox — canonical page (docs-restructure P0, 2026-08-25).
-  Split out of the form family page: the workbench canvas + the
-  searchable-select catalogue (allowCustom, strict, error) + the RTL
-  geometry demo. The form.html route remains as the family hub.
+  combobox — canonical page (docs-restructure P0, 2026-08-25; rebuilt to
+  the MDN archetype in docs-eight-axes-mdn task 24, 2026-09-22).
+  The searchable-select catalogue (allowCustom, strict, error), the
+  multiple/chips/bridge contract, the RTL geometry demo — now preceded
+  by an Overview and closed by the measured eight-axis table. The form
+  family hub stays at form.html.
 -->
 <script lang="ts">
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import Combobox, { type ComboboxOption } from '$lib/ui/combobox/combobox.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
@@ -13,12 +16,14 @@
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { meta as comboboxMeta } from '$lib/meta/combobox.meta';
   import { COMBOBOX_DOCS } from '$lib/ui/props-table/docs/combobox.docs';
   import TokenTable from '$lib/ui/token-table/token-table.svelte';
   import { CATALOG } from '$lib/catalog';
+  import { query } from '$lib/universal-props-query.svelte';
+  import type { DensityLane } from '$lib/defaults.svelte';
   import { PlayFields, PlayRow, PlayToggle, PlayHelp } from '$lib/playground';
   import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
 
@@ -47,9 +52,79 @@
 <!-- strict: allowCustom={false} reverts stray text on blur -->
 <Combobox label="runtime" allowCustom={false} options={backends} />`;
 
+  // ---- the eight axes (task 24): the measured table + the demo files ------
+  const universalUsage = `<Combobox {options} label="px number" size={14} density="small" />
+<Combobox {options} label="named steps" size="large" radius="medium" />
+<Combobox {options} label="query()" density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' })} />`;
+
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/combobox-universal.svelte', content: universalUsage },
+  ];
+
   const comboboxFiles: TreeFile[] = [
     { name: 'registry/files/ui/combobox.svelte', content: comboboxSource },
     { name: 'src/lib/ui/combobox-usage.svelte', content: comboboxUsage },
+  ];
+
+  // the measured per-axis rows (task 24 probe, /tmp/vellum-24-cb-probe.json):
+  // every consumption claim below carries its measurement or grep receipt.
+  const axisRows = [
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "THE §11 ECHO, NOTHING FOLLOWS — the stamp lands verbatim (measured root inline: --jx-size-effective: 14px; font-size: var(--jx-size-effective, 1rem); computed 14px / 18px at the two demo lanes), and no family paint is em-of-parent: the input's voice is the lane's var(--jx-text) (density-governed, it overrides inheritance), the shell floor is 2.5rem rem-of-page, the paddings ride px space channels, the option voices ride token steps. A stamp with nothing to scale. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps the carriers; zero readers in the family (grep receipt), and the shell corner is the input-family box law itself: borderRadius 0, the squared edge. Number unit: none.',
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-radius-effective; zero readers (grep receipt). The shell, the chips and the panel are square by the family box law — the concentric broadcast finds nothing to round. Number unit: px.',
+    },
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "LIVE THROUGH FOUR CHANNELS + THE FLOOR ASYMMETRY (all measured across xs/sm/default/lg): the label and error voices step --jx-text-secondary 10/11/12/14px; the input's voice steps --jx-text 11/12/13/15px; the field gap steps --jx-stack 4/4/8/8px; the lane's min-height steps --jx-hit−2px 26/30/38/46px. The ASYMMETRY: the shell's own floor is FIXED 2.5rem (40px) at every rung — at xs/sm the lane shrinks inside the floor (dead), at lg the 46px lane outgrows it (live), so the control grows with lg and refuses to shrink below 40. The chips stay 1.5rem fixed. The rung rides the ANCESTOR scope: under DensityDemo's [data-density] boxes the family's own attr stays absent (measured null — ambient carries no explicit lane); pass density=\"small\" and the alias resolves small→sm · medium→default · large→lg onto the field root. Number unit: coefficient.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — stamps --jx-color-effective; zero readers in the family (grep receipt). The ink is the theme-token set (the typed --jx-foreground/--jx-muted-*) plus the terminal machines; the two semantic accents (the “Use “xxx”” row, the selected edge + check glyph) read --primary/--jx-primary directly, not the lane. Number unit: hue degrees.',
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "THE BRIDGE, AND THE PAGE'S SPLIT DEMONSTRATOR — the .dark class lands on the field root and what answers depends on the EMISSION FORM. TYPED POLE (frozen at :root): the shell's border and ground, the chips, and the ACTIVE + SELECTED row grounds — measured inside a .dark scope the border stays the light oklch(0 0 0) and --jx-terminal-hover still mixes its light pole. RAW MACHINES (flip): the well shadow (measured flipping to the white-inset dark well), the option ink and HOVER ground (raw --terminal-hover — the SAME sheet token whose typed twin stayed home), the panel ink, the focus ring, the check glyph. Hover a row in a dark scope and the machine lands the dark ground; arrow onto the same row and the frozen pole paints it light — one listbox, two time-bases. A third time-base rides the shell's colorScheme property, flipping on prefers-color-scheme (the media, not the class). system/auto ride tree inheritance. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'SUPPLY-ONLY — zero carrier reads (grep receipt). The shadow the shell carries is the control-shell law’s own F-1 well sweep (var(--shadow-well) resting, -hover deepening — intensity, not tier); an elevation lane adds nothing to it. Number unit: dp.',
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        'AXIS SUPPLY-ONLY, KERNELS LIVE — the lane carrier is unread (grep receipt), but the family’s motion rides the sheet kernels directly: transitions on var(--motion-100)/var(--motion-150) ease-out (the well sweep, the chevron’s 180° flip, the row ground/ink, the × buttons), the prefers-reduced-motion kill over all of them, and the panel’s WAAPI surface kernel (the measured --jx-p: 0 → 1 timeline; every visible formula hangs off it in jixoai.css). Number unit: coefficient.',
+    },
   ];
 
   // ---- demo state ---------------------------------------------------------------
@@ -203,6 +278,22 @@ ${close}
 <div dir="rtl">
   <Combobox label="backend (rtl)" bind:value={backendRtl} options={backendOptions} />
 </div>`;
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -214,14 +305,14 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail (2026-08-20): aside precedes main content in the DOM —
        desktop sticky right column, mobile the glass single-row bar pinned
        under the scaffold header (height 0, see toc.css); the content
        column reserves the rail clearance with its mobile top padding -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -231,7 +322,17 @@ ${close}
       title="combobox — the searchable select"
       summary={heroSummary}
     >
-      <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install combobox">
+          <TerminalCard
+            barTitle="install — combobox"
+            command="npx jixoai-ui add combobox"
+            outputs={['https://ui.jixoai.com/r/combobox.json']}
+          />
+        </div>
+      {/snippet}
+
+      <div class={cx(rt.wrap12)}>
         <span class="pill">the trigger IS the input</span>
         <span class="pill">live label filter</span>
         <span class="pill">↑/↓ + Enter / Escape / Tab</span>
@@ -245,8 +346,51 @@ ${close}
   <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law; the sections between stay page-local. -->
-  <div data-reveal="">
-    <DocsInstall name="combobox" />
+
+  <div id="overview" data-reveal="">
+    <SectionCard
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="The searchable sibling of select: the trigger IS an <input>, so the popup is a conversation — the filter text is input state and only an explicit commit touches value."
+    >
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
+          The commit paths are the contract: <code class={cx(rt.inkAccent)}>Enter</code> commits the
+          highlighted row (or, with nothing highlighted, resolves the raw text — exact option, else
+          the custom value when <code class={cx(rt.inkAccent)}>allowCustom</code>, else nothing);
+          <code class={cx(rt.inkAccent)}>blur</code> resolves the same way; <code class={cx(rt.inkAccent)}>Escape</code> reverts
+          to the committed display; <code class={cx(rt.inkAccent)}>Tab</code> keeps the typed text through the
+          same resolution. The “Use “xxx”” row appears only when nothing matched — while matches
+          exist they are the answer.
+        </p>
+        <p class={cx(rt.para)}>
+          The ARIA contract is the hard one and this family takes the APG shape with zero focus
+          management: <code class={cx(rt.inkAccent)}>role="combobox"</code> sits on the input,
+          <code class={cx(rt.inkAccent)}>aria-expanded</code> mirrors the panel,
+          <code class={cx(rt.inkAccent)}>aria-controls</code> and <code class={cx(rt.inkAccent)}>aria-owns</code> name the
+          top-layer listbox (a DOM sibling promoted by <code class={cx(rt.inkAccent)}>popover="auto"</code>), and the
+          roving highlight rides <code class={cx(rt.inkAccent)}>aria-activedescendant</code> — focus never enters
+          the panel, so there is no focus restitution to get wrong (measured: after ArrowDown and
+          commit, document.activeElement is still the input). In <code class={cx(rt.inkAccent)}>multiple</code> mode the
+          listbox is <code class={cx(rt.inkAccent)}>aria-multiselectable</code>, the trigger wears chips with per-chip
+          “remove X” buttons, and the committed array crosses to FormData as repeated same-name
+          entries through the faceless form-field bridge — the <code class={cx(rt.inkAccent)}>name</code> prop is
+          intercepted off the native input, which never submits its display text.
+        </p>
+        <p class={cx(rt.para)}>
+          The paint is the terminal bezel the select family owns, and the theme axis splits it: the
+          typed atoms (shell border and ground, chips, the active/selected row grounds) freeze at
+          the :root pole while the raw machines (well shadow, row hover, panel ink, focus ring)
+          flip under a scoped <code class={cx(rt.inkAccent)}>.dark</code> — one listbox, two time-bases, detailed in the
+          axis table below. Kinship: <code class={cx(rt.inkAccent)}>select</code> is the composite sibling sharing the
+          panel law; <code class={cx(rt.inkAccent)}>tags-input</code> shares the chip law; <code class={cx(rt.inkAccent)}>cascader</code> is
+          the honest-path cousin — the ruled chain-of-<code class={cx(rt.inkAccent)}>&lt;select&gt;</code>s route for
+          dependent choices that need no typing at all.
+        </p>
+      </div>
+    </SectionCard>
   </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The filter text is input state, never committed state — value only changes through an explicit commit."><CodeBlock code={comboboxUsage} lang="svelte" meta="Combobox usage" /></SectionCard></div>
@@ -263,7 +407,7 @@ ${close}
       output={[{ label: 'value', value: canvasBackend ?? '—' }]}
       resolveFileContent={resolveComboboxUsage}
     >
-      <div class="flex w-full max-w-xs flex-col items-start gap-3">
+      <div class={cx(rt.col12, rt.itemsStart, rt.wFull, rt.cbxMaxWxs)}>
         <Combobox
           label="backend"
           bind:value={canvasBackend}
@@ -295,14 +439,14 @@ ${close}
       title="The high-form select — the popup becomes a conversation"
       summary="The trigger IS an input, typing filters the panel live (label contains, case-insensitive), ↑/↓ ride a roving aria-activedescendant highlight, Enter commits it, Escape reverts, Tab keeps — and when nothing matches, the allowCustom row offers “Use “xxx”” in the primary hue while strict fields revert stray text on blur. The panel is the same popover=auto terminal bezel as Select — light dismiss, Escape, and top layer are the browser's; focus never leaves the text field."
     >
-      <div class="flex flex-col gap-5">
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.para)}>
           Focus one: the text selects itself and the panel opens on the full list with the
-          committed row highlighted (the 2px <code class="text-accent">--primary</code> edge);
+          committed row highlighted (the 2px <code class={cx(rt.inkAccent)}>--primary</code> edge);
           typing filters live and auto-highlights the first match. Try
-          <code class="text-accent">wasi</code> in the first field — no match, so the
+          <code class={cx(rt.inkAccent)}>wasi</code> in the first field — no match, so the
           “Use “wasi”” row appears in primary; press Enter to commit it as a custom value.
-          The strict field (<code class="text-accent">allowCustom={'{false}'}</code>) keeps
+          The strict field (<code class={cx(rt.inkAccent)}>allowCustom={'{false}'}</code>) keeps
           its committed label instead.
         </p>
         <ComponentCanvas
@@ -311,52 +455,52 @@ ${close}
           stage="fill"
         >
           <CardGrid min="230px">
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class={cx('demo-cell', rt.col12)} data-no-subgrid>
             <Combobox label="backend — type to filter" bind:value={backendRoute} options={backendOptions} />
-            <span class="text-muted-foreground text-[12.5px]">
-              allowCustom (default) · bound value: <code class="text-accent">{backendRoute ?? '—'}</code>
+            <span class={cx(rt.inkMuted, rt.text125)}>
+              allowCustom (default) · bound value: <code class={cx(rt.inkAccent)}>{backendRoute ?? '—'}</code>
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class={cx('demo-cell', rt.col12)} data-no-subgrid>
             <Combobox
               label="strict — no custom values"
               bind:value={backendStrict}
               options={backendOptions.slice(0, 3)}
               placeholder="Search..."
             />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.inkMuted, rt.text125)}>
               allowCustom={'{false}'} · blur reverts stray text · value:
-              <code class="text-accent">{backendStrict ?? '—'}</code>
+              <code class={cx(rt.inkAccent)}>{backendStrict ?? '—'}</code>
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class={cx('demo-cell', rt.col12)} data-no-subgrid>
             <Combobox
               label="custom — try “wasi”"
               bind:value={backendCustom}
               options={backendOptions.slice(0, 3)}
               placeholder="Search or type..."
             />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.inkMuted, rt.text125)}>
               no match → “Use “xxx”” row · value:
-              <code class="text-accent">{backendCustom ?? '—'}</code>
+              <code class={cx(rt.inkAccent)}>{backendCustom ?? '—'}</code>
             </span>
           </div>
-          <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class={cx('demo-cell', rt.col12)} data-no-subgrid>
             <Combobox label="backend" error="backend is required" options={backendOptions} />
-            <span class="text-muted-foreground text-[12.5px]">
+            <span class={cx(rt.inkMuted, rt.text125)}>
               error wiring: aria-invalid + dashed shell
             </span>
           </div>
         </CardGrid>
         </ComponentCanvas>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           The component keeps the popover orchestration law of the family:
-          <code class="text-accent">popover="auto"</code> panels anchored with CSS Anchor
-          Positioning (<code class="text-accent">anchor-size(width)</code>, flip fallbacks,
+          <code class={cx(rt.inkAccent)}>popover="auto"</code> panels anchored with CSS Anchor
+          Positioning (<code class={cx(rt.inkAccent)}>anchor-size(width)</code>, flip fallbacks,
           viewport-center when the engine lacks it), focus that never enters the panel — the
-          roving highlight rides <code class="text-accent">aria-activedescendant</code> +
-          <code class="text-accent">aria-owns</code> off the input itself — and geometry from
-          logical properties only, so <code class="text-accent">dir="rtl"</code> mirrors the
+          roving highlight rides <code class={cx(rt.inkAccent)}>aria-activedescendant</code> +
+          <code class={cx(rt.inkAccent)}>aria-owns</code> off the input itself — and geometry from
+          logical properties only, so <code class={cx(rt.inkAccent)}>dir="rtl"</code> mirrors the
           chevron and the selected-row edge with zero branches.
         </p>
         <CodeBlock code={comboboxUsage} lang="svelte" meta="Combobox usage" />
@@ -373,36 +517,36 @@ ${close}
       title="multiple — chips, check states, and a lossless form bridge"
       summary="multiple flips the bindable to string[] in SELECTION ORDER: options toggle membership (pick to add, re-pick to remove), the trigger wears chips with per-chip remove ×, panel rows carry aria-multiselectable plus a check glyph, and picking keeps the panel open. Submission rides the form-field bridge's MULTIVALUE seam — the committed array crosses as a values PROPERTY and lands in FormData as repeated same-name entries, so getAll(name) returns every pick byte-for-byte in order; form.reset() restores the mount array and disabled fields submit nothing. showClear adds an × in the trigger lane that empties the selection — the field then submits honestly empty."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <ComponentCanvas
           title="combobox · multiple + clear"
           files={[{ name: 'combobox-multiple-demo.svelte', content: comboboxMultipleDemo, kind: 'usage' }]}
           stage="fill"
         >
-          <div class="grid w-full gap-5 min-[760px]:grid-cols-2">
-            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+          <div class={cx(rt.grid760a, rt.wFull)}>
+            <div class={cx('demo-cell', rt.col12)} data-no-subgrid>
               <Combobox label="stacks (multiple)" multiple name="stacks" bind:value={pickedStacks} options={backendOptions} placeholder="pick several…" />
-              <span class="text-muted-foreground text-[12.5px]">
-                selection order: <code class="text-accent">[{pickedStacks.join(', ')}]</code> — chips remove ×,
+              <span class={cx(rt.inkMuted, rt.text125)}>
+                selection order: <code class={cx(rt.inkAccent)}>[{pickedStacks.join(', ')}]</code> — chips remove ×,
                 panel check state, re-pick toggles off
               </span>
             </div>
-            <div class="demo-cell flex flex-col gap-3" data-no-subgrid>
+            <div class={cx('demo-cell', rt.col12)} data-no-subgrid>
               <Combobox label="backend (showClear)" showClear name="backend-clear" bind:value={clearedRoute} options={backendOptions} />
-              <span class="text-muted-foreground text-[12.5px]">
+              <span class={cx(rt.inkMuted, rt.text125)}>
                 the × clears the commit — the form then contributes
-                <code class="text-accent">nothing</code>, never "undefined" · value:
-                <code class="text-accent">{clearedRoute ?? '—'}</code>
+                <code class={cx(rt.inkAccent)}>nothing</code>, never "undefined" · value:
+                <code class={cx(rt.inkAccent)}>{clearedRoute ?? '—'}</code>
               </span>
             </div>
           </div>
         </ComponentCanvas>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           The transport is the DECIDED one (design.md): no hidden inputs, no joined-string
           channel — newline-bearing, quote-bearing and arbitrary Unicode values survive
           byte-for-byte because each value is a separate FormData entry. The breaking change is
-          deliberate and documented: in multiple mode <code class="text-accent">bind:value</code>
-          is <code class="text-accent">string[]</code> — there is no compatibility shim. Blur no
+          deliberate and documented: in multiple mode <code class={cx(rt.inkAccent)}>bind:value</code>
+          is <code class={cx(rt.inkAccent)}>string[]</code> — there is no compatibility shim. Blur no
           longer commits raw text in multiple mode; chips join through explicit Enter / row click
           only.
         </p>
@@ -420,22 +564,22 @@ ${close}
       title="RTL — geometry from logical properties"
       summary="Nothing in the component branches on direction: the chevron sits in the flex flow and the selected-row edge is border-inline-start. The writing mode does the rest."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <ComponentCanvas
           title="combobox · rtl"
           files={[{ name: 'combobox-rtl-demo.svelte', content: comboboxRtlDemo, kind: 'usage' }]}
           stage="center"
         >
-          <div dir="rtl" class="flex flex-col gap-4 border-border border p-4">
+          <div dir="rtl" class={cx(rt.col16, rt.panel)}>
             <Combobox label="backend (rtl)" bind:value={backendRtl} options={backendOptions} />
-            <span class="text-muted-foreground text-[12px]">
+            <span class={cx(rt.inkMuted, rt.text12)}>
               dir="rtl" — chevron inline-start, panel edge inline-start
             </span>
           </div>
         </ComponentCanvas>
-        <p class="text-pretty text-[13px] leading-6 text-muted-foreground">
+        <p class={cx(rt.para)}>
           The chevron sits in the flex flow, the selected-row edge is
-          <code class="text-accent">border-inline-start</code>, and the panel anchors with CSS
+          <code class={cx(rt.inkAccent)}>border-inline-start</code>, and the panel anchors with CSS
           Anchor Positioning whose offsets are logical too. The writing mode does the rest.
         </p>
       </div>
@@ -444,34 +588,62 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Combobox variants" summary="The commit rules are the variants: free custom values by default, strict reverting on blur, plus the error shell.">
-    <div class="grid gap-4 sm:grid-cols-2">
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">allowCustom (default)</p>
-        <p class="text-[13px] leading-6">No match → the “Use “xxx”” row in primary; Enter/Tab commits the typed text as the value.</p>
+    <div class={cx(rt.gridSm2)}>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb8)}>allowCustom (default)</p>
+        <p class={cx(rt.body13)}>No match → the “Use “xxx”” row in primary; Enter/Tab commits the typed text as the value.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">strict — allowCustom={'{false}'}</p>
-        <p class="text-[13px] leading-6">Stray text reverts on blur; only a listed option (or empty) can be committed.</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb8)}>strict — allowCustom={'{false}'}</p>
+        <p class={cx(rt.body13)}>Stray text reverts on blur; only a listed option (or empty) can be committed.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">disabled option rows</p>
-        <p class="text-[13px] leading-6">Options may disable themselves — skipped by keyboard navigation and click.</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb8)}>disabled option rows</p>
+        <p class={cx(rt.body13)}>Options may disable themselves — skipped by keyboard navigation and click.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">error wiring</p>
-        <p class="text-[13px] leading-6"><code class="text-accent">error</code> → aria-invalid + aria-describedby + the dashed shell.</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.inkMuted, rt.mb8)}>error wiring</p>
+        <p class={cx(rt.body13)}><code class={cx(rt.inkAccent)}>error</code> → aria-invalid + aria-describedby + the dashed shell.</p>
       </div>
     </div>
   </SectionCard></div>
-  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Focus never enters the panel — the roving highlight rides aria-activedescendant off the input itself."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move the roving highlight through the filtered rows' }, { key: 'Enter', action: 'Commit the highlighted row (or the raw text with allowCustom)' }, { key: 'Escape', action: 'Revert to the committed display and close the panel' }, { key: 'Tab', action: 'Keep the typed text: resolve to an option, custom value, or revert' }]} aria={[{ name: 'role', value: 'combobox', description: 'On the trigger input, with aria-haspopup="listbox".' }, { name: 'aria-activedescendant', value: '{id}-opt-n', description: 'The keyboard/aria cursor; focus stays in the input the whole time.' }, { name: 'aria-controls / aria-owns', value: '{id}-listbox', description: 'The top-layer promoted listbox is a DOM sibling of the input.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the input; mirrors panel state.' }, { name: 'aria-multiselectable', value: "'true'", description: 'On the listbox in multiple mode; picked rows carry aria-selected plus the check glyph.' }, { name: 'aria-label', value: '"remove X" / "clear selection"', description: 'On the chip remove × buttons and the showClear ×.' }, { name: 'aria-invalid / aria-describedby', value: 'true / {id}-error', description: 'Error wiring — dashed shell plus the validation message.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The shell consumes the .jx-field scaffold; the panel is the popover=auto terminal bezel with the 2px primary selected edge."><div class="flex flex-col gap-5"><DensityDemo><Combobox label="density" options={backendOptions} /></DensityDemo><TokenTable tokens={[{ name: '--jx-cbx-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The surface-motion kernel driving the panel open/close.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Stable-gutter scrollbar compensation in the panel.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }, { name: '--jx-inset', default: '8 / 8 / 12 / 16px', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Props extend the native input attributes (except value); the name prop rides the faceless form-field bridge."><PropsTable meta={comboboxMeta} docs={COMBOBOX_DOCS} /></SectionCard></div>
+  <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Focus never enters the panel — the roving highlight rides aria-activedescendant off the input itself."><A11yTable keys={[{ key: '↑ / ↓', action: 'Move the roving highlight through the filtered rows (opening the panel first if closed)' }, { key: 'Enter', action: 'Commit the highlighted row (or the raw text with allowCustom)' }, { key: 'Escape', action: 'Revert to the committed display and close the panel' }, { key: 'Tab', action: 'Keep the typed text: resolve to an option, custom value, or revert' }, { key: 'any character', action: 'Open the panel and filter live — the first match auto-highlights' }]} aria={[{ name: 'role', value: 'combobox', description: 'On the trigger input, with aria-haspopup="listbox".' }, { name: 'aria-activedescendant', value: '{id}-opt-n', description: 'The keyboard/aria cursor; focus stays in the input the whole time.' }, { name: 'aria-controls / aria-owns', value: '{id}-listbox', description: 'The top-layer promoted listbox is a DOM sibling of the input.' }, { name: 'aria-expanded', value: 'true/false', description: 'On the input; mirrors panel state.' }, { name: 'aria-multiselectable', value: "'true'", description: 'On the listbox in multiple mode; picked rows carry aria-selected plus the check glyph.' }, { name: 'aria-label', value: '"remove X" / "clear selection"', description: 'On the chip remove × buttons and the showClear ×.' }, { name: 'aria-invalid / aria-describedby', value: 'true / {id}-error', description: 'Error wiring — dashed shell plus the validation message.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="Density is live through four measured channels with one floor asymmetry; the glyph slots, the anchor and the motion kernel are the family's own seams."><div class={cx(rt.col20)}><DensityDemo><Combobox label="density" options={backendOptions} /></DensityDemo><TokenTable tokens={[{ name: '--jx-text', default: '11 / 12 / 13 / 15px (measured)', source: 'density', description: 'The input lane’s voice — the jx-html-control-lane font-size.' }, { name: '--jx-text-secondary', default: '10 / 11 / 12 / 14px (measured)', source: 'density', description: 'The .jx-label and .jx-error voices.' }, { name: '--jx-stack', default: '4 / 4 / 8 / 8px (measured)', source: 'density', description: 'The .jx-field flex gap between label, control and error.' }, { name: '--jx-hit', default: 'lane 26 / 30 / 38 / 46px; shell floor FIXED 40px (measured)', source: 'density', description: 'The lane’s min-height scales (hit − 2px); the shell’s 2.5rem floor never shrinks — grow is live at lg, shrink is dead below 40.' }, { name: '--jx-icon-chevron / -clear / -check', default: 'inline SVG fallbacks', source: 'component', description: 'The three mask glyph slots — chevron, the ×s, the multiple check — re-skin without code.' }, { name: '--jx-cbx-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against (sanitized from the id).' }, { name: '--jx-p', default: '0 → 1 timeline', source: 'component', description: 'The WAAPI surface kernel driving the panel open/close; every visible formula hangs off it.' }, { name: 'colorScheme', default: 'light ↔ dark on prefers-color-scheme', source: 'structural', description: 'The shell’s scheme property flips on the media — the theme axis’s third time-base.' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="The eight axes"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive values. MEASURED, not claimed: density is the family's only live ladder (four channels, one floor asymmetry); size is the §11 echo with nothing following; the theme split is the page's same-token demonstrator; shape/radius/color/elevation are supply-only."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <p class={cx(rt.mt20, rt.note12, rt.inkMuted70)}>
+          Receipts: the density ladder, the size echo, the frozen-pole contrast and the kernel
+          timeline were measured on this page's served DOM (probe, task 24); the supply-only rows
+          carry grep receipts over src/lib/ui/combobox/. The universal demo folds in below, with a
+          query() seat: the density lane flips to the large rung at the lg viewport key (≥64rem —
+          the lg key is 64rem VIEWPORT_SCALE, not the old 40rem container tier).
+        </p>
+        <ComponentCanvas title="Combobox · universal props" stage="fill" files={universalFiles}>
+          <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}><Combobox options={backendOptions} label="size 14 · density small" size={14} density="small" name="univ-cbx-px" /></div>
+          <div class={cx(rt.panel)}><Combobox options={backendOptions} label="size large · radius medium" size="large" density="large" radius="medium" name="univ-cbx-named" /></div>
+          <div class={cx(rt.panel)}><Combobox options={backendOptions} label="density lg→large (query)" density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' })} name="univ-cbx-query" /></div>
+          </div>
+        </ComponentCanvas>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="22 meta rows − 8 ambient axes = 14 family rows; the synthesized rest row hides behind the curation — the spread is real (HTMLInputAttributes minus value/size/color ride the rest spread to the native input) — 21 served. value/multiple's generic degradation is corrected to the instantiated contract in the curation; the drift-lock test pins it."><PropsTable meta={comboboxMeta} docs={COMBOBOX_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from
        the docs reading chain (data, not a hand list) -->
-  <div data-reveal="">
+  <div id="see-also" data-reveal="">
     <DocsSeeAlso name="combobox" />
   </div>
 </div>

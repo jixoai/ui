@@ -45,9 +45,11 @@
   NOT re-implement B2 — the docs state the lane split (plain anchors
   in-scope vs the Link part as the prose lane).
 
-  NO paint ladder, NO defaults file (no public style prop — the
-  Defaults law covers style-prop families). NO margins: preflight
-  zeroes them and the rhythm/flush laws own spacing, as with heading.
+  NO paint ladder of its own — the W3-D1 Defaults contract
+  (list-defaults.svelte.ts) carries the eight universal axes ALL
+  NO-OWN for the supply chain; no family-local style prop joined.
+  NO margins: preflight zeroes them and the rhythm/flush laws own
+  spacing, as with heading.
   The task-item DOM-shape laws (marker suppression on
   li:has(> input), checkbox middle alignment) stay container-level in
   markdown.css — they are descendant DOM-shape laws, not list paint;
@@ -66,12 +68,49 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { ListDefaults } from './list-defaults.svelte';
+  import { listStyles } from './list.stylex';
+  // the lane-2 residue: the marker ink (li::marker — a descendant
+  // boundary the atoms cannot express)
+  import './list.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /** the marker vocabulary — frozen small set, element-agnostic;
    *  lowercase only (upper = the escape hatch) */
   type ListMarker = 'disc' | 'circle' | 'square' | 'decimal' | 'alpha' | 'roman' | 'none';
 
-  interface Props extends HTMLAttributes<HTMLUListElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLUListElement>, 'color'> {
     /** true → <ol> (ordered markers, `start`/`reversed` honored);
      *  false → <ul> */
     ordered?: boolean;
@@ -88,6 +127,29 @@
     /** descending marker order (ol-only passthrough, the start/reversed
      *  native pair; ignored on ul) */
     reversed?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the list items — native <li> children (or component trees that
      *  render them); this component styles the list, never the item */
     children?: Snippet;
@@ -100,37 +162,62 @@
     nav,
     start,
     reversed,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     children,
     class: className = '',
+    style = '',
     ...rest
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D1 — FIRST-TIME contract, all
+  // no-own: the B8 marker channels and the no-margins rhythm law own
+  // the paint; the supply chain is the point). The LIST element is
+  // the family root (the nav wrapper is a landmark shell — the
+  // carriers land on whichever ul/ol renders)
+  const d = $derived(
+    ListDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let listEl = $state<HTMLUListElement>();
+  provideQueryAnchor(() => listEl ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
 
   // marker resolution: explicit OVERRIDES; omitted keeps the per-element
   // platform law (the B8 restoration byte-parity) — except in nav mode,
   // where omitted means none (chrome list, no document-flow marker)
   const resolvedMarker = $derived(marker ?? (nav !== undefined ? 'none' : ordered ? 'decimal' : 'disc'));
 
-  // probed against the site's TW 4.2.1 compiler: circle/square have NO
-  // core utility (silent no-op) — the arbitrary [list-style:] form is
-  // the only honest spelling for them; disc/decimal/none ride core
-  // utilities (today's byte-parity stamps)
-  const MARKER_UTILITIES = {
-    disc: 'list-disc',
-    circle: '[list-style:circle]',
-    square: '[list-style:square]',
-    decimal: 'list-decimal',
-    alpha: '[list-style:lower-alpha]',
-    roman: '[list-style:lower-roman]',
-    none: 'list-none',
+  // the marker vocabulary as ATOMS (the old core-utility and
+  // arbitrary [list-style:] forms collapse into one map — the emitted
+  // rule is the same list-style-type declaration either way; the
+  // TW4 silent no-op hazard for circle/square retires with the
+  // engine itself)
+  const MARKER_ATOMS = {
+    disc: listStyles.disc,
+    circle: listStyles.circle,
+    square: listStyles.square,
+    decimal: listStyles.decimal,
+    alpha: listStyles.alpha,
+    roman: listStyles.roman,
+    none: listStyles.none,
   } as const;
 
-  // the B8 channels as utilities; the nav mode drops the structural
-  // indent (ps-0 stays even with an explicit marker — chrome list)
+  // the B8 channels; the nav mode drops the structural indent
+  // (ps-0 stays even with an explicit marker — chrome list)
   const listClass = $derived(
     cn(
-      MARKER_UTILITIES[resolvedMarker],
-      nav !== undefined ? 'ps-0' : 'ps-6',
-      '[&_li::marker]:text-muted-foreground',
+      cx(
+        MARKER_ATOMS[resolvedMarker],
+        nav !== undefined ? listStyles.flush : listStyles.indent,
+      ),
       className,
     ),
   );
@@ -143,11 +230,29 @@
        this component surfaces are `start` and `reversed`, declared
        and passed explicitly above -->
   {#if ordered}
-    <ol data-jx-list="ol" class={listClass} {start} {reversed} {...(rest as HTMLAttributes<HTMLOListElement>)}>
+    <ol
+      bind:this={listEl}
+      data-jx-list="ol"
+      class={listClass}
+      {start}
+      {reversed}
+      data-density={densityRungOf(d.density)}
+      class:dark={d.theme === 'dark'}
+      style={rootStyle}
+      {...(rest as HTMLAttributes<HTMLOListElement>)}
+    >
       {@render children?.()}
     </ol>
   {:else}
-    <ul data-jx-list="ul" class={listClass} {...rest}>
+    <ul
+      bind:this={listEl}
+      data-jx-list="ul"
+      class={listClass}
+      data-density={densityRungOf(d.density)}
+      class:dark={d.theme === 'dark'}
+      style={rootStyle}
+      {...rest}
+    >
       {@render children?.()}
     </ul>
   {/if}

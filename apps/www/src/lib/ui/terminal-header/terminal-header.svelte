@@ -55,10 +55,29 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
   import NavigationMenuIndicator from '../navigation-menu/navigation-menu-indicator.svelte';
+  import { thStyles } from './terminal-header.stylex';
+  import { TerminalHeaderDefaults } from './terminal-header-defaults.svelte';
+  import { watchTerminalScope } from '$lib/terminal-scope.svelte';
+  import { animateGridDisclosure } from '$lib/disclosure-motion';
+  import { tokenScope } from '../../tokens.stylex';
   import './terminal-header.css';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     /** the wordmark line of the brand block */
     brand: string;
     /** second brand line (the domain) */
@@ -86,6 +105,27 @@
     /** the mobile drawer's open state (bind:open) — the consumer's
         reset signal: closing clears its own drawer state */
     open?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query(). NO own — the bezel is flat chrome (its depth is the
+     *  page shell's own law); an explicit lane flows to the carriers */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -94,33 +134,73 @@
     domain,
     subtitle,
     homeHref = '/',
-    theme = 'dark',
+    theme,
     logo,
     switcher,
     switcherFrame = true,
     drawer,
     open = $bindable(false),
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     children,
     ...rest
   }: Props = $props();
 
-  // scoped token class: dark (default lock) or jx-light (css-defined)
-  let scope = $state<'dark' | 'light'>(theme === 'light' ? 'light' : 'dark');
+  // the family Defaults is the single read point (context-defaults
+  // round 2): theme rides its literal slot — own 'dark' (the bezel
+  // law) lives in the contract, never a destructure default.
+  // W3-C: the seven non-theme axes ride the same record — the THEME
+  // axis is DELIBERATELY ABSENT (the unruled-collision law, the
+  // terminal-card/ghostty-term precedent): the bezel theme is the
+  // SHELL lock (own-before-ambient), not the axis' ambient-first law.
+  // The theme lane forwards ambient, unadopted
+  const d = $derived(
+    TerminalHeaderDefaults.resolve({ theme, density, size, shape, radius, color, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  const rootStyle = $derived(
+    [carriers, style].filter(Boolean).join('; ') || undefined,
+  );
 
-  $effect(() => {
-    if (theme !== 'system') {
-      scope = theme === 'light' ? 'light' : 'dark';
+  // scoped token class: dark (default lock) or jx-light (css-defined)
+  // — the SHARED resolution (lib/terminal-scope: one law, one
+  // implementation; the header and card no longer carry twin
+  // effects). Held as the OBJECT: the watch's scope is a getter —
+  // destructuring would copy the value once and kill reactivity
+  const scopeWatch = watchTerminalScope(() => d.theme);
+
+  // the mobile drawer's 0fr→1fr motion rides the rAF lane
+  // (lib/disclosure-motion — the Chrome 146 clock-freeze receipt);
+  // the atoms carry the endpoints, this lane interpolates. Mount =
+  // resting state, no entrance frames
+  let drawerEl = $state<HTMLElement | null>(null);
+  let prevDrawerOpen: boolean | undefined;
+  // $effect.pre: measure the OLD endpoint BEFORE the class flip —
+  // with the css transition retired, the class change is instant,
+  // and the post-update effect would read the FINAL state as the
+  // motion's start; the .pre lane sees the pre-flip track, then the
+  // frames' inline interpolation takes over past the flip
+  $effect.pre(() => {
+    const state = open;
+    const el = drawerEl;
+    if (prevDrawerOpen === undefined || !el) {
+      prevDrawerOpen = state;
       return;
     }
-    const media = matchMedia('(prefers-color-scheme: dark)');
-    const apply = () => (scope = media.matches ? 'dark' : 'light');
-    apply();
-    media.addEventListener('change', apply);
-    return () => media.removeEventListener('change', apply);
+    animateGridDisclosure(el, state);
+    prevDrawerOpen = state;
   });
 
   let headerEl = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => headerEl ?? null);
 
   /* -----------------------------------------------------------------
    * Navigation cleanup (consumers call this from their router hook —
@@ -165,6 +245,31 @@
     addEventListener('keydown', onKey);
     return () => removeEventListener('keydown', onKey);
   });
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    // `object` (not a keyed shape): stylex's Theme products (the
+    // same-map createTheme stamp) are branded interfaces with NO
+    // index signature — their runtime truth IS the compiled styles
+    // map ({<varGroupHash>: 'cls1 cls2', $$css: true}); the joiner
+    // narrows by VALUE typeof, the parameter just admits the shape
+    ...styles: (object | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : style === undefined
+            ? ''
+            : Object.entries(style ?? {}).flatMap(([key, value]) =>
+                key !== '$$css' && typeof value === 'string' ? [value] : [],
+              ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <!-- isolate (stacking-isolation, 2026-09-09): the bezel's entries
@@ -173,35 +278,46 @@
      and in-demo uses keep the ladder private too -->
 <header
   bind:this={headerEl}
+  data-density={densityRungOf(d.density)}
+  style={rootStyle}
   class={cn(
-    'jx-nav isolate bg-terminal text-terminal-foreground border-b border-border',
-    scope === 'dark' ? 'dark [color-scheme:dark]' : 'jx-light [color-scheme:light]',
+    'jx-nav',
+    cx(thStyles.bezel),
+    // cx(tokenScope): the same-map createTheme's theme class — in the
+    // compile lane it lands as a styles OBJECT ({xbpgcew: 'xr8… xb…'}),
+    // so it goes through THE joiner, never a raw .theme read (that's
+    // the runtime-injection lane's shape). The class RE-DECLARES every
+    // --jx-* member on THIS bezel, so the map re-resolves against the
+    // bezel's own .dark cascade instead of :root's frozen light
+    // literals (W4-r6: the lost dark-bezel regression)
+    cx(tokenScope),
+    scopeWatch.scope === 'dark' ? `dark ${cx(thStyles.schemeDark)}` : `jx-light ${cx(thStyles.schemeLight)}`,
     className,
   )}
   {...rest}
 >
-  <div class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8">
+  <div class={cx(thStyles.shell)}>
     <!-- the chrome band rides the ROW, not the header root: the
          drawer below and the composed panels' surfaces stay on the
          density axis (control law), only the bar's controls follow
          the pointer-modality band -->
-    <div data-jx-chrome="" class="flex items-center justify-between gap-4 py-3">
+    <div data-jx-chrome="" class={cx(thStyles.row)}>
       <!-- LEFT WING · the brand -->
-      <a href={homeHref} class="flex min-w-0 flex-1 items-center gap-3">
+      <a href={homeHref} class={cx(thStyles.brandLink)}>
         {#if logo}
-          <span class="flex h-[var(--jx-hit)] w-[var(--jx-hit)] flex-none items-center justify-center">
+          <span class={cx(thStyles.logoSlot)}>
             {@render logo()}
           </span>
         {/if}
-        <span class="flex min-w-0 flex-col gap-0.5">
-          <span class="font-nav text-primary text-[11px] uppercase tracking-[0.24em] leading-tight">
+        <span class={cx(thStyles.brandCol)}>
+          <span class={cx(thStyles.wordmark)}>
             {brand}
           </span>
           {#if domain}
-            <span class="font-nav truncate text-sm leading-tight">{domain}</span>
+            <span class={cx(thStyles.domain)}>{domain}</span>
           {/if}
           {#if subtitle}
-            <span class="hidden truncate text-[11px] leading-tight opacity-60 lg:block">
+            <span class={cx(thStyles.subtitle)}>
               {subtitle}
             </span>
           {/if}
@@ -209,7 +325,7 @@
       </a>
 
       <!-- RIGHT WING · the nav pill slot + controls -->
-      <div class="flex flex-none items-center gap-3">
+      <div class={cx(thStyles.wing)}>
         <!-- the pill box: chrome the composed nav lands in (the nav
              landmark itself is the consumer's NavigationMenu root).
              The INDICATOR is the family's part, sunk here (2026-09-01):
@@ -217,21 +333,21 @@
              slides via WAAPI on the bezel curve, and morphs across
              pages through the preserved vt-nav-active name; the bezel
              paint — backdrop brightener, never a fill — rides the css
-             key on the part's hook (utilities overridden through the
-             class seam: transparent ground, square corners). The
+             key on the part's hook (the atom seam overrides through
+             the class seam: transparent ground, square corners). The
              retired engine's 150ms ease-out opacity fade (appear/
              disappear) is restored through the same seam (B-8,
              2026-09-02 — "verbatim in behavior" made whole; the first
              placement stays instant: the fade only arms after the
              initial paint) -->
         <div
-          class="relative hidden items-center border border-terminal-foreground/25 p-0.5 sm:flex"
+          class={cx(thStyles.pillBox)}
         >
           <NavigationMenuIndicator
             name="vt-nav-active"
             duration={450}
             easing="cubic-bezier(0.22, 1, 0.36, 1)"
-            class="bg-transparent rounded-none transition-opacity duration-150 ease-out"
+            class={cx(thStyles.indicatorSeam)}
           />
           {@render children?.()}
         </div>
@@ -242,25 +358,25 @@
              one aligned row -->
         {#if switcher}
           {#if switcherFrame}
-            <div class="flex border border-terminal-foreground/25 p-0.5">
+            <div class={cx(thStyles.frame)}>
               {@render switcher()}
             </div>
           {:else}
             {@render switcher()}
           {/if}
         {/if}
-        <span class="flex border border-terminal-foreground/25 p-0.5 sm:hidden">
+        <span class={cx(thStyles.burgerWrap)}>
         <button
           type="button"
-          class="flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] flex-col items-center justify-center gap-[3px]"
+          class={cx(thStyles.burger)}
           aria-expanded={open}
           aria-label="Toggle navigation"
           bind:this={burgerEl}
           onclick={() => (open = !open)}
         >
-          <span class="jx-bar block h-[1.5px] w-[var(--jx-icon)] bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
-          <span class="block h-[1.5px] w-[var(--jx-icon)] bg-terminal-foreground"></span>
-          <span class="jx-bar block h-[1.5px] w-[var(--jx-icon)] bg-terminal-foreground transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]"></span>
+          <span class="jx-bar {cx(thStyles.bar, thStyles.barMoving)}"></span>
+          <span class={cx(thStyles.bar)}></span>
+          <span class="jx-bar {cx(thStyles.bar, thStyles.barMoving)}"></span>
         </button>
         </span>
       </div>
@@ -270,13 +386,13 @@
          bar; the inner scroller bounds it to the viewport so every link
          stays reachable -->
     <div
-      class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 sm:hidden"
-      class:grid-rows-[1fr]={open}
+      bind:this={drawerEl}
+      class={cn(cx(thStyles.drawer), open && cx(thStyles.drawerOpen))}
     >
-      <div class="overflow-hidden">
+      <div class={cx(thStyles.drawerClip)}>
         <div
           data-jx-mobile-scroll
-          class="max-h-[calc(100dvh-4.75rem)] overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges] [-webkit-overflow-scrolling:touch]"
+          class={cx(thStyles.drawerScroll)}
         >
           {@render drawer?.()}
         </div>

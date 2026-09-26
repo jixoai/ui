@@ -13,6 +13,22 @@ import { resolve } from 'node:path';
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 import { alert, confirm, prompt } from '$lib/ui/system-dialog/system-dialog.svelte.ts';
+import { sysdlgStyles } from '$lib/ui/system-dialog/system-dialog.stylex';
+
+// tailwindless W1b (2026-09-17): the strip's bleed arithmetic rides the
+// family's stylex atoms — asserted through the same cx join the
+// component rides (utility-shaped expectations went with the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const here = import.meta.dirname;
 
@@ -94,7 +110,7 @@ describe('alert — the window.alert posture', () => {
     const strip = panel.querySelector('[data-jx-sysdlg-actions]')!;
     expect(strip.querySelector(':scope > hr, :scope > [data-jx-separator]')).not.toBeNull();
     const group = strip.querySelector(':scope > [data-jx-btngroup]')!;
-    expect(group.className).toContain('w-full');
+    expect(group.className).toContain(cx(sysdlgStyles.actionsFill));
     await fireEvent.click(panel.querySelector('[data-jx-sysdlg-cancel]')!);
   });
 });
@@ -119,10 +135,12 @@ describe('the corner context (the mobile-dev ruling: publish, never clip)', () =
       resolve(here, '../src/lib/ui/system-dialog/system-dialog.css'),
       'utf8',
     );
-    // the PROVIDER: the surface declares its corner once (mirroring the
-    // theme's --radius source its own `rounded` rides) — the lane is
-    // css inheritance, the platform's context mechanism, SSR-pure
-    expect(css).toMatch(/\[data-jx-sysdlg\]\)\s*\{[^}]*--jx-corner: var\(--radius, 0px\)/s);
+    // the PROVIDER: the surface declares its corner once — W3-C: the
+    // corner rides the §3/§14 consumed chain (--jx-radius-consumed,
+    // falling to the auto concentric calc; the panel's own silhouette
+    // reads the same expression) — the lane is css inheritance, the
+    // platform's context mechanism, SSR-pure
+    expect(css).toMatch(/\[data-jx-sysdlg\]\)\s*\{[^}]*--jx-corner: var\(\s*--jx-radius-consumed,/s);
     // the CONCENTRIC PAIRING: first cell end-start, last cell end-end —
     // never a clip on the surface (the engrave shadow must never shear)
     expect(css).toMatch(/:first-child\s*\{\s*border-end-start-radius: var\(--jx-corner, 0px\)/s);

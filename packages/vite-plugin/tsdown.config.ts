@@ -67,6 +67,15 @@ export default defineConfig([
       'spinners/magecdn': 'src/spinners/packs/magecdn.ts',
       'spinners/svg-loaders': 'src/spinners/packs/svg-loaders.ts',
       canvas: 'src/canvas/index.ts',
+      // the universal-props sub-entry (explicit-props W2): the alias
+      // tables + css generator + desugarer + the vite pass. FLAT file
+      // (dist/universal-props.js), the spinners sub-entry precedent.
+      'universal-props': 'src/universal-props/index.ts',
+      // the browser-side query shim — §9.1's FROZEN export paths
+      // (./dist/query-shim.js + ./dist/query-shim.d.ts): its own entry
+      // so a page importing ./universal-props/query-shim never pulls
+      // the node-side vite pass graph
+      'query-shim': 'src/universal-props/query-shim.ts',
       probe: 'src/probe.ts',
     },
     outDir: 'dist',
@@ -74,7 +83,22 @@ export default defineConfig([
     platform: 'node',
     target: 'node20',
     dts: true,
-    external: ['opentype.js', 'wawoff2', 'svgo', 'svelte', 'svelte/compiler'],
+    external: [
+      'opentype.js',
+      'wawoff2',
+      'svgo',
+      'svelte',
+      'svelte/compiler',
+      // the stylex engine (stylex-kernel phase 0 P0.2): a
+      // devDependency kept EXTERNAL on purpose — dist carries the bare
+      // specifier, resolved at build time from this package's own
+      // node_modules (the F11 build-side posture: the engine NEVER
+      // appears in any consumer's dependency tree). EXACT pin 0.19.0;
+      // bumps re-run the research D1 fixtures (layer-law + wrapper
+      // audit come with them)
+      '@stylexjs/unplugin',
+      '@stylexjs/unplugin/vite',
+    ],
     copy: [{ from: 'src/client.d.ts', to: 'dist' }],
     outExtensions: () => ({ js: '.js', dts: '.d.ts' }),
     plugins: [shebangProbeBin],

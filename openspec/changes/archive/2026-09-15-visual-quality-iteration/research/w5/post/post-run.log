@@ -1,0 +1,29 @@
+[popover-area] primary  bottom-start (authored span-right, expect LEFT edges): delta=0px  computed="span-right bottom"  pill=[208,345] panel=[208,516] w=308
+[popover-area] control  bottom-end   (authored span-left,  expect RIGHT edges): delta=-171px  computed="span-left bottom"  pill=[208,345] panel=[37,345] w=308
+[dropdown-area] ok   bottom-start             geo={"dLeft":8,"dRight":161.2,"above":-196,"below":8,"panelW":282.2} area="span-right bottom"
+[dropdown-area] ok   bottom                   geo={"dLeft":-76.6,"dRight":76.6,"above":-196,"below":8,"panelW":282.2} area="bottom"
+[dropdown-area] ok   bottom-end               geo={"dLeft":-161.2,"dRight":-8,"above":-196,"below":8,"panelW":282.2} area="span-left bottom"
+[dropdown-area] ok   top-start                geo={"dLeft":8,"dRight":161.2,"above":8,"below":-196,"panelW":282.2} area="span-right top"
+[dropdown-area] ok   top                      geo={"dLeft":-76.6,"dRight":76.6,"above":8,"below":-196,"panelW":282.2} area="top"
+[dropdown-area] ok   top-end                  geo={"dLeft":-161.2,"dRight":-8,"above":8,"below":-196,"panelW":282.2} area="span-left top"
+[dropdown-area] ok   collision-flip-block     geo={"dLeft":8,"dRight":161.2,"above":8,"below":-196,"panelW":282.2} area="span-right top"
+[dropdown-area] ok   collision-flip-inline    geo={"dLeft":-161.2,"dRight":-8,"above":-196,"below":8,"panelW":282.2} area="span-left bottom"
+[dropdown-area] red  swapped-map control (old "bottom span-left" planted): align-start, area red — geo={"dLeft":-161.2,"dRight":-8,"above":-196,"below":8,"panelW":282.2} area="span-left bottom"
+[tooltip-area] ok   top-start                geo={"dLeft":6,"dRight":182,"above":6,"below":-141.5,"panelW":288} area="span-right top"
+[tooltip-area] ok   top                      geo={"dLeft":-88,"dRight":88,"above":6,"below":-141.5,"panelW":288} area="top"
+[tooltip-area] ok   top-end                  geo={"dLeft":-182,"dRight":-6,"above":6,"below":-141.5,"panelW":288} area="span-left top"
+[tooltip-area] ok   bottom-start             geo={"dLeft":6,"dRight":182,"above":-141.5,"below":6,"panelW":288} area="span-right bottom"
+[tooltip-area] ok   bottom                   geo={"dLeft":-88,"dRight":88,"above":-141.5,"below":6,"panelW":288} area="bottom"
+[tooltip-area] ok   bottom-end               geo={"dLeft":-182,"dRight":-6,"above":-141.5,"below":6,"panelW":288} area="span-left bottom"
+[tooltip-area] ok   collision-flip-block     geo={"dLeft":6,"dRight":182,"above":6,"below":-141.5,"panelW":288} area="span-right top"
+[tooltip-area] ok   collision-flip-inline    geo={"dLeft":-182,"dRight":-6,"above":-141.5,"below":6,"panelW":288} area="span-left bottom"
+[tooltip-area] red  swapped-map control (old "top span-left" planted): align-start, area red — geo={"dLeft":-182,"dRight":-6,"above":6,"below":-141.5,"panelW":288} area="span-left top"
+[float-button-area] ok   default-corner-direct    geo={"dLeft":-157.2,"dRight":-12,"above":12,"below":-158,"panelW":185.2} area="span-left top"
+[float-button-area] ok   mirror-corner-flip-inline geo={"dLeft":12,"dRight":157.2,"above":12,"below":-158,"panelW":185.2} area="span-right top"
+[float-button-area] red  swapped-map control (old "top span-right" planted): align-end, area red — geo={"dLeft":-96,"dRight":8,"above":12,"below":-218,"panelW":144} area="span-right top"
+[menubar-area] ok   direct                   geo={"dLeft":8,"dRight":109,"above":-194,"below":8,"panelW":166.6} area="span-right bottom"
+[menubar-area] ok   collision-flip-block     geo={"dLeft":8,"dRight":109,"above":8,"below":-194,"panelW":166.6} area="span-right top"
+[menubar-area] red  swapped-map control (old "bottom span-left" planted): align-start, area red — geo={"dLeft":-73,"dRight":21.4,"above":-214,"below":8,"panelW":160} area="span-left bottom"
+{"probe":"popover-area-align","primaryDelta":0,"controlDelta":-171,"sweep":{"dropdown":{"arms":8,"red":0},"tooltip":{"arms":8,"red":0},"float-button":{"arms":2,"red":0},"menubar":{"arms":2,"red":0}},"swappedControlReds":{"dropdown":2,"tooltip":2,"float-button":2,"menubar":2},"pass":true}
+
+popover-area-align: GREEN

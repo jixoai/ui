@@ -29,10 +29,23 @@
 @import '@fontsource-variable/jetbrains-mono';
 @import '@fontsource/share-tech-mono';
 
+/* the hue SOURCE (W6-r3 split): --brand-hue lives on :root ONLY. The
+   grouped token block below once re-declared it inside .jx-light too,
+   which froze every light island at this static value while the site's
+   hue runtime moved :root (the tokens page's canvas stage stayed
+   magenta at slider 200 — the W6-r1 vision round's self-contradiction
+   finding). Islands re-declare the theme-PROFILE tokens; the hue
+   source stays whatever :root carries — for REGISTRY CONSUMERS this
+   static 330 is the live one (jixoai-ui init --hue rewrites it); the
+   wall-clock rotation is ui.jixoai.com's site-local hue-runtime
+   script, never shipped to consumers. per-project values: unipty=165
+   幽绿, openspecui=27 */
+:root {
+  --brand-hue: 330;
+}
+
 :root,
 .jx-light {
-  --brand-hue: 330; /* the registry's own default (ui.jixoai.com pink) — for REGISTRY CONSUMERS this static value is the live one (jixoai-ui init --hue rewrites it); the wall-clock hue rotation is ui.jixoai.com's site-local hue-runtime script, never shipped to consumers. per-project values: unipty=165 幽绿, openspecui=27 */
-
   --background: oklch(1 0 0);
   --foreground: oklch(0 0 0);
   /* unlocked-light bezel (Owner, 2026-08-21): theme="light" surfaces get a
@@ -46,7 +59,11 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0 0 0);
   --primary: oklch(0.6489 0.237 var(--brand-hue));
-  --primary-foreground: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
+  /* text-role green: L0.55/C0.12 is the AA floor across the family hue
+     range (worst 4.54 at hue 165) — filled surfaces keep the brighter
+     primary; text on light backgrounds uses this (2026-09-15 ruling). */
+  --primary-text: oklch(0.55 0.12 var(--brand-hue));
   --secondary: oklch(0.968 0.211 109.7692);
   --secondary-foreground: oklch(0 0 0);
   --muted: oklch(0.9551 0 0);
@@ -177,6 +194,76 @@
   --scrollbar-thumb-active: color-mix(in oklab, currentColor 66%, transparent);
   --jx-scrollbar-thin: 0px;
   --jx-scrollbar-auto: 0px;
+
+  /* ── the surface ladder (explicit-props §7 / task 1.1, 2026-09-21):
+     official M3 Expressive surface-container roles. Elevation NEVER
+     paints a surface tint (Owner: 「跟随官方走」 — tint deprecated
+     upstream): hierarchy = the per-level shadow recipe (the level
+     table below) + the surface role, and the ladder obeys the
+     减色墨律 — it STEPS roles, it never adds black overlays.
+     Anchoring: --surface maps the --background role family (the
+     page-level ground); --card/--popover stay the existing panel
+     tokens, untouched — the ladder composes WITH them. The six
+     container rungs step monotonically AWAY from the page tone:
+     light darkens upward (shadows lead there — the quiet ladder is
+     M3's own light stance), dark lightens upward (shadows are weak
+     there — the STEPS carry the hierarchy, M3's dark law).
+     --surface-concave is the deepest rung, BELOW every container:
+     the −1dp concave's ground — carving past the last container
+     step reveals the page void itself (light's precedent is the
+     well tier: --shadow-well over --background). */
+  --surface: var(--background);
+  --surface-container-lowest: oklch(0.98 0 0);
+  --surface-container-low: oklch(0.96 0 0);
+  --surface-container: oklch(0.94 0 0);
+  --surface-container-high: oklch(0.92 0 0);
+  --surface-container-highest: oklch(0.9 0 0);
+  --surface-concave: var(--background);
+
+  /* ── the elevation level table (explicit-props §0.1/§7 / task 1.2).
+     FROZEN mapping: level-1 → −1dp · level0 → 0dp · level1 → 1dp ·
+     level2 → 3dp · level3 → 6dp · level4 → 8dp · level5 → 12dp.
+     Each level is a (shadow, surface) pair consumed as
+     var(--jx-elevation-level-<n>-shadow) / -surface.
+     NAME LAW: `level-1` — the NEGATIVE level, the concave rung — is
+     the lane literal VERBATIM (§0.1's own spelling, alias-verbatim
+     for the §12 var indirection); positive levels are levelN with NO
+     inner hyphen. --jx-elevation-level-1-* is therefore −1dp, while
+     --jx-elevation-level1-* is +1dp.
+     Recipes: light carries the official M3 two-layer (umbra +
+     ambient) values in the sheet's hsl ink; level0 casts nothing on
+     its base surface; level-1 is the Owner's concave rung — inset
+     1px + the deepest ladder ground (「可填充的凹陷」). */
+  --jx-elevation-level-1-shadow:
+    inset 1px 1px 0px 0px hsl(0 0% 0% / 0.12);
+  --jx-elevation-level-1-surface: var(--surface-concave);
+  --jx-elevation-level0-shadow: none;
+  --jx-elevation-level0-surface: var(--surface);
+  --jx-elevation-level1-shadow:
+    0px 1px 2px 0px hsl(0 0% 0% / 0.3),
+    0px 1px 3px 1px hsl(0 0% 0% / 0.15);
+  --jx-elevation-level1-surface: var(--surface-container-lowest);
+  --jx-elevation-level2-shadow:
+    0px 1px 2px 0px hsl(0 0% 0% / 0.3),
+    0px 2px 6px 2px hsl(0 0% 0% / 0.15);
+  --jx-elevation-level2-surface: var(--surface-container-low);
+  --jx-elevation-level3-shadow:
+    0px 1px 3px 0px hsl(0 0% 0% / 0.3),
+    0px 4px 8px 3px hsl(0 0% 0% / 0.15);
+  --jx-elevation-level3-surface: var(--surface-container);
+  --jx-elevation-level4-shadow:
+    0px 2px 3px 0px hsl(0 0% 0% / 0.3),
+    0px 6px 10px 4px hsl(0 0% 0% / 0.15);
+  --jx-elevation-level4-surface: var(--surface-container-high);
+  --jx-elevation-level5-shadow:
+    0px 4px 4px 0px hsl(0 0% 0% / 0.3),
+    0px 8px 12px 6px hsl(0 0% 0% / 0.15);
+  --jx-elevation-level5-surface: var(--surface-container-highest);
+
+  /* the color axis' effective carrier (explicit-props §11): the root
+     invariant is var(--primary); re-declared on every theme scope so
+     substitution re-runs per profile (the canvas-bug law) */
+  --jx-color-effective: var(--primary);
 }
 
 .dark {
@@ -193,6 +280,7 @@
   /* the primary hue drifts -4° toward dark, mirroring the reference */
   --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
   --primary-foreground: oklch(0 0 0);
+  --primary-text: var(--primary);
   --secondary: oklch(0.9691 0.2005 109.6228);
   --secondary-foreground: oklch(0 0 0);
   --muted: oklch(0.2178 0 0);
@@ -256,26 +344,157 @@
      law; same 0.32 veil strength as light mode's black) */
   --scrim: hsl(0 0% 100% / 0.1);
   --surface-shadow: oklch(0 0 0 / 0.32); /* black — r14-17, Owner */
+
+  /* ── the surface ladder, dark side (explicit-props §7 / task 1.1):
+     the M3 dark law — shadows are weak here, the STEPS carry the
+     hierarchy; the rungs LIGHTEN upward, away from the page void,
+     and stay below --card (0.3211 — the existing panel tokens keep
+     their place above the ladder). 减色墨律: role steps, never
+     overlays. This block feeds the generated prefers-color-scheme
+     projection in jx-pure.css (gen-jx-auto-dark — single source). */
+  --surface: var(--background);
+  --surface-container-lowest: oklch(0.115 0 0);
+  --surface-container-low: oklch(0.185 0 0);
+  --surface-container: oklch(0.205 0 0);
+  --surface-container-high: oklch(0.245 0 0);
+  --surface-container-highest: oklch(0.29 0 0);
+  --surface-concave: var(--background);
+
+  /* ── the elevation level table, dark side (explicit-props §0.1/§7 /
+     task 1.2): geometry pinned rung for rung with light (the
+     2026-09-01 law — sizes never drift between themes), the ink
+     inverted to white at reduced alpha — the soft-lens compensation
+     (dark hierarchy rides the LADDER; full-alpha white glow through
+     a 12px blur would wash it). level-1 keeps the inset duet's
+     single shade wall at the well-tier strength. */
+  --jx-elevation-level-1-shadow:
+    inset 1px 1px 0px 0px hsl(0 0% 100% / 0.12);
+  --jx-elevation-level-1-surface: var(--surface-concave);
+  --jx-elevation-level0-shadow: none;
+  --jx-elevation-level0-surface: var(--surface);
+  --jx-elevation-level1-shadow:
+    0px 1px 2px 0px hsl(0 0% 100% / 0.16),
+    0px 1px 3px 1px hsl(0 0% 100% / 0.08);
+  --jx-elevation-level1-surface: var(--surface-container-lowest);
+  --jx-elevation-level2-shadow:
+    0px 1px 2px 0px hsl(0 0% 100% / 0.16),
+    0px 2px 6px 2px hsl(0 0% 100% / 0.08);
+  --jx-elevation-level2-surface: var(--surface-container-low);
+  --jx-elevation-level3-shadow:
+    0px 1px 3px 0px hsl(0 0% 100% / 0.16),
+    0px 4px 8px 3px hsl(0 0% 100% / 0.08);
+  --jx-elevation-level3-surface: var(--surface-container);
+  --jx-elevation-level4-shadow:
+    0px 2px 3px 0px hsl(0 0% 100% / 0.16),
+    0px 6px 10px 4px hsl(0 0% 100% / 0.08);
+  --jx-elevation-level4-surface: var(--surface-container-high);
+  --jx-elevation-level5-shadow:
+    0px 4px 4px 0px hsl(0 0% 100% / 0.16),
+    0px 8px 12px 6px hsl(0 0% 100% / 0.08);
+  --jx-elevation-level5-surface: var(--surface-container-highest);
+
+  /* the color axis' effective carrier — dark's own --primary (the
+     hue-drifted one; re-declared per theme scope, the canvas-bug
+     law) */
+  --jx-color-effective: var(--primary);
 }
 
+/* ── the eight-axis carrier invariants (explicit-props §11 / task 1.3
+   CSS side) — the root-sheet half of the broadcast protocol (吃也供).
+   These are the var()-fallback ANCESTRY of §3's IACVT law: a child
+   computing a concentric expression such as
+   max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px)))
+   resolves against these root invariants when NO ancestor supplied
+   one — zero runtime probing, 「无合适容器」 vanishes as a concept.
+   Component roots stamp the resolved lane per render as static
+   strings (SSR-safe); :root carries the axis defaults (§0.1):
+   size 1rem · shape round · radius/inset 0px · elevation 0 · motion
+   normal. --jx-density-coefficient is the NUMBER lane's carrier
+   (§4): 1 at the root, stamped by the component root when the
+   number lane is used; every composition below carries its own
+   fallback-1, so the invariant documents the default AND keeps the
+   cascade total. (theme's carrier is the existing .dark class
+   bridge; density's rung carrier is the [data-density] scopes.) */
+:root {
+  --jx-size-effective: 1rem;
+  --jx-shape-effective: round;
+  --jx-radius-effective: 0px;
+  --jx-inset-effective: 0px;
+  --jx-elevation-effective: 0;
+  --jx-motion-effective: normal;
+  --jx-density-coefficient: 1;
+}
+
+/* ── the density rung scopes × the coefficient carrier (explicit-props
+   §4 / task 1.8 — the frozen base/effective split, 2026-09-21) ──────
+   Every consumer-facing channel splits: the -base var carries the
+   rung's value (the rung selection stays HERE, in the scope blocks —
+   the --jx-density-*-<rung> internals below remain the kernel's
+   own); the effective channel composes
+   calc(var(--jx-<channel>-base) * var(--jx-density-coefficient, 1))
+   — the ONE plain pattern. Exceptions, frozen by the DOUBLE-SCALING
+   LAW (a channel whose operands are ALREADY effective channels
+   applies the coefficient ZERO more times — multiplying again would
+   compute coefficient²; a channel whose operands are the per-rung
+   base scales applies it ONCE):
+   · --jx-text composes its kernel scale INLINE — --jx-text-base is
+     the ruler's 13px T_base constant (consumed by card/section-card
+     as the body voice), NOT a free name for the split;
+   · the toggle/slider lanes and textarea-min/color-lane read
+     EFFECTIVE channels (--jx-line/--jx-hit/…) and stay verbatim;
+   · row-min/hit take the §4 max() forms — the content term (line +
+     stack + stack) composes the per-rung base scales × coefficient
+     ONCE, and the floors stay ABSOLUTE (--jx-unit × the rung floor,
+     and --jx-hit-floor, never scale).
+   Lane precedence (§4): a NAMED lane selects the scope and leaves
+   the coefficient at 1 (explicit rung = exact rung); the NUMBER lane
+   stamps --jx-density-coefficient and leaves the rung ambient;
+   `auto` stamps neither — both inherit. */
 :where([data-density='lg']) {
-  --jx-text: var(--jx-density-text-lg);
-  --jx-leading: var(--jx-density-leading-lg);
-  --jx-line: var(--jx-density-line-lg);
-  --jx-gap: var(--jx-density-inline-gap-lg);
-  --jx-media-gutter: var(--jx-density-media-gutter-lg);
-  --jx-gap-end: var(--jx-density-end-gap-lg);
-  --jx-stack: var(--jx-density-stack-gap-lg);
-  --jx-inset: var(--jx-density-inline-inset-lg);
-  --jx-chip-radius: var(--jx-density-chip-radius-lg);
-  --jx-gap-content: var(--jx-density-content-gap-lg);
-  --jx-row-min: var(--jx-density-row-min-lg);
-  --jx-hit: var(--jx-density-hit-min-lg);
-  --jx-icon: var(--jx-density-media-icon-lg);
-  --jx-image: var(--jx-density-media-image-lg);
-  --jx-text-secondary: var(--jx-density-secondary-text-lg);
-  --jx-leading-secondary: var(--jx-density-secondary-leading-2xs);
-  --jx-line-secondary: var(--jx-density-secondary-line-lg);
+  --jx-text: calc(var(--jx-density-text-lg) * var(--jx-density-coefficient, 1));
+  --jx-leading-base: var(--jx-density-leading-lg);
+  --jx-leading: calc(var(--jx-leading-base) * var(--jx-density-coefficient, 1));
+  --jx-line-base: var(--jx-density-line-lg);
+  --jx-line: calc(var(--jx-line-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-base: var(--jx-density-inline-gap-lg);
+  --jx-gap: calc(var(--jx-gap-base) * var(--jx-density-coefficient, 1));
+  --jx-media-gutter-base: var(--jx-density-media-gutter-lg);
+  --jx-media-gutter: calc(var(--jx-media-gutter-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-end-base: var(--jx-density-end-gap-lg);
+  --jx-gap-end: calc(var(--jx-gap-end-base) * var(--jx-density-coefficient, 1));
+  --jx-stack-base: var(--jx-density-stack-gap-lg);
+  --jx-stack: calc(var(--jx-stack-base) * var(--jx-density-coefficient, 1));
+  --jx-inset-base: var(--jx-density-inline-inset-lg);
+  --jx-inset: calc(var(--jx-inset-base) * var(--jx-density-coefficient, 1));
+  --jx-chip-radius-base: var(--jx-density-chip-radius-lg);
+  --jx-chip-radius: calc(var(--jx-chip-radius-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-content-base: var(--jx-density-content-gap-lg);
+  --jx-gap-content: calc(var(--jx-gap-content-base) * var(--jx-density-coefficient, 1));
+  --jx-row-min: max(
+    calc(var(--jx-unit) * var(--jx-density-row-floor-lg)),
+    calc(
+      (var(--jx-density-line-lg) + var(--jx-density-stack-gap-lg) + var(--jx-density-stack-gap-lg)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-hit: max(
+    var(--jx-hit-floor),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-lg)),
+    calc(
+      (var(--jx-density-line-lg) + var(--jx-density-stack-gap-lg) + var(--jx-density-stack-gap-lg)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-icon-base: var(--jx-density-media-icon-lg);
+  --jx-icon: calc(var(--jx-icon-base) * var(--jx-density-coefficient, 1));
+  --jx-image-base: var(--jx-density-media-image-lg);
+  --jx-image: calc(var(--jx-image-base) * var(--jx-density-coefficient, 1));
+  --jx-text-secondary-base: var(--jx-density-secondary-text-lg);
+  --jx-text-secondary: calc(var(--jx-text-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-leading-secondary-base: var(--jx-density-secondary-leading-2xs);
+  --jx-leading-secondary: calc(var(--jx-leading-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-line-secondary-base: var(--jx-density-secondary-line-lg);
+  --jx-line-secondary: calc(var(--jx-line-secondary-base) * var(--jx-density-coefficient, 1));
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
   --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
@@ -313,6 +532,163 @@
    vertical scrollbar can never appear (carousel track, table frame)
    stay on the auto gutter: stable would reserve dead space forever.
    ============================================================ */
+/* ══ THE PREFLIGHT HANDOVER (tailwindless one-shot W4, 2026-09-19) ══
+   The engine's invisible base layer — the blank canvas every utility
+   and atom was authored on — becomes the theme sheet's OWN base law
+   (the registry spec's consumer contract: this sheet is the whole
+   styling prerequisite). Bytes verbatim from the pre-migration build
+   the Owner's server served (the :5199 receipt, 2026-09-19):
+   universal border-box + the zero slate, typography normalization,
+   form control inheritance, replaced-element blocking. ═══════════ */
+@layer base {
+  *, ::after, ::before, ::backdrop, ::file-selector-button {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid;
+  }
+  html, :host {
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+    tab-size: 4;
+    font-family: var(--default-font-family, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+    font-feature-settings: var(--default-font-feature-settings, normal);
+    font-variation-settings: var(--default-font-variation-settings, normal);
+    -webkit-tap-highlight-color: transparent;
+  }
+  hr {
+    height: 0;
+    color: inherit;
+    border-top-width: 1px;
+  }
+  abbr:where([title]) {
+    -webkit-text-decoration: underline dotted;
+    text-decoration: underline dotted;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-size: inherit;
+    font-weight: inherit;
+  }
+  a {
+    color: inherit;
+    -webkit-text-decoration: inherit;
+    text-decoration: inherit;
+  }
+  b, strong {
+    font-weight: bolder;
+  }
+  code, kbd, samp, pre {
+    font-family: var(--default-mono-font-family, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+    font-feature-settings: var(--default-mono-font-feature-settings, normal);
+    font-variation-settings: var(--default-mono-font-variation-settings, normal);
+    font-size: 1em;
+  }
+  small {
+    font-size: 80%;
+  }
+  sub, sup {
+    font-size: 75%;
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
+  sub {
+    bottom: -0.25em;
+  }
+  sup {
+    top: -0.5em;
+  }
+  table {
+    text-indent: 0;
+    border-color: inherit;
+    border-collapse: collapse;
+  }
+  :-moz-focusring:where(:not(iframe)) {
+    outline: auto;
+  }
+  progress {
+    vertical-align: baseline;
+  }
+  summary {
+    display: list-item;
+  }
+  ol, ul, menu {
+    list-style: none;
+  }
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  button, input, select, optgroup, textarea, ::file-selector-button {
+    font: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    letter-spacing: inherit;
+    color: inherit;
+    border-radius: 0;
+    background-color: transparent;
+    opacity: 1;
+  }
+  :where(select:is([multiple], [size])) optgroup {
+    font-weight: bolder;
+  }
+  :where(select:is([multiple], [size])) optgroup option {
+    padding-inline-start: 20px;
+  }
+  ::file-selector-button {
+    margin-inline-end: 4px;
+  }
+  ::placeholder {
+    opacity: 1;
+  }
+  @supports (not (-webkit-appearance: -apple-pay-button))  or (contain-intrinsic-size: 1px) {
+    ::placeholder {
+      color: currentcolor;
+      @supports (color: color-mix(in lab, red, red)) {
+        color: color-mix(in oklab, currentcolor 50%, transparent);
+      }
+    }
+  }
+  textarea {
+    resize: vertical;
+  }
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+  ::-webkit-date-and-time-value {
+    min-height: 1lh;
+    text-align: inherit;
+  }
+  ::-webkit-datetime-edit {
+    display: inline-flex;
+  }
+  ::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+  }
+  ::-webkit-datetime-edit, ::-webkit-datetime-edit-year-field, ::-webkit-datetime-edit-month-field, ::-webkit-datetime-edit-day-field, ::-webkit-datetime-edit-hour-field, ::-webkit-datetime-edit-minute-field, ::-webkit-datetime-edit-second-field, ::-webkit-datetime-edit-millisecond-field, ::-webkit-datetime-edit-meridiem-field {
+    padding-block: 0;
+  }
+  ::-webkit-calendar-picker-indicator {
+    line-height: 1;
+  }
+  :-moz-ui-invalid {
+    box-shadow: none;
+  }
+  button, input:where([type="button"], [type="reset"], [type="submit"]), ::file-selector-button {
+    appearance: button;
+  }
+  ::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+    height: auto;
+  }
+  [hidden]:where(:not([hidden="until-found"])) {
+    display: none !important;
+  }
+}
+
 @layer base {
   * {
     scrollbar-width: thin;
@@ -491,10 +867,10 @@
    acrylic rule had been overriding them all along) */
 .jx-surface.jx-surface.jx-waapi .jx-surface-body {
   /* (0,4,0) — the variant acrylic rule (0,3,0) sits later in the file
-   and was winning the cascade all along; every "lazy paint" theory in
-   the r26 probe session was this misdiagnosis) */
+     and was winning the cascade all along; every "lazy paint" theory in
+     the r26 probe session was this misdiagnosis) */
   background: oklch(
-    from var(--jx-surface-solid-fill, var(--popover))
+    from var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)))
     l c h / calc(1 - clamp(calc((var(--jx-p) - 0.5) * 2), 0, 1) * 0.28)
   );
 }
@@ -513,7 +889,7 @@
 }
 /* solid keeps an opaque fill — its formula IS the end state */
 .jx-surface.jx-surface.jx-waapi[data-variant='solid'] .jx-surface-body {
-  background: var(--jx-surface-solid-fill, var(--popover));
+  background: var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)));
 }
 /* SOLID never defocuses: the variant is the opaque, static-weight
    material — a blurred solid panel reads as broken glass, and the
@@ -569,13 +945,22 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 
 /* THE SURFACE: the panel's direct child — fill + border + blur. The
    radius rides the inheritance chain so the fill, the border, and the
-   shadow share one silhouette. */
+   shadow share one silhouette.
+   The §7 elevation × surface-ladder pairing (explicit-props W3-C):
+   a resolved level's PAIR feeds BOTH channels — the M3 shadow recipe
+   as this element's box-shadow, and the ladder-rung surface as the
+   fill chain's HEAD (the rung composes WITH --jx-surface-solid-fill /
+   --popover: an unresolved elevation paints exactly the historic
+   ground, a resolved one steps the rung — 减色墨律, never a tint
+   overlay). The leading var is absent for every no-opinion family,
+   so the chain is a pure extension with an unchanged tail. */
 .jx-surface-body {
   position: relative;
   border: 1px solid var(--jx-surface-border-color, var(--border));
   border-radius: inherit;
   corner-shape: inherit;
-  background: var(--jx-surface-solid-fill, var(--popover));
+  background: var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)));
+  box-shadow: var(--jx-elevation-shadow, none);
 }
 
 /* the scroll+padding ring inside the surface body (scrolling
@@ -680,7 +1065,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    then exactly solid */
 @media (prefers-reduced-transparency: reduce) {
   .jx-surface[data-variant='auto'] .jx-surface-body {
-    background: var(--jx-surface-solid-fill, var(--popover));
+    background: var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -689,7 +1074,7 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
      reduced transparency (blur died, tint stayed — Codex P0). This
      override matches the formula's specificity and comes later */
   .jx-surface.jx-surface.jx-waapi[data-variant='auto'] .jx-surface-body {
-    background: var(--jx-surface-solid-fill, var(--popover));
+    background: var(--jx-elevation-surface, var(--jx-surface-solid-fill, var(--popover)));
   }
 }
 
@@ -777,60 +1162,11 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   }
 }
 
-/* Tailwind v4 token → utility mapping (map EVERY token; unmapped tokens
-   silently yield dead utilities) and the dark variant. */
-@custom-variant dark (&:where(.dark, .dark *));
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-terminal: var(--terminal);
-  --color-terminal-foreground: var(--terminal-foreground);
-  --color-terminal-hover: var(--terminal-hover);
-  --color-terminal-muted: var(--terminal-muted);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-info: var(--info);
-  --color-info-foreground: var(--info-foreground);
-  --color-error: var(--error);
-  --color-error-foreground: var(--error-foreground);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-mono);
-  --font-nav: var(--font-nav);
-  --radius: var(--radius);
-  --shadow-2xs: var(--shadow-2xs);
-  --shadow-xs: var(--shadow-xs);
-  --shadow-sm: var(--shadow-sm);
-  --shadow: var(--shadow);
-  --shadow-md: var(--shadow-md);
-  --shadow-engrave: var(--shadow-engrave);
-  --shadow-well: var(--shadow-well);
-  --shadow-well-hover: var(--shadow-well-hover);
-  --shadow-paper: var(--shadow-paper);
-}
+/* (tailwindless W4-r2, PFINAL) the TW-era theme-mapping block (the
+   "Tailwind v4 token to utility mapping" of the old header) died with
+   the engine — no engine at-rule survives anywhere in repo css.
+   TW-running consumers map their own utilities; this sheet's custom
+   properties are the whole token surface. */
 
 /* Reveal hooks, scroll-driven era (Owner approval, 2026-08-24): pure CSS.
    animation-timeline: view() resolves against the NEAREST scrollport
@@ -1043,6 +1379,105 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   --jx-icon-optical: 0px;
 }
 
+/* ============================================================
+   The site voice scale (tailwindless-site P0, 2026-09-17) — the
+   pilot's promoted steps, the 收纳: every recurring bracket/utility
+   value the timeline docs page actually met, collected ONCE here so
+   the sheet (not the markup) owns it. Fixed-voice steps, NOT
+   density rungs: a page's eyebrow/label/body keeps its measure
+   inside every density scope (density is the CONTENT axis; page
+   chrome is not content). Space steps are equations from the ruler
+   (--jx-unit) like the density ladder above — same physics, wider
+   reach (up to 40px block padding). Typed access: the
+   tokens.stylex.ts map wraps each member (--jx-<name> →
+   var(--<name>), the separator's naming precedent); the map's cycle
+   law is why these sheet names carry NO jx prefix. 13px is NOT
+  re-promoted: --jx-text-base (the ruler's T_base) already IS the
+  body step. Wave 1 of the tailwindless one-shot (2026-09-17)
+  governed the seed: the steps marked (W1) below are the four
+  migration batches' cross-family demand, promoted under actual
+  usage (live seam names honored verbatim; one-off oddballs —
+  10.5px, 16.8px/19.52px hero steps, 0.025em — stay css-exact,
+  un-promoted).
+  ============================================================ */
+:root {
+  /* the fixed micro-typography voice */
+  --text-caption: 0.5625rem;   /* 9px — the blueprint caption voice (the audit's named-gap fill, 2026-09-19: 26 hand-typed text-[9px]/calc(base−U) captions gained a rung; var()'s single home stays the master switch should the question return — SETTLED 2026-09-21, Owner ruling: caption keeps its 9px lane, no merge into micro (10px)) */
+  --text-micro: 0.625rem;     /* 10px — slot corner annotations */
+  --text-label: 0.6875rem;    /* 11px — the eyebrow/label voice */
+  --text-label-lg: 0.75rem;   /* 12px — the control-label voice */
+  --text-small: 0.78125rem;   /* 12.5px — the demo body voice */
+  --text-sm: 0.875rem;        /* 14px — the sm: responsive step (W1) */
+  --text-body-lg: 0.9375rem;  /* 15px — the summary/lead voice (W1) */
+  --text-body-xl: 1rem;       /* 16px — the hero sm: step (W1) */
+  --text-lg: 1.125rem;        /* 18px — the recipes title voice (W2) */
+  --track-label: 0.24em;      /* the eyebrow tracking */
+  --track-wide: 0.08em;       /* the control-label tracking */
+
+  /* the tracking ladder (W1) — numeric steps; the tight slot keeps
+     Wave 1's live seam name (its 1.25 is the demanded value) */
+  --track-tight: -0.02em;
+  --track-04: 0.04em;
+  --track-06: 0.06em;
+  --track-10: 0.1em;
+  --track-12: 0.12em;
+  --track-14: 0.14em;
+  --track-18: 0.18em;
+  --track-20: 0.2em;
+
+  /* the weight ladder (W1) — no weight lived here before Wave 1 */
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* the leading ladder (W1) — fixed ratios, not density rungs;
+     ascending by value, none/tight are the semantic slots */
+  --leading-none: 1;
+  --leading-12: 1.2;
+  --leading-tight: 1.25;
+  --leading-14: 1.4;
+  --leading-145: 1.45;
+  --leading-15: 1.5;
+  --leading-155: 1.55;
+  --leading-16: 1.6;
+
+  /* the motion family (W1) — the interaction durations + easings;
+     hero is the one long rise, ease-nav the panel/drawer curve */
+  --motion-100: 100ms;
+  --motion-150: 150ms;
+  --motion-200: 200ms;
+  --motion-hero: 480ms;
+  --motion-ease-out: ease-out;
+  --motion-ease-nav: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* page measures */
+  --shell-w: 90rem;           /* the docs page shell */
+  --stage-w: 28rem;           /* the demo stage measure */
+
+  /* the page space ladder — equations from the ruler */
+  --space-2: calc(var(--jx-unit) * 0.5);
+  --space-4: calc(var(--jx-unit) * 1);
+  --space-6: calc(var(--jx-unit) * 1.5);
+  --space-8: calc(var(--jx-unit) * 2);
+  --space-10: calc(var(--jx-unit) * 2.5);
+  --space-12: calc(var(--jx-unit) * 3);
+  --space-14: calc(var(--jx-unit) * 3.5);
+  --space-16: calc(var(--jx-unit) * 4);
+  --space-18: calc(var(--jx-unit) * 4.5);
+  --space-20: calc(var(--jx-unit) * 5);
+  --space-24: calc(var(--jx-unit) * 6);
+  --space-28: calc(var(--jx-unit) * 7);
+  --space-32: calc(var(--jx-unit) * 8);
+  --space-40: calc(var(--jx-unit) * 10);
+  --space-48: calc(var(--jx-unit) * 12);
+  --space-80: calc(var(--jx-unit) * 20);
+
+  /* the hairline frame weight (one weight everywhere a page draws a
+     box; the timeline family's --jx-tl-stroke-w is the same law at
+     family scope) */
+  --hairline: 1px;
+}
+
 /* ── variant grammar (openspec/changes/variant-grammar, frozen r1) ─
    The paint ladder's four global hue slots: fill (solid ground +
    same-hue border), tonal (12%/45% tint recipe), outline (structural
@@ -1081,13 +1516,18 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    jx-hue-destructive (destructive is an ACTION — the pair below),
    and the pair emits --jx-fill WITH --jx-fill-ink in one class, so
    the always-inject-both law is structural, not documentation. */
-@utility jx-hue-primary { --jx-tonal: var(--primary); }
-@utility jx-hue-neutral { --jx-tonal: var(--muted-foreground); }
-@utility jx-hue-error { --jx-tonal: var(--error); }
-@utility jx-hue-success { --jx-tonal: var(--success); }
-@utility jx-hue-warning { --jx-tonal: var(--warning); }
-@utility jx-hue-info { --jx-tonal: var(--info); }
-@utility jx-pair-destructive {
+/* tailwindless W4-r2 (PFINAL): the intent layer as UNLAYERED :where()
+   hooks — zero specificity, and unlayered paint beats every cascade
+   layer, so the hue/pair vars ride above atoms (the state-paint law)
+   and consumer engines still win by their own layers' nature. The
+   utilities tier died with the engine; nothing of ours lives there. */
+:where(.jx-hue-primary) { --jx-tonal: var(--primary); }
+:where(.jx-hue-neutral) { --jx-tonal: var(--muted-foreground); }
+:where(.jx-hue-error) { --jx-tonal: var(--error); }
+:where(.jx-hue-success) { --jx-tonal: var(--success); }
+:where(.jx-hue-warning) { --jx-tonal: var(--warning); }
+:where(.jx-hue-info) { --jx-tonal: var(--info); }
+:where(.jx-pair-destructive) {
   --jx-fill: var(--destructive);
   --jx-fill-ink: var(--destructive-foreground);
 }
@@ -1536,12 +1976,6 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
   clip-path: polygon(20% 100%, 20% 80%, 50% 80%, 50% 0%, 70% 0%, 70% 100%);
 }
 
-.jx-html-radio:indeterminate::before {
-  opacity: 1;
-  transform: rotate(0deg);
-  clip-path: polygon(10% 40%, 10% 60%, 45% 60%, 55% 60%, 90% 60%, 90% 40%);
-}
-
 .jx-html-radio::after {
   content: '';
   position: absolute;
@@ -1560,11 +1994,6 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 .jx-html-radio:hover:not(:checked):not(:disabled) {
-  border-color: var(--primary);
-}
-
-.jx-html-radio:checked, .jx-html-radio:indeterminate {
-  background: var(--primary);
   border-color: var(--primary);
 }
 
@@ -2149,24 +2578,53 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 /* @jixoai/css-laws:end:jx-html-utility */
 
+/* the default rung — the root scope of the §4 carrier split (the law
+   comment rides the lg scope, the first scope in file order) */
 :where(:root:not([data-density]), [data-density='default']) {
-  --jx-text: var(--jx-density-text-default);
-  --jx-leading: var(--jx-density-leading-default);
-  --jx-line: var(--jx-density-line-default);
-  --jx-gap: var(--jx-density-inline-gap-default);
-  --jx-media-gutter: var(--jx-density-media-gutter-default);
-  --jx-gap-end: var(--jx-density-end-gap-default);
-  --jx-stack: var(--jx-density-stack-gap-default);
-  --jx-inset: var(--jx-density-inline-inset-default);
-  --jx-chip-radius: var(--jx-density-chip-radius-default);
-  --jx-gap-content: var(--jx-density-content-gap-default);
-  --jx-row-min: var(--jx-density-row-min-default);
-  --jx-hit: var(--jx-density-hit-min-default);
-  --jx-icon: var(--jx-density-media-icon-default);
-  --jx-image: var(--jx-density-media-image-default);
-  --jx-text-secondary: var(--jx-density-secondary-text-default);
-  --jx-leading-secondary: var(--jx-density-secondary-leading-xs);
-  --jx-line-secondary: var(--jx-density-secondary-line-default);
+  --jx-text: calc(var(--jx-density-text-default) * var(--jx-density-coefficient, 1));
+  --jx-leading-base: var(--jx-density-leading-default);
+  --jx-leading: calc(var(--jx-leading-base) * var(--jx-density-coefficient, 1));
+  --jx-line-base: var(--jx-density-line-default);
+  --jx-line: calc(var(--jx-line-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-base: var(--jx-density-inline-gap-default);
+  --jx-gap: calc(var(--jx-gap-base) * var(--jx-density-coefficient, 1));
+  --jx-media-gutter-base: var(--jx-density-media-gutter-default);
+  --jx-media-gutter: calc(var(--jx-media-gutter-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-end-base: var(--jx-density-end-gap-default);
+  --jx-gap-end: calc(var(--jx-gap-end-base) * var(--jx-density-coefficient, 1));
+  --jx-stack-base: var(--jx-density-stack-gap-default);
+  --jx-stack: calc(var(--jx-stack-base) * var(--jx-density-coefficient, 1));
+  --jx-inset-base: var(--jx-density-inline-inset-default);
+  --jx-inset: calc(var(--jx-inset-base) * var(--jx-density-coefficient, 1));
+  --jx-chip-radius-base: var(--jx-density-chip-radius-default);
+  --jx-chip-radius: calc(var(--jx-chip-radius-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-content-base: var(--jx-density-content-gap-default);
+  --jx-gap-content: calc(var(--jx-gap-content-base) * var(--jx-density-coefficient, 1));
+  --jx-row-min: max(
+    calc(var(--jx-unit) * var(--jx-density-row-floor-default)),
+    calc(
+      (var(--jx-density-line-default) + var(--jx-density-stack-gap-default) + var(--jx-density-stack-gap-default)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-hit: max(
+    var(--jx-hit-floor),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-default)),
+    calc(
+      (var(--jx-density-line-default) + var(--jx-density-stack-gap-default) + var(--jx-density-stack-gap-default)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-icon-base: var(--jx-density-media-icon-default);
+  --jx-icon: calc(var(--jx-icon-base) * var(--jx-density-coefficient, 1));
+  --jx-image-base: var(--jx-density-media-image-default);
+  --jx-image: calc(var(--jx-image-base) * var(--jx-density-coefficient, 1));
+  --jx-text-secondary-base: var(--jx-density-secondary-text-default);
+  --jx-text-secondary: calc(var(--jx-text-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-leading-secondary-base: var(--jx-density-secondary-leading-xs);
+  --jx-leading-secondary: calc(var(--jx-leading-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-line-secondary-base: var(--jx-density-secondary-line-default);
+  --jx-line-secondary: calc(var(--jx-line-secondary-base) * var(--jx-density-coefficient, 1));
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
   --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
@@ -2176,23 +2634,50 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 :where([data-density='xs']) {
-  --jx-text: var(--jx-density-text-xs);
-  --jx-leading: var(--jx-density-leading-xs);
-  --jx-line: var(--jx-density-line-xs);
-  --jx-gap: var(--jx-density-inline-gap-xs);
-  --jx-media-gutter: var(--jx-density-media-gutter-xs);
-  --jx-gap-end: var(--jx-density-end-gap-xs);
-  --jx-stack: var(--jx-density-stack-gap-xs);
-  --jx-inset: var(--jx-density-inline-inset-xs);
-  --jx-chip-radius: var(--jx-density-chip-radius-xs);
-  --jx-gap-content: var(--jx-density-content-gap-xs);
-  --jx-row-min: var(--jx-density-row-min-xs);
-  --jx-hit: var(--jx-density-hit-min-xs);
-  --jx-icon: var(--jx-density-media-icon-xs);
-  --jx-image: var(--jx-density-media-image-xs);
-  --jx-text-secondary: var(--jx-density-secondary-text-xs);
-  --jx-leading-secondary: var(--jx-density-secondary-leading-sm);
-  --jx-line-secondary: var(--jx-density-secondary-line-xs);
+  --jx-text: calc(var(--jx-density-text-xs) * var(--jx-density-coefficient, 1));
+  --jx-leading-base: var(--jx-density-leading-xs);
+  --jx-leading: calc(var(--jx-leading-base) * var(--jx-density-coefficient, 1));
+  --jx-line-base: var(--jx-density-line-xs);
+  --jx-line: calc(var(--jx-line-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-base: var(--jx-density-inline-gap-xs);
+  --jx-gap: calc(var(--jx-gap-base) * var(--jx-density-coefficient, 1));
+  --jx-media-gutter-base: var(--jx-density-media-gutter-xs);
+  --jx-media-gutter: calc(var(--jx-media-gutter-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-end-base: var(--jx-density-end-gap-xs);
+  --jx-gap-end: calc(var(--jx-gap-end-base) * var(--jx-density-coefficient, 1));
+  --jx-stack-base: var(--jx-density-stack-gap-xs);
+  --jx-stack: calc(var(--jx-stack-base) * var(--jx-density-coefficient, 1));
+  --jx-inset-base: var(--jx-density-inline-inset-xs);
+  --jx-inset: calc(var(--jx-inset-base) * var(--jx-density-coefficient, 1));
+  --jx-chip-radius-base: var(--jx-density-chip-radius-xs);
+  --jx-chip-radius: calc(var(--jx-chip-radius-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-content-base: var(--jx-density-content-gap-xs);
+  --jx-gap-content: calc(var(--jx-gap-content-base) * var(--jx-density-coefficient, 1));
+  --jx-row-min: max(
+    calc(var(--jx-unit) * var(--jx-density-row-floor-xs)),
+    calc(
+      (var(--jx-density-line-xs) + var(--jx-density-stack-gap-xs) + var(--jx-density-stack-gap-xs)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-hit: max(
+    var(--jx-hit-floor),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-xs)),
+    calc(
+      (var(--jx-density-line-xs) + var(--jx-density-stack-gap-xs) + var(--jx-density-stack-gap-xs)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-icon-base: var(--jx-density-media-icon-xs);
+  --jx-icon: calc(var(--jx-icon-base) * var(--jx-density-coefficient, 1));
+  --jx-image-base: var(--jx-density-media-image-xs);
+  --jx-image: calc(var(--jx-image-base) * var(--jx-density-coefficient, 1));
+  --jx-text-secondary-base: var(--jx-density-secondary-text-xs);
+  --jx-text-secondary: calc(var(--jx-text-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-leading-secondary-base: var(--jx-density-secondary-leading-sm);
+  --jx-leading-secondary: calc(var(--jx-leading-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-line-secondary-base: var(--jx-density-secondary-line-xs);
+  --jx-line-secondary: calc(var(--jx-line-secondary-base) * var(--jx-density-coefficient, 1));
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
   --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
@@ -2202,23 +2687,50 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
 }
 
 :where([data-density='sm']) {
-  --jx-text: var(--jx-density-text-sm);
-  --jx-leading: var(--jx-density-leading-sm);
-  --jx-line: var(--jx-density-line-sm);
-  --jx-gap: var(--jx-density-inline-gap-sm);
-  --jx-media-gutter: var(--jx-density-media-gutter-sm);
-  --jx-gap-end: var(--jx-density-end-gap-sm);
-  --jx-stack: var(--jx-density-stack-gap-sm);
-  --jx-inset: var(--jx-density-inline-inset-sm);
-  --jx-chip-radius: var(--jx-density-chip-radius-sm);
-  --jx-gap-content: var(--jx-density-content-gap-sm);
-  --jx-row-min: var(--jx-density-row-min-sm);
-  --jx-hit: var(--jx-density-hit-min-sm);
-  --jx-icon: var(--jx-density-media-icon-sm);
-  --jx-image: var(--jx-density-media-image-sm);
-  --jx-text-secondary: var(--jx-density-secondary-text-sm);
-  --jx-leading-secondary: var(--jx-density-secondary-leading-default);
-  --jx-line-secondary: var(--jx-density-secondary-line-sm);
+  --jx-text: calc(var(--jx-density-text-sm) * var(--jx-density-coefficient, 1));
+  --jx-leading-base: var(--jx-density-leading-sm);
+  --jx-leading: calc(var(--jx-leading-base) * var(--jx-density-coefficient, 1));
+  --jx-line-base: var(--jx-density-line-sm);
+  --jx-line: calc(var(--jx-line-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-base: var(--jx-density-inline-gap-sm);
+  --jx-gap: calc(var(--jx-gap-base) * var(--jx-density-coefficient, 1));
+  --jx-media-gutter-base: var(--jx-density-media-gutter-sm);
+  --jx-media-gutter: calc(var(--jx-media-gutter-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-end-base: var(--jx-density-end-gap-sm);
+  --jx-gap-end: calc(var(--jx-gap-end-base) * var(--jx-density-coefficient, 1));
+  --jx-stack-base: var(--jx-density-stack-gap-sm);
+  --jx-stack: calc(var(--jx-stack-base) * var(--jx-density-coefficient, 1));
+  --jx-inset-base: var(--jx-density-inline-inset-sm);
+  --jx-inset: calc(var(--jx-inset-base) * var(--jx-density-coefficient, 1));
+  --jx-chip-radius-base: var(--jx-density-chip-radius-sm);
+  --jx-chip-radius: calc(var(--jx-chip-radius-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-content-base: var(--jx-density-content-gap-sm);
+  --jx-gap-content: calc(var(--jx-gap-content-base) * var(--jx-density-coefficient, 1));
+  --jx-row-min: max(
+    calc(var(--jx-unit) * var(--jx-density-row-floor-sm)),
+    calc(
+      (var(--jx-density-line-sm) + var(--jx-density-stack-gap-sm) + var(--jx-density-stack-gap-sm)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-hit: max(
+    var(--jx-hit-floor),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-sm)),
+    calc(
+      (var(--jx-density-line-sm) + var(--jx-density-stack-gap-sm) + var(--jx-density-stack-gap-sm)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-icon-base: var(--jx-density-media-icon-sm);
+  --jx-icon: calc(var(--jx-icon-base) * var(--jx-density-coefficient, 1));
+  --jx-image-base: var(--jx-density-media-image-sm);
+  --jx-image: calc(var(--jx-image-base) * var(--jx-density-coefficient, 1));
+  --jx-text-secondary-base: var(--jx-density-secondary-text-sm);
+  --jx-text-secondary: calc(var(--jx-text-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-leading-secondary-base: var(--jx-density-secondary-leading-default);
+  --jx-leading-secondary: calc(var(--jx-leading-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-line-secondary-base: var(--jx-density-secondary-line-sm);
+  --jx-line-secondary: calc(var(--jx-line-secondary-base) * var(--jx-density-coefficient, 1));
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
   --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));
@@ -2235,28 +2747,59 @@ html:not(.js) .jx-surface.jx-waapi:popover-open .jx-surface-shadow {
    floor and the 2xs hit-min — inside it the guardrail is 6U = 24px,
    the WCAG 2.5.8 AA minimum, the deliberate pro-pointer stance for
    non-touch operation surfaces (the adoption law: opt-in only,
-   never default). Placement keeps the chrome scope pinned AFTER
-   every density scope (:where() source order). */
+   never default). The §4 coefficient carrier (2026-09-21) keeps the
+   scoped floor law intact: --jx-hit's frozen triple-max reads
+   var(--jx-hit-floor) — resolved against THIS scope's 6U — and the
+   kernel internal --jx-density-hit-min-2xs stays redeclared (the
+   kernel's own, unfazed by the split). Placement keeps the chrome
+   scope pinned AFTER every density scope (:where() source order). */
 :where([data-density='2xs']) {
   --jx-hit-floor: calc(var(--jx-unit) * 6); /* scoped: 24px = WCAG 2.5.8 AA */
   --jx-density-hit-min-2xs: max(var(--jx-density-row-min-2xs), var(--jx-hit-floor));
-  --jx-text: var(--jx-density-text-2xs);
-  --jx-leading: var(--jx-density-leading-2xs);
-  --jx-line: var(--jx-density-line-2xs);
-  --jx-gap: var(--jx-density-inline-gap-2xs);
-  --jx-media-gutter: var(--jx-density-media-gutter-2xs);
-  --jx-gap-end: var(--jx-density-end-gap-2xs);
-  --jx-stack: var(--jx-density-stack-gap-2xs);
-  --jx-inset: var(--jx-density-inline-inset-2xs);
-  --jx-chip-radius: var(--jx-density-chip-radius-2xs);
-  --jx-gap-content: var(--jx-density-content-gap-2xs);
-  --jx-row-min: var(--jx-density-row-min-2xs);
-  --jx-hit: var(--jx-density-hit-min-2xs);
-  --jx-icon: var(--jx-density-media-icon-2xs);
-  --jx-image: var(--jx-density-media-image-2xs);
-  --jx-text-secondary: var(--jx-density-secondary-text-2xs);
-  --jx-leading-secondary: var(--jx-density-secondary-leading-lg);
-  --jx-line-secondary: var(--jx-density-secondary-line-2xs);
+  --jx-text: calc(var(--jx-density-text-2xs) * var(--jx-density-coefficient, 1));
+  --jx-leading-base: var(--jx-density-leading-2xs);
+  --jx-leading: calc(var(--jx-leading-base) * var(--jx-density-coefficient, 1));
+  --jx-line-base: var(--jx-density-line-2xs);
+  --jx-line: calc(var(--jx-line-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-base: var(--jx-density-inline-gap-2xs);
+  --jx-gap: calc(var(--jx-gap-base) * var(--jx-density-coefficient, 1));
+  --jx-media-gutter-base: var(--jx-density-media-gutter-2xs);
+  --jx-media-gutter: calc(var(--jx-media-gutter-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-end-base: var(--jx-density-end-gap-2xs);
+  --jx-gap-end: calc(var(--jx-gap-end-base) * var(--jx-density-coefficient, 1));
+  --jx-stack-base: var(--jx-density-stack-gap-2xs);
+  --jx-stack: calc(var(--jx-stack-base) * var(--jx-density-coefficient, 1));
+  --jx-inset-base: var(--jx-density-inline-inset-2xs);
+  --jx-inset: calc(var(--jx-inset-base) * var(--jx-density-coefficient, 1));
+  --jx-chip-radius-base: var(--jx-density-chip-radius-2xs);
+  --jx-chip-radius: calc(var(--jx-chip-radius-base) * var(--jx-density-coefficient, 1));
+  --jx-gap-content-base: var(--jx-density-content-gap-2xs);
+  --jx-gap-content: calc(var(--jx-gap-content-base) * var(--jx-density-coefficient, 1));
+  --jx-row-min: max(
+    calc(var(--jx-unit) * var(--jx-density-row-floor-2xs)),
+    calc(
+      (var(--jx-density-line-2xs) + var(--jx-density-stack-gap-2xs) + var(--jx-density-stack-gap-2xs)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-hit: max(
+    var(--jx-hit-floor),
+    calc(var(--jx-unit) * var(--jx-density-row-floor-2xs)),
+    calc(
+      (var(--jx-density-line-2xs) + var(--jx-density-stack-gap-2xs) + var(--jx-density-stack-gap-2xs)) *
+      var(--jx-density-coefficient, 1)
+    )
+  );
+  --jx-icon-base: var(--jx-density-media-icon-2xs);
+  --jx-icon: calc(var(--jx-icon-base) * var(--jx-density-coefficient, 1));
+  --jx-image-base: var(--jx-density-media-image-2xs);
+  --jx-image: calc(var(--jx-image-base) * var(--jx-density-coefficient, 1));
+  --jx-text-secondary-base: var(--jx-density-secondary-text-2xs);
+  --jx-text-secondary: calc(var(--jx-text-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-leading-secondary-base: var(--jx-density-secondary-leading-lg);
+  --jx-leading-secondary: calc(var(--jx-leading-secondary-base) * var(--jx-density-coefficient, 1));
+  --jx-line-secondary-base: var(--jx-density-secondary-line-2xs);
+  --jx-line-secondary: calc(var(--jx-line-secondary-base) * var(--jx-density-coefficient, 1));
   --jx-toggle-track: var(--jx-line);
   --jx-toggle-width: calc(var(--jx-toggle-track) * 2);
   --jx-toggle-knob: calc(var(--jx-toggle-track) - var(--jx-unit));

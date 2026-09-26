@@ -4,11 +4,13 @@
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
+  { id: 'steps-demo', label: 'the stepper demo' },
   { id: 'states', label: 'the state vocabulary' },
   { id: 'types', label: 'types' },
   { id: 'usage', label: 'usage' },
   { id: 'accessibility', label: 'accessibility' },
   { id: 'theming', label: 'theming' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'api' },
 ];
 

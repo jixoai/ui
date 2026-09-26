@@ -9,8 +9,9 @@
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
@@ -72,8 +73,8 @@ ${close}
     { word: 'del', note: 'line-through', snippet: false },
     { word: 'mark', note: 'highlight ground + the 0.05em/0.25em box', snippet: false },
     { word: 'ins', note: 'underline', snippet: false },
-    { word: 'sub', note: 'none — the UA baseline shift is the law', snippet: false },
-    { word: 'sup', note: 'none — the UA baseline shift is the law', snippet: false },
+    { word: 'sub', note: 'none — the UA-baseline-shift law, preflight-reimplemented', snippet: false },
+    { word: 'sup', note: 'none — the UA-baseline-shift law, preflight-reimplemented', snippet: false },
   ] as const;
 
   // ---- modifier playground (r4 acceptance round, 2026-09-08) ---------------
@@ -197,17 +198,38 @@ ${close}
   const resolveModifierUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? modifierUsageLive : file.content;
 
-  /* Tailwind scanner candidates: the modifier utilities are composed
-     at RUNTIME by the kernel (template interpolations the source
-     scanner can never see) — this block feeds the exact set the
-     playground can emit so the compiled sheet carries it (the app.css
-     jx-html block precedent). The named weight/tracking/italic set
-     already extracts from the kernel's own literal maps. */
-  /* leading-[1] leading-[1.25] leading-[1.5] leading-[1.75] leading-[2]
-     font-[450] font-[550] [font-family:var(--font-mono)]
-     [font-family:var(--font-sans)] [font-family:Georgia,serif]
-     [font-size:11px] [font-size:12px] [font-size:13px] [font-size:14px]
-     [font-size:16px] */
+  /* The modifier utilities are composed at RUNTIME by the kernel
+     (template interpolations no scanner can see), so the vocabulary is
+     authored as REAL RULES in app.css's @layer components block — the
+     jx-html standard-layer precedent, landed T135 (comment blocks feed
+     nothing: app.css is read raw, svelte content comments are not).
+     The set there = this playground's exact value domain + the
+     kernel's full named maps (inline-code shares both). */
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-B) --------------------
+  const universalUsage = `<!-- the eight-axis surface on the reading family -->
+<Text size={14} density="small">px number</Text>
+<Text size="large">named steps</Text>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/text-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -218,8 +240,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -228,7 +250,17 @@ ${close}
         title="text — one word, three ways to say it"
         summary="The family the Owner designed: base <Text> renders <p> by default (the Chakra <Text>-is-a-paragraph precedent) and mark switches the element and paint. ONE vocabulary — the prop value, the sugar name, and the HTML element are the same word: strong renders <strong> whether you wrote <Text mark=&quot;strong&quot;> or <Strong>. mark is a LITERAL slot (defineLiteralSlot, own 'p' — the kbd variant precedent): element vocabulary, never prominence, never zone-ambient. Two members deliberately override face channels (recorded settles, not accidents): strong's font-semibold (600 — the GitHub/Tailwind Typography emphasis weight, settling the UA's 700) and mark's highlight ground with the 0.05em/0.25em padding box mirroring the face's mark so standalone and in-face agree. FACE-COMPOSING: no member escapes the prose face — an inline escape would virally descope the code chips and nested marks a link legitimately contains — and no member stamps a font-size; the ambient scale flows by inheritance."
       >
-        <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install text">
+          <TerminalCard
+            barTitle="install — text"
+            command="npx jixoai-ui add text"
+            outputs={['https://ui.jixoai.com/r/text.json']}
+          />
+        </div>
+      {/snippet}
+
+        <div class={cx(rt.wrap12)}>
           <span class="pill">8 forms · one vocabulary</span>
           <span class="pill">mark = literal slot (own 'p')</span>
           <span class="pill">Raw sugars ≡ base</span>
@@ -237,9 +269,6 @@ ${close}
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="text" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard
@@ -261,11 +290,11 @@ ${close}
         files={canvasFiles}
         stage="fill"
       >
-        <div class="flex w-full max-w-xl flex-col gap-2.5 text-[14px] leading-7">
+        <div class={cx(rt.flex, rt.wFull, rt.maxWXl, rt.col, rt.gap10, rt.txBody)}>
           {#each forms as f (f.word)}
-            <div class="flex flex-wrap items-baseline gap-3">
-              <code class="w-16 flex-none font-mono text-[11px] text-muted-foreground">{f.word}</code>
-              <p class="m-0">
+            <div class={cx(rt.flex, rt.wrap, rt.itemsBaseline, rt.gap12)}>
+              <code class={cx(rt.txW16, rt.flexNone, rt.fontMono, rt.text11, rt.inkMuted)}>{f.word}</code>
+              <p class={cx(rt.m0)}>
                 {#if f.word === 'p'}<P>a plain paragraph — face-composing</P>
                 {:else if f.word === 'strong'}<Strong>strong emphasis at the 600 settle</Strong>
                 {:else if f.word === 'em'}<Em>italic stress</Em>
@@ -274,7 +303,7 @@ ${close}
                 {:else if f.word === 'ins'}<Ins>the inserted revision</Ins>
                 {:else if f.word === 'sub'}H<Sub>2</Sub>O — subscript
                 {:else}x<Sup>2</Sup> — superscript{/if}
-                <span class="ml-2 text-[12px] text-muted-foreground">{f.note}</span>
+                <span class={cx(rt.ml8, rt.text12, rt.inkMuted)}>{f.note}</span>
               </p>
             </div>
           {/each}
@@ -283,7 +312,7 @@ ${close}
           <PlayFields>
             <PlayHelp>
               ONE vocabulary: the prop value, the sugar name, and the HTML element are the same
-              word. <code>sub</code>/<code>sup</code> own no utilities at all — the UA baseline
+              word. <code>sub</code>/<code>sup</code> own no utilities at all — the UA-baseline-shift law, preflight-reimplemented: the visible shift is the app's own preflight rules (position-relative + top), not the UA vertical-align — the
               shift IS the law. <code>mark</code>'s ground drops to the Highlight system pair
               under forced colors; <code>strong</code>'s 600 is a recorded settle over the face's
               700 (the GitHub/Tailwind Typography weight).
@@ -304,20 +333,20 @@ ${close}
         output={playOutputs(play.current)}
         resolveFileContent={resolveModifierUsage}
       >
-        <div class="flex w-full max-w-xl flex-col gap-5">
-          <div class="flex flex-col gap-2">
-            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">the base paragraph</span>
+        <div class={cx(rt.flex, rt.wFull, rt.maxWXl, rt.col, rt.gap20)}>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.microEyebrow, rt.inkMuted)}>the base paragraph</span>
             <Text {...mods}>The quick brown fox jumps over the lazy dog — every modifier lands after the form's own utilities, never before the consumer class.</Text>
           </div>
-          <div class="flex flex-col gap-2 border-t border-border pt-4">
-            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">a mark form — modifiers compose</span>
-            <p class="m-0"><Strong {...mods}>strong composes too — an explicit weight replaces its own 600</Strong></p>
+          <div class={cx(rt.col8, rt.tBorder, rt.pt16)}>
+            <span class={cx(rt.microEyebrow, rt.inkMuted)}>a mark form — modifiers compose</span>
+            <p class={cx(rt.m0)}><Strong {...mods}>strong composes too — an explicit weight replaces its own 600</Strong></p>
           </div>
-          <div class="flex flex-col gap-2 border-t border-border pt-4">
-            <span class="text-muted-foreground font-nav text-[10px] uppercase tracking-[0.24em]">the other kernel consumer</span>
-            <p class="m-0 text-[13.5px]">
+          <div class={cx(rt.col8, rt.tBorder, rt.pt16)}>
+            <span class={cx(rt.microEyebrow, rt.inkMuted)}>the other kernel consumer</span>
+            <p class={cx(rt.m0, rt.text135)}>
               <InlineCode lang="text" {...mods}>var(--font-mono)</InlineCode>
-              <span class="text-muted-foreground"> — the chip folds fontSize × lineHeight into its padding calc</span>
+              <span class={cx(rt.inkMuted)}> — the chip folds fontSize × lineHeight into its padding calc</span>
             </p>
           </div>
         </div>
@@ -362,14 +391,14 @@ ${close}
         title="Sugar ≡ base, by construction"
         summary="Each Raw sugar is a ~5-line wrapper that renders the base with its mark fixed, forwarding class/children/attrs — the learning-cost ruling: one vocabulary, two ergonomic forms, zero behavioral difference. Same element, same data-jx-text hook, same class-merge order (consumer LAST). The sugars re-export from the base's module script and ride the barrel."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.flex, rt.col, rt.gap20)}>
           <CodeBlock code={equivalenceUsage} lang="svelte" meta="the equivalence law" />
-          <div class="flex max-w-xl flex-col gap-2 text-[14px] leading-7">
-            <p class="m-0"><Text mark="em">italic via the base</Text></p>
-            <p class="m-0"><Em>italic via the sugar</Em></p>
-            <p class="m-0 text-[12.5px] text-muted-foreground">
+          <div class={cx(rt.flex, rt.maxWXl, rt.col, rt.gap8, rt.txBody)}>
+            <p class={cx(rt.m0)}><Text mark="em">italic via the base</Text></p>
+            <p class={cx(rt.m0)}><Em>italic via the sugar</Em></p>
+            <p class={cx(rt.m0, rt.text125, rt.inkMuted)}>
               One component prop swap apart — render both and diff: identical markup, identical
-              <code class="font-mono text-[0.85em]">data-jx-text="em"</code>, identical merge
+              <code class={cx(rt.fontMono, rt.txCode85)}>data-jx-text="em"</code>, identical merge
               order.
             </p>
           </div>
@@ -379,7 +408,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush, rt.flex, rt.col, rt.gap32)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"
@@ -398,6 +427,25 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The reading family flows by inheritance — the size axis is the root font-size lever, the modifier kernel's own fontSize prop stays a separate (non-colliding) name."
+    >
+      <ComponentCanvas title="Text · universal props" stage="fill" files={universalFiles}>
+        <div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}><Text size={14} density="small">size 14 · density small</Text></div>
+        <div class={cx(rt.panel)}><Text size="large" density="large">size large · density large</Text></div>
+        <div class={cx(rt.panel)}><Text mark="strong" size="medium">strong · medium</Text></div>
+        <div class={cx(rt.panel)}><Text mark="mark" color="primary">mark · primary</Text></div>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -406,7 +454,7 @@ ${close}
       title="API"
       summary="One style prop and a verbatim spread; the Raw sugars take the same surface minus mark (fixed per sugar)."
     >
-      <PropsTable props={[
+      <PropsTable universal props={[
         { name: 'mark', type: "'p' | 'strong' | 'em' | 'del' | 'mark' | 'ins' | 'sub' | 'sup'", default: "'p' · Own default, not ambient", description: 'The element vocabulary — ONE word is the prop value, the sugar name, and the HTML element. A literal slot, own \'p\', never zone-ambient (an element choice is not prominence; the kbd precedent). Omitted resolves explicit ?? own, no context read.' },
         { name: 'children', type: 'Snippet', default: '—', description: 'The inline content.' },
         { name: 'class', type: 'string', default: "''", description: 'Forwarded to the rendered element; consumer classes land last.' },

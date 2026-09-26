@@ -46,6 +46,15 @@ export type IconName =
   | 'pencil'
   | 'plugZap'
   | 'trash2'
+  | 'lucide:gauge'
+  | 'lucide:git-compare-arrows'
+  | 'lucide:git-fork'
+  | 'lucide:git-merge'
+  | 'lucide:git-pull-request'
+  | 'lucide:layers'
+  | 'lucide:rows3'
+  | 'lucide:shapes'
+  | 'lucide:squircle'
   | 'md:copy_all'
   | 'copy2'
   | 'md:home'
@@ -103,6 +112,15 @@ export const ICON_NAMES = [
   'pencil',
   'plugZap',
   'trash2',
+  'lucide:gauge',
+  'lucide:git-compare-arrows',
+  'lucide:git-fork',
+  'lucide:git-merge',
+  'lucide:git-pull-request',
+  'lucide:layers',
+  'lucide:rows3',
+  'lucide:shapes',
+  'lucide:squircle',
   'md:copy_all',
   'copy2',
   'md:home',
@@ -162,6 +180,15 @@ const CHUNK_0: Readonly<Record<string, IconData>> = {
   pencil: { v: '0 0 24 24', n: 'stroke', d: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/>' },
   plugZap: { v: '0 0 24 24', n: 'stroke', d: '<path d="M6.3 20.3a2.4 2.4 0 0 0 3.4 0L12 18l-6-6-2.3 2.3a2.4 2.4 0 0 0 0 3.4Z"/><path d="m2 22 3-3"/><path d="M7.5 13.5 10 11"/><path d="M10.5 16.5 13 14"/><path d="m18 3-4 4h6l-4 4"/>' },
   trash2: { v: '0 0 24 24', n: 'stroke', d: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>' },
+  'lucide:gauge': { v: '0 0 24 24', n: 'stroke', d: '<path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/>' },
+  'lucide:git-compare-arrows': { v: '0 0 24 24', n: 'stroke', d: '<circle cx="5" cy="6" r="3"/><path d="M12 6h5a2 2 0 0 1 2 2v7"/><path d="m15 9-3-3 3-3"/><circle cx="19" cy="18" r="3"/><path d="M12 18H7a2 2 0 0 1-2-2V9"/><path d="m9 15 3 3-3 3"/>' },
+  'lucide:git-fork': { v: '0 0 24 24', n: 'stroke', d: '<circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/>' },
+  'lucide:git-merge': { v: '0 0 24 24', n: 'stroke', d: '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/>' },
+  'lucide:git-pull-request': { v: '0 0 24 24', n: 'stroke', d: '<circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><line x1="6" x2="6" y1="9" y2="21"/>' },
+  'lucide:layers': { v: '0 0 24 24', n: 'stroke', d: '<path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z"/><path d="M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12"/><path d="M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17"/>' },
+  'lucide:rows3': { v: '0 0 24 24', n: 'stroke', d: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M21 9H3"/><path d="M21 15H3"/>' },
+  'lucide:shapes': { v: '0 0 24 24', n: 'stroke', d: '<path d="M8.3 10a.7.7 0 0 1-.626-1.079L11.4 3a.7.7 0 0 1 1.198-.043L16.3 8.9a.7.7 0 0 1-.572 1.1Z"/><rect x="3" y="14" width="7" height="7" rx="1"/><circle cx="17.5" cy="17.5" r="3.5"/>' },
+  'lucide:squircle': { v: '0 0 24 24', n: 'stroke', d: '<path d="M12 3c7.2 0 9 1.8 9 9s-1.8 9-9 9-9-1.8-9-9 1.8-9 9-9"/>' },
   'md:copy_all': { v: '0 -960 960 960', n: 'fill', d: '<path d="M120-240v-60h60v60h-60Zm0-160v-60h60v60h-60Zm0-160v-60h60v60h-60ZM280-80v-60h60v60h-60Zm60-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h400q24 0 42 18t18 42v520q0 24-18 42t-42 18H340Zm0-60h400v-520H340v520ZM440-80v-60h60v60h-60Zm-260 0q-24.75 0-42.37-17.63Q120-115.25 120-140h60v60Zm420 0v-60h60q0 25-17.62 42.5Q624.75-80 600-80ZM120-720q0-24.75 17.63-42.38Q155.25-780 180-780v60h-60Zm420 160Z"/>' },
   'md:home': { v: '0 -960 960 960', n: 'fill', d: '<path d="M220-180h150v-250h220v250h150v-390L480-765 220-570v390Zm-60 60v-480l320-240 320 240v480H530v-250H430v250H160Zm320-353Z"/>' },
   'ph:atom': { v: '0 0 256 256', n: 'fill', d: '<path d="M196.12,128c24.65-34.61,37.22-70.38,19.74-87.86S162.61,35.23,128,59.88C93.39,35.23,57.62,22.66,40.14,40.14S35.23,93.39,59.88,128c-24.65,34.61-37.22,70.38-19.74,87.86h0c5.63,5.63,13.15,8.14,21.91,8.14,18.48,0,42.48-11.17,66-27.88C151.47,212.83,175.47,224,194,224c8.76,0,16.29-2.52,21.91-8.14h0C233.34,198.38,220.77,162.61,196.12,128Zm8.43-76.55c7.64,7.64,2.48,32.4-18.52,63.28a300.33,300.33,0,0,0-21.19-23.57A300.33,300.33,0,0,0,141.27,70C172.15,49,196.91,43.8,204.55,51.45ZM176.29,128a289.14,289.14,0,0,1-22.76,25.53A289.14,289.14,0,0,1,128,176.29a289.14,289.14,0,0,1-25.53-22.76A289.14,289.14,0,0,1,79.71,128,298.62,298.62,0,0,1,128,79.71a289.14,289.14,0,0,1,25.53,22.76A289.14,289.14,0,0,1,176.29,128ZM51.45,51.45c2.2-2.21,5.83-3.35,10.62-3.35C73.89,48.1,92.76,55,114.72,70A304,304,0,0,0,91.16,91.16,300.33,300.33,0,0,0,70,114.73C49,83.85,43.81,59.09,51.45,51.45Zm0,153.1C43.81,196.91,49,172.15,70,141.27a300.33,300.33,0,0,0,21.19,23.57A304.18,304.18,0,0,0,114.73,186C83.85,207,59.09,212.2,51.45,204.55Zm153.1,0c-7.64,7.65-32.4,2.48-63.28-18.52a304.18,304.18,0,0,0,23.57-21.19A300.33,300.33,0,0,0,186,141.27C207,172.15,212.19,196.91,204.55,204.55ZM140,128a12,12,0,1,1-12-12A12,12,0,0,1,140,128Z"/>' },
@@ -213,6 +240,15 @@ const CHUNK_OF: Readonly<Record<IconName, number>> = {
   'pencil': 0,
   'plugZap': 0,
   'trash2': 0,
+  'lucide:gauge': 0,
+  'lucide:git-compare-arrows': 0,
+  'lucide:git-fork': 0,
+  'lucide:git-merge': 0,
+  'lucide:git-pull-request': 0,
+  'lucide:layers': 0,
+  'lucide:rows3': 0,
+  'lucide:shapes': 0,
+  'lucide:squircle': 0,
   'md:copy_all': 0,
   'md:home': 0,
   'ph:atom': 0,

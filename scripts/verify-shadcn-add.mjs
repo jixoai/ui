@@ -432,6 +432,33 @@ console.log('shadcn build (generate public/r payloads)…');
 }
 if (!existsSync(join(publicR, 'registry.json'))) die('public/r/registry.json missing after shadcn build');
 
+// ── 0.5 the compiled stylex payload under test (stylex-kernel-phase0
+// Gate-2 P1-2, the spec's "verify:shadcn-add consumes the manifest"
+// clause): the SAME publish step build-site runs — the manifest +
+// artifacts the compiled-payload case installs FROM, at their deployed
+// landing spot (public/payload/stylex/, the zero-engine surface). ────
+console.log('stylex payload publish (generate public/payload/stylex)…');
+{
+  const publish = spawnSync(process.execPath, ['scripts/gen-stylex-payload.mjs', '--publish', 'public'], { cwd: root, encoding: 'utf8', stdio: 'pipe' });
+  if (publish.status !== 0) die(`stylex payload publish failed:\n${publish.stdout}\n${publish.stderr}`);
+}
+if (!existsSync(join(root, 'public', 'payload', 'stylex', 'payload-manifest.json'))) {
+  die('public/payload/stylex/payload-manifest.json missing after the publish step');
+}
+
+// ── 0.6 the phase-1 consumer-contract flip (tailwindless one-shot W4,
+// the registry spec delta's compiled-item form): rewrite the built
+// payloads' .stylex.ts entries to their compiled classModule + item
+// css deliveries — consumers owe ZERO styling-engine tooling. The
+// same step build-site runs after ITS publish; one implementation
+// (scripts/lib/registry-stylex-swap.mjs), so the two can't disagree.
+console.log('registry stylex swap (payloads → compiled class constants + item css)…');
+{
+  const { swapped, untouched } = await import('./lib/registry-stylex-swap.mjs').then((m) => m.swapRegistryPayloads(root, publicR));
+  console.log(`  ${swapped.length} payload(s) swapped, ${untouched} untouched`);
+  if (swapped.length === 0) die('registry stylex swap touched ZERO payloads — the registry carries no .stylex.ts sources; the tailwindless contract regressed');
+}
+
 // ── 1. scratch registry = the generated public/r payloads ──────────
 // the single-instance lock is already held (acquired before anything
 // touched the shared world — see acquireLock at the top); the scratch
@@ -498,7 +525,14 @@ const canonicalTargets = (itemNames) =>
   itemNames.flatMap((name) => {
     const item = byName.get(name);
     if (!item) die(`registry.json has no item ${name}`);
-    return (item.files ?? []).map((f) => targetToConsumer(f.target ?? '')).filter(Boolean);
+    return (item.files ?? [])
+      .map((f) => targetToConsumer(f.target ?? ''))
+      // the phase-1 consumer-contract flip (registry-stylex-swap):
+      // .stylex.ts sources DELIVER as compiled .stylex.js — expected
+      // consumer paths translate with the same law (the repo's
+      // registry.json stays the authoring source-of-record)
+      .map((p) => (p && p.endsWith('.stylex.ts') ? `${p.slice(0, -'.stylex.ts'.length)}.stylex.js` : p))
+      .filter(Boolean);
   });
 
 // ── 4. the CASES (data — extend by adding an entry) ────────────────
@@ -603,7 +637,6 @@ const CASES = [
     // data contract (pure-data virtual module, design D3).
     viteConfig: `import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 
 const ghosttyVirtualStub = {
@@ -623,7 +656,7 @@ const ghosttyVirtualStub = {
 };
 
 export default defineConfig({
-  plugins: [ghosttyVirtualStub, svelte(), tailwindcss()],
+  plugins: [ghosttyVirtualStub, svelte()], // tailwindless W4: the consumer contract is engine-free
   resolve: { alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
   build: { target: 'esnext' },
 });
@@ -639,9 +672,19 @@ export default defineConfig({
       // vite-plugin supply chain (pin manifest + resolver), never the registry
       const wasmHits = walkFilesNamed(join(ctx.dir, 'src'), (name) => name.endsWith('.wasm'));
       check('ghostty-term: zero wasm payloads in src/', wasmHits.length === 0, wasmHits.map((p) => p.slice(ctx.dir.length)).join(', ') || 'none');
-      const frozen = ['src/lib/ghostty-vt.ts', 'src/lib/jixoai.css', 'src/lib/utils.ts', 'src/lib/color-utils.ts', 'src/lib/density.svelte.ts'];
+      // the frozen closure — MINUS utils.ts: the cn seam retired with the
+      // engine (tailwindless W4; ghostty-term no longer imports $lib/utils,
+      // the deps gate holds the edge dead) — utils.ts stopped arriving.
+      // W5-r2 re-pin: density.svelte.ts → defaults.svelte.ts — the W3
+      // one-seam migration moved densityRungOf + the axis slots into
+      // $lib/defaults.svelte (ghostty-term.svelte's import block is the
+      // evidence); the payload correctly delivers the seam file (with
+      // its universal-props schema/query/css closure), density.svelte.ts
+      // is the legacy channel and no longer in this item's graph
+      const frozen = ['src/lib/ghostty-vt.ts', 'src/lib/jixoai.css', 'src/lib/color-utils.ts', 'src/lib/defaults.svelte.ts'];
       const missing = frozen.filter((f) => !ctx.exists(f));
       check('ghostty-term: frozen dependency closure arrived', missing.length === 0, missing.join(', ') || 'complete');
+      check('ghostty-term: the retired cn seam stays retired (utils.ts never arrives)', !ctx.exists('src/lib/utils.ts'));
     },
     postBuild(ctx) {
       // impl-r2 #4: the virtual-module contract is named-exports-only —
@@ -983,6 +1026,112 @@ export default defineConfig({
     },
   },
   {
+    id: 'stylex-tokens',
+    // stylex-kernel-phase0 P0.4 → phase-1 flip (tailwindless one-shot
+    // W4): the stylex-adjacent lib item installs CLEAN in its COMPILED
+    // form — the theme sheet (its declared dependency) arrives for the
+    // css import, the compiled classModule + css carrier land at @lib,
+    // and the consumer owes ZERO @stylexjs/* packages
+    items: ['tokens'],
+    app: `<script lang="ts">
+  // the documented install prerequisite: import the item/theme css —
+  // exactly what a compiled-payload consumer does (post-migration)
+  import '$lib/jixoai.css';
+</script>
+
+<main class="bg-background text-foreground p-4">tokens installed clean</main>
+`,
+    extraChecks(ctx) {
+      check('stylex-tokens: tokens landed at @lib as the compiled module (the phase-1 flip)', ctx.exists('src/lib/tokens.stylex.js'));
+      const mod = ctx.read('src/lib/tokens.stylex.js');
+      check('stylex-tokens: the compiled module carries zero engine imports (F11)', !/(?:from|import)\s*['"]@stylexjs\//.test(mod), 'clean');
+      check('stylex-tokens: the item css carrier landed (the sole styling wiring)', ctx.exists('src/lib/tokens.stylex.css'));
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      const stylexDeps = Object.keys(deps).filter((d) => d.startsWith('@stylexjs/'));
+      check('stylex-tokens: zero @stylexjs/* in the consumer package.json', stylexDeps.length === 0, stylexDeps.join(', ') || 'clean');
+      check('stylex-tokens: the theme sheet arrived (the css-import prerequisite)', ctx.exists('src/lib/jixoai.css'));
+    },
+  },
+  {
+    id: 'stylex-compiled-payload',
+    // stylex-kernel-phase0 Gate-2 P1-2 (the css-architecture delta's
+    // "generator wired into the registry build; verify:shadcn-add
+    // consumes the manifest"): a consumer installs a COMPILED payload
+    // item FROM THE PUBLISHED MANIFEST (public/payload/stylex/, the
+    // deploy tree build-site ships), wires it with ONE css import +
+    // the plain-string class constants, and builds — owing ZERO
+    // @stylexjs/* (the F11 form, end-to-end). No shadcn add runs:
+    // phase 0 ships no registry item carrying compiled files[] yet —
+    // the install is the manifest-driven copy; phase 1's real item
+    // wiring will replace it with byte-for-byte the same artifacts.
+    items: [],
+    skipAdd: true,
+    app: `<script lang="ts">
+  // the compiled-payload install: ONE css import (the item css, layer
+  // law baked at byte zero) + plain-string class constants — no engine
+  import './stylex-payload/code-card.css';
+  import * as codeCard from './stylex-payload/code-card.styles.js';
+  const firstClass = Object.values(codeCard).find((v) => typeof v === 'string') ?? '';
+</script>
+
+<main class={firstClass}>compiled payload installed clean</main>
+`,
+    extraChecks(ctx) {
+      // install FROM THE PUBLISHED MANIFEST (the deploy tree, not the
+      // private registry/ tree): read it, resolve the item's artifacts,
+      // copy both into the consumer — sha-verified against the record
+      const manifestPath = join(root, 'public', 'payload', 'stylex', 'payload-manifest.json');
+      const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+      const entry = manifest.items['corpus/code-card'] ?? Object.values(manifest.items)[0];
+      check('stylex-compiled-payload: the published manifest names the item', !!entry, 'corpus/code-card');
+      const pick = (art) => join(root, art.path.replace(/^registry\/payload\/stylex\//, 'public/payload/stylex/'));
+      for (const art of [entry.classModule, entry.css]) {
+        const from = pick(art);
+        const bytes = readFileSync(from, 'utf8');
+        check(`stylex-compiled-payload: published ${art.path.split('/').pop()} sha matches the manifest`, createHash('sha256').update(bytes).digest('hex') === art.sha256);
+      }
+      const target = join(ctx.dir, 'src', 'stylex-payload');
+      mkdirSync(target, { recursive: true });
+      cpSync(dirname(pick(entry.classModule)), target, { recursive: true });
+      check('stylex-compiled-payload: classModule + item css landed in the consumer', ctx.exists('src/stylex-payload/code-card.styles.js') && ctx.exists('src/stylex-payload/code-card.css'));
+      // F11: the classModule is PLAIN STRINGS — no $$css markers, no engine imports
+      const module = ctx.read('src/stylex-payload/code-card.styles.js');
+      check('stylex-compiled-payload: the classModule is plain string constants (zero $$css markers)', !module.includes('$$css'));
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      check('stylex-compiled-payload: zero @stylexjs/* in the consumer package.json', Object.keys(deps).filter((d) => d.startsWith('@stylexjs/')).length === 0);
+    },
+    postBuild(ctx) {
+      // the built css carries the item: every stylex tier NESTED under
+      // components (the bundler re-serializes statements freely —
+      // minified, deduped, block order shuffled; the law that survives
+      // ANY consumer pipeline is the nesting + the top-level
+      // first-mention order with utilities after components) + the
+      // compiled atom rules themselves
+      const dist = join(ctx.dir, 'dist');
+      const cssHits = walkFilesNamed(dist, (name) => name.endsWith('.css'));
+      const built = cssHits.map((f) => readFileSync(f, 'utf8')).join('\n');
+      const mentions = [...built.matchAll(/@layer\s+([^;{]+)/g)].flatMap((m) => m[1].split(',').map((n) => n.trim()));
+      const topLevel = mentions.filter((n) => !n.includes('.'));
+      const escaped = mentions.filter((n) => /^stylex\./.test(n));
+      check('stylex-compiled-payload: every stylex tier arrives nested under components (zero top-level escapes)', escaped.length === 0, escaped.join(', ') || 'clean');
+      const compIdx = topLevel.indexOf('components');
+      const utilIdx = topLevel.indexOf('utilities');
+      // PFINAL: OUR css no longer mentions a utilities tier (it died
+      // with the engine) — a consumer's OWN utilities registration is
+      // welcome and must land after components, but is no longer
+      // REQUIRED to appear
+      check(
+        'stylex-compiled-payload: components first; a consumer utilities tier (when present) lands after it',
+        compIdx !== -1 && (utilIdx === -1 || compIdx < utilIdx),
+        topLevel.join(' < '),
+      );
+      const atom = (ctx.read('src/stylex-payload/code-card.styles.js').match(/"(x[0-9a-z]{4,12})"/) ?? [])[1];
+      check('stylex-compiled-payload: built css carries the item atom rules', !!atom && built.includes(`.${atom}`), `.${atom ?? 'none'}`);
+    },
+  },
+  {
     id: 'effects-group',
     // effect-attachments Lane H (2026-09-10, the r5 Owner request #2):
     // the GROUP ALIAS runs through the REAL jixoai-ui CLI — `add
@@ -1048,6 +1197,45 @@ export default defineConfig({
         'effects-scoped: no expansion line (a scoped add prints none)',
         !ctx.addOutput.includes('jixoai-ui: effects → '),
       );
+    },
+  },
+  {
+    // visual-quality-iteration W4 (2026-09-15): the scroll-area family's
+    // platform sibling gets its clean-consumer case, and the SAME case
+    // is the scroll-area-kit LIB-ITEM INSTALL-PROOF LANE — the kit is a
+    // registry:lib item (the control-chrome/highlight-folder precedent)
+    // with no consumer mount of its own: its files must ride the
+    // dependency closure of its consumer and land at their canonical
+    // @lib targets exactly once
+    id: 'native-scroll-area',
+    items: ['native-scroll-area'],
+    app: `<script lang="ts">
+  import NativeScrollArea from '$lib/ui/native-scroll-area';
+</script>
+
+<NativeScrollArea label="clean install probe" class="h-40">
+  <p>the platform scrollbar under the token law, capability styles included</p>
+</NativeScrollArea>
+`,
+    extraChecks(ctx) {
+      // the lib-item install-proof lane: the kit's three parts arrive
+      // via the registryDependencies closure, each exactly once
+      const kit = [
+        'src/lib/scroll-area-kit/core.ts',
+        'src/lib/scroll-area-kit/hand-drawn.svelte.ts',
+        'src/lib/scroll-area-kit/native-capability.css',
+      ];
+      const missing = kit.filter((f) => !ctx.exists(f));
+      check('native-scroll-area: scroll-area-kit lib closure arrived', missing.length === 0, missing.join(', ') || 'complete');
+      for (const f of kit) {
+        const base = f.split('/').at(-1);
+        check(`native-scroll-area: ${base} exactly once tree-wide`, countTree(join(ctx.dir, 'src'), base) === 1);
+      }
+      // the family's opt-in TanStack dep never rides this install (the
+      // kit and the sibling are framework-free, zero npm deps of their own)
+      const pkg = JSON.parse(ctx.read('package.json'));
+      const deps = { ...pkg.dependencies, ...pkg.devDependencies };
+      check('native-scroll-area: zero tanstack/stylex packages arrived', !Object.keys(deps).some((d) => d.includes('tanstack') || d.startsWith('@stylexjs')));
     },
   },
 ];
@@ -1414,8 +1602,6 @@ const consumerFiles = {
       '@sveltejs/vite-plugin-svelte': versions['@sveltejs/vite-plugin-svelte'],
       vite: versions.vite,
       typescript: versions.typescript,
-      '@tailwindcss/vite': versions['@tailwindcss/vite'],
-      tailwindcss: versions.tailwindcss,
       // EXACT, not a range: the add-side CLI contract is versioned — a
       // floating range made the same gate run different CLIs over time
       // (4.19.0 = the repo's pnpm resolution; the root npm package-lock
@@ -1441,11 +1627,10 @@ const consumerFiles = {
   }, null, 2),
   'vite.config.ts': `import { defineConfig } from 'vite';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
-import tailwindcss from '@tailwindcss/vite';
 import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
-  plugins: [svelte(), tailwindcss()],
+  plugins: [svelte()], // tailwindless W4: zero-engine consumer — the payload contract
   resolve: { alias: { $lib: fileURLToPath(new URL('./src/lib', import.meta.url)) } },
   build: { target: 'esnext' },
 });
@@ -1462,8 +1647,7 @@ export default defineConfig({
   'svelte.config.js': `import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 export default { preprocess: vitePreprocess() };
 `,
-  'src/app.css': `@import 'tailwindcss';
-`,
+  'src/app.css': ``,
   'index.html': `<!doctype html>
 <html><head><meta charset="utf-8" /><title>clean-install consumer</title></head>
 <body><div id="app"></div><script type="module" src="/src/main.ts"></script></body></html>
@@ -1605,8 +1789,12 @@ for (const testCase of CASES) {
   // install through the REAL CLI — `node cli/bin/jixoai-ui.mjs add
   // <args…>` — so the group-alias resolution (index fetch, membership
   // validation, registry-order expansion) runs exactly as a consumer
-  // invokes it; the standing cases keep the raw shadcn form
-  const add = testCase.jixoaiUi
+  // invokes it; the standing cases keep the raw shadcn form. skipAdd
+  // cases (the compiled-payload consumer) run no installer at all —
+  // their extraChecks stage performs the install itself.
+  const add = testCase.skipAdd
+    ? { status: 0, stdout: '', timedOut: false }
+    : testCase.jixoaiUi
     ? await runIn(dir, process.execPath, [cliBin, 'add', ...testCase.jixoaiUi], {
         timeoutMs: 420_000, // two sequential shadcn spawns + the closure's npm-adjacent work
         label: `case ${testCase.id}: jixoai-ui add`,
@@ -1622,7 +1810,7 @@ for (const testCase of CASES) {
 
   // ── the template contract (env-debt-cleanup D2, asserted once after the
   // first successful add — the five frozen groups) ─────────────────────
-  if (!templateContractChecked) {
+  if (!templateContractChecked && !testCase.skipAdd) {
     templateContractChecked = true;
     // (a) the consumer's on-disk aliases are exactly the frozen $lib table
     {
@@ -1668,7 +1856,12 @@ for (const testCase of CASES) {
         .map((t) => {
           for (const [aliasKey, aliasPrefix] of Object.entries(consumerAliases)) {
             const head = `@${aliasKey}/`;
-            if (t.startsWith(head)) return `${physicalForAlias[aliasKey]}/${t.slice(head.length)}`;
+            if (t.startsWith(head)) {
+              // the same phase-1 flip translation wwwSide applies —
+              // .stylex.ts targets deliver as compiled .stylex.js
+              const tail = t.slice(head.length);
+              return `${physicalForAlias[aliasKey]}/${tail.endsWith('.stylex.ts') ? `${tail.slice(0, -'.stylex.ts'.length)}.stylex.js` : tail}`;
+            }
           }
           return null;
         })
@@ -1729,8 +1922,25 @@ for (const testCase of CASES) {
 
   testCase.extraChecks?.(ctx);
 
+  // GENERIC (stylex-kernel-phase0 P0.4, the registry delta): the
+  // consumer's LOCKFILE owes zero @stylexjs/* — the spec names
+  // @stylexjs/stylex, @stylexjs/unplugin AND @stylexjs/babel-plugin;
+  // the pattern covers the whole scope. The engine is build-side only
+  // (F11): no item, no dependency chain, no transitive haul may ever
+  // land one in a clean install.
+  {
+    const lockFile = join(dir, 'package-lock.json');
+    const lockText = existsSync(lockFile) ? readFileSync(lockFile, 'utf8') : '';
+    const lockHits = [...new Set([...lockText.matchAll(/node_modules\/(@stylexjs\/[a-z-]+)/g)].map((m) => m[1]))];
+    check('lockfile carries zero @stylexjs/* (stylex/unplugin/babel-plugin absent)', lockHits.length === 0, lockHits.join(', ') || 'clean');
+  }
+
   console.log('  vite build (import resolution + svelte compile gate)…');
   const build = await runIn(dir, 'npx', ['vite', 'build'], { timeoutMs: 600_000, label: `case ${testCase.id}: vite build` });
+  // a failed build's full output outlives the wiped fixture dir —
+  // the 800-char check window only keeps the stack tail, which eats
+  // the actual error message
+  if (build.status !== 0) writeFileSync(`/tmp/shadcn-build-fail-${testCase.id}.log`, `${build.stdout}\n${build.stderr}`);
   check('consumer vite build passes', build.status === 0 && !build.timedOut, build.status === 0 ? '' : build.timedOut ? `TIMED OUT (600s group-budget), tail:\n${build.stdout.slice(-800)}` : `${build.stdout}\n${build.stderr}`.slice(-800));
   if (build.status === 0) await testCase.postBuild?.(ctx);
 }

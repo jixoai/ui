@@ -58,6 +58,21 @@
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
+  import { CodeCardDefaults } from './code-card-defaults.svelte';
   import type { HighlightBackend } from '$lib/highlight/backend';
   import {
     AUTO_LANG,
@@ -73,6 +88,7 @@
   // (lib/highlight/context.svelte.ts stays a site-only module)
   import { HIGHLIGHT_KEY, type HighlightContextValue } from '$lib/highlight/context-key';
   import { DEFAULT_SHIKI_BACKEND } from '$lib/highlight/shiki';
+  import { codeCardStyles } from './code-card.stylex';
   import './code-card.css';
 
   interface Props {
@@ -130,13 +146,35 @@
      * while tall samples keep scrolling inside the <pre>.
      */
     minHeight?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the card is a flat readonly surface (no own rung;
+     *  an explicit lane or the ambient tree's flows to the
+     *  carriers) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
   let {
     code,
     lang = 'ts',
-    theme = 'jixoai',
+    theme,
     backend,
     langDetector,
     filename = '',
@@ -146,8 +184,37 @@
     maxHeight = '',
     fill = false,
     minHeight = '',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // the family Defaults is the single read point (context-defaults
+  // round 2 + W3-D1): theme rides its open slot — own 'jixoai' (the
+  // zero-download css-variables theme) lives in the contract, never
+  // a destructure default. SEVEN universal lanes join (density ·
+  // size · shape · radius · color · elevation · motion); the theme
+  // AXIS is left out — the shiki theme literal owns the name (the
+  // terminal bezel twins' precedent, §13 rules no rename)
+  const d = $derived(
+    CodeCardDefaults.resolve({ theme, density, size, shape, radius, color, elevation, motion }),
+  );
+  // SEVEN lanes stamp (theme feeds the literal, never the axis
+  // carriers — the resolved shiki name is not a ThemeLane)
+  const carriers = $derived(stampCarriersForLanes({ ...d, theme: undefined }));
+  provideUniversalLanes({ density, size, shape, radius, color, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(
+    [carriers, minHeight !== '' ? `min-height:${minHeight}` : '']
+      .filter(Boolean)
+      .join('; ') || undefined,
+  );
 
   // backend resolution: prop → context default → stock shiki. The
   // context is captured ONCE at init (Svelte's getContext phase); its
@@ -197,7 +264,7 @@
           if (detected === null) return; // detection miss: plain + warned
           effectiveLang = detected;
         }
-        await backendNow.highlight(el, source, { lang: effectiveLang, theme });
+        await backendNow.highlight(el, source, { lang: effectiveLang, theme: d.theme });
       } catch (error: unknown) {
         // unknown lang/theme or a backend failure: keep the plain sample
         // on screen and say why in the console
@@ -328,30 +395,50 @@
       ro.disconnect();
     };
   });
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <figure
+  bind:this={uniRoot}
   data-kind="code"
   class={cn(
-    'jx-code-card bg-[color:var(--readonly-code-bg)] border border-[color:var(--readonly-code-border)] m-0 min-w-0',
-    fill && 'fill flex flex-col h-full',
+    'jx-code-card',
+    cx(codeCardStyles.card),
+    fill && cx(codeCardStyles.cardFill),
     className,
   )}
-  style={minHeight !== '' ? `min-height:${minHeight}` : ''}
+  data-density={densityRungOf(d.density)}
+  style={rootStyle}
 >
   {#if filename || header}
     <figcaption
       data-jx-code-card-head
-      class="flex items-center gap-3 min-w-0 px-3 py-[0.32rem] text-[11px] tracking-[0.08em] bg-[color:var(--readonly-code-meta-bg)] border-b border-[color:var(--readonly-code-border)] text-[color:var(--readonly-code-meta-fg)]"
+      class={cx(codeCardStyles.head)}
     >
       {#if filename}
-        <span data-jx-code-card-file class="font-nav truncate">{filename}</span>
+        <span data-jx-code-card-file class={cx(codeCardStyles.file)}>{filename}</span>
       {/if}
-      <span data-jx-code-card-side class="flex items-center ml-auto min-w-0">
+      <span data-jx-code-card-side class={cx(codeCardStyles.side)}>
         {#if header}
           {@render header()}
         {:else}
-          <span data-jx-code-card-lang class="tracking-[0.14em] opacity-75 uppercase whitespace-nowrap">{lang}</span>
+          <span data-jx-code-card-lang class={cx(codeCardStyles.lang)}>{lang}</span>
         {/if}
       </span>
     </figcaption>
@@ -368,14 +455,18 @@
     data-jx-code-card-scroll
     data-hscroll-start={hScrollStart || undefined}
     data-hscroll-end={hScrollEnd || undefined}
-    class={cn('relative min-w-0', fill && 'flex flex-1 min-h-0 flex-col')}
+    class={cn(cx(codeCardStyles.scrollWrap), fill && cx(codeCardStyles.scrollWrapFill))}
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <pre
       bind:this={preEl}
       data-lang={lang}
       data-jx-code-card-pre
-      class={cn(maxHeight !== '' && 'vscroll overflow-y-auto', fill && 'flex-1 min-h-0 overflow-y-auto')}
+      class={cn(
+        maxHeight !== '' && 'vscroll',
+        maxHeight !== '' && cx(codeCardStyles.preMax),
+        fill && cx(codeCardStyles.preFill),
+      )}
       style={maxHeight !== '' ? `max-height:${maxHeight}` : ''}
       tabindex="0"
       aria-label={filename ? `${filename} code sample` : `${lang} code sample`}
@@ -395,9 +486,9 @@
     <ButtonVariantScope variant="ghost" raised={false}>
       <div
         data-jx-code-card-foot
-        class="flex items-center justify-between gap-3 min-h-[2.1rem] pt-[0.3rem] pe-2 pb-[0.3rem] ps-3 border-t border-[color:var(--readonly-code-border)]"
+        class={cx(codeCardStyles.foot)}
       >
-        <span class="flex items-center min-w-0">
+        <span class={cx(codeCardStyles.footSide)}>
           {#if footer}
             {@render footer()}
           {/if}
@@ -415,9 +506,7 @@
                the class -->
           <PressButton
             density="sm"
-            class="jx-code-card-copy{copied
-              ? ' jx-hue-success copied !bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] !text-[color:var(--jx-tonal)]'
-              : ''}"
+            class={'jx-code-card-copy' + (copied ? ' jx-hue-success copied' : '')}
             onclick={copyCode}
             ariaLabel={copied ? 'copied' : `copy ${filename || lang} sample`}
           >
@@ -425,12 +514,12 @@
               <!-- Icon component glyphs (full lucide copy geometry — the
                    hand-simplified variant retired 2026-08-29); the copied
                    check rides a strokier strokeWidth prop -->
-              <span data-jx-code-card-icon class="inline-flex">
+              <span data-jx-code-card-icon class={cx(codeCardStyles.iconWrap)}>
                 <Icon name="check" size={12} strokeWidth={2.5} />
               </span>
               <span>copied</span>
             {:else}
-              <span data-jx-code-card-icon class="inline-flex">
+              <span data-jx-code-card-icon class={cx(codeCardStyles.iconWrap)}>
                 <Icon name="copy" size={12} />
               </span>
               <span>copy</span>

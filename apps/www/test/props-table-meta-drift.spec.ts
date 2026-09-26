@@ -44,7 +44,7 @@
  * editing this file, which is the review seam for extractor ceilings.
  */
 import { describe, expect, it } from 'vitest';
-import { propsFromMeta, type PropEntry, type PropsDocs } from '../src/lib/ui/props-table/from-meta';
+import { propsFromMeta, UNIVERSAL_AXIS_NAMES, type PropEntry, type PropsDocs } from '../src/lib/ui/props-table/from-meta';
 import { meta as selectMeta } from '../src/lib/meta/select.meta';
 import { meta as popoverMeta } from '../src/lib/meta/popover.meta';
 import { meta as checkboxMeta } from '../src/lib/meta/checkbox.meta';
@@ -63,6 +63,12 @@ import { TOAST_VIEWPORT_DOCS } from '../src/lib/ui/props-table/docs/toast-viewpo
 import { COMBOBOX_DOCS } from '../src/lib/ui/props-table/docs/combobox.docs';
 import { TEXT_DOCS } from '../src/lib/ui/props-table/docs/text.docs';
 import { INLINE_CODE_DOCS } from '../src/lib/ui/props-table/docs/inline-code.docs';
+import { meta as badgeMeta } from '../src/lib/meta/badge.meta';
+import { meta as chipMeta } from '../src/lib/meta/chip.meta';
+import { meta as componentCanvasMeta } from '../src/lib/meta/component-canvas.meta';
+import { BADGE_DOCS } from '../src/lib/ui/props-table/docs/badge.docs';
+import { CHIP_DOCS } from '../src/lib/ui/props-table/docs/chip.docs';
+import { COMPONENT_CANVAS_DOCS } from '../src/lib/ui/props-table/docs/component-canvas.docs';
 
 // ── the frozen legacy tables (2026-08-30, pre-migration) ───────────────
 
@@ -78,7 +84,9 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'disabled', type: 'boolean', default: 'false', description: 'Disables the trigger and the form-bridge field.' },
     { name: 'multiple', type: 'boolean', default: 'false', description: 'Reserved extension direction — not implemented in v1 (warns).' },
     { name: 'variant', type: "'solid' | 'acrylic' | 'auto'", default: "'auto'", description: 'Floating-surface fill of the panel.', ambient: 'own' },
-    { name: 'density', type: "'2xs' | 'xs' | 'sm' | 'default' | 'lg'", default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    // W3-D3: density migrated onto the universal §4 axis lane — the
+    // row left LEGACY and rides the AXIS_ROWS set (the checkbox
+    // precedent; the type text is DensityLane | QueryResult now)
   ],
   popover: [
     { name: 'id', type: 'string', default: '—', description: 'Popover id: popovertarget association + the CSS anchor name.', required: true },
@@ -99,12 +107,14 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'indeterminate', type: 'boolean', default: 'false', description: 'Sets the native indeterminate IDL state.' },
     { name: 'bare', type: 'boolean', default: 'false', description: 'Presentation-only single input — no wrapper/lane/label chrome (the markdown task-item unlock: a direct-child input keeps the container-level DOM-shape laws working).' },
     { name: 'error', type: 'string', default: '—', description: 'Adds invalid state and an associated message.' },
-    { name: 'density', type: 'Density', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    // task 11 (docs-eight-axes-mdn): the density override retired — the
+    // row splits into the shared Universal section (the select
+    // precedent), so the LEGACY density row rides AXIS_ROWS with it
     { name: 'checked', type: 'boolean', default: '—', description: 'Bindable controlled checked state.', bindable: true },
   ],
   'card-grid': [
     { name: 'min', type: 'string', default: "'320px'", description: 'Minimum column width before the grid collapses a column (any CSS length).' },
-    { name: 'foot', type: 'boolean', default: 'false', description: '' },
+    { name: 'foot', type: 'boolean', default: 'false', description: "declares the third shared row — zone-trio cards' FEET align at the bottom; false = head/body only." },
     { name: 'children', type: 'Snippet', default: '—', description: 'The cards; each child spans the two shared rows.' },
     { name: 'class', type: 'string', default: "''", description: 'Forwarded to the grid container.' },
   ],
@@ -164,13 +174,17 @@ const LEGACY: Record<string, PropEntry[]> = {
     { name: 'tracking', type: 'string', default: '—', description: "A letter-spacing word or length — 'wide' → tracking-wide, '-0.02em' → tracking-[-0.02em]. An explicit utility override — absent emits nothing and the ambient tracking flows." },
     { name: 'family', type: 'string', default: '—', description: 'A font-family value — verbatim [font-family:…] (spaces escape to underscores). An explicit utility override — absent emits nothing and the ambient family flows.' },
     { name: 'fontSize', type: 'string', default: '—', description: 'A CSS length — verbatim [font-size:…], never named size (the axis-word law). An explicit utility override — absent emits nothing and the ambient scale flows.' },
+    // W3-B: the inline style passthrough became a declared prop (the #4
+    // seam law — composed AFTER the family's carrier stamp, never
+    // clobbered, never dropped)
+    { name: 'style', type: 'unknown', default: '—', description: '' },
     { name: 'children', type: 'Snippet', default: '—', description: 'The inline content.' },
     { name: 'class', type: 'string', default: "''", description: 'Forwarded to the rendered element; consumer classes land last.' },
     { name: 'rest', type: 'HTMLAttributes<HTMLElement>', default: 'spread', description: 'Every other attribute passes through to the chosen element untouched.' },
     { name: 'Raw exports', type: 'P · Strong · Em · Del · Mark · Ins · Sub · Sup', default: '—', description: 'The eight sugar components — each renders the base with its mark fixed (class/children/attrs forwarded); identical markup to <Text mark="{word}">.' },
   ],
   'inline-code': [
-    { name: 'density', type: 'Density', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
+    { name: 'density', type: 'DensityLane | QueryResult<DensityLane>', default: '—', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.', ambient: 'scope' },
     { name: 'variant', type: "'fused' | 'tonal' | 'outline'", default: "'fused'", description: 'The ladder paint (fused own, the backdrop-fusion band); omitted → the ambient paint zone, else the frozen own fused.', ambient: 'zone' },
     { name: 'lang', type: 'string', default: "'auto'", description: "'auto' = fingerprint heuristic; an explicit id/alias skips detection; 'text'/'plain' stay plain." },
     { name: 'backend', type: 'HighlightBackend', default: '—', description: 'The engine seam: prop → HIGHLIGHT_KEY context → the stock microlighter range engine. A rejecting backend leaves the plain chip standing.' },
@@ -193,6 +207,16 @@ const DATE_PICKER_LOCALE_ROW: PropEntry = {
   default: '—',
   description: "BCP 47 locale for the panel vocabulary + the 'locale' display format (Intl.DateTimeFormat); default = the page's <html lang>.",
 };
+// W3-D5 (the hole round): inline-code's style passthrough row — the
+// consumer-merge law (carriers JOIN the consumer's style attr) made
+// the prop explicit, so the extractor surfaces it beside class (the
+// text pilot's own style row precedent)
+const INLINE_CODE_STYLE_ROW: PropEntry = {
+  name: 'style',
+  type: 'unknown',
+  default: '—',
+  description: '',
+};
 
 // ── the seven pilots, wired ────────────────────────────────────────────
 
@@ -201,55 +225,63 @@ const PILOTS: { name: string; meta: typeof selectMeta; docs: PropsDocs; rendered
     name: 'select',
     meta: selectMeta,
     docs: SELECT_DOCS,
-    renderedOrder: ['options', 'density', 'value', 'placeholder', 'label', 'name', 'error', 'multiple', 'variant', 'onchange', 'disabled'],
+    // W3-D3: select joins the eight-axis surface (the portaled
+    // listbox batch) — density migrates onto the axis lane, the
+    // seven siblings follow onchange, elevation owning level2. id/
+    // class/rest stay undocumented (filtered from the rendered truth)
+    renderedOrder: ['options', 'density', 'value', 'placeholder', 'label', 'name', 'error', 'multiple', 'variant', 'onchange', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'disabled'],
   },
   {
     name: 'popover',
     meta: popoverMeta,
     docs: POPOVER_DOCS,
-    renderedOrder: ['id', 'triggerLabel', 'placement', 'variant', 'tryFallbacks', 'gap', 'trigger', 'panelClass', 'onToggle', 'children', 'bind:this'],
+    renderedOrder: ['id', 'triggerLabel', 'placement', 'variant', 'tryFallbacks', 'gap', 'trigger', 'panelClass', 'onToggle', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'children', 'bind:this'],
   },
   {
     name: 'checkbox',
     meta: checkboxMeta,
     docs: CHECKBOX_DOCS,
-    renderedOrder: ['label', 'error', 'labelSide', 'indeterminate', 'bare', 'checked', 'density'],
+    renderedOrder: ['label', 'error', 'labelSide', 'indeterminate', 'bare', 'checked', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'],
   },
   {
     name: 'card-grid',
     meta: cardGridMeta,
     docs: CARD_GRID_DOCS,
-    renderedOrder: ['min', 'foot', 'class', 'children'],
+    renderedOrder: ['min', 'foot', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'class', 'children'],
   },
   {
     name: 'date-picker',
     meta: datePickerMeta,
     docs: DATE_PICKER_DOCS,
-    renderedOrder: ['value', 'range', 'mode', 'showTime', 'label', 'error', 'placeholder', 'min', 'max', 'format', 'locale', 'presets', 'preset', 'isDisabled', 'id', 'variant', 'class'],
+    renderedOrder: ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'value', 'range', 'mode', 'showTime', 'label', 'error', 'placeholder', 'min', 'max', 'format', 'locale', 'presets', 'preset', 'isDisabled', 'id', 'variant', 'class'],
   },
   {
     name: 'toast',
     meta: toastViewportMeta,
     docs: TOAST_VIEWPORT_DOCS,
-    renderedOrder: ['store', 'maxVisible', 'pos', 'expand', 'gap', 'swipeDirections', 'class'],
+    renderedOrder: ['store', 'maxVisible', 'pos', 'expand', 'gap', 'swipeDirections', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'class'],
   },
   {
     name: 'combobox',
     meta: comboboxMeta,
     docs: COMBOBOX_DOCS,
-    renderedOrder: ['options', 'value', 'multiple', 'placeholder', 'label', 'name', 'error', 'id', 'allowCustom', 'showClear', 'disabled', 'variant', 'class'],
+    renderedOrder: ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'options', 'value', 'multiple', 'placeholder', 'label', 'name', 'error', 'id', 'allowCustom', 'showClear', 'disabled', 'variant', 'class'],
   },
   {
     name: 'text',
     meta: textMeta,
     docs: TEXT_DOCS,
-    renderedOrder: ['mark', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'children', 'class', 'rest', 'Raw exports'],
+    renderedOrder: ['mark', 'density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'style', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'children', 'class', 'rest', 'Raw exports'],
   },
   {
     name: 'inline-code',
     meta: inlineCodeMeta,
     docs: INLINE_CODE_DOCS,
-    renderedOrder: ['density', 'variant', 'lang', 'backend', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'class'],
+    // W3-D5 (the hole round): inline-code joins the eight-axis surface
+    // (density migrates onto the universal lane — the type widens; the
+    // seven siblings add between variant and lang; the style passthrough
+    // row lands beside class)
+    renderedOrder: ['density', 'variant', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion', 'lang', 'backend', 'lineHeight', 'weight', 'italic', 'tracking', 'family', 'fontSize', 'class', 'style'],
   },
 ];
 
@@ -257,12 +289,48 @@ const cell = (row: PropEntry): string =>
   JSON.stringify([row.type, row.default ?? null, row.description, row.required ?? false, row.bindable ?? false, row.ambient ?? null]);
 
 describe('props-table meta migration — zero content drift (pilot nine)', () => {
+  // explicit-props W3 batch A: checkbox/combobox/date-picker carry the
+  // universal eight-axis surface now — their metas gain the axis rows
+  // (an INTENDED, additive drift; the docs table renders them as the
+  // shared Universal props section). The legacy rows must still
+  // survive byte-for-byte; the axis rows ride the ambient-scope marker.
+  const AXIS_ROWS = ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'];
+  // W3 batch B: card-grid and text join the eight-axis surface (the
+  // same intended, additive drift — their legacy rows survive, the
+  // axis rows ride the ambient-scope marker in the shared section)
+  const UNIVERSAL_PILOTS = new Set([
+    'checkbox',
+    'combobox',
+    'date-picker',
+    'card-grid',
+    'text',
+    // W3 batch C: popover + toast-viewport join the eight-axis surface
+    // (the overlays batch — the same intended, additive drift)
+    'popover',
+    'toast',
+    // W3 batch D3: select joins (density migrates onto the axis lane;
+    // the seven siblings add beside onchange, elevation owning level2)
+    'select',
+    // W3 batch D5 (the hole round): inline-code joins the eight-axis
+    // surface (density migrates onto the universal lane, the seven
+    // siblings add — the same intended, additive drift)
+    'inline-code',
+  ]);
   for (const pilot of PILOTS) {
     it(`${pilot.name}: every legacy row's content survives byte-for-byte`, () => {
       const rendered = propsFromMeta(pilot.meta, pilot.docs);
       const legacy =
-        pilot.name === 'date-picker' ? [...LEGACY['date-picker'], DATE_PICKER_LOCALE_ROW] : LEGACY[pilot.name];
-      expect(rendered.length, 'row count').toBe(legacy.length);
+        pilot.name === 'date-picker'
+          ? [...LEGACY['date-picker'], DATE_PICKER_LOCALE_ROW]
+          : pilot.name === 'inline-code'
+            ? [...LEGACY['inline-code'], INLINE_CODE_STYLE_ROW]
+            : LEGACY[pilot.name];
+      const axisCount = UNIVERSAL_PILOTS.has(pilot.name)
+        ? AXIS_ROWS.filter(
+            (axis) => rendered.some((r) => r.name === axis) && !legacy.some((r) => r.name === axis),
+          ).length
+        : 0;
+      expect(rendered.length, 'row count').toBe(legacy.length + axisCount);
 
       const renderedByName = new Map(rendered.map((r) => [r.name, r]));
       for (const row of legacy) {
@@ -270,9 +338,12 @@ describe('props-table meta migration — zero content drift (pilot nine)', () =>
         expect(got, `row ${pilot.name}.${row.name} present`).toBeDefined();
         expect(cell(got!), `row ${pilot.name}.${row.name} content`).toBe(cell(row));
       }
-      // no extra rows beyond the legacy set
+      // no extra rows beyond the legacy set + the family's axis surface
       for (const name of renderedByName.keys()) {
-        expect(legacy.some((r) => r.name === name), `no unlisted row ${pilot.name}.${name}`).toBe(true);
+        expect(
+          legacy.some((r) => r.name === name) || (axisCount > 0 && AXIS_ROWS.includes(name)),
+          `no unlisted row ${pilot.name}.${name}`,
+        ).toBe(true);
       }
     });
 
@@ -292,6 +363,52 @@ describe('props-table meta migration — zero content drift (pilot nine)', () =>
     expect(comboboxMeta.source).toBe('registry/files/ui/combobox/combobox.svelte');
     expect(textMeta.source).toBe('registry/files/ui/text/text.svelte');
     expect(inlineCodeMeta.source).toBe('registry/files/ui/inline-code/inline-code.svelte');
+  });
+});
+
+// ── the extra lane — the reference-identity contract (6900340b) ────────
+//
+// The docs curation's `extra` rows (chip/badge's family-local `shape`,
+// component-canvas's theme/density §13 seats, popover's bind:this,
+// text's Raw exports) survive the universal split ONLY because
+// propsFromMeta spreads docs.extra BY REFERENCE and PropsTable's
+// mainRows filter keeps rows whose object identity is in the extras
+// Set (props-table.svelte — "reference identity: propsFromMeta spreads
+// docs.extra as-is"). Until 6900340b the split name-filtered extras
+// and the lane was dead fleet-wide with every content test green —
+// these pins make a future clone in propsFromMeta fail LOUDLY here.
+
+describe('the extra lane — the reference-identity contract', () => {
+  const EXTRA_BEARING = [
+    { name: 'badge', meta: badgeMeta, docs: BADGE_DOCS },
+    { name: 'chip', meta: chipMeta, docs: CHIP_DOCS },
+    { name: 'component-canvas', meta: componentCanvasMeta, docs: COMPONENT_CANVAS_DOCS },
+    { name: 'popover', meta: popoverMeta, docs: POPOVER_DOCS },
+    { name: 'text', meta: textMeta, docs: TEXT_DOCS },
+  ];
+
+  for (const pilot of EXTRA_BEARING) {
+    it(`${pilot.name}: propsFromMeta spreads docs.extra by REFERENCE (no clone)`, () => {
+      const extras = pilot.docs.extra ?? [];
+      expect(extras.length, 'pilot must carry extras — the contract is load-bearing here').toBeGreaterThan(0);
+      const rendered = propsFromMeta(pilot.meta, pilot.docs);
+      expect(rendered.length).toBeGreaterThan(extras.length);
+      const tail = rendered.slice(rendered.length - extras.length);
+      for (let i = 0; i < extras.length; i++) {
+        expect(tail[i], `${pilot.name}.extra[${i}] must be the SAME OBJECT that went in`).toBe(extras[i]);
+      }
+    });
+  }
+
+  it('the identity branch is load-bearing: badge/chip extras shadow an axis name', () => {
+    // 'shape' IS a universal axis name — the mainRows filter keeps these
+    // rows ONLY through the reference-identity branch. A clone would fail
+    // the identity tests above AND drop the row from the family table.
+    expect(UNIVERSAL_AXIS_NAMES.has('shape')).toBe(true);
+    for (const docs of [BADGE_DOCS, CHIP_DOCS]) {
+      const shapeExtras = (docs.extra ?? []).filter((row) => UNIVERSAL_AXIS_NAMES.has(row.name));
+      expect(shapeExtras.length, 'the collision-casualty extra must exist').toBeGreaterThan(0);
+    }
   });
 });
 
@@ -338,7 +455,6 @@ const OVERRIDE_FIELDS_IN_PLAY = {
     indeterminate: ['description'],
     bare: ['description'],
     error: ['description'],
-    density: ['description'],
     checked: ['bindable', 'description'],
     id: ['hide'],
     'data-density': ['hide'],
@@ -347,6 +463,7 @@ const OVERRIDE_FIELDS_IN_PLAY = {
   },
   'card-grid': {
     min: ['description'],
+    foot: ['description'],
     children: ['description'],
     class: ['description'],
   },

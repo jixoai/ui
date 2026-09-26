@@ -60,15 +60,39 @@ import type {
   RippleEffect,
   ShimmerEffect,
 } from './press-button.svelte';
+// the scope token's parser (timeline-reui W1, Owner r2): this site's
+// --background tokens are oklch strings and the local canvas-fillStyle
+// normalization does NOT convert them (Chrome returns oklch verbatim,
+// lab-verified 2026-09-15), so the fill basis crosses color-utils'
+// OKLCH→sRGB bridge — the established channel (the item declares
+// @jixoai/color-utils)
+import { oklchToRgb, parseColor as parseTokenColor } from '$lib/color-utils';
 import { createRipple } from './ripple.svelte';
 
 /** corner-shape gates the bevel ink's support marker; where it's missing
  *  the flat fallback stamps the node — the path draws the same diamond
- *  either way (the component's own module-scope probe, mirrored) */
-const bevelInk =
-  typeof CSS !== 'undefined' &&
-  typeof CSS.supports === 'function' &&
-  CSS.supports('corner-shape', 'bevel');
+ *  either way. ABSORBED into the §14 capability ladder (explicit-props
+ *  W2 task 2.6, design §14's registered-exceptions ruling): the verdict
+ *  is read from the LADDER VARS the generated universal-props.css
+ *  stamps (--jx-shape-bevel resolves 'bevel' inside @supports
+ *  (corner-shape: bevel), 'square' in the degrade branch) — the SAME
+ *  auditable chain the css rides, no second probe. Read PER SPAWN (a
+ *  function, never frozen at module eval — the sheet may land after
+ *  this module); where the kernel sheet is absent (raw var empty) the
+ *  CSS.supports fallback serves the bare-press-button consumer. */
+function bevelInk(): boolean {
+  if (typeof document !== 'undefined') {
+    const ladder = getComputedStyle(document.documentElement)
+      .getPropertyValue('--jx-shape-bevel')
+      .trim();
+    if (ladder !== '') return ladder === 'bevel';
+  }
+  return (
+    typeof CSS !== 'undefined' &&
+    typeof CSS.supports === 'function' &&
+    CSS.supports('corner-shape', 'bevel')
+  );
+}
 
 /** THE BORDER-AREA GATE (Owner r11): Chrome 139+ can clip a background
  *  to the border band itself — the true cutout, no fill layer needed
@@ -125,47 +149,128 @@ function parseColor(color: string): [number, number, number, number] | null {
   return null;
 }
 
-/** the Context's theme state (the Owner's r12 ruling: the fill default
- *  FOLLOWS the context's dark/light): the site's own toggle first
- *  (html.dark), then the scheme */
-export function contextIsDark(): boolean {
-  if (typeof document !== 'undefined' && document.documentElement.classList.contains('dark')) {
-    return true;
+/* ── the theme-scope ladder (visual-quality-iteration W1, Owner
+ *  2026-09-15): the Context resolves FROM THE HOST ELEMENT, never
+ *  from the document alone. The standing r12 ladder read html.dark
+ *  (never set by this site's themed stages, which toggle
+ *  [data-theme]/.jx-light/.dark on a stage ANCESTOR) and then fell to
+ *  the OS scheme — so a light stage on an OS-dark machine painted a
+ *  dark sweep: the Owner's reported symptom. The law (change design
+ *  §W1): walk the host's ancestor chain (self included) for the
+ *  NEAREST theme scope — [data-theme="light"|"dark"], .dark,
+ *  .jx-light — first hit wins; the OS scheme answers ONLY when the
+ *  whole chain carries no scope (an unthemed page follows the user,
+ *  honest fallback). html.dark is merely the root-most scope of the
+ *  same walk. */
+/** one element's scope marker — data-theme outranks the classes on
+ *  the same element (an explicit attribute beats a utility class);
+ *  non-light/dark data-theme values are no scope at all */
+function scopeIsDark(el: Element): boolean | null {
+  const theme = el.getAttribute('data-theme');
+  if (theme === 'dark') return true;
+  if (theme === 'light') return false;
+  if (el.classList.contains('dark')) return true;
+  if (el.classList.contains('jx-light')) return false;
+  return null;
+}
+
+/** the RAW token's slash-alpha, read BEFORE any parser touches the
+ *  string (the Owner r2 ladder): color-utils' parseColor DISCARDS oklch
+ *  alpha (its model is opaque — registry/files/lib/color-utils.ts:203),
+ *  so opacity is judged on the raw token alone — alpha absent, `/ 1`,
+ *  or `/ 100%` proceeds; `/ none` (a css MISSING component), any alpha
+ *  < 1, or an unparsable alpha tail takes the fallback ladder
+ *  (conservative: a semi-transparent scope token is not a canvas) */
+function tokenAlphaIsOpaque(raw: string): boolean {
+  const slash = raw.lastIndexOf('/');
+  if (slash === -1) return true;
+  // function colors keep their closing paren on the computed token
+  // (`oklch(0 0 0 / 100%)`) — strip it before judging the alpha tail
+  const tail = raw.slice(slash + 1).replace(/\)\s*$/, '').trim();
+  if (tail === '' || tail === 'none') return false;
+  const pct = tail.endsWith('%');
+  const n = parseFloat(pct ? tail.slice(0, -1) : tail);
+  if (!Number.isFinite(n)) return false;
+  return (pct ? n / 100 : n) === 1;
+}
+
+/** the Context's theme state (the Owner's r12 ruling, W1-scoped): the
+ *  NEAREST ancestor theme scope of the HOST (self included) first —
+ *  a dark stage on a light site is dark — and only an entirely
+ *  unscoped chain falls to the OS scheme */
+export function contextIsDark(host?: Element): boolean {
+  for (
+    let el: Element | null = host ?? (typeof document !== 'undefined' ? document.documentElement : null);
+    el;
+    el = el.parentElement
+  ) {
+    const scoped = scopeIsDark(el);
+    if (scoped !== null) return scoped;
   }
   return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
 }
 
-/** the Context's base color — the page root's own background when it
- *  is opaque (the visible page base), else the scheme's white/black
- *  (never the --background TOKEN: measured dark even under this
- *  site's light theme — tokens lie, the rendered root does not) */
-export function contextBaseCss(): string {
+/** the Context's CANVAS (Owner r2, timeline-reui W1): the auto fill
+ *  rides the SAME basis as text/border — the theme scope's
+ *  --background TOKEN, never a measured ancestor. A decorative opaque
+ *  band (the effects gallery's dark glass-band) is not the fill's
+ *  context: the fill sitting next to the scope's own text/border ink
+ *  steps with the THEME. Walk the host's ancestor chain (self
+ *  included; hostless starts at the document root) for the NEAREST
+ *  theme scope — the same predicate contextIsDark uses — and read
+ *  that scope element's computed --background; an entirely unscoped
+ *  chain reads the ROOT element's token first (on jixoai pages :root
+ *  always carries --background — the root token IS the text/border
+ *  basis, so it is the fill's basis too; the OS scheme does NOT enter
+ *  the color path). The token parses OPAQUE through
+ *  @jixoai/color-utils' oklch bridge (this site's tokens are oklch
+ *  strings; the canvas-fillStyle normalizer does not convert them)
+ *  after the raw-string alpha pre-pass; unparsable or non-opaque
+ *  tokens — and a world with no document at all — take the TERMINAL
+ *  white/black ladder by contextIsDark (it fires only on non-token
+ *  pages, where contextIsDark itself has fallen to the OS scheme) */
+export function contextCanvasCss(host?: Element): string {
   if (typeof document !== 'undefined') {
-    const bg = getComputedStyle(document.documentElement).backgroundColor;
-    const parsed = parseColor(bg);
-    if (parsed && parsed[3] === 1) return bg;
+    let scope: Element | undefined;
+    for (
+      let el: Element | null = host ?? document.documentElement;
+      el;
+      el = el.parentElement
+    ) {
+      if (scopeIsDark(el) !== null || el === document.documentElement) {
+        scope = el; // the nearest scope — else the root element, the unscoped terminal
+        break;
+      }
+    }
+    if (scope) {
+      const raw = getComputedStyle(scope).getPropertyValue('--background').trim();
+      if (raw !== '' && tokenAlphaIsOpaque(raw)) {
+        const parsed = parseTokenColor(raw);
+        if (parsed) {
+          const { r, g, b } = oklchToRgb(parsed);
+          return `rgb(${Math.round(r)} ${Math.round(g)} ${Math.round(b)})`;
+        }
+      }
+    }
   }
-  return contextIsDark() ? '#000000' : '#ffffff';
-}
-
-/** the base as the fill channel's own unit — a 0xRRGGBB number */
-export function contextBase(): number {
-  const [r, g, b] = parseColor(contextBaseCss()) ?? [255, 255, 255];
-  return (r << 16) | (g << 8) | b;
+  return contextIsDark(host) ? '#000000' : '#ffffff';
 }
 
 /**
  * solidFill — the fill channel's minter (Owner r11): take ANY CSS
- * color, composite it over the context's base color (light/dark true
- * by construction), and return the guaranteed-OPAQUE 0xRRGGBB number
- * shimmer's `fill` accepts. An explicit base overrides the context's
+ * color, composite it over the context's base — the theme scope's
+ * --background token, the SAME basis the auto fill rides (Owner r2,
+ * W1) — and return the guaranteed-OPAQUE 0xRRGGBB number shimmer's
+ * `fill` accepts. The base is minted HOSTLESS (call-time, often
+ * pre-mount — no host param, the document root's token through the
+ * same ladder). An explicit base overrides the context's
  * (deterministic minting for tests and design tokens):
  *
  *   shimmer({ fill: solidFill('rgba(255, 255, 255, 0.35)') })
  */
 export function solidFill(color: string, base?: string): number {
   const src = parseColor(color) ?? [255, 255, 255, 1];
-  const dst = parseColor(base ?? contextBaseCss()) ?? [255, 255, 255, 1];
+  const dst = parseColor(base ?? contextCanvasCss()) ?? [255, 255, 255, 1];
   const a = Math.min(Math.max(src[3], 0), 1);
   const over = (s: number, d: number): number => Math.round(s * a + d * (1 - a));
   return (over(src[0], dst[0]) << 16) | (over(src[1], dst[1]) << 8) | over(src[2], dst[2]);
@@ -176,20 +281,81 @@ function fillToCss(fill: number): string {
   return `rgb(${(fill >> 16) & 255} ${(fill >> 8) & 255} ${fill & 255})`;
 }
 
-/** the fill channel's resolution, shared by the rim kernels (r11/r13):
- *  number → opaque rgb(); null → the TRUE cutout where the engine
- *  clips border-area, else the blend emulation (white + darken in
- *  light contexts, black + lighten in dark); undefined → Canvas, the
- *  color-scheme system color (the face follows the Context's
- *  dark/light live) */
-function resolveFill(fill: number | null | undefined): { fillCss: string; blend: 'darken' | 'lighten' | null } {
+/** the fill channel's resolution, shared by the rim kernels (r11/r13,
+ *  W1-scoped 2026-09-15): number → opaque rgb(); null → the TRUE
+ *  cutout where the engine clips border-area, else the blend
+ *  emulation (white + darken in light contexts, black + lighten in
+ *  dark — read from the HOST's scope); undefined → the theme scope's
+ *  --background TOKEN (Owner r2: the SAME basis as text/border —
+ *  never a measured ancestor; the CSS Canvas keyword AND the measured
+ *  opaque-ancestor walk are both retired from the auto path), EXCEPT
+ *  a host whose own variant paints an OPAQUE FACE (press-button's
+ *  fill rung): there the face IS the fill layer — var(--jx-fill), a
+ *  live token — because the canvas-basis layer would REPAINT the
+ *  variant's own face and strand its ink (the W6-r3 dark-stage
+ *  receipt: scope --background oklch(0 0 0) over a fill button put
+ *  the black --jx-fill-ink label on a black face — invisible; the
+ *  face token keeps the pair's contrast at every scope) */
+function resolveFill(fill: number | null | undefined, host?: Element): { fillCss: string; blend: 'darken' | 'lighten' | null } {
   if (fill === null && !borderAreaSupported()) {
-    const dark = contextIsDark();
+    const dark = contextIsDark(host);
     return { fillCss: fillToCss(dark ? 0x000000 : 0xffffff), blend: dark ? 'lighten' : 'darken' };
   }
   if (fill === null) return { fillCss: 'transparent', blend: null };
-  if (fill === undefined) return { fillCss: 'Canvas', blend: null };
+  if (fill === undefined) {
+    if (host instanceof Element && host.getAttribute('data-jx-press-button') === 'fill') {
+      return { fillCss: 'var(--jx-fill)', blend: null };
+    }
+    return { fillCss: contextCanvasCss(host), blend: null };
+  }
   return { fillCss: fillToCss(fill), blend: null };
+}
+
+/** the host's ancestor chain as a list — self through root (the
+ *  design's own words for the observer's reach) */
+function scopeChain(element: Element): Element[] {
+  const chain: Element[] = [];
+  for (let el: Element | null = element; el; el = el.parentElement) chain.push(el);
+  return chain;
+}
+
+/** ONE MutationObserver per mounted context-resolved effect (W1):
+ *  attributeFilter ['class', 'data-theme'] on every element of the
+ *  host's CURRENT ancestor chain (self through root) — a class flip
+ *  (jx-light → dark) AND an attribute flip (data-theme="light" →
+ *  "dark") both re-resolve — plus ONE childList/subtree registration
+ *  on the document root as the REPARENT channel (the Gate-1 r5
+ *  residual made explicit: attribute observation cannot see a host
+ *  changing parents, and the old chain's registrations go stale the
+ *  moment the host moves). Structural mutations only ever wake a
+ *  CHAIN COMPARE — a pure parentNode identity walk, no style reads —
+ *  so unrelated DOM churn never pays for a re-resolution; only a
+ *  genuinely moved host re-resolves AND rebinds to its new chain.
+ *  An unrelated element's class change triggers nothing (the chain
+ *  registrations are per-element, never subtree). Disconnected on
+ *  effect cleanup. */
+function watchScope(element: HTMLElement, reresolve: () => void): () => void {
+  if (typeof MutationObserver === 'undefined') return () => {};
+  let chain = scopeChain(element);
+  const root = element.ownerDocument?.documentElement ?? null;
+  const observer = new MutationObserver((records) => {
+    const attributeFlip = records.some((record) => record.type === 'attributes');
+    const live = scopeChain(element);
+    const moved = live.length !== chain.length || live.some((el, i) => el !== chain[i]);
+    if (!attributeFlip && !moved) return; // structural churn elsewhere — nothing of ours changed
+    reresolve();
+    if (moved) {
+      observer.disconnect();
+      chain = live;
+      bind();
+    }
+  });
+  const bind = (): void => {
+    for (const el of chain) observer.observe(el, { attributeFilter: ['class', 'data-theme'] });
+    if (root) observer.observe(root, { childList: true, subtree: true });
+  };
+  bind();
+  return () => observer.disconnect();
 }
 
 /** the rim kernels' clip pair — border-area where the engine answers,
@@ -198,10 +364,18 @@ function rimClipCss(): string {
   return borderAreaSupported() ? 'padding-box, border-area' : 'padding-box, border-box';
 }
 
-/** the stacking pose the effect hosts carry as utilities (relative z-0
- *  keeps the negative-z layers under the in-flow label); the runtime
- *  stamps the same classes itself */
-const HOST_CLASSES = ['relative', 'z-0'];
+/** the stacking pose the effect hosts carry (relative z-0 keeps the
+ *  negative-z layers under the in-flow label). THE TAILWINDLESS
+ *  LESSON (the overflow round, 2026-09-20): this list once read
+ *  ['relative', 'z-0'] — UTILITY class names whose rules the
+ *  tailwindless migration deleted from production css, so the stamps
+ *  went mute (computed position: static), every absolute effect
+ *  layer resolved against a foreign containing block, and the
+ *  pulse/glow geometry spilled far outside its host. Dynamic class
+ *  stamps must reference rules the FAMILY owns — the semantic
+ *  jx-fx-host class below, lawed in press-button.css behind :where()
+ *  (zero specificity: consumer utilities keep winning) */
+const HOST_CLASSES = ['jx-fx-host'];
 
 /** each kernel's own custom properties — the stamp/strip pairs that
  *  keep the runtime coexisting with consumer styles (the liquid-glass
@@ -284,21 +458,38 @@ function svgNode(tag: string): SVGElement {
  *      mix-blend-mode: darken on the host; dark context → black
  *      fill + lighten — the face reads as glass over whatever sits
  *      behind, which is why the demo band exists
- *    • fill undefined → the context's own base color, opaque
+ *    • fill undefined → the theme scope's --background TOKEN (W1-r2,
+ *      Owner ruling: auto rides the SAME basis as text/border — never
+ *      a measured ancestor; the gallery's dark glass-band is scenery,
+ *      not context) — the sweep follows the scope, live (a scope
+ *      observer re-resolves class/data-theme flips and reparents
+ *      without a remount; the CSS Canvas keyword is retired)
  *  Teardown strips the class, the vars, and restores the host's
  *  prior mix-blend-mode untouched */
 export function applyShimmer(element: HTMLElement, fx: ShimmerEffect): () => void {
   element.setAttribute('data-jx-shimmer-host', '');
   const added = addClasses(element, ['jx-shimmer-host']);
-  const { fillCss, blend } = resolveFill(fx.fill);
-  stampVars(
-    element,
-    `--shimmer-shine: ${fx.shine}; --shimmer-base: ${fx.ringColor}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${rimClipCss()}`,
-    VAR_SHIMMER
-  );
   const priorBlend = element.style.mixBlendMode;
-  if (blend) element.style.mixBlendMode = blend;
+  const apply = (): void => {
+    const { fillCss, blend } = resolveFill(fx.fill, element);
+    stampVars(
+      element,
+      `--shimmer-shine: ${fx.shine}; --shimmer-base: ${fx.ringColor}; --shimmer-shine-width: ${fx.shineWidth}; --shimmer-speed: ${fx.speed}ms; --shimmer-ring-w: ${fx.ringW}; --shimmer-fill: ${fillCss}; --shimmer-clip: ${rimClipCss()}`,
+      VAR_SHIMMER
+    );
+    // the blend stamp is ours while mounted: set it when the channel
+    // asks, restore the consumer's prior when it does not (idempotent
+    // under re-resolution — the undefined arm never blends)
+    if (blend) element.style.mixBlendMode = blend;
+    else if (element.style.mixBlendMode !== priorBlend) element.style.mixBlendMode = priorBlend;
+  };
+  apply();
+  // numeric fills are explicit and context-free — no observer at all;
+  // the context-resolved arms (undefined canvas, null blend direction)
+  // re-resolve live through ONE observer on the ancestor chain
+  const unwatch = typeof fx.fill === 'number' ? undefined : watchScope(element, apply);
   return () => {
+    unwatch?.();
     element.style.mixBlendMode = priorBlend;
     element.removeAttribute('data-jx-shimmer-host');
     for (const cls of added) element.classList.remove(cls);
@@ -335,26 +526,33 @@ export function applyPulse(element: HTMLElement, fx: PulseEffect): () => void {
  *  image hidden; the wrap-stop train rides background layer 2 through
  *  the SAME border-area gate and fill channel as shimmer — number =
  *  opaque face, null = the true cutout / blend emulation, undefined =
- *  Canvas, theme-live). The ONE span that remains is the under-glow
+ *  the theme scope's --background TOKEN (the text/border basis),
+ *  theme-live through the same W1 scope observer). The ONE span that remains is the under-glow
  *  bar (the Owner's ruling: 「blur 的彩虹光影不用改」) — it keeps its
  *  own paint and now INHERITS the registered shift from the animating
  *  host (one animation drives both carriers) */
 export function applyRainbow(element: HTMLElement, fx: RainbowEffect): () => void {
   element.setAttribute('data-jx-rainbow-host', '');
   const added = addClasses(element, ['jx-rainbow-host', ...HOST_CLASSES]); // the glow span still needs the stacking pose
-  const { fillCss, blend } = resolveFill(fx.fill);
-  stampVars(
-    element,
-    `--rainbow-speed: ${fx.speed}ms; --rainbow-ring-w: ${fx.ringW}; --rainbow-fill: ${fillCss}; --rainbow-clip: ${rimClipCss()}; ${fx.colors
-      .map((c, i2) => `--c${i2 + 1}: ${c}`)
-      .join('; ')}`,
-    VAR_RAINBOW
-  );
   const priorBlend = element.style.mixBlendMode;
-  if (blend) element.style.mixBlendMode = blend;
+  const apply = (): void => {
+    const { fillCss, blend } = resolveFill(fx.fill, element);
+    stampVars(
+      element,
+      `--rainbow-speed: ${fx.speed}ms; --rainbow-ring-w: ${fx.ringW}; --rainbow-fill: ${fillCss}; --rainbow-clip: ${rimClipCss()}; ${fx.colors
+        .map((c, i2) => `--c${i2 + 1}: ${c}`)
+        .join('; ')}`,
+      VAR_RAINBOW
+    );
+    if (blend) element.style.mixBlendMode = blend;
+    else if (element.style.mixBlendMode !== priorBlend) element.style.mixBlendMode = priorBlend;
+  };
+  apply();
+  const unwatch = typeof fx.fill === 'number' ? undefined : watchScope(element, apply);
   const glow = span('jx-rainbow-glow');
   element.prepend(glow);
   return () => {
+    unwatch?.();
     element.style.mixBlendMode = priorBlend;
     glow.remove();
     element.removeAttribute('data-jx-rainbow-host');
@@ -450,7 +648,7 @@ function rippleRuntime(element: HTMLElement, fx: RippleEffect): {
     const cx = point.x;
     const cy = point.y;
     const ink = svgNode(fx.shape === 'bevel' ? 'path' : 'circle');
-    ink.setAttribute('class', `jx-ripple-ink${fx.shape === 'bevel' && !bevelInk ? ' jx-ripple-flat' : ''}`);
+    ink.setAttribute('class', `jx-ripple-ink${fx.shape === 'bevel' && !bevelInk() ? ' jx-ripple-flat' : ''}`);
     ink.setAttribute('data-shape', fx.shape);
     if (fx.shape === 'bevel') {
       // the shape law's 50% corner cut: a square of side=size with the

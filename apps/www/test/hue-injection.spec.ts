@@ -20,14 +20,18 @@ const HUE_TARGET: Record<(typeof HUES)[number], string> = {
 };
 
 describe('hue-injection utilities', () => {
-  it('the theme sheet carries every @utility of the closed set', () => {
+  it('the theme sheet carries every intent class of the closed set', () => {
+    // tailwindless W4-r2 (PFINAL): the intent layer retired the
+    // @utility syntax AND the utilities tier — unlayered :where()
+    // hooks carry the same declarations (zero specificity, above
+    // every cascade layer)
     for (const hue of HUES) {
-      expect(sheet, `@utility jx-hue-${hue}`).toMatch(
-        new RegExp(`@utility jx-hue-${hue} \\{ --jx-tonal: ${HUE_TARGET[hue].replace(/[()]/g, '\\$&')}; \\}`),
+      expect(sheet, `.jx-hue-${hue}`).toMatch(
+        new RegExp(`:where\\(\\.jx-hue-${hue}\\) \\{ --jx-tonal: ${HUE_TARGET[hue].replace(/[()]/g, '\\$&')}; \\}`),
       );
     }
     expect(sheet).toContain(
-      '@utility jx-pair-destructive {\n  --jx-fill: var(--destructive);\n  --jx-fill-ink: var(--destructive-foreground);\n}',
+      ':where(.jx-pair-destructive) {\n  --jx-fill: var(--destructive);\n  --jx-fill-ink: var(--destructive-foreground);\n}',
     );
   });
 
@@ -42,12 +46,12 @@ describe('hue-injection utilities', () => {
 
   it('action/status split holds by construction: no jx-hue-destructive', () => {
     // destructive is an ACTION hue — only the PAIR may carry it
-    expect(sheet).not.toContain('@utility jx-hue-destructive');
+    expect(sheet).not.toContain('.jx-hue-destructive {');
   });
 
-  it('the @utility jx-* set is EXACTLY the closed set (no unlisted additions)', () => {
-    const declared = [...sheet.matchAll(/@utility (jx-[a-z-]+(?:-[a-z-]+)*)/g)].map((m) => m[1]);
-    expect(declared.sort()).toEqual(
+  it('the intent jx-* class set is EXACTLY the closed set (no unlisted additions)', () => {
+    const intent = [...sheet.matchAll(/^:where\(\.(jx-hue-[a-z-]+|jx-pair-[a-z-]+)\) \{/gm)].map((m) => m[1]);
+    expect(intent.sort()).toEqual(
       [
         'jx-hue-primary',
         'jx-hue-neutral',
@@ -101,13 +105,22 @@ describe('hue-injection migration (in-repo call sites)', () => {
   it.each([
     'src/lib/ui/inline-code/inline-code.svelte',
     '../../registry/files/ui/inline-code/inline-code.svelte',
-  ])('%s ships the local neutral default as the ARBITRARY early slot (consumer-wins)', (p) => {
+  ])('%s ships the local neutral default as the tonal ATOM early slot (consumer-wins)', (p) => {
     const src = read(p);
-    expect(src).toContain(
-      "'[--jx-tonal:var(--muted-foreground)] bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]",
+    // tailwindless W1b: the neutral default rides the tonal ATOM's
+    // '--jx-tonal' custom property (inline-code.stylex.ts) — the
+    // consumer-wins contract unchanged: a consumer's arbitrary
+    // [--jx-tonal:…] utility sorts after the atom tier and wins the
+    // paint, the same resolution the cn dedupe used to deliver
+    expect(src).toContain("VARIANT_ATOM[d.variant]");
+    const atom = readFileSync(
+      resolve(process.cwd(), p.replace(/inline-code\.svelte$/, 'inline-code.stylex.ts')),
+      'utf8',
     );
-    // the r2 blocker fix: the utility form here would outrank every
-    // consumer's arbitrary injection — the early slot is the contract
+    expect(atom).toContain("'--jx-tonal': 'var(--muted-foreground)'");
+    expect(atom).toContain("backgroundColor: 'color-mix(in oklab, var(--jx-tonal) 12%, transparent)'");
+    // the r2 blocker fix stays law: the utility form here would
+    // outrank every consumer's arbitrary injection — never reintroduce
     expect(src).not.toContain("'jx-hue-neutral bg-[color-mix");
   });
 

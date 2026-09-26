@@ -18,12 +18,32 @@
  * No density slot: the toggle carries no density prop — its type
  * scale rides the bezel utilities fixed, nothing to cover.
  *
+ * THE W3-D5 SURFACE (explicit-props, the hole round): eight axis
+ * members join the contract beside the structural variant — ALL
+ * NO-OWN. The toggle's GLOBAL flip (§6's JS-mutable `system` lane —
+ * the localStorage write, the html.dark + colorScheme root stamps)
+ * is deliberately NOT the theme axis: the axis is tree-scoped paint
+ * (class:dark on the control's own root), the flip is the global
+ * source — the two never entangle (the axis surface does not touch
+ * the set/cycle machinery).
+ *
  * 惰性律: construction captures own only; this literal slot never
  * reads context at all. This file is a member of the registry:ui
  * item (installs with the family, byte mirrored, zero kernel
  * imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const themeToggleVariantSlot = defineLiteralSlot(['full', 'compact', 'icon', 'text'], 'compact');
 
@@ -33,4 +53,12 @@ export type ThemeToggleVariant = ReturnType<typeof themeToggleVariantSlot>;
 
 export const ThemeToggleDefaults = defineComponentDefaults({
   variant: themeToggleVariantSlot,
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

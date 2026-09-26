@@ -1,0 +1,25 @@
+/* app.css — the vite CSS entry (the unplugin appends collected stylex
+   CSS to an existing css asset; without one it writes a stray
+   assets/stylex.css that prerendered pages never link — the
+   adapter-static blind spot confirmed in spike/minimal, double-
+   confirmed here). Carries the minimal SSG token env (no Tailwind in
+   this spike). */
+:root {
+  --ssg-bg: #101014;
+  --ssg-fg: #e8e8ee;
+  --ssg-accent: #7c5cff;
+  --ssg-inset: 12px;
+  --jx-gap: 0.5rem;
+  --jx-inset: 0.75rem;
+}
+
+.dark {
+  --ssg-bg: #e8e8ee;
+  --ssg-fg: #101014;
+  --ssg-accent: #5a3fd6;
+}
+
+[data-density='lg'] {
+  --jx-gap: 1rem;
+  --jx-inset: 1rem;
+}

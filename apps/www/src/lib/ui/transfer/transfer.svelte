@@ -25,6 +25,23 @@
 <script lang="ts">
   import '$lib/form-field';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { TransferDefaults } from './transfer-defaults.svelte';
+  import { transferStyles } from './transfer.stylex';
   import './transfer.css';
 
   export interface TransferOption {
@@ -45,6 +62,30 @@
     /** search placeholder */
     searchPlaceholder?: string;
     onchange?: (value: string[]) => void;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (one number moves both
+     *  panes) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -56,8 +97,45 @@
     targetTitle = 'target',
     searchPlaceholder = 'filter…',
     onchange,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D3 — FIRST-TIME contract, all
+  // no-own): the dual-list composite is a no-own container surface —
+  // the two fieldsets, the search inputs and the mover chips are the
+  // family's own parts riding the root's ambient chain (吃也供)
+  const d = $derived(
+    TransferDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
+
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   let sourceSearch = $state('');
   let targetSearch = $state('');
@@ -115,27 +193,34 @@
   onjx-reset={() => (value = [])}
 ></jx-form-field>
 
-<div class={cn('jx-transfer flex items-center gap-3', className)}>
+<div
+  bind:this={uniRoot}
+  class={cn('jx-transfer', cx(transferStyles.root), className)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
   <!-- svelte-ignore a11y_autocomplete_valid -- search inputs over a
        checkbox fieldset, not a combobox -->
-  <fieldset data-jx-tr-panel class="flex-[1_1_0%] min-w-0 m-0 p-0 border border-border bg-card shadow-2xs rounded-(--radius)" aria-label="{sourceTitle} · {sourceTotal} total">
-    <legend data-jx-tr-legend class="px-[0.625rem] py-[0.4375rem] font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground"
+  <fieldset data-jx-tr-panel class={cx(transferStyles.panel)} aria-label="{sourceTitle} · {sourceTotal} total">
+    <legend data-jx-tr-legend class={cx(transferStyles.legend)}
       >{sourceTitle} · {sourceOptions.length}/{sourceTotal} visible</legend
     >
     <input
-      class="jx-tr-search box-border w-full px-[0.625rem] py-[0.4375rem] border-x-0 border-y border-border bg-background text-foreground font-mono text-xs"
+      class="jx-tr-search {cx(transferStyles.search)}"
       type="search"
       aria-label="filter {sourceTitle}"
       placeholder={searchPlaceholder}
       bind:value={sourceSearch}
     />
-    <ul data-jx-tr-list class="m-0 py-1 px-[max(0.25rem_-_var(--jx-scrollbar-thin,0px),0px)] list-none max-h-56 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]" role="list">
+    <ul data-jx-tr-list class={cx(transferStyles.list)} role="list">
       {#each sourceOptions as option (option.value)}
         <li>
           <label
             class={cn(
-              'jx-tr-row flex items-center gap-2 px-[0.375rem] py-[0.3125rem] text-[0.8125rem] text-foreground cursor-pointer',
-              option.disabled && 'jx-tr-disabled opacity-45 cursor-not-allowed',
+              'jx-tr-row',
+              cx(transferStyles.row),
+              option.disabled && cx('jx-tr-disabled', transferStyles.rowDisabled),
             )}
           >
             <input
@@ -144,19 +229,19 @@
               disabled={option.disabled}
               onchange={() => toggle(pickedSource, option.value)}
             />
-            <span data-jx-tr-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
+            <span data-jx-tr-label class={cx(transferStyles.rowLabel)}>{option.label}</span>
           </label>
         </li>
       {:else}
-        <li data-jx-tr-empty class="px-2 py-4 text-center text-xs text-muted-foreground">no matches</li>
+        <li data-jx-tr-empty class={cx(transferStyles.empty)}>no matches</li>
       {/each}
     </ul>
   </fieldset>
 
-  <div class="jx-tr-movers flex flex-col gap-2">
+  <div class="jx-tr-movers {cx(transferStyles.movers)}">
     <button
       type="button"
-      class="jx-tr-move appearance-none w-8 h-8 border border-border bg-card text-foreground text-base leading-none cursor-pointer shadow-xs disabled:opacity-35 disabled:cursor-not-allowed"
+      class="jx-tr-move {cx(transferStyles.move)}"
       aria-label="move selected to {targetTitle}"
       disabled={movableSource.length === 0}
       onclick={() => move('to-target')}
@@ -164,7 +249,7 @@
     >
     <button
       type="button"
-      class="jx-tr-move appearance-none w-8 h-8 border border-border bg-card text-foreground text-base leading-none cursor-pointer shadow-xs disabled:opacity-35 disabled:cursor-not-allowed"
+      class="jx-tr-move {cx(transferStyles.move)}"
       aria-label="move selected to {sourceTitle}"
       disabled={movableTarget.length === 0}
       onclick={() => move('to-source')}
@@ -172,24 +257,25 @@
     >
   </div>
 
-  <fieldset data-jx-tr-panel class="flex-[1_1_0%] min-w-0 m-0 p-0 border border-border bg-card shadow-2xs rounded-(--radius)" aria-label="{targetTitle} · {targetTotal} total">
-    <legend data-jx-tr-legend class="px-[0.625rem] py-[0.4375rem] font-nav text-[0.6875rem] tracking-[0.12em] uppercase text-muted-foreground"
+  <fieldset data-jx-tr-panel class={cx(transferStyles.panel)} aria-label="{targetTitle} · {targetTotal} total">
+    <legend data-jx-tr-legend class={cx(transferStyles.legend)}
       >{targetTitle} · {targetOptions.length}/{targetTotal} visible</legend
     >
     <input
-      class="jx-tr-search box-border w-full px-[0.625rem] py-[0.4375rem] border-x-0 border-y border-border bg-background text-foreground font-mono text-xs"
+      class="jx-tr-search {cx(transferStyles.search)}"
       type="search"
       aria-label="filter {targetTitle}"
       placeholder={searchPlaceholder}
       bind:value={targetSearch}
     />
-    <ul data-jx-tr-list class="m-0 py-1 px-[max(0.25rem_-_var(--jx-scrollbar-thin,0px),0px)] list-none max-h-56 overflow-y-auto overscroll-contain [scrollbar-gutter:stable_both-edges]" role="list">
+    <ul data-jx-tr-list class={cx(transferStyles.list)} role="list">
       {#each targetOptions as option (option.value)}
         <li>
           <label
             class={cn(
-              'jx-tr-row flex items-center gap-2 px-[0.375rem] py-[0.3125rem] text-[0.8125rem] text-foreground cursor-pointer',
-              option.disabled && 'jx-tr-disabled opacity-45 cursor-not-allowed',
+              'jx-tr-row',
+              cx(transferStyles.row),
+              option.disabled && cx('jx-tr-disabled', transferStyles.rowDisabled),
             )}
           >
             <input
@@ -198,11 +284,11 @@
               disabled={option.disabled}
               onchange={() => toggle(pickedTarget, option.value)}
             />
-            <span data-jx-tr-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{option.label}</span>
+            <span data-jx-tr-label class={cx(transferStyles.rowLabel)}>{option.label}</span>
           </label>
         </li>
       {:else}
-        <li data-jx-tr-empty class="px-2 py-4 text-center text-xs text-muted-foreground">nothing here yet</li>
+        <li data-jx-tr-empty class={cx(transferStyles.empty)}>nothing here yet</li>
       {/each}
     </ul>
   </fieldset>

@@ -86,6 +86,33 @@
   }
 
   interface DatePickerCommon {
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** ISO "YYYY-MM-DD" (date mode) or canonical "YYYY-MM-DDTHH:mm"
         (showTime); $bindable — single mode's committed value */
     value?: string;
@@ -132,6 +159,21 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { cn } from '$lib/utils';
   import { DatePickerDefaults } from './date-picker-defaults.svelte';
   import {
@@ -145,6 +187,7 @@
   import { ambientLocale } from '$lib/locale.svelte';
   import Calendar from './calendar.svelte';
   import TimeStepper from './time-stepper.svelte';
+  import { datePickerStyles } from './date-picker.stylex';
   import './date-picker.css';
 
   // mode × showTime is a TYPE-LEVEL contract (enhance-picker-feedback):
@@ -171,6 +214,14 @@
   const autoId = $props.id();
 
   let {
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     value = $bindable(),
     range = $bindable(),
     mode = 'single',
@@ -196,7 +247,16 @@
   // this Props interface feeds the GENERATED meta chain (drift-locked),
   // whose ambient annotation is the doc batch's 先破再立 — the
   // contract's own 'auto' is the same value (date-picker-defaults.svelte.ts)
-  const d = $derived(DatePickerDefaults.resolve({ variant }));
+  const d = $derived(
+    DatePickerDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   // ---- committed state views ----------------------------------------------
   // single + showTime rides the datetime domain: the canonical value is
@@ -364,16 +424,16 @@
   function onPanelToggle(): void {
     open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
       // continue from context: the committed value, else today — the
       // calendar below mounts with this initialView, resetting view and
       // cursor on EVERY open (the pre-extraction behavior)
       openAnchor = mode === 'range' ? (startIso ?? todayIso()) : (selectedIso ?? todayIso());
     } else {
       panelEl?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       // focus restitution on EVERY close path
       triggerEl?.focus();
     }
@@ -384,9 +444,9 @@
   // (--jx-p); every visible property is a CSS formula of it (the
   // declarative motion law in jixoai.css). The kernel here only wires
   // the panel's toggle seam and live anchor
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
 
   // the calendar mounts inside {#if open}; bind:this lands during that
   // render, so this post-flush effect sees the ref and focuses the grid
@@ -402,11 +462,34 @@
       panelEl?.showPopover();
     }
   }
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div data-jx-date-field class="flex flex-col items-stretch gap-2 w-full">
+<div
+  bind:this={uniRoot}
+  data-jx-date-field
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  class={cx(datePickerStyles.field)}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-date-wrap class="relative block w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
+  <span data-jx-date-wrap class={cx(datePickerStyles.wrap)} style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <!-- jx-html-input (B3, ui-plugin-followup): the trigger's form-lane
          law is the standard layer's text-like control box — border, hit,
          inset, text/leading, hover/focus/disabled/invalid states all
@@ -421,7 +504,8 @@
       type="button"
       id={id}
       class={cn(
-        'jx-date-trigger jx-html-input flex items-center gap-3 text-start cursor-pointer',
+        'jx-date-trigger jx-html-input',
+        cx(datePickerStyles.trigger),
         className,
       )}
       popovertarget={panelId}
@@ -436,8 +520,7 @@
         data-jx-date-value
         data-jx-date-placeholder={!hasValue ? '' : undefined}
         class={cn(
-          'flex-1 min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-start',
-          !hasValue && 'text-muted-foreground',
+          cx(datePickerStyles.valueLane, !hasValue && datePickerStyles.valuePlaceholder),
         )}
       >{triggerText}</span>
       <!-- the calendar trigger = an ICON SLOT (B3): the glyph span paints
@@ -449,8 +532,8 @@
            the sheet; the .jx-date-chevron class stays the css hook. -->
       <span
         class={cn(
-          'jx-date-chevron flex-none w-3 h-3 pointer-events-none text-muted-foreground transition-transform duration-150 ease-out',
-          open && 'rotate-180',
+          'jx-date-chevron',
+          cx(datePickerStyles.chevron, open && datePickerStyles.chevronOpen),
         )}
         aria-hidden="true"
       ></span>
@@ -461,7 +544,7 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class={cn('jx-date-panel jx-surface', motion.supported && 'jx-waapi')}
+    class={cn('jx-date-panel jx-surface', panelMotion.supported && 'jx-waapi')}
     data-variant={d.variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
@@ -476,7 +559,7 @@
          presets are present — bare panels keep the original DOM. -->
     <div
       data-jx-date-surface
-      class={cn('jx-surface-body px-3.5 py-3', hasLane && 'flex items-stretch gap-3')}
+      class={cn('jx-surface-body', cx(datePickerStyles.surfacePad), hasLane && cx(datePickerStyles.surfaceLane))}
     >
       {#snippet calendar()}
         <!-- the embeddable calendar (2026-08-28 extraction): nav + grid +
@@ -509,13 +592,13 @@
             data-jx-date-presets
             role="group"
             aria-label="quick picks"
-            class="flex w-24 flex-none flex-col justify-start gap-0.5 max-h-56 overflow-y-auto border-r border-border pr-2"
+            class={cx(datePickerStyles.presetsLane)}
           >
             {#each laneEntries as entry (entry.label)}
               <button
                 type="button"
                 data-jx-date-preset
-                class="jx-date-nav-btn inline-flex w-full items-center justify-start h-7 px-2 text-start text-xs cursor-pointer transition-[background-color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+                class={cn('jx-date-nav-btn', cx(datePickerStyles.presetBtn))}
                 onclick={() => commitPreset(entry)}
               >
                 {#if preset}{@render preset(entry)}{:else}{entry.label}{/if}
@@ -524,14 +607,14 @@
           </div>
         {/if}
         {#if hasLane || timeMode}
-          <div class="flex min-w-0 flex-col gap-2">
+          <div class={cx(datePickerStyles.laneCol)}>
             {@render calendar()}
             {#if timeMode}
               <!-- the showTime row: mutates ONLY the time part (the day is
                    preserved); live commit, the panel stays open -->
               <div
                 data-jx-date-timerow
-                class="flex items-center border-t border-border pt-2"
+                class={cx(datePickerStyles.timeRow)}
               >
                 <TimeStepper value={timeValue} oncommit={commitTime} idPrefix="{id}-time" />
               </div>
@@ -545,6 +628,6 @@
   </div>
 
   {#if invalid}
-    <p id={errorId} class="jx-error"><span data-jx-date-error-mark class="font-bold text-destructive" aria-hidden="true">!</span>{error}</p>
+    <p id={errorId} class="jx-error"><span data-jx-date-error-mark class={cx(datePickerStyles.errorMark)} aria-hidden="true">!</span>{error}</p>
   {/if}
 </div>

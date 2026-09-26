@@ -51,9 +51,26 @@
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
   import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import {
     LanguageSwitcherDefaults,
     type LanguageSwitcherVariant,
   } from './language-switcher-defaults.svelte';
+  import { langStyles } from './language-switcher.stylex';
+  import './language-switcher.css';
 
   export interface SwitcherLocale {
     code: string;
@@ -66,13 +83,86 @@
     locales: readonly SwitcherLocale[];
     current: string;
     ariaLabel?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
+    class?: string;
   }
 
-  let { variant, locales, current, ariaLabel = 'Language' }: Props = $props();
+  let {
+    variant,
+    locales,
+    current,
+    ariaLabel = 'Language',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+    class: className = '',
+  }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.4): variant rides a literal slot (own 'pair', never
-  // reads context — a structural selector, not a paint rung)
-  const d = $derived(LanguageSwitcherDefaults.resolve({ variant }));
+  // economy 3.4 + W3-D1): variant rides a literal slot (own 'pair',
+  // never reads context — a structural selector, not a paint rung);
+  // the eight universal axes resolve one record, all no-own
+  const d = $derived(
+    LanguageSwitcherDefaults.resolve({
+      variant,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
   // $props.id() must live in its own top-level initializer (compiler law)
   const autoId = $props.id();
@@ -98,15 +188,22 @@
   const anchor = `--jx-lang-${autoId}`;
 </script>
 
-<div data-jx-lang="" class="flex items-center gap-2">
+<div
+  bind:this={uniRoot}
+  data-jx-lang=""
+  class={cn(cx(langStyles.root), className)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
   <!-- glyphs through the Icon component; sizing/stroke overrides are
        its props (16px / sw 2 defaults) -->
-  <span class="inline-flex opacity-70"><Icon name="languages" size={14} /></span>
+  <span class={cx(langStyles.iconLane)}><Icon name="languages" size={14} /></span>
 
   {#if d.variant === 'pair'}
     <div
       data-jx-lang-seg=""
-      class="inline-flex w-fit max-w-full overflow-hidden border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)]"
+      class={cx(langStyles.bezel)}
       role="group"
       aria-label={ariaLabel}
     >
@@ -119,10 +216,8 @@
           data-jx-lang-active={locale.code === current ? '' : undefined}
           onclick={() => persistLocale(locale.code)}
           class={cn(
-            'px-2.5 py-1 text-xs font-medium no-underline transition-[color,background-color] duration-150 ease-out',
-            locale.code === current
-              ? 'bg-primary text-primary-foreground'
-              : 'text-[color-mix(in_oklab,currentColor_72%,transparent)] hover:bg-[color-mix(in_oklab,currentColor_12%,transparent)] hover:text-current',
+            cx(langStyles.segItem),
+            locale.code === current ? cx(langStyles.segActive) : cx(langStyles.segIdle),
           )}
         >
           {locale.label}
@@ -133,14 +228,14 @@
     <button
       type="button"
       data-jx-lang-btn=""
-      class="inline-flex cursor-pointer items-center gap-1.5 border border-[color-mix(in_oklab,currentColor_30%,transparent)] bg-[color-mix(in_oklab,currentColor_6%,transparent)] px-2.5 py-1 text-xs font-medium text-[color-mix(in_oklab,currentColor_72%,transparent)] transition-[color,border-color] duration-150 ease-out hover:border-[color-mix(in_oklab,currentColor_70%,transparent)] hover:text-current"
+      class={cx(langStyles.bezelButton)}
       aria-expanded={open}
       aria-label={ariaLabel}
       style="anchor-name: {anchor}"
       onclick={() => menu?.togglePopover()}
     >
       {activeLabel}
-      <span class="inline-flex transition-transform {open ? 'rotate-180' : ''}">
+      <span data-jx-lang-chevron="" class={cn(cx(langStyles.chevron), open ? cx(langStyles.chevronOpen) : '')}>
         <Icon name="chevronDown" size={12} strokeWidth={2.5} />
       </span>
     </button>
@@ -155,11 +250,11 @@
       data-jx-lang-menu=""
       popover="auto"
       aria-label={ariaLabel}
-      class="m-0 min-w-[9rem] border border-border bg-terminal p-1 text-terminal-foreground shadow"
+      class={cx(langStyles.menu)}
       style="position-anchor: {anchor}; position-area: block-end; position-try: flip-block; margin: 0.375rem;"
       ontoggle={(e) => (open = e.newState === 'open')}
     >
-      <ul class="m-0 list-none p-0">
+      <ul class={cx(langStyles.menuList)}>
         {#each locales as locale (locale.code)}
           <li>
             <a
@@ -169,10 +264,8 @@
               data-jx-lang-menu-item=""
               data-jx-lang-menu-active={locale.code === current ? '' : undefined}
               class={cn(
-                'block px-2.5 py-1.5 text-xs no-underline transition-[color,background-color] duration-150 ease-out',
-                locale.code === current
-                  ? 'text-primary'
-                  : 'text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] hover:bg-terminal-hover hover:text-terminal-foreground',
+                cx(langStyles.menuItem),
+                locale.code === current ? cx(langStyles.menuActive) : cx(langStyles.menuIdle),
               )}
               onclick={() => {
                 persistLocale(locale.code);

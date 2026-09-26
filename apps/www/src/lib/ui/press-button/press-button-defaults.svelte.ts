@@ -15,18 +15,32 @@
  *     consumers alike (single-key law), and the wide values array
  *     keeps PressButton's own explicit 'link' resolving while no
  *     zone lane can ever carry it.
- *   - density: the no-opinion axis slot. The button carries NO
- *     density own: no provider and no explicit prop resolve
- *     undefined, stamp nothing, and the ambient css scope channel
- *     keeps flowing (fleet law).
+ *   - density: the universal §4 axis slot (explicit-props W3-B —
+ *     the legacy densitySlot semantics ride densityAxisSlot's
+ *     bridged lane). The button carries NO density own: no provider
+ *     and no explicit prop resolve 'auto', stamp nothing, and the
+ *     ambient css scope channel keeps flowing (fleet law).
+ *   - the seven other universal axes (§0/§11, all no-own): size,
+ *     shape, radius, color, theme, elevation, motion — the eight-axis
+ *     surface; radius `auto` is the §3 concentric consumption
+ *     (press-button.css composes the §3 calc × the §14 factor).
  *
  * 惰性律: construction captures own/values only; the context reads
  * happen at resolve time inside the consumer's $derived window. This
  * file is a member of the registry:ui item (installs with the family,
  * byte mirrored, zero kernel imports).
  */
-import { defineComponentDefaults } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import { definePaintSlot } from '$lib/paint.svelte';
 
 /**
@@ -53,5 +67,12 @@ export type PressButtonPaintVariant = ReturnType<typeof pressButtonVariantSlot>;
 
 export const PressButtonDefaults = defineComponentDefaults({
   variant: pressButtonVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

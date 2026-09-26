@@ -2,8 +2,10 @@
  * Chip contract suite (test/chip.spec.ts, 2026-08-26).
  *
  * Covers the variant-grammar §4 Chip row: the four-step ladder as
- * deterministic per-variant utility strings consuming the global
- * tokens, the badge-twin scale law (Owner ruling, 2026-09-01 — badge
+ * the family's stylex atom groups (tailwindless Wave 1 batch 3,
+ * 2026-09-17 — joined through the same cx law the component rides;
+ * the tint recipes and forced-colors degradation asserted at the atom
+ * source), the badge-twin scale law (Owner ruling, 2026-09-01 — badge
  * geometry verbatim, the activation root the only difference; slot
  * lanes replace their side's padding), the effect-attachments flip
  * (2026-09-09, r4 2026-09-10: the effect prop and its DEFAULT ripple
@@ -21,12 +23,36 @@
  * component internals.
  */
 import { fireEvent, render, waitFor } from '@testing-library/svelte';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { tick } from 'svelte';
 
 import ChipHost from './fixtures/chip-host.svelte';
 import { pressEffect } from '../src/lib/ui/press-button/press-effect-runtime';
 import { ripple, shimmer } from '../src/lib/ui/press-button/press-button.svelte';
+import { chipStyles } from '../src/lib/ui/chip/chip.stylex';
+
+// tailwindless-site Wave 1 batch 3 (2026-09-17): the paint moved from
+// utility strings to the family's stylex atoms — the ladder is now
+// asserted through the SAME join the component rides (the cx law:
+// every string member except $$css, space-joined). Utility-shaped
+// expectations are gone with the utilities; the LAWS (geometry voice,
+// tint recipes, forced-colors degradation, seam nulling) live on as
+// atom-membership assertions.
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
+const silhouette = (shape: string): string =>
+  cx(shape === 'pill' ? chipStyles.pill : chipStyles.square);
 
 // ---------------------------------------------------------------------------
 // Root element — the grammar ladder on the hit lane
@@ -40,11 +66,8 @@ describe('chip root and variants', () => {
     expect(btn.getAttribute('data-jx-chip')).toBe('tonal');
     // no density opinion → no stamp (fleet law: rides ambient css scope)
     expect(btn.getAttribute('data-density')).toBeNull();
-    // geometry + micro-label voice ride the root
-    expect(btn.className).toContain('inline-flex');
-    expect(btn.className).toContain('font-nav');
-    expect(btn.className).toContain('uppercase');
-    expect(btn.className).toContain('tracking-[0.14em]');
+    // geometry + micro-label voice ride the root as the base atom group
+    expect(btn.className).toContain(cx(chipStyles.base));
   });
 
   it('fill is the solid grammar pair against the global tokens', () => {
@@ -52,74 +75,53 @@ describe('chip root and variants', () => {
     const btn = container.querySelector('button')!;
     expect(btn.getAttribute('data-jx-chip')).toBe('fill');
     expect(btn.className).toContain('jx-press');
-    expect(btn.className).toContain('border');
-    expect(btn.className).toContain('[background:var(--jx-fill)]');
-    expect(btn.className).toContain('text-[color:var(--jx-fill-ink)]');
-    expect(btn.className).toContain('[border-color:var(--jx-fill)]');
+    expect(btn.className).toContain(cx(chipStyles.base, chipStyles.frame, chipStyles.fill));
   });
 
   it('tonal is the 12%/45% tint recipe, text the hue itself', () => {
     const { container } = render(ChipHost, { props: { variant: 'tonal' } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
-    expect(btn.className).toContain('border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)]');
-    expect(btn.className).toContain('text-[color:var(--jx-tonal)]');
+    expect(btn.className).toContain(cx(chipStyles.base, chipStyles.frame, chipStyles.tonal));
   });
 
   it('outline is the structural border + 8% hover overlay, border unchanged', () => {
     const { container } = render(ChipHost, { props: { variant: 'outline' } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('bg-transparent');
-    expect(btn.className).toContain('text-foreground');
-    expect(btn.className).toContain('[border-color:var(--jx-outline)]');
-    expect(btn.className).toContain('hover:bg-[color-mix(in_oklab,var(--jx-tonal)_8%,transparent)]');
+    expect(btn.className).toContain(cx(chipStyles.base, chipStyles.frame, chipStyles.outline));
   });
 
   it('ghost keeps the frame geometry, presses without a shadow, hovers tonal', () => {
     const { container } = render(ChipHost, { props: { variant: 'ghost' } });
     const btn = container.querySelector('button')!;
     expect(btn.className).toContain('jx-press');
-    expect(btn.className).toContain('border-transparent');
-    expect(btn.className).toContain('[--jx-press-shadow:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-hover:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-active:none]');
-    expect(btn.className).toContain('hover:text-[color:var(--jx-tonal)]');
+    expect(btn.className).toContain(cx(chipStyles.base, chipStyles.ghost));
   });
 
   it('forced-colors degrades every variant explicitly (design §6)', () => {
-    const fill = render(ChipHost, { props: { variant: 'fill' } });
-    expect(fill.container.querySelector('button')!.className).toContain(
-      'forced-colors:bg-[ButtonFace]',
+    // the degradation compiles into the atoms' @media (forced-colors:
+    // active) blocks — asserted at the atom SOURCE (the separator
+    // suite's css-source law), the class channel carries them wholesale
+    const atom = readFileSync(
+      resolve(process.cwd(), 'src/lib/ui/chip/chip.stylex.ts'),
+      'utf8',
     );
-    expect(fill.container.querySelector('button')!.className).toContain(
-      'forced-colors:text-[ButtonText]',
-    );
-    fill.unmount();
-
-    const tonal = render(ChipHost, { props: { variant: 'tonal' } });
-    expect(tonal.container.querySelector('button')!.className).toContain(
-      'forced-colors:bg-[Canvas]',
-    );
-    expect(tonal.container.querySelector('button')!.className).toContain(
-      'forced-colors:border-[CanvasText]',
-    );
-    tonal.unmount();
-
-    const ghost = render(ChipHost, { props: { variant: 'ghost' } });
-    const ghostClasses = ghost.container.querySelector('button')!.className;
-    expect(ghostClasses).toContain('forced-colors:bg-transparent');
-    expect(ghostClasses).toContain('forced-colors:hover:bg-[ButtonFace]');
-    expect(ghostClasses).toContain('forced-colors:hover:text-[ButtonText]');
+    expect((atom.match(/@media \(forced-colors: active\)/g) ?? []).length).toBe(5);
+    expect(atom).toContain('backgroundColor: \'ButtonFace\'');
+    expect(atom).toContain('backgroundColor: \'Canvas\'');
+    expect(atom).toContain("color: 'CanvasText'");
+    expect(atom).toMatch(/':hover': \{\s*backgroundColor: 'ButtonFace',\s*color: 'ButtonText',/);
     // the focus ring survives forced colors: 2px Highlight, offset 2
-    expect(ghostClasses).toContain('forced-colors:focus-visible:[outline-color:Highlight]');
+    expect(atom).toMatch(
+      /':focus-visible': \{\s*outlineWidth: '2px',\s*outlineOffset: '2px',\s*outlineColor: 'Highlight',/,
+    );
   });
 
   it('shape pill rounds fully; square keeps the site radius', () => {
     const pill = render(ChipHost, { props: { shape: 'pill' } });
-    expect(pill.container.querySelector('button')!.className).toContain('rounded-full');
+    expect(pill.container.querySelector('button')!.className).toContain(silhouette('pill'));
     pill.unmount();
     const square = render(ChipHost);
-    expect(square.container.querySelector('button')!.className).toContain('rounded-(--radius)');
+    expect(square.container.querySelector('button')!.className).toContain(silhouette('square'));
   });
 });
 
@@ -130,21 +132,33 @@ describe('chip scale — the badge twin law', () => {
   it('rides badge geometry: height from the secondary line, no hit lane', () => {
     const { container } = render(ChipHost);
     const btn = container.querySelector('button')!;
-    expect(btn.className).not.toContain('[min-block-size:var(--jx-hit)]');
-    expect(btn.className).toContain('[line-height:var(--jx-line-secondary)]');
-    expect(btn.className).toContain('[font-size:var(--jx-text-secondary)]');
-    expect(btn.className).toContain('[padding-inline:var(--jx-inset)]');
+    // the base atom group IS the geometry contract (line-height/
+    // font-size from the secondary channels, inline insets); the hit
+    // lane never enters it
+    expect(btn.className).toContain(cx(chipStyles.base));
+    const atom = readFileSync(
+      resolve(process.cwd(), 'src/lib/ui/chip/chip.stylex.ts'),
+      'utf8',
+    );
+    expect(atom).toContain("lineHeight: 'var(--jx-line-secondary)'");
+    expect(atom).toContain("fontSize: 'var(--jx-text-secondary)'");
+    expect(atom).toContain("paddingInline: 'var(--jx-inset)'");
+    expect(atom).not.toContain('--jx-hit');
   });
 
   it('slot lanes replace their side of the padding (the data-icon law)', () => {
     const { container } = render(ChipHost, { props: { withSlots: true } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain(
-      'has-[[data-icon=inline-start]]:pl-[calc(var(--jx-inset)/2)]',
+    // the halving rides the base atom's :has() poses — verified at the
+    // atom source (the valued hooks stay the runtime contract)
+    const atom = readFileSync(
+      resolve(process.cwd(), 'src/lib/ui/chip/chip.stylex.ts'),
+      'utf8',
     );
-    expect(btn.className).toContain(
-      'has-[[data-icon=inline-end]]:pr-[calc(var(--jx-inset)/2)]',
-    );
+    expect(atom).toContain("':has([data-icon=\"inline-start\"])'");
+    expect(atom).toContain("':has([data-icon=\"inline-end\"])");
+    expect(atom).toContain("paddingLeft: 'calc(var(--jx-inset) / 2)'");
+    expect(atom).toContain("paddingRight: 'calc(var(--jx-inset) / 2)'");
     expect(btn.querySelector('[data-icon="inline-start"]')).toBeTruthy();
     expect(btn.querySelector('[data-icon="inline-end"]')).toBeTruthy();
   });
@@ -296,10 +310,19 @@ describe('chip slots', () => {
     // the valued attributes are the padding-law hooks (has-[[data-icon=inline-start]])
     expect(lanes[0].getAttribute('data-icon')).toBe('inline-start');
     expect(lanes[1].getAttribute('data-icon')).toBe('inline-end');
+    expect(lanes[0].className).toContain(cx(chipStyles.slotStart));
+    expect(lanes[1].className).toContain(cx(chipStyles.slotEnd));
     for (const lane of lanes) {
-      expect(lane.className).toContain('[&>svg]:size-[var(--jx-text-secondary)]');
       expect(lane.querySelector('svg')).toBeTruthy();
     }
+    // the svg sizing rides chip.css (the descendant boundary atoms
+    // cannot express) — the lane law at the css source
+    const css = readFileSync(
+      resolve(process.cwd(), 'src/lib/ui/chip/chip.css'),
+      'utf8',
+    );
+    expect(css).toContain(":where([data-icon='inline-start'] > svg)");
+    expect(css).toContain('width: var(--jx-text-secondary)');
     // lane order: start before the label, end after it
     expect(btn.textContent).toContain('filter');
     expect(lanes[0].compareDocumentPosition(lanes[1]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

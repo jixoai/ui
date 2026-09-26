@@ -214,7 +214,21 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import type { HighlightBackend } from '$lib/highlight/backend';
   // registry-safe seam (the density law): the key + structural type
   // only — the chip never imports the kernel side
@@ -224,11 +238,39 @@
   import { DEFAULT_MICROLIGHTER_BACKEND } from '$lib/highlight/microlighter';
   import { resolveTextStyle, type TextStyleProps } from '$lib/text-style.svelte';
   import { InlineCodeDefaults } from './inline-code-defaults.svelte';
+  import { inlineCodeStyles } from './inline-code.stylex';
   import './inline-code.css';
 
-  interface Props extends HTMLAttributes<HTMLElement>, TextStyleProps {
-    density?: Density;
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'>, TextStyleProps {
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
     variant?: InlineCodeVariant;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the batch A native rule on
+     *  the <code> root; the modifier props' fontSize mirror is a
+     *  SEPARATE channel feeding the padding formula — different name,
+     *  no collision) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (the chip's own geometry rides --jx-chip-radius from
+     *  the density ladder — an explicit radius lane supplies the
+     *  anchor for nested auto consumers) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /**
      * 'auto' (default) = the zero-download fingerprint heuristic picks
      * the grammar; an explicit id/alias (ts, svelte, sh, …) skips
@@ -248,6 +290,13 @@
   let {
     density,
     variant,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     lang = 'auto',
     backend,
     lineHeight,
@@ -257,13 +306,22 @@
     family,
     fontSize,
     class: className = '',
+    style: consumerStyle,
     children,
     ...rest
   }: Props = $props();
   // the family Defaults is the single read point (context-defaults-
   // economy 3.4): variant rides the paint axis slot (zone ambient,
-  // frozen own 'fused'), density the no-opinion axis slot
-  const d = $derived(InlineCodeDefaults.resolve({ variant, density }));
+  // frozen own 'fused'); W3-D5 widens the record to the EIGHT-axis
+  // surface — the §10 carriers JOIN the style channel FIRST, the
+  // modifier mirrors follow, the consumer's own style last (the
+  // merge law), and the supply + the query() anchor ride the standard
+  // wiring (the anchor after the state decl)
+  const d = $derived(
+    InlineCodeDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
 
   // backend resolution: prop → context default → stock microlighter.
   // The context is captured ONCE at init (Svelte's getContext phase);
@@ -276,35 +334,54 @@
 
   /**
    * The design.md §1 recipes + the §6 forced-colors degradation
-   * (Canvas/CanvasText; the 1px border survives on every rung).
-   * Paint law (batch D's TW4 probe, 2026-08-26): the base carries
-   * width-only `border`; each rung is the SOLE border-color source in
-   * its class list (a named .border-* would sort AFTER an arbitrary
-   * [border-color:…] and silently win), and the recipes ride TYPED
-   * arbitrary forms (bg-[color-mix(…)], border-[color:var(…)]) which
-   * emit @supports fallbacks to plain var(--jx-tonal) in engines
-   * without color-mix. The tonal rung carries the local neutral
-   * injection ([--jx-tonal:var(--muted-foreground)]) — parity with jx-pure's bare <code>
-   * law; a consumer's jx-hue-* replaces it through cn().
+   * (Canvas/CanvasText; the 1px border survives on every rung) — the
+   * family's ATOM table since tailwindless W1b (2026-09-17):
+   * inline-code.stylex.ts owns the rungs. The base carries the
+   * width-only border; each rung is the SOLE border-color source in
+   * its join (no co-existing border-color forms to race). The tonal
+   * rung carries the local neutral injection through the atom's
+   * '--jx-tonal' custom property — parity with jx-pure's bare <code>
+   * law; a consumer's jx-hue-* utility still wins (utilities sort
+   * after the atom tier), and cn() dedupe no longer applies (the
+   * consumer's arbitrary [--jx-tonal:…] class wins the cascade the
+   * same way).
    *
    * fused (design D2, 2026-09-08): the backdrop-fusion rung —
    * transparent ground, the width-only border painted transparent
-   * (currentColor would otherwise leak), and
-   * backdrop-contrast-[85%] pulling the backdrop toward mid — the
-   * Owner's acceptance tune (2026-09-08): 85 sits one notch quieter
-   * than the first-pass 75 (which matched the retired tonal default's
-   * band weight) and strictly above the separator's full ghost
-   * (contrast 0.5). Print drops
+   * (currentColor would otherwise leak), and contrast(85%) pulling
+   * the backdrop toward mid — the Owner's acceptance tune (2026-09-
+   * 08): 85 sits one notch quieter than the first-pass 75 (which
+   * matched the retired tonal default's band weight) and strictly
+   * above the separator's full ghost (contrast 0.5). Print drops
    * backdrop-filter to transparent (bare mono code — the separator's
    * own print posture); forced-colors keeps the CanvasText frame.
    */
-  const variantUtilities = {
-    fused:
-      'bg-transparent border-transparent backdrop-contrast-[85%] text-foreground forced-colors:border-[color:CanvasText]',
-    tonal:
-      '[--jx-tonal:var(--muted-foreground)] bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)] border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] text-[color:var(--jx-tonal)] forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
-    outline:
-      'bg-transparent border-[color:var(--jx-outline)] text-foreground forced-colors:bg-[color:Canvas] forced-colors:border-[color:CanvasText] forced-colors:text-[color:CanvasText]',
+  // the payload's own join (separator's serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — Svelte's class interpolation stringifies
+  // objects, so composition goes through THIS joiner (all string
+  // values except $$css, space-joined — never a raw class={styles.x})
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // the ladder walks the family's ATOM members (tailwindless W1b):
+  // joined through cx below; the tint recipes and forced-colors
+  // degradations live in inline-code.stylex.ts
+  const VARIANT_ATOM: Record<InlineCodeVariant, string> = {
+    fused: cx(inlineCodeStyles.fused),
+    tonal: cx(inlineCodeStyles.tonal),
+    outline: cx(inlineCodeStyles.outline),
   } as const;
 
   /**
@@ -327,6 +404,9 @@
   const PLAIN_LANGS = new Set(['text', 'plain', 'plaintext', 'ansi']);
 
   let codeEl = $state<HTMLElement>();
+  // the query() anchor rides the chip's own element (the W3-C TDZ
+  // law: the provide sits AFTER the anchor state declaration)
+  provideQueryAnchor(() => codeEl ?? null);
   /** guards the async tail: a stale rejection must not warn over a
    * newer run's outcome when lang changes quickly */
   let generation = 0;
@@ -350,8 +430,11 @@
    *
    * Absent props emit nothing — the css rule's fallbacks read the
    * density pair and the formula stays exact for ambient density
-   * (radius is a var everywhere). The style attribute sits BEFORE
-   * the rest spread: a consumer's own style wins wholesale.
+   * (radius is a var everywhere). W3-D5: the style channel is a
+   * JOIN now (the consumer-merge law) — the §10 carriers lead, the
+   * modifier mirrors follow, the consumer's own style closes; a
+   * consumer declaration still wins the cascade by specificity of
+   * order within the same attr
    */
   const codeVars = $derived.by(() => {
     const decls: string[] = [];
@@ -375,17 +458,18 @@
    * the formula rides inline-code.css's :where rule (the vision-pass
    * pivot — see codeVars below).
    */
-  const baseUtilities = $derived.by(() => {
-    const parts = ['inline-block'];
-    // the mono frame drops when an explicit family rides the kernel —
-    // same-property utility order is not guaranteed, so the twin is
-    // DROPPED, not outranked (the vision-pass family-cascade find)
-    if (family === undefined) parts.push('font-mono');
-    if (fontSize === undefined) parts.push('[font-size:var(--jx-text-secondary)]');
-    if (lineHeight === undefined) parts.push('[line-height:var(--jx-line-secondary)]');
-    parts.push('border', 'rounded-(--jx-chip-radius)', 'whitespace-nowrap');
-    return parts.join(' ');
-  });
+  // the base frame's ATOM JOIN (tailwindless W1b): the token twins
+  // are separate members, emitted ONLY when the matching modifier prop
+  // is absent (resolveTextStyle's utility still wins the sheet — the
+  // twin is DROPPED, not outranked; the twin-drop law unchanged)
+  const baseClasses = $derived(
+    cx(
+      inlineCodeStyles.base,
+      family === undefined ? inlineCodeStyles.mono : undefined,
+      fontSize === undefined ? inlineCodeStyles.fsSecondary : undefined,
+      lineHeight === undefined ? inlineCodeStyles.lhSecondary : undefined,
+    ),
+  );
 
   $effect(() => {
     // deps: the element mount + the lang prop + the resolved backend.
@@ -423,11 +507,12 @@
 <code
   bind:this={codeEl}
   data-jx-inline-code={d.variant}
-  data-density={d.density}
-  style={codeVars}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={[carriers || undefined, codeVars, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined}
   class={cn(
-    baseUtilities,
-    variantUtilities[d.variant],
+    baseClasses,
+    VARIANT_ATOM[d.variant],
     resolveTextStyle({ lineHeight, weight, italic, tracking, family, fontSize }),
     className,
   )}

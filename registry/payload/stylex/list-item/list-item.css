@@ -1,0 +1,18 @@
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2;
+
+@layer components.stylex.priority1 {
+  .x1ghz6dp {
+    margin: 0;
+  }
+
+  .x1717udv {
+    padding: 0;
+  }
+}
+
+@layer components.stylex.priority2 {
+  .x3ct3a4 {
+    list-style-type: none;
+  }
+}
+/* buildId: fa64ecad5239b9c22987268e54d1df02526b078881da49e0c55932e51dfdb0e9 · generator: @jixoai/ui-vite-plugin@0.6.0 · engine: @stylexjs/unplugin@0.19.0 */

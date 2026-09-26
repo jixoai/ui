@@ -1,4 +1,4 @@
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 /* jixoai combobox — D1-exempt residue (tw4, 2026-08-24): the trigger
  * shell, chromeless input, toggle and rows paint as token utilities in

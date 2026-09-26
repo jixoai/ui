@@ -24,8 +24,18 @@
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const menubarSurfaceVariantSlot = defineLiteralSlot(['solid', 'acrylic', 'auto'], 'auto');
 
@@ -38,6 +48,13 @@ export const menubarSurfaceVariantSlot = defineLiteralSlot(['solid', 'acrylic', 
 export type MenubarSurfaceVariant = ReturnType<typeof menubarSurfaceVariantSlot>;
 
 export const MenubarDefaults = defineComponentDefaults({
-  density: densitySlot(),
+  density: densityAxisSlot(),
   variant: menubarSurfaceVariantSlot,
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot('level2'),
+  motion: motionAxisSlot(),
 });

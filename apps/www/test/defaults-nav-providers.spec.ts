@@ -58,12 +58,19 @@ const densityOf = (el: Element | null | undefined) => el?.getAttribute('data-den
 describe('the provider families\' contract surfaces', () => {
   it('each declares exactly its slot set, shallow-frozen', () => {
     for (const [defaults, keys] of [
-      [TabsDefaults, ['density']],
-      [TableDefaults, ['density']],
-      [BreadcrumbDefaults, ['density']],
-      [MenubarDefaults, ['density', 'variant']],
-      [DropdownMenuDefaults, ['density', 'variant']],
-      [NavigationMenuDefaults, ['density', 'inset', 'variant']],
+      // W3-D3: the eight-axis surface joined tabs + table (density
+      // rides each root's bridged provideDensity lane)
+      [TabsDefaults, ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion']],
+      // table keeps the design-frozen density own 'sm'
+      [TableDefaults, ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion']],
+      // W3-D5 (the hole round): breadcrumb joins the same shape (its
+      // density rides the trail root's bridged provideDensity lane)
+      [BreadcrumbDefaults, ['density', 'size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion']],
+      // W3-C: the trio joined the eight-axis surface (the panel's own
+      // elevation level2 rides the same record — the menu rung)
+      [MenubarDefaults, ['color', 'density', 'elevation', 'motion', 'radius', 'shape', 'size', 'theme', 'variant']],
+      [DropdownMenuDefaults, ['color', 'density', 'elevation', 'motion', 'radius', 'shape', 'size', 'theme', 'variant']],
+      [NavigationMenuDefaults, ['color', 'density', 'elevation', 'inset', 'motion', 'radius', 'shape', 'size', 'theme', 'variant']],
     ] as const) {
       expect(Object.isFrozen(defaults.slots)).toBe(true);
       expect(Object.keys(defaults.slots).sort()).toEqual([...keys].sort());
@@ -97,13 +104,87 @@ describe('the provider families\' contract surfaces', () => {
     flushSync();
     expect(holder.error).toBeUndefined();
     expect(holder.value).toEqual([
-      { density: undefined },
-      { density: undefined },
-      { density: 'sm' },
-      { density: undefined, variant: 'auto' },
-      { density: undefined, variant: 'solid' },
-      { density: undefined, variant: 'auto', inset: 0 },
-      { density: undefined, variant: 'auto', inset: 2 },
+      // W3-D3: tabs joins the eight-axis surface (density rides the
+      // bridged lane — the ambient read here is silent, 'auto')
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      // W3-D5: breadcrumb resolves the same eight-key shape (the
+      // silent window resolves 'auto' — the §0.1 no-opinion spelling)
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      // the design-frozen family own: a table with NO opinion resolves 'sm'
+      {
+        density: 'sm',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        variant: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        variant: 'solid',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        variant: 'auto',
+        inset: 0,
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        variant: 'auto',
+        inset: 2,
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
     ]);
   });
 });

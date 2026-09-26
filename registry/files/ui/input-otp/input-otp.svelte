@@ -16,11 +16,12 @@
   Keyboard: the slots are real inputs — arrows walk them, and typing
   anywhere advances. disabled dims the whole set.
 
-  tw4 (2026-08-24): static slot/label/error paint is token utilities in
-  the markup (markup-known states — filled/complete/invalid borders —
-  ride conditional utilities); only the :focus outline law (and its
-  complete-state ink) remains in input-otp.css (D1-exempt residue under
-  the layer law).
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  static slot/label/error paint rides the family's stylex ATOMS
+  (input-otp.stylex.ts) joined through cx() — markup-known states
+  (filled/complete/invalid borders) walk conditional atoms; only the
+  :focus outline law (and its complete-state ink) remains in
+  input-otp.css (D1-exempt residue under the layer law).
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
@@ -28,14 +29,55 @@
   import { cn } from '$lib/utils';
   import '$lib/form-field';
   import './input-otp.css';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { InputOtpDefaults } from './input-otp-defaults.svelte';
+  import { otpStyles } from './input-otp.stylex';
 
-  interface Props extends Omit<HTMLInputAttributes, 'value' | 'type' | 'maxlength'> {
+  interface Props extends Omit<HTMLInputAttributes, 'value' | 'type' | 'maxlength' | 'size' | 'color'> {
     /** form field name — the joined code submits under this name */
     name?: string;
     /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** slot count; default 6 */
     length?: number;
     /** the joined code; bindable (bind:value) for controlled use */
@@ -55,6 +97,13 @@
   let {
     name,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     length = 6,
     value = $bindable(''),
@@ -72,7 +121,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): explicit ?? ambient scope per slot, one line, no
   // legacy helper channels
-  const d = $derived(InputOtpDefaults.resolve({ density }));
+  const d = $derived(
+    InputOtpDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
   /** per-slot chars, source of truth; value derives from the join */
   // eager from props so SSR paints all slots (no blank first frame)
   let chars = $state<string[]>(
@@ -169,6 +227,24 @@
     slotEls[target]?.focus();
     slotEls[target]?.select();
   }
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <jx-form-field
@@ -181,11 +257,19 @@
   onjx-disabled={(e: CustomEvent<boolean>) => (formDisabled = e.detail)}
 ></jx-form-field>
 
-<div data-jx-otp data-density={d.density} class={cn('flex flex-col gap-[var(--jx-gap)] w-fit', className)} role="group" aria-label={label ?? 'one-time code'}>
+<div
+  bind:this={uniRoot}
+  data-jx-otp
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  class={cn(cx(otpStyles.group), className)}
+  role="group"
+  aria-label={label ?? 'one-time code'}>
     {#if label}
-      <label data-jx-otp-label class="font-nav text-[length:var(--jx-text-secondary)] tracking-[0.1em] uppercase text-muted-foreground" for="{id}-0">{label}</label>
+      <label data-jx-otp-label class={cx(otpStyles.label)} for="{id}-0">{label}</label>
     {/if}
-    <div data-jx-otp-slots class="flex gap-[var(--jx-gap)]" onfocusin={handleFocusIn}>
+    <div data-jx-otp-slots class={cx(otpStyles.slots)} onfocusin={handleFocusIn}>
       {#each chars as ch, index (index)}
         <input
           id="{id}-{index}"
@@ -196,10 +280,11 @@
           data-jx-otp-filled={ch !== '' ? '' : undefined}
           data-jx-otp-invalid={!!error ? '' : undefined}
           class={cn(
-            'jx-otp-slot box-border min-w-[max(var(--jx-hit),calc(var(--jx-line)*2))] min-h-[max(var(--jx-hit),calc(var(--jx-line)*2))] p-0 border border-border bg-background text-foreground font-mono text-[length:var(--jx-text)] text-center rounded-(--radius) caret-primary disabled:opacity-50 disabled:cursor-not-allowed',
-            ch !== '' && 'border-foreground',
-            complete && 'jx-otp-complete border-primary',
-            !!error && 'border-destructive border-dashed',
+            'jx-otp-slot',
+            cx(otpStyles.slot),
+            ch !== '' && cx(otpStyles.filledBorder),
+            complete && `jx-otp-complete ${cx(otpStyles.completeBorder)}`,
+            !!error && cx(otpStyles.invalidBorder),
           )}
           disabled={isDisabled}
           aria-invalid={error ? 'true' : undefined}
@@ -213,6 +298,6 @@
       {/each}
     </div>
     {#if error}
-      <p id={errorId} data-jx-otp-error class="m-0 flex items-center gap-1.5 text-xs text-destructive"><span aria-hidden="true">!</span>{error}</p>
+      <p id={errorId} data-jx-otp-error class={cx(otpStyles.error)}><span aria-hidden="true">!</span>{error}</p>
     {/if}
   </div>

@@ -22,7 +22,7 @@
  * computes from the token-derived ramp. No density branching (the
  * aliases flow from the theme's density scopes).
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   /* ---- text-glyph runs: the mono lock (the grid is the metric) ---- */
@@ -32,11 +32,35 @@
     letter-spacing: 0;
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    /* the art never wraps — and never scrolls (Owner ruling
+       2026-09-24: self-adaptive, not scrollable). Adaptation is the
+       component's re-bin (chart-bar measures the run track and
+       re-bins the glyph budget); clip is the fractional safety net
+       between mount and the first measurement pass. A non-visible
+       overflow also zeroes the automatic minimum, so the 1fr track
+       can shrink under its content (finale sweep) */
+    max-width: 100%;
+    overflow-x: clip;
+  }
+
+  /* ---- braille cells: JetBrains Mono ships no U+28xx — the dots fell
+     to a proportional system font (14% wide, off the text grid, pale).
+     A braille-complete MONO face first restores the cell grid on every
+     platform (DejaVu: Linux; Menlo/SF Mono: macOS; Cascadia/Consolas:
+     Windows); block mode needs nothing (the ramp IS in JetBrains) ---- */
+  :where([data-jx-chart-sparkline='braille']) {
+    font-family: 'DejaVu Sans Mono', 'Menlo', 'SF Mono', 'Cascadia Mono',
+      Consolas, monospace;
   }
 
   /* ---- the opt-in table fallback: hidden from the eye, real to AT -- */
   :where(.jx-chart-table) {
-    position: absolute;
+    /* fixed, not absolute: an absolutely positioned sr table's laid-out
+       width still joined the shell's scrollable overflow through engine
+       table-sizing quirks (contain/width/layout all bypassed on one
+       seat); a fixed box's containing block is the VIEWPORT — it cannot
+       extend any ancestor's scroll area, structurally */
+    position: fixed;
     width: 1px;
     height: 1px;
     margin: -1px;
@@ -44,7 +68,29 @@
     border: 0;
     overflow: hidden;
     clip-path: inset(50%);
-    white-space: nowrap;
+    /* strict containment is the structural seal: whatever internal
+       table sizing quirk lets a laid-out width escape (one seat still
+       computed 388px with identical cascade), size+paint+layout
+       containment pins the box and cuts ALL outward contribution —
+       scrollable overflow can never leave an sr-only element */
+    contain: strict;
+    /* table-layout: fixed + normal wrap: the old nowrap let the caption's
+       min-content dictate the table's laid-out width (~440px) — width:1px
+       cannot constrain a table's internal layout, and the absolutely
+       positioned box's real width joined the shell's scrollable overflow,
+       panning narrow viewports (the chart walkthrough round, hide-bisect
+       receipt). Fixed layout pins the box at 1px; the caption wraps into
+       invisibility and screen readers read the DOM text regardless */
+    table-layout: fixed;
+    white-space: normal;
+  }
+  /* the caption box itself pins at 1px: fixed layout governs COLUMNS,
+     not the table-caption box — its min-content (the longest word) still
+     grew the box and rejoined the shell's scrollable overflow on the
+     second seat. A 1px caption box turns its text into INK overflow,
+     which by rule never creates scrollable overflow */
+  :where(.jx-chart-table) caption {
+    width: 1px;
   }
 
   /* ---- svg paint (attributes cannot carry var()) ------------------- */

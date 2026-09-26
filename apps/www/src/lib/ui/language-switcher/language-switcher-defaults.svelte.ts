@@ -14,17 +14,30 @@
  *     before it ships a paint slot. Resolves `explicit ?? own`,
  *     never reads context; a future table freeze promotes this slot
  *     the kbd convention (table row → definePaintSlot).
+ *   - the eight universal axes (§0/§11, W3-D1, all no-own): density
+ *     joins FRESH here (the "no density prop — nothing to cover"
+ *     era ends with the axis surface: a no-own axis member is not a
+ *     dead declaration, it is the supply chain) · size · shape ·
+ *     radius · color · theme · elevation · motion.
  *
- * No density slot: the switcher carries no density prop — nothing
- * to cover (a dead declaration slot is 为接线而接线, sheet X2-11
- * spirit).
- *
- * 惰性律: construction captures own only; this literal slot never
- * reads context at all. This file is a member of the registry:ui
- * item (installs with the family, byte mirrored, zero kernel
- * imports).
+ * 惰性律: construction captures own only; the literal slot never
+ * reads context, the axis slots read lazily at resolve time inside
+ * the consumer's $derived window. This file is a member of the
+ * registry:ui item (installs with the family, byte mirrored, zero
+ * kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const languageSwitcherVariantSlot = defineLiteralSlot(['pair', 'menu'], 'pair');
 
@@ -34,4 +47,12 @@ export type LanguageSwitcherVariant = ReturnType<typeof languageSwitcherVariantS
 
 export const LanguageSwitcherDefaults = defineComponentDefaults({
   variant: languageSwitcherVariantSlot,
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

@@ -14,12 +14,26 @@
  *            first: auditable today, promotable to an axis slot
  *            when an axis opens (the spec's "a style prop with no
  *            axis yet" scenario — this file is its carrier).
- *   density  class a, the open axis with NO family own — no opinion:
- *            the panel never stamped data-density and still does not
- *            (the ambient css scope channel flows through the
+ *   density  class a, the open axis with NO family own — no opinion
+ *            on VALUE (densityAxisSlot() unparameterized): a named
+ *            rung rides the ambient css scope channel through the
  *            top-layered <dialog>, which stays a DOM descendant for
- *            cascade purposes); the slot declares the family
- *            density-manageable without manufacturing an opinion.
+ *            cascade purposes, and the panel STAMPS the resolved rung
+ *            as data-density (dialog.svelte's carrier row; the
+ *            attribute omits for auto / number / query lanes —
+ *            densityRungOf's undefined arm). The slot declares the
+ *            family density-manageable without manufacturing an
+ *            opinion.
+ *   elevation (W3-C) the ONE own on the overlay surface: the modal's
+ *            historic z-feel mapped onto the §7 level table — level4
+ *            (8dp, M3's dialog rung). The consumption pair composes
+ *            the theme's level table (shadow recipe + the paired
+ *            ladder-rung surface); an explicit lane overrides, auto
+ *            inherits the tree's opinion.
+ *   size · shape · radius · color · theme · motion (W3-C): the other
+ *            universal axes, all no-own — a modal panel takes its
+ *            opinions from its ancestors and supplies them, resolved,
+ *            downward through the top layer.
  *
  * zone/entity wiring stays OUT (the frozen pilot decision, X2-11):
  * Dialog's ghost ButtonVariantScope usage is untouched in place — the
@@ -27,8 +41,18 @@
  * (task 1.2).
  */
 
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 /**
  * The floating-surface paint variant — the family grammar, single-sourced
@@ -40,5 +64,12 @@ export type DialogSurfaceVariant = ReturnType<typeof dialogSurfaceVariantSlot>;
 
 export const DialogDefaults = defineComponentDefaults({
   variant: dialogSurfaceVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot('level4'),
+  motion: motionAxisSlot(),
 });

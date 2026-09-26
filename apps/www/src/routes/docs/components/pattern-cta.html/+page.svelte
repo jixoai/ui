@@ -7,6 +7,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -40,6 +41,29 @@ ${close}
     { name: 'registry/files/ui/pattern-cta/pattern-cta.svelte', content: patternCtaSource },
     { name: 'src/lib/pattern-cta-usage.svelte', content: usage, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<PatternCta size={18} density="small">…</PatternCta>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pattern-cta-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -50,7 +74,7 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell, rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -59,7 +83,7 @@ ${close}
       title="pattern-cta — the shell-prompt band"
       summary={entry.summary}
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">code-card command</span>
         <span class="pill">press-button copy CTA</span>
         <span class="pill">ONE copy affordance</span>
@@ -85,9 +109,11 @@ ${close}
         <PlayFields>
           <PlayHelp>
             press the copy CTA — the command hits the clipboard, the check glyph takes the leading
-            lane and the surface flips to <code>copied</code> (tonal + success hue). Hover the
-            button: only the hard shadow grows, the body never moves — press physics are
-            press-button's contract, verified by its own suite.
+            lane and the surface flips to <code>copied</code> (tonal + success hue). The body never
+            moves under press or hover — the press law is press-button's contract, verified by its
+            own suite; THIS seat's variant carries no shadow poses (hover boxShadow stays none,
+            measured) — the shadow-grows half of the law lives in press-button's own seats, not
+            here.
           </PlayHelp>
         </PlayFields>
       {/snippet}
@@ -106,6 +132,21 @@ ${close}
     </SectionCard>
   </div>
 
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: a composition product over batch A-D1 children — the size axis scales the band root, the children ride the ambient chain (吃也供)."
+    >
+      <ComponentCanvas title="PatternCta · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><PatternCta heading="scale the band" summary="One number moves the whole ensemble — the code card and the buttons reflow in em." size={16} density="small" /></div>
+<div class={cx(rt.panel)}><PatternCta heading="named steps" summary="size=medium · radius=large resolve through the alias-ladder vars." size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -114,7 +155,7 @@ ${close}
       title="API"
       summary="PatternCta props."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'command', type: 'string', default: "'npx jixoai-ui init'", description: 'The shell command the band sells (copy payload + card code).' },
           { name: 'heading', type: 'string', default: "'ship it from your terminal'", description: 'The band heading (an h2 stamped as component chrome).' },

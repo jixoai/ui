@@ -45,14 +45,49 @@
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { cn } from '$lib/utils';
-  import { getDensityContext, provideDensity, resolveDensity, type Density } from '$lib/density.svelte';
+  import { getDensityContext, provideDensity, resolveDensity } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TableDefaults } from './table-defaults.svelte';
+  import { tableStyles } from './table.stylex';
   import './table.css';
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   interface Props {
-    /** Density policy root: explicit ?? inherited ?? sm. */
-    density?: Density;
+    /** Density policy root: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — explicit ?? inherited ?? sm. */
+    density?: DensityLane | QueryResult<DensityLane>;
     /** Native caption element — renders as the table title. */
     caption?: string;
     /** Compact row height (0.4rem vertical padding instead of 0.75rem). */
@@ -64,6 +99,25 @@
     stack?: boolean;
     /** Native thead/tbody/tfoot markup. */
     children: Snippet;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast (the frame is the family's concentric anchor) */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
     /**
      * Style passthrough landing on the frame — the color-freedom seam:
@@ -78,6 +132,13 @@
     dense = false,
     stack = true,
     children,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
     style: styleAttribute = '',
   }: Props = $props();
@@ -91,42 +152,69 @@
   // would resolve the key to the table's OWN write and self-reference
   // through the very getter it feeds (derived_references_self). The
   // family own 'sm' lives in TableDefaults (the design-frozen local
-  // fallback migration — resolveDensity's third argument is retired)
+  // fallback migration — resolveDensity's third argument is retired).
+  // The W3 universal lane narrows at the legacy edge (the input-group
+  // law): 'auto'/number/query lanes carry no legacy rung — the rung
+  // stays ambient (§4), the coefficient rides the carriers on the root
+  const legacyDensityLane = $derived(
+    typeof density === 'string' && density !== 'auto' ? density : undefined,
+  );
   const resolvedDensity = $derived.by(
-    ((inherited) => () => resolveDensity(density, inherited))(getDensityContext()),
+    ((inherited) => () => resolveDensity(legacyDensityLane, inherited))(getDensityContext()),
   );
   provideDensity(() => resolvedDensity);
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.3), riding ON
-  // TOP of the provider lane as the family's single audited read point:
-  // the density slot's ambient read resolves the key to the table's own
-  // write, whose getter is the captured-parent resolution above, so the
-  // chain TERMINATES; the slot's own 'sm' is the floor (explicit →
-  // inherited → 'sm', exactly the retired inline fallback)
-  const d = $derived(TableDefaults.resolve({ density }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3 + W3-D3),
+  // riding ON TOP of the provider lane as the family's single audited
+  // read point: the density slot's ambient read resolves the key to
+  // the table's own write, whose getter is the captured-parent
+  // resolution above, so the chain TERMINATES; the slot's own 'sm' is
+  // the floor (explicit → inherited → 'sm', exactly the retired inline
+  // fallback); the seven sibling axes ride the same record (the frame
+  // is the family's own DOM root — the a11y semantics of the
+  // consumer-authored thead/tbody stay untouched). PROVIDER-SNAPSHOT
+  // KERNEL LAW: density does NOT ride the provideUniversalLanes
+  // literal — the reactive bridged write above carries the universal
+  // density supply; the literal carries the other seven axes
+  const d = $derived(TableDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }));
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // §3/§14 radius consumption — the frame's dialect: an explicit lane
+  // lands flat on the corner (effective × factor); auto stamps NOTHING
+  // so the atom's var fallback keeps the frame's own site-radius
+  // default (unlike the sheet's 0px invariants, this surface owns a
+  // nonzero resting corner — the concentric inset form belongs to
+  // nested surfaces, and the frame IS the border bearer)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : undefined,
+  );
+  const rootStyle = $derived(
+    [carriers, radiusConsumed, styleAttribute].filter(Boolean).join('; ') || undefined,
+  );
 </script>
 
 <figure
-  class={cn(
-    'jx-table isolate m-0 overflow-x-auto border border-[color:var(--jx-table-rule)] rounded-(--radius) [container:jx-table_/_inline-size]',
-    '[--jx-table-surface:var(--background)]',
-    '[--jx-table-head:var(--muted)]',
-    '[--jx-table-hover:color-mix(in_oklab,var(--primary)_7%,var(--jx-table-surface))]',
-    '[--jx-table-hairline:color-mix(in_oklab,var(--border)_12%,transparent)]',
-    '[--jx-table-rule:color-mix(in_oklab,var(--border)_18%,transparent)]',
-    '[--jx-table-edge:color-mix(in_oklab,var(--border)_34%,transparent)]',
+  bind:this={uniRoot}
+  class={cx(
+    'jx-table',
+    tableStyles.frame,
     className,
   )}
-  style={styleAttribute}
-  data-density={d.density}
+  style={rootStyle}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
 >
   <table
-    data-density={d.density}
-    class={cn('w-full min-w-fit border-separate border-spacing-0 [font-size:var(--jx-text)] [line-height:var(--jx-line)]', dense && 'dense')}
+    data-density={densityRungOf(d.density)}
+    class={cx(tableStyles.table, dense && 'dense')}
     data-stack={stack ? undefined : 'off'}
   >
     {#if caption}
-      <caption class="caption-top [padding-block-end:var(--jx-stack)] text-start [font-size:var(--jx-text-secondary)] [line-height:var(--jx-line-secondary)] text-muted-foreground">{caption}</caption>
+      <caption class={cx(tableStyles.caption)}>{caption}</caption>
     {/if}
     {@render children()}
   </table>

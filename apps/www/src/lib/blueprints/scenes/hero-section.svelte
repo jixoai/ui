@@ -9,10 +9,25 @@
   import HeroSection from '$lib/ui/hero-section/hero-section.svelte';
   import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="h-full w-full overflow-hidden">
-  <div class="w-[900px]">
+<div class={cx(bpA.heroSectionClip)}>
+  <div class={cx(bpA.heroSectionFrame)}>
     <HeroSection
       eyebrow="your-app · v0"
       summary="Installs into your repo. The source stays yours."

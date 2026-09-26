@@ -7,7 +7,8 @@
   virtual-core）的 DOM 接线层：窗口化语义、动态测量、scrollToIndex/Offset、
   lanes、getItemKey…… 全部是 TanStack 的，直接读 TanStack Virtual 文档
   (https://tanstack.com/virtual)。本组件 adds only:
-    1. ScrollArea 组合（scrollbar 变体 / label / class 透传）；
+    1. ScrollArea 组合（label / class 透传；scrollbar 变体随 2026-09-15
+       家族重构退役 —— 组合方永远手绘，平台路径是 native-scroll-area）；
     2. 定位层代劳 —— spacer(totalSize) + 绝对定位行 + 行上自动
        item.measureElement（动态高度开箱即用，比裸 TanStack 少一步）；
     3. 逃生舱 —— getVirtualizer() 拿原始实例做任何 TanStack 文档里的事，
@@ -30,7 +31,37 @@
     VirtualizerOptions,
   } from '@tanstack/svelte-virtual';
   import type { Snippet } from 'svelte';
-  import ScrollArea, { type ScrollbarVariant, type ViewportScrollEvent } from '$lib/ui/scroll-area/scroll-area.svelte';
+  import {
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import ScrollArea, { type ViewportScrollEvent } from '$lib/ui/scroll-area/scroll-area.svelte';
+  import { ScrollVirtualDefaults } from './scroll-virtual-defaults.svelte';
+  import { scrollVirtualStyles } from './scroll-virtual.stylex';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   type ScrollElement = HTMLDivElement;
   type ItemElement = HTMLDivElement;
@@ -56,13 +87,29 @@
      *  TanStack verbatim (reserved keys count/estimateSize/overscan/
      *  horizontal/getScrollElement are overridden by this component) */
     virtualOptions?: Partial<VirtualizerOptions<ScrollElement, ItemElement>>;
-    /** scrollbar presentation of the composed ScrollArea (default native) */
-    scrollbar?: ScrollbarVariant;
     /** a11y name for the scrollable region */
     label?: string;
     class?: string;
     /** passthrough — the composed ScrollArea's viewport scroll event */
     onscroll?: (event: ViewportScrollEvent) => void;
+    /** the EIGHT universal axes (§0/§11, W3-D3): the ENGINE-WRAPPER
+     *  dialect — scroll-virtual owns no DOM root of its own (the
+     *  composed ScrollArea renders the region), so the resolved lanes
+     *  FORWARD to the composed root, which stamps the carriers,
+     *  supplies downward and anchors query() at ITS root. The
+     *  wrapper's contract (scroll-virtual-defaults.svelte.ts, all
+     *  no-own) is the family's read point (the A3 law) and unwraps
+     *  query() media lanes at the boundary; the spacer and the
+     *  absolutely-positioned rows are TanStack engine internals,
+     *  documented outside the supply set */
+    density?: DensityLane | QueryResult<DensityLane>;
+    size?: SizeLane | QueryResult<SizeLane>;
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    color?: ColorLane | QueryResult<ColorLane>;
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** rendered per virtual item — receives TanStack's VirtualItem
      *  (index / start / size / key / lane); style your row freely, sizing
      *  is measured automatically */
@@ -75,12 +122,27 @@
     overscan,
     horizontal = false,
     virtualOptions = {},
-    scrollbar = 'native',
     label = 'virtual list',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
     onscroll,
     children,
   }: Props = $props();
+
+  // the family Defaults is the single read point (the A3 law): one
+  // record unwrapping the query() lanes at the boundary; the resolved
+  // lanes forward to the composed ScrollArea below (the composition
+  // law — the region owns carriers/anchor/supply)
+  const d = $derived(
+    ScrollVirtualDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
 
   let scrollAreaEl = $state<ScrollAreaInstance | null>(null);
 
@@ -145,10 +207,24 @@
     };
 </script>
 
-<ScrollArea bind:this={scrollAreaEl} {scrollbar} {label} {onscroll} orientation={horizontal ? 'horizontal' : 'vertical'} class={className}>
+<ScrollArea
+  bind:this={scrollAreaEl}
+  {label}
+  {onscroll}
+  orientation={horizontal ? 'horizontal' : 'vertical'}
+  class={className}
+  density={d.density}
+  size={d.size}
+  shape={d.shape}
+  radius={typeof d.radius === 'number' ? d.radius : undefined}
+  color={d.color}
+  theme={d.theme}
+  elevation={d.elevation}
+  motion={d.motion}
+>
   <div
     data-jx-sv-spacer
-    class="relative"
+    class={cx(scrollVirtualStyles.spacer)}
     style={horizontal
       ? `inline-size: ${$virtualizer.getTotalSize()}px; block-size: 100%`
       : `block-size: ${$virtualizer.getTotalSize()}px; inline-size: 100%`}

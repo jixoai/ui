@@ -14,13 +14,31 @@
  *     pends a future table freeze, at which point this slot promotes
  *     to a paint slot the badge convention (the kbd pattern,
  *     classification b), values carried over.
+ *   - the EIGHT universal axes (§0/§11, W3-D3, all no-own): density ·
+ *     size · shape · radius · color · theme · elevation · motion —
+ *     the bordered section is a no-own container surface: the size
+ *     axis scales the section root and the supply chain is the point
+ *     (the content atom's density ADOPTION keeps resolving through
+ *     the ambient css scope channel — an explicit lane now stamps
+ *     the rung on the section root itself).
  *
  * 惰性律: construction captures own only; context reads happen at
  * resolve time inside the consumer's $derived window. This file is a
  * member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 export const sectionCardToneSlot = defineLiteralSlot(['default', 'hero'], 'default');
 
@@ -31,4 +49,12 @@ export type SectionCardTone = ReturnType<typeof sectionCardToneSlot>;
 
 export const SectionCardDefaults = defineComponentDefaults({
   tone: sectionCardToneSlot,
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

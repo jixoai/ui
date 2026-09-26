@@ -134,69 +134,93 @@ untouched).
 
 ### Requirement: styling posture
 
-Tier-1 components are migrating to utility-first: paint is composed as
-Tailwind v4 utilities in markup against the jixoai token-sheet
-`@theme` mappings. WHEN a Tier-1 component is migrated to
-utility-authored paint, its affected public class slots SHALL merge
-through `cn()` for class-string hygiene — `cn()` is NOT a cascade mechanism;
-override behavior comes from the layer law (css-architecture spec).
+Tier-1 components' paint SHALL be authored as StyleX static atoms
+against the typed token accessors (`.stylex.ts` modules), compiled
+by the kernel build. The authoring rules, with their enforcement:
+
+- STATIC ATOMS ONLY for declarations: `stylex.create` objects. The
+  shorthand line is THE ENGINE'S LINE (Gate-2 P1-3): properties the
+  pinned engine's throw table rejects (the background/border/all/
+  animation family + their logical-side aliases — 18 names under the
+  0.19.0 pin, DERIVED at gate runtime from the installed
+  babel-plugin's own table with a pin-count assertion) are FORBIDDEN
+  (`propertyValidationMode:'throw'` makes each a build error);
+  properties the pinned engine ACCEPTS (margin, padding, inset, gap,
+  flex, overflow, textDecoration, …) are LAWFUL — the engine passes
+  them to the compiled css as standard CSS shorthand declarations
+  (browsers expand shorthand at parse time; the serialized form is
+  the engine's, not a hand promise of longhand expansion).
+- Dynamic values = CSS-var bindings: atoms consume
+  `var(--jx-*)`/component custom properties; the component computes
+  the vars at runtime. Factory functions, `vars` keys inside
+  `create()`, and closure-composed dynamic values are FORBIDDEN
+  (verify:stylex-authoring names the file + pattern) — each was
+  proven to silently break or never reach the compiled rules.
+- `cn()` merges CONSUMER-passed classes with the compiled constants
+  (plain strings); it is not a cascade mechanism — the layer law
+  (css-architecture) owns precedence.
+- The transition state: components not yet migrated to atoms keep
+  the utility-first posture with no override-guarantee change until
+  their migration lands (phase train).
 
 #### Scenario: consumer restyles an installed component
 
-- GIVEN a utility-authored component with paint in `@layer components`
+- GIVEN an atom-authored component with compiled atom paint
 - WHEN the consumer passes any token utility on `class`
-- THEN the consumer's utility wins by the layer/specificity law — the
-  pre-refactor silent-loss defect (scoped-style specificity inversion)
-  is gone; this scenario name carries that history
-- AND unmigrated components, while any remain, keep legacy behavior
-  with no override guarantee (the migration's transitional state)
+- THEN the consumer's utility wins by the canonical layer law
 
 #### Scenario: consumer restyles a migrated component
 
-- GIVEN a utility-authored component with paint in `@layer components`
+- GIVEN an atom-authored component with compiled atom paint
 - WHEN the consumer passes any token utility on `class`
-- THEN the consumer's utility wins by the layer/specificity law — the
-  pre-refactor silent-loss defect is gone
+- THEN the consumer's utility wins by the canonical layer law
 
 #### Scenario: unmigrated component (transitional)
 
-- GIVEN a Tier-1 component still on scoped `<style>` (pre-P3)
-- THEN it carries no cn() obligation and its legacy string-concat
-  class merge stands until its migration lands
+- GIVEN a Tier-1 component still on utility-authored paint (pre-
+  phase-train)
+- THEN it keeps its current behavior and cn() merge discipline
+  until its migration lands
 
 #### Scenario: component needs non-utility css
 
-- WHEN paint requires selectors utilities cannot express
+- WHEN paint requires selectors atoms cannot express
 - THEN it lands in `<item>.css` in the folder and still loses to
   consumer utilities (layer law)
 
 #### Scenario: Tier-2 consume-only
 
-- GIVEN a component using `.jx-input-lane` (jx-pure Part A)
+- GIVEN a component using `.jx-control` (jx-pure Part A)
 - WHEN the component is refactored
-- THEN the class is consumed as-is; no component-side copy, re-wrap, or
-  cascade-altering redefinition exists, and it never routes through
-  `cn()`
+- THEN the class is consumed as-is; no component-side copy, re-wrap,
+  or cascade-altering redefinition exists, and it never routes
+  through `cn()`
 
-> — which resolve for consumers ONLY under the
-> canonical entry setup (tailwind entry → jixoai theme import; see the
-> registry spec), declared as the documented install prerequisite of
-> utility-authored items
->
-> (deduping conflicting
-> utilities inside one string)
->
-> Components not yet migrated (P0–P2 transitional state) keep their
-> existing class-merge behavior and carry NO cn() obligation. CSS that
-> utilities cannot express SHALL live in the component folder as
-> `<item>.css` (`@layer components` + `:where()`, `jx-`-prefixed). The
-> frozen Tier-2 vocabulary (jx-pure Part A) and the element-default
-> laws (Parts A–D) MUST be consumed only — never copied, moved,
-> redefined, or re-wrapped; Tier-2 classes MUST NOT route through
-> `cn()` as a redefinition entry. Scoped-style migration MUST
-> explicitly re-express selector boundaries (`:global()` child
-> selectors, pseudo-elements, `@supports`, media queries) rather than
-> pattern-copying.
+#### Scenario: a forbidden dynamic idiom is authored
+
+- GIVEN a `.stylex.ts` file containing a factory call outside
+  markup-level use, or a `vars` key inside `create()`
+- WHEN verify:stylex-authoring runs
+- THEN it fails naming the file and the pattern, and the throw-mode
+  build independently fails shorthands
+
+#### Scenario: a component needs a runtime color mix
+
+- WHEN a state color derives from props
+- THEN the atom consumes `var(--component-state-ink)` and the
+  component computes the var (possibly via `color-mix` inline) —
+  no runtime style composition against atoms
+
+#### Scenario: an engine-accepted shorthand is authored
+
+- GIVEN a `.stylex.ts` atom carrying `margin`, `padding`, `gap`,
+  `flex`, `overflow`, `inset`, or `textDecoration`
+- WHEN the kernel build compiles it and verify:stylex-authoring runs
+- THEN the build succeeds and the compiled css carries the
+  declaration (however the engine serializes it) — lawful surface,
+  not an exemption; AND a throw-table name (e.g. `background`) in
+  the same file fails the scan naming file + pattern and throws the
+  real engine build error
 
 ### Requirement: semantic hooks are data-jx-* attributes, never css-less classes
 
@@ -2239,6 +2263,17 @@ contract: prerender paints the escaped diagram source as a readable
 plain-text floor (zero JS), and after hydration the lazily-loaded
 engine (a code-split singleton — the engine never rides a page's
 critical path) swaps the rendered, sanitized SVG into the same box.
+When the EFFECTIVE theme (pinned or resolved) is dark, the surface
+SHALL carry its own dark backdrop by default (Owner 2026-09-15): a
+designed veil built on `backdrop-filter` that adds ZERO ink (the
+subtraction ink law — no dark `background`, no hand-mixed tint): a
+subtractive filter chain (blur + contrast/brightness pulling the page
+behind toward the dark ground), rounded, padded, subtly bordered —
+never the opaque hard-edge fill. The backdrop SHALL be switchable off
+(`backdrop={false}` → transparent, as light mode today), and SHALL
+degrade to the component's own opaque theme-ground fill where
+`backdrop-filter` is unsupported (the surface-ground floor, the
+standing pre-change behavior). Light themes never paint a backdrop.
 
 #### Scenario: the floor upgrades after hydration
 
@@ -2284,6 +2319,42 @@ critical path) swaps the rendered, sanitized SVG into the same box.
 - THEN the inner wrapper scales and the viewport becomes the pan
   surface, with no engine call, no SVG regeneration, and no shared
   scroll chrome inside the viewport
+
+#### Scenario: dark carries its own backdrop (Owner 2026-09-15)
+
+- GIVEN a mermaid surface whose effective theme is dark, mounted on a
+  light page, with the default props
+- THEN the viewport paints the subtractive backdrop-filter veil (blur +
+  a contrast/brightness chain pulling the page behind toward the dark
+  ground, rounded, padded, subtle border) — no opaque hard-edge
+  rectangle, and the veil layer itself paints ZERO background ink (the
+  subtraction ink law, probe-asserted: computed `background` of the
+  veil layer is transparent)
+- AND the derived dark palette keeps node fills, borders, labels, and
+  connectors readable against the darkened ground (contrast probe on
+  the pinned-Chromium 2× screenshot, WCAG ratio: labels ≥ 4.5:1
+  against their node fill; node fill and node border ≥ 3:1 against the
+  veil ground sampled 2px past the node border; connectors ≥ 3:1
+  sampled antialias-proof — every edge connector in the fixture, at
+  three equally spaced centerline points (1/4, 1/2, 3/4), the stroke's
+  line-core pixel versus a ground patch 2px past the stroke edge along
+  the normal, the patch the mean of its 3×3 device-pixel window;
+  occlusions — of a sample point or a ground patch — by nodes,
+  adjacent connectors, or edge-label chips re-sample per the rule
+  (max 3 steps) and are RECORDED as skips when still unclear; any
+  unoccluded sampled pair below threshold fails the probe)
+
+#### Scenario: the backdrop switches off
+
+- GIVEN the same surface with `backdrop={false}`
+- THEN no veil and no opaque fill paint — the diagram sits on the page
+  transparently, exactly as a light-theme surface does today
+
+#### Scenario: no backdrop-filter support keeps a readable floor
+
+- GIVEN a browser without `backdrop-filter` support
+- THEN the veil degrades to the opaque theme-background fill (today's
+  behavior) — the diagram never loses its ground
 
 > Effect discipline SHALL match the code-card generation law: prop
 > changes drop the previous paint booking, out-of-order resolutions
@@ -2331,6 +2402,12 @@ critical path) swaps the rendered, sanitized SVG into the same box.
 > `name?.trim() || labels?.diagram?.trim() || 'Diagram'` (an empty or
 > whitespace `name` falls through; a nameless diagram never mounts a
 > nameless img).
+> The backdrop law (2026-09-15) rides the EFFECTIVE
+> theme — the same resolution the palette uses — so a dark-pinned
+> surface on a light page veils, a `theme="auto"` surface inside a dark
+> scope veils, and the `backdrop={false}` switch and the
+> no-backdrop-filter floor both keep the surface readable with zero
+> config beyond the one boolean.
 
 ### Requirement: the structural kernel law (four layers, stickers, and the attach test)
 
@@ -3632,3 +3709,409 @@ yet, so no phase is lost).
   pointer events over the content cell, and the status pill holds
   the spinner glyph — identical structure to the pre-change
   component modulo the glyph itself
+
+### Requirement: the press-effect fill channel resolves from the host's theme scope (Owner 2026-09-15)
+
+The press-effect runtime's AUTO fill (shimmer sweep, rainbow wash —
+`fill: undefined`) SHALL resolve the Context from the HOST ELEMENT, never
+from the OS scheme when a theme scope exists: the nearest ancestor theme
+scope (`[data-theme="light"|"dark"]`, `.dark`, `.jx-light`, self included)
+answers light/dark first; the OS scheme answers ONLY when the whole
+ancestor chain carries no scope (the CONTEXT ladder — it feeds the
+blend emulation's light/dark read; the COLOR basis below never
+measures). The auto fill COLOR SHALL ride the SAME basis as text and
+border — the theme scope's canvas TOKEN: the computed
+`--background` of the nearest theme-scope ancestor (self included; an
+entirely unscoped chain reads the root element's token first), falling
+back to white/black by the resolved context when the token is absent,
+unparsable, or non-opaque. The nearest-opaque-ancestor measured walk
+RETIRES from the auto path (and from `solidFill`'s default base): a
+decorative opaque band behind the host is NOT the fill's context — the
+stage's theme switching is by design and never the fill's business
+(the Owner's r2 correction). The fill SHALL follow live scope
+mutation (a scope observer on the ancestor chain watching class AND
+`data-theme` attribute mutations, both, disconnected on cleanup). The CSS
+`Canvas` keyword SHALL NOT appear in the auto path. Explicit fills
+(solidFill minting, numeric fills) are untouched.
+
+#### Scenario: the stage's theme answers, not the OS
+
+- GIVEN a shimmer host inside a light theme scope (`[data-theme="light"]`
+  or `.jx-light`) on a page whose OS scheme is dark
+- WHEN the effect mounts with `fill` omitted
+- THEN the sweep paints LIGHT — the scope's canvas token — and
+  the OS scheme never reaches the fill; the dark-stage converse on an
+  OS-light page paints dark
+
+#### Scenario: a decorative band is not the context (the r2 gallery case)
+
+- GIVEN a shimmer or rainbow host sitting on a deliberately DARK opaque
+  decorative band inside a LIGHT theme scope (the effects gallery's
+  glass-band, OS scheme irrelevant)
+- WHEN the fill resolves
+- THEN the fill is the scope's LIGHT canvas token — the band's measured
+  background never reaches the auto path (probe-asserted: the painted
+  fill layer differs from the band's background)
+
+#### Scenario: the nearest scope wins over the site root
+
+- GIVEN a dark stage mounted on a site whose root carries `dark` off (or
+  on)
+- WHEN the fill resolves
+- THEN the STAGE's scope answers (a `.dark` panel inside a light site
+  paints the dark sweep), `html.dark` being merely the root-most scope in
+  the same walk
+
+#### Scenario: no scope anywhere follows the user
+
+- GIVEN a host whose entire ancestor chain carries no theme scope
+- THEN the fill derives from the ROOT element's canvas token (the
+  same basis text and border read there on a jixoai page — `:root`
+  always carries `--background`), and white/black by the resolved
+  context is the TERMINAL fallback, firing only on a non-token page
+  (no `--background` anywhere, where the resolved context itself has
+  fallen to the OS scheme)
+
+#### Scenario: the fill follows a live scope flip
+
+- GIVEN a rendered shimmer under a scope that mutates — a class flip
+  (`jx-light` → `dark`) OR an attribute flip
+  (`data-theme="light"` → `data-theme="dark"`)
+- WHEN the observer fires on either mutation kind
+- THEN the fill re-resolves to the new context's canvas without a
+  re-mount, and the observer disconnects on destroy (both mutation
+  kinds probe-asserted)
+
+#### Scenario: rainbow rides the same channel
+
+- GIVEN rainbow's fill default shares `resolveFill`
+- THEN the same scope ladder governs it — one battery, both effects,
+  asserted by the same probes
+
+### Requirement: the timeline spine is drawn (Owner 2026-09-15)
+
+The timeline's spine SHALL be ONE whole-list SVG layer — measured from the
+live item geometry, mounted as a `grid-area: 1/1` SIBLING of the item
+list inside the one-cell grid host (the law's overlay dialect — never
+`position: absolute` for layout), `pointer-events: none`, painted UNDER
+the dots and content by source order (the zero-z dialect), the ladder
+rooted by `isolation: isolate` on the list root — never per-item
+background seams. The standing abspos exemptions RETIRE with it: the
+timeline beam (TRANSIENT INK) now lives inside the SVG layer, and the
+scroll-progress spine's absolute channel (CONTAINING-BLOCK NEEDS,
+2026-09-02) is replaced by the whole-list stroke draw. Items, content, titles, times, and dots stay DOM. A no-JS floor
+SHALL paint a simple CSS line per item before hydration (progressive
+enhancement); hydration upgrades to the measured spine. The `line(i)`
+per-item snippet seam RETIRES; the spine contract (a `spine` prop taking
+`'plain' | 'dashed' | 'beam'` presets, names preserved, or a custom
+snippet receiving the measured geometry) replaces it. Breaking, no compat.
+
+#### Scenario: connectors are continuous paths
+
+- GIVEN a multi-item timeline on any axis/direction/interlacing variant
+- WHEN the spine draws
+- THEN the connector runs dot-EDGE to dot-EDGE as one path element per
+  run (per-gap subpaths, `M edge L edge`) — the axis NEVER crosses a
+  dot: a gap of the dot's diameter interrupts the stroke at every
+  node (hollow and pending dots show no line through their centers —
+  the Owner's r3 ruling, superseding the center-to-center W3 freeze),
+  no per-item seams, verified by
+  probe (path geometry) across the axis × direction × RTL matrix —
+  AND every join carries THE JOINT-LAP (r4): each subpath laps 1px
+  INTO the node's edge band (`shave = nodeRadius − 1`; the dot mask's
+  circles shrink in step), the lap hiding UNDER the dot's own ink —
+  the join is structural ink-under-ink, never a knife-edge butt
+  against the beveled diamond's vertex (raster: zero background
+  slivers at the join rows, hollow interiors clean) — AND the
+  STRUCTURAL strokes carry THE STROKE-ALIGNMENT LAW (Owner r5):
+  `stroke-linecap: butt` on the plain, dashed, and progress strokes
+  (the crisp edge grammar of the beveled site — no cap overshoot
+  past the lapped tip), and the stroke weight IS the dot's border
+  width through ONE shared token `--jx-tl-stroke-w` (the default
+  dot's `border-width` and those `stroke-width`s consume the same
+  variable — they can never drift apart) — with UNIFORM WEIGHT for
+  EVERY dot variant (Owner r6): the ring dot's border rides the same
+  token (no weight exemption; its variant identity is PERMANENT
+  HOLLOWNESS — it outranks the completed fill, its border COLOR still
+  steps with the ladder, but its weight is not part of the identity).
+  The beam preset is the ONE standing exemption (a traveling light,
+  not a connector — its width, round caps, and blur are the glow
+  grammar)
+
+#### Scenario: the dash phase anchors to the node edge
+
+- GIVEN the dashed preset
+- THEN `stroke-dashoffset` phase-anchors the pattern so a dash STARTS at
+  the node's flow-end edge regardless of density scale (the
+  background-position phase law's SVG successor, probe-pinned)
+
+#### Scenario: the beam has width and travels the path
+
+- GIVEN the beam preset
+- THEN the light paints as a stroked gradient segment with visible
+  inline width and soft edges, animated along the path, frozen under
+  prefers-reduced-motion (a static lit segment, not a disappearance)
+
+#### Scenario: scroll-progress is a stroke draw
+
+- GIVEN `animation='scroll'` (the standing prop, unchanged)
+- THEN the progress spine draws as `stroke-dashoffset` along the measured
+  path in response to scroll position (the abspos/implicit-track
+  machinery retires)
+
+#### Scenario: the no-JS floor stands and upgrades
+
+- GIVEN a prerendered (pre-hydration) timeline
+- THEN every item shows the plain CSS line floor; after hydration the
+  measured SVG spine replaces it with no layout shift beyond the
+  spine's own width
+
+### Requirement: the scroll-area family — one hand-drawn law, a native sibling, one shared kit (Owner 2026-09-15)
+
+`scroll-area` SHALL hand-draw its scrollbar ALWAYS (the standing
+`scrollbar?: ScrollbarVariant` prop — `'native' | 'overlay'` at
+`scroll-area.svelte:45,54` — and its `ScrollbarVariant` type RETIRE;
+the new component has NO mode branch at all, breaking). A POINTER-TIER
+floor parallels the no-JS floor (Gate-2 r1 amendment, the
+implementation's honest shape): FINE pointers always draw; COARSE
+pointers (touch) keep the platform scrollbar — the native best
+practice for touch (momentum and edge behaviors; the hover-growth and
+drag-pin interaction model has no touch equivalent) — a declared
+CAPABILITY of the hand-drawn component, not a mode (no prop, no API
+surface; the tier follows `pointer: coarse` media state, prerender
+output keeps the platform bar exactly as the no-JS floor does). The
+drawn chrome's geometry is PARAMETERIZED (Owner r2): the thumb radius
+defaults to `0` (square-cut) and is configurable (`radius`: a px
+number or `'full'` for the retired-by-default capsule); the chrome
+WIDTH rides tiers (`width`: `'auto'` | `'thin'` | `'wide'`,
+mirroring the native sibling's tier vocabulary — `none` is
+native-only, a hand-drawn scrollbar that draws nothing is the
+platform tier); the track sits FLUSH against the region edge (no
+decorative standoff inset); and the hover/drag growth is
+EDGE-ANCHORED — the thumb's outer (edge-side) flank sits AT the
+region edge (the r3 ruling: `inset-inline-end: 0` / block-end `0` —
+truly flush, the 2px resting inset lives on the START side) while
+the cross size grows INTO the content (the
+`transform-origin: right center` semantics for an inline-end vertical
+track; RTL mirrors through logical properties; the horizontal axis
+anchors its block-end flank). A separate `native-scroll-area` item
+SHALL ship the platform scrollbar under the scrollbar-token law with the
+native best practices as capability styles, and SHALL mount NO custom
+scrollbar ARIA — no drawn thumb exists, and the platform scrollbar IS the
+accessibility contract (a `role="scrollbar"` on a nonexistent thumb is a
+violation, not a feature). Both SHALL share the `scroll-area-kit` lib
+kernel (the control-chrome precedent), SPLIT BY CONCERN into THREE
+parts: a shared CORE (overflow verdict, thumb geometry math,
+theme-scope resolution — zero paint, zero ARIA of its own), a
+HAND-DRAWN INTERACTION ADAPTER (idle fade, hover growth, drag pinning,
+keyboard scrolling, the thumb's a11y contract) consumed ONLY by the
+hand-drawn component, and the NATIVE CAPABILITY STYLES (the packaged
+native best-practice styles) consumed ONLY by the native sibling.
+Behavior lives in the kit; paint lives in the consumer. `scroll-run`
+(the linear strip edge system) is a DIFFERENT shared system and is
+untouched.
+
+#### Scenario: the hand-drawn law owns the styled component
+
+- GIVEN a scroll-area on either axis, any theme
+- THEN the scrollbar is fully drawn: square-cut thumb (radius 0 by
+  default, `radius` configurable to any px or the `'full'` capsule),
+  `width` tiers sizing the chrome (thin/auto/wide), a track FLUSH to
+  the region edge, idle
+  fade (~700ms), hover growth + brightening (edge-anchored, growing
+  into the content), drag-pinned opacity,
+  keyboard affordances on region and thumb — restyled by tokens without
+  JS, in both light and dark scopes
+
+#### Scenario: coarse pointers keep the platform bar (the capability floor, Gate-2 r1)
+
+- GIVEN a scroll-area under a coarse pointer (touch emulation)
+- WHEN the component mounts
+- THEN the platform scrollbar serves the region and NO drawn chrome
+  mounts (the touch best practice — momentum and edge behaviors ride
+  the platform), while a fine pointer on the SAME component always
+  draws (probe-asserted both tiers, no prop involved)
+
+#### Scenario: auto-hide never hides the affordance from keyboard users
+
+- GIVEN a scroll-area in any of FOUR pinned states — the REGION holds
+  focus within (focus-within), the THUMB holds focus, the thumb is
+  being dragged, or the thumb/track is hovered
+- WHEN the idle fade's timer would fire
+- THEN the thumb pins visible — FOUR separately probe-asserted pins,
+  one per state (region focus-within, thumb focus, drag, hover; each
+  tested in isolation) — and while any pin holds, the thumb node stays
+  in the accessibility tree with its role intact and `aria-valuenow`
+  tracking position ("AT-engaged" is not a detectable platform state
+  and is deliberately NOT the contract)
+
+#### Scenario: the native sibling is capability styles
+
+- GIVEN a native-scroll-area
+- THEN the platform scrollbar renders under the site's scrollbar-token
+  law, with `scrollbar-gutter: stable`, theme-scope-aligned
+  `color-scheme`, `scrollbar-width` tiers, and `overscroll-behavior`
+  containment packaged as the component's declared capabilities — and
+  NO drawn thumb and NO custom scrollbar ARIA mount anywhere inside it
+
+#### Scenario: the kit is family-neutral and split by concern
+
+- GIVEN the kit's exported runtime
+- THEN the shared CORE (verdict/geometry/scope) mounts with zero paint
+  and zero ARIA of its own; the hand-drawn interaction adapter and the
+  native capability styles are SEPARATE exports, each consumed by
+  exactly its own component — a new consumer adopts the core with no
+  CSS of the kit's look and no ARIA it did not author, and
+  scroll-area and native-scroll-area share the core while touching
+  disjoint kit parts
+
+#### Scenario: the scrollbar mode prop is gone
+
+- GIVEN the breaking migration
+- THEN the acceptance is STATICALLY assertable, in three parts: (1) a
+  pinned Props assertion snapshots the component's exported prop list
+  and finds no `scrollbar` field and no mode-shaped field of any
+  name, and the `ScrollbarVariant` type is absent from the item's
+  exports; (2) a source scan finds no `'native'`/`'overlay'` consumer
+  site in the shipped surface (routes excluded per the glass-canary
+  precedent); (3) the canary's two-directional fixture plants a live
+  `scrollbar` prop and proves BOTH detectors redden — the snapshot
+  (a mode-shaped field would appear) and the scan (routes excluded,
+  the planted site is inside the scanned surface)
+
+#### Scenario: the chrome geometry is parameterized and edge-anchored (r2)
+
+- GIVEN a hand-drawn scroll-area on a fine pointer
+- THEN the thumb's computed `border-radius` is `0px` by default, paints
+  any configured px, and `'full'` paints the capsule; the `width`
+  tiers size the lane (thin/auto/wide, probe-measured track widths
+  8/12/16; resting thumb cross sizes 6/10/14 = track − 2, the 2px
+  resting inset on the START side; hover/drag 8/12/16 = the track —
+  growth always exactly 2px inward); the track's computed edge inset
+  is `0` (flush) and the thumb's edge-side flank sits AT the region
+  edge (`0`); under hover the thumb's edge-side flank coordinate is
+  UNCHANGED (to the device pixel) while its cross size grows strictly
+  inward — probe-asserted on both axes and under RTL (the anchor
+  mirrors with the logical edge)
+
+### Requirement: floating surfaces speak spec-true position-area (Owner 2026-09-15)
+
+Every floating surface that places through CSS anchor positioning
+(`dropdown-menu`, `tooltip`, `float-button`, `menubar-panel` — the four
+recorded inverted sites, and any future anchored surface) SHALL map its
+side/align props to `position-area` values with the SPEC's semantics
+(the area names where the SURFACE wants to sit relative to its anchor),
+never the inverse. Each surface's placement matrix (side × align ×
+collision flip) SHALL be verified by probe + screenshot against the
+pre-sweep baseline.
+
+#### Scenario: the four recorded sites flip to spec semantics
+
+- GIVEN dropdown-menu, tooltip, float-button, and menubar-panel carry
+  inverted `{area}` mapping tables or literal area strings
+- WHEN the sweep lands
+- THEN every placement in each surface's matrix lands where the spec's
+  `position-area` grammar says (probe: computed anchor/area + screenshot
+  diff against the recorded wrong baseline)
+
+#### Scenario: collision flips stay in the spec grammar
+
+- GIVEN a placement that flips on collision
+- THEN the flipped area is still a spec-grammar area string derived
+  from the same mapping — no ad-hoc insets patching a wrong area
+
+### Requirement: the timeline speaks the reui step contract with fractional spine progress (Owner 2026-09-15 r2)
+
+The timeline SHALL carry the reui-standard value contract: `defaultValue`
+(default `1`), `value` (controlled, overrides), and `onValueChange` —
+DECIMAL numbers first-class, never rounded. `TimelineItem` SHALL accept
+`step?: number` (defaulting to DOM order + 1; steps strictly ascending
+in DOM order — duplicates drop, last wins, dev-mode warned) and paint
+`data-completed` when `step <= current` (attribute paint, the
+`pending` precedent; `pending` WINS the paint when both apply — the
+louder state). Completed dots, titles, and times restyle through
+tokens. The family SHALL ship a `TimelineHeader` part (reui parity)
+and `TimelineDot` SHALL accept `children` rendered inside the node
+(the reui indicator-icon pattern) beside the kept 8-directional slot
+grammar and variants. BEYOND reui, the drawn spine SHALL map the value
+onto the measured path through a FROZEN STOPS PROTOCOL: the geometry
+payload carries `stops: { step: number; arc: number }[]` — the DEDUPED
+milestone table; each `arc` is the milestone's OWNING node's CENTER
+position on the CONTINUOUS center-to-center `flowPath` (the r3-review
+close: Chromium restarts the dash phase at every M subpath, so the
+dash-driven strokes — progress and beam — MUST ride one continuous
+path; the Owner-r3 dot gaps come from a MASK — white ground, one
+black circle per node at the measured radius, a per-instance id —
+applied to those strokes, never from their path data; the BASE
+layer's `runPath` carries the per-gap edge-to-edge subpaths; the
+standing first↔last CHORD `runLength` stays
+retired from every dasharray consumer); `stops[0].arc` is 0 on the
+unique-first-step ladder (the default) and non-zero only
+when the first step duplicates (the owner is a later node); a value
+below the first milestone maps to length 0; a value inside a
+declared step gap interpolates across that gap's arc. The progress
+stroke runs from the path's start to the interpolated point at
+`value` via stroke-dashoffset arithmetic, with a CSS transition on
+the dashoffset (reduced motion: none) so tweening the value animates
+the draw. `animation: 'scroll'` SHALL keep owning the stroke channel —
+the value-driven inline dashoffset is NOT PAINTED under scroll mode
+(no CSS-accident reliance; probe-asserted) — while the value contract
+still drives discrete completion; `view` composes. The no-JS floor,
+RTL, density, spine presets + custom geometry snippet (payload
+extended additively with the stops table), and `pending` are KEPT
+(our highlights).
+
+#### Scenario: the value contract is reui-shaped
+
+- GIVEN a timeline with items and no explicit `value`
+- THEN `defaultValue` seeds the current step; the consumer's setter
+  (or bound state) moves it; every change fires `onValueChange`; and a
+  controlled `value` overrides the internal state — unit-asserted,
+  including a decimal default (`1.5`: item 1 completed, item 2 not)
+
+#### Scenario: fractional progress draws between the nodes
+
+- GIVEN a measured spine with ≥ 2 nodes and `value` between two
+  bracketing steps a < value < b
+- THEN the progress stroke's tip lands at the STEP-SPACE interpolated
+  arc position on the continuous flowPath — probe-sampled at the
+  node1→node2 gap's visual midpoint for `1.5`
+  on the default 1,2,3… ladder (the dot MASK renders the
+  center-space tip at the dot's edge; ±1px on the path length),
+  zero-length at the first step, the full run at the last; a
+  fractional value inside a
+  DECLARED gap (steps 2 and 5, value 3.5)
+  interpolates across that gap's arc; and a DUPLICATED first step
+  (1,1,2) draws `value = 1`
+  to the milestone's owning later node, with sub-first values
+  clamped to 0 — all unit/probe-asserted
+
+#### Scenario: the stops protocol retires the chord
+
+- GIVEN a non-collinear spine (interlaced or horizontal) with the
+  scroll-progress stroke or the beam active
+- THEN the dasharray total equals the cumulative polyline length
+  (`pathLength = stops.at(-1).arc`), NOT the first↔last chord —
+  unit-asserted against a 3-node fixture whose chord < polyline
+
+#### Scenario: tweening the value animates the draw
+
+- GIVEN a rendered progress stroke and a value change
+- THEN the dashoffset transitions (two sampled frames differ; reduced
+  motion: instant)
+
+#### Scenario: scroll animation keeps the stroke channel
+
+- GIVEN `animation: 'scroll'`
+- THEN the nearest scroller drives the progress stroke exactly as
+  before (probe re-asserted; the value-driven inline dashoffset is
+  ABSENT from the element under scroll mode), while
+  `data-completed` still follows the value contract
+
+#### Scenario: the reui parity parts exist
+
+- GIVEN the family's exports
+- THEN `TimelineHeader` renders the plain wrapper; `TimelineDot`
+  composes `children` inside the node; `TimelineTime` maps reui's
+  `TimelineDate`; `axis: 'horizontal'` maps reui's `orientation` —
+  statically assertable in the item's exports and props table

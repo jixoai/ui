@@ -54,8 +54,10 @@ describe('Select onchange — the commit hook (issue #6)', () => {
   it('the dead rest lane is closed at the source (the trigger can never see onchange)', () => {
     const src = readFileSync(resolve(here, '../src/lib/ui/select/select.svelte'), 'utf8');
     // omitted from the rest contract, destructured before ...rest, and
-    // fired from the one commit funnel
-    expect(src).toContain("Omit<HTMLButtonAttributes, 'onchange'>");
+    // fired from the one commit funnel. W3-D3: 'color' joins the Omit
+    // (the §5 axis prop owns the name; the non-standard color attr is
+    // not forwarded)
+    expect(src).toContain("Omit<HTMLButtonAttributes, 'onchange' | 'color'>");
     expect(src).toMatch(/let \{[\s\S]*?onchange,[\s\S]*?\.\.\.rest/s);
     expect(src).toMatch(/value = option\.value;\s*\n\s*onchange\?\.\(value\)/);
   });

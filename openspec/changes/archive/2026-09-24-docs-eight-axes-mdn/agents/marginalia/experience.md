@@ -1,0 +1,1318 @@
+# marginalia — experience log
+
+## Techniques (mine)
+- **Per-axis honesty protocol (accordion, round 1; badge round 2)**: before writing any
+  per-axis row, derive TWO facts from source and keep them separate:
+  (a) what the family STAMPS (read the root's carrier join —
+  `stampCarriersForLanes` + the class/attr bridges), (b) what the family
+  CONSUMES (grep the family css/stylex for each carrier var). A lane with
+  (a) but no (b) is broadcast-only — document it as supply, never demo it
+  as a visual change. density+theme were the only painter lanes on
+  accordion; radius is anchor-only (frame keeps `var(--radius)`).
+  Badge adds the third fact: (c) the CASCADE WINNER when a stamp and a
+  family rule compete (size's inline font-size beats the class voice —
+  the label re-types; the box stays density's). Stamp+consume+winner.
+- **Demo selection by visibility**: only demo lanes whose effect is
+  CSS-provable on the family (density named rungs via the `data-density`
+  scope swap; theme via the `.dark` class bridge; radius via the Card's
+  §3 consumption calc). The query() demo rides density because media-key
+  resolution flips a VISIBLE rung attr. Badge corollary: do NOT demo a
+  lane whose effect is invisible (elevation/motion) — row it, don't
+  stage it; and never let one demo carry two axes (the old badge page's
+  `size={14} density="small"` conflated exactly the two lanes my table
+  needed to separate).
+- **Custom-property substitution timing**: `var()` inside a custom
+  property substitutes at the DECLARING element. `--jx-text` is declared
+  only in `:root`/`[data-density]` scope blocks, so a bare
+  `--jx-density-coefficient` stamp matches no block and recomposes
+  nothing on a family that declares no channels of its own. Named rungs
+  make the scope block match the family root → recomposition there. This
+  decides which density lane is demoable. Badge re-confirmed it and
+  added the theme half: the hue slots' `:root, .jx-light, .dark` selector
+  list makes the SCOPED .dark a co-declarer for exactly those four slots —
+  which is why theme repaints tonal/fill but the outline ink (a :root
+  stylex token) lags.
+- **Skeleton lint as a hard gate**: every docs page needs exactly ONE
+  `Usage` H2 (hard), plus Install/See-Also markers for the staged
+  skeleton. Verify with `npm run verify:docs` after ANY page
+  restructure — the H2 lives in SectionCard `title`, so retitling
+  sections can silently delete the Usage H2. Badge addition: mount
+  DocsInstall/DocsSeeAlso and REMOVE the route's backlog entry from
+  scripts/docs-skeleton-scope.json in the same task (evidence-based
+  re-pin) — the printed backlog list is data-driven from that file.
+- **`query<{ Axis }, Axis>({ … }, base)` — BOTH generic args**: the
+  single-arg form ships a real svelte-check error (B defaults undefined;
+  the scribe-review law). Inline compound expressions in canvas children
+  are extractor-safe INCLUDING generics (the F4 guard only flags
+  sole-identifier refs; badge's
+  `query<{ sm: DensityLane }, DensityLane>(…)` extracted and passed the
+  same-source spec). The drawer then needs `'type { DensityLane }'` in
+  the usageFile imports record.
+- **Same-instant paint comparison (badge, NEW)**: the docs site rotates
+  `--brand-hue` on a wall-clock runtime — cross-instant color comparisons
+  produce confident false readings (my color-axis "paint mover" lasted
+  one probe section before pass 1b killed it). Any probe asserting paint
+  equality/difference must read both elements inside ONE evaluate.
+
+## Learned from vellum (task 3 learning assignment — alert review)
+- **The technique, extracted:** the axis-honesty probe — after coding OR
+  reviewing a per-axis table, run a computed-style probe that asserts
+  EACH row's claim (carrier strings in the style attr, computed
+  font/corner/hit values, attr stamps, query() resolution across a
+  viewport flip AND BACK, marker/row counts). Locator-by-title → one
+  `evaluate` returning all facts → boolean checks. 17/17 beats
+  "looks right", and review-side it converts "the table is plausible"
+  into "the table is measured".
+- **The meta-lesson behind vellum's three wrong source-read claims**
+  (the family's own scaling comment; the rung table missing 2xs;
+  query()'s min-width direction): prose AND tables lie — even
+  generated-looking ones. Only live measurement is a receipt. A page
+  that documents a number without "(measured)" is an unverified claim.
+- **Applied in review 3 (alert):** my OWN probe on :5244 re-measured
+  vellum's claims instead of trusting its 17/17 — rung pair 48/24,
+  the FULL TokenTable ladder 24/28/32/40/48 (2xs/xs/sm/default/lg),
+  concentric 20→6px with the banner's own corner at 8px, .dark
+  bridge + an actual repaint delta, query() direction both ways —
+  and added my declaring-element lens as the second lens: a bare
+  `--jx-density-coefficient: 3` on the banner moves NOTHING (hit
+  stays 40) while `data-density="lg"` re-declares --jx-hit (48).
+  That lens found the one honesty gap vellum's probe couldn't see
+  (its probe tested what the page DEMOS; mine tested what the page
+  IMPLIES — see report 3, finding 2).
+- **Process laws adopted from vellum's mistakes list:** kill the vite
+  grandchild by its own PID + `lsof -i :port` receipt (applied this
+  task — port 5244 left empty, no orphan); dist mtime must postdate
+  the reviewed commit before trusting dist-based gates; `rg -n` only.
+
+## Highlights found in others' pages
+- **vellum's alert (review 3): measured-value annotations** — the
+  TokenTable's `--jx-hit` row says `24 / 28 / 32 / 40 / 48px (2xs →
+  lg)` and ends "(measured rungs)": the annotation is a contract that
+  the number was live-verified, and it's how the old page's
+  missing-2xs lie got caught. Adopt on accordion's token rows.
+- **vellum's alert (review 3): the corrected-truth documentation
+  pattern** — the size row documents what measurement showed AGAINST
+  the family source's own comment ("the ambient reference … the
+  fixed voices stay") instead of transcribing the comment. My
+  declaring-element work on accordion reached the same posture from
+  the CSS side; vellum's version pairs it with the probe receipt.
+- **vellum's alert (review 3): PropsTable `title=""` custom rows** —
+  the per-axis table rides the existing PropsTable with `title=""`
+  (h4 suppressed) so the page keeps exactly ONE
+  `data-jx-props-table-universal` marker with zero new machinery.
+  Cleaner than any hand table; use for the next page's per-axis
+  table.
+- **quill's blockquote (review 2): the meta+docs curation lane** — API table
+  renders from the GENERATED meta, union-text corrections + display defaults
+  live in a `*.docs.ts` curation whose header carries the evidence for every
+  override. Kills the stale-default drift class structurally (the old hand
+  table shipped ruleSize '1' against the source's own 4). Accordion has NO
+  generated meta yet — when the extractor covers it, migrate my hand-written
+  API props literals (accordion page line 468) to `<PropsTable meta docs>`.
+- **quill's query() drawer discipline** — inline compound expression in the
+  canvas children (extractor-guard-compliant) + the `'{ query }'` binding in
+  usageFile's imports record → the drawer is copy-paste-runnable AND one
+  source with the live demo. My accordion keeps a hand-composed `queryDemo`
+  template string beside the live demo — two sources that can drift. I
+  commit to rehoming my query demo through `resolveRawCode('query')` +
+  `usageFile` (deleting the hand literal).
+- **quill's axes-summary honesty index** — "Three axes are consumed… five
+  are supply-only — recorded per axis instead of silently omitted": the
+  split counts up front, before the rows. Commit to adding the same index
+  sentence to my accordion axes summary.
+
+## Review-derived law (round 2, from quill's size row)
+- **A carrier stamp has CASCADE WEIGHT, not just var supply** — the §11
+  size stamp is `--jx-size-effective` AND `font-size: var(…)` INLINE
+  (defaults.svelte.ts:575); a style attribute beats any layered/em-based
+  family voice. Before documenting "the family's em voice rescales with
+  the axis", check whether an explicit stamp CLOBBERS that voice (it does
+  on blockquote: 0.875em rides only at auto; explicit size replaces it).
+  The consumption grep alone is not enough — check the winner of the
+  cascade between the stamp and the family rule.
+
+## Task 5 (accordion fix round, 2026-09-22) — learnings
+- **The F4 rejection classes are a positive selection tool, not just errors.** A
+  canvas whose stage carries page-state ({exclusive}/{ghost} shorthand identifiers)
+  CANNOT take an id — that's the documented registry/density-2xs class. The honest
+  fix for vellum's FAQ-drawer drift was therefore two-sided: label the hand mirror
+  by its file name (`accordion-faq.svelte`) + regenerate its CONTENT from the
+  stage's copy, and say in a comment WHICH surface is which. Don't force an id onto
+  a state-bearing stage and don't leave the mirror pretending to be the other
+  surface.
+- **The theme-split grep is source-level, no dist needed**: one look per voice at
+  its declaring selector list — raw shadcn tokens re-declared under plain `.dark`
+  (jixoai.css:269 block) flip at a component `.dark`; `tokens.stylex.ts`'s
+  `stylex.defineVars` map (:207) is the frozen layer by construction (the ledger's
+  `:root, .xbpgcew` emission). My fix-round probe then confirmed vellum's B1 values
+  byte-for-byte in ONE evaluate (summary ink === card ground === oklch(1 0 0) — the
+  white-on-white receipt as a passing assertion).
+- **svelte-check delta attribution under a shared tree**: sibling tasks run
+  concurrently and move the workspace total (this round: my −1 cancelled by the
+  cascader task's +1). The honest ledger is the per-page by-file diff
+  (`grep "^/Users.*svelte:" log | sort | uniq -c` on both runs), plus git-status
+  attribution for the sibling's files. Page-local count is the machine-verifiable
+  contract; never quote the workspace total as your delta.
+- **Joining the same-source lane means joining the PILOTS**: ids + resolveRawCode
+  without a PILOTS entry leaves the drawers ungated — that's how badge (my task 4)
+  escaped the drift gate. Accordion joined this round (5 snapshots, `-u` once then
+  green); badge flagged for the orchestrator.
+- **Probe locator law for stylex pages**: `rt.panel`/`rt.mt20` are hashed in the
+  DOM — locate by text content + `.parentElement`, never by utility class name; and
+  code samples in SSR carry escaped `<` (`query&lt;{ sm: DensityLane }…`), so
+  drawer-parity checks must match the escaped form. Three false FAILs this round
+  were exactly these two; the page was clean.
+- **Discharged on accordion**: quill's query() drawer discipline (inline compound +
+  imports record — the two-sources debt DELETED, not deferred) and quill's
+  axes-summary honesty index ("The split, counted: …"). Still deferred: meta+docs
+  curation (accordion has no generated meta — extractor coverage is the
+  batch-close item).
+
+## Task 6 (badge fix round, 2026-09-22) — learnings
+- **A filter over a COMPOSED array eats the appended lane too.** The universal
+  split (`UNIVERSAL_AXIS_NAMES`) filters `propsFromMeta(meta, docs)` — which is
+  meta rows PLUS `docs.extra` — by name. So the extra lane (the documented
+  rescue path) silently re-collides for any extra row sharing an axis name.
+  The general lesson: when a "rescue lane" appends into an array that a
+  downstream filter sweeps by predicate, the rescue needs an exemption AT THE
+  FILTER (here: reference identity against `new Set(docs?.extra)`), not just
+  in the curation's intent. Fixed in props-table.svelte; chip's rescue — dead
+  since 1783878f — revived as a side effect.
+- **The prescription-vs-outcome gap**: vellum's review prescribed the right
+  curation move and my task text demanded "verify by SSR row-parse (the row
+  must RENDER)" — that one clause is what converted a would-be second dead
+  rescue into a component fix. Reviewers verify by reading source; coders
+  must verify by rendering. Any "row renders / doesn't render" claim needs an
+  SSR table-parse receipt, the same way "(measured)" needs a probe receipt.
+- **Probing unregistered custom properties**: `getComputedStyle().getPropertyValue`
+  on an unregistered custom property does NOT give you the resolved px —
+  bind the channel inline (`el.style.fontSize = 'var(--jx-text-secondary)'`)
+  on a probe element inside the `[data-density]` scope, then read the
+  computed font-size. That's how the five-rung text ladder got its real
+  values (2xs 10 / xs 10 / sm 11 / default 12 / lg 14 — the source calc
+  `max(0.625rem, T_rung − 1px)` confirmed live).
+- **Shared-tree gate noise → attribute, don't retry-blind**: this round's
+  reds (tailwindless parse error, checkbox placeholder snapshot,
+  component-canvas ambient-vocabulary row) were all parallel agents'
+  mid-flight files. `git status` + the failing test's own filesystem reads
+  attribute every one. Retry only after attribution says the flake isn't
+  structural; never `-u` over another agent's placeholder snapshot.
+
+## Task 7 (breadcrumb review round, 2026-09-22) — learnings
+- **The menu's ink is TWO voices, and the panel-level read lies.** My probe
+  read the popover panel's `color` (the `.jx-menu` CSS rule's raw
+  `--popover-foreground` — flips under `.dark`) and nearly reported "the
+  composed menu re-themes". The ITEM ink rides a frozen stylex voice
+  (dropdown-menu.stylex.ts:43) — my own probe's `itemColor` stayed BLACK
+  under the dark toggle, corroborating vellum's dist grep only after I
+  re-read my own payload. Law: for composed consumers, probe at the level
+  the READER sees (the item), not the level the CSS rule lives at (the
+  panel); one element's computed color is not a subtree's theme story.
+- **"Complete" needs a denominator.** Vellum called breadcrumb's toc
+  complete (8/8 ids in DOM — true, toc↔DOM 1:1); I called it incomplete
+  (See also missing vs the badge/alert cohort — also true). The cohort was
+  SPLIT (anchor/blockquote omit it too), so both claims were true under
+  different denominators. The residue that survives every denominator: the
+  DocsSeeAlso wrapper carries no id anywhere in the no-entry half —
+  unreachable from the rail is a DOM fact, not a convention. State the
+  denominator, then check what's invariant across all of them.
+- **Casing conventions: check the nearest sibling before filing a NIT.** My
+  toc-label-case nit died in one grep — anchor's toc uses the same
+  lowercase demo-label pattern. Sibling-first, cohort-second, self-last.
+- **Read my own probe payload twice before writing the claim.** The
+  itemColor-black-in-dark was IN my first menu probe's output and I
+  almost filed the menu as re-themeing because the panel flipped. The
+  consolidation law works only if the pre-cross-read report records the
+  raw measurements, not the narrative — the payload kept me honest.
+- **The independence law pays twice**: writing findings first forced me to
+  derive the theme split empirically (my BLOCKER), catch the gap channel
+  and the "generated" wording miss that vellum lacks; the cross-read then
+  killed two of my weak findings (casing, toc denominator) and upgraded my
+  query() inference with vellum's scribe-self-reported error receipt.
+  Divergence isn't failure — two reviewers with different denominators is
+  the redundancy that catches the un-provable-by-one-check claims.
+
+## Task 8 (checkbox review round, 2026-09-22) — learnings
+- **A loose regex can false-PASS the exact thing you're checking.** My SSR
+  check for "the wrapped-contrast wrapper carries the stamps" matched an
+  unrelated axes-canvas div and printed PASS, while the actual contrast
+  cell carried nothing (quill's MAJOR-1, confirmed by re-grepping MY OWN
+  capture post-cross-read). Law: an existence probe must anchor on the
+  element's identity (its name attr / its section), never on a shape
+  pattern any div could satisfy; and after a cross-read reveals a false
+  PASS, re-grep your own capture before conceding — the evidence was
+  already in hand, the query was wrong.
+- **Verify the DECLARATION, not just the read.** I confirmed
+  `var(--corner-shape, bevel)` reads existed and let "the site's token"
+  slide; quill grepped for the declaration — none exists, the fallback
+  always wins. Symmetric law to consumed-vs-supply: a "reads token X"
+  claim needs X's declaring line, or the honest wording is
+  "undeclared seam, fallback wins".
+- **The co-stamped coefficient is LIVE at the rung scope** (setting 3 on
+  a real lg wrapper → box 24→72px): the kernel's pin at 1 is what makes
+  "explicit rung = exact rung" true. The number lane is inert only
+  because no scope block matches it. When documenting a two-half stamp
+  story, probe whether the halves INTERACT at the declaring scope —
+  mutually-exclusive-looking stories are often coupled there.
+- **Positive-control discipline held**: every inertness claim got a
+  movement control on the same harness (rung attr → 24/48; stripped →
+  20/40 unmoved under a 1.5→3 sweep). The control is what makes the
+  inert receipt meaningful, and what let me hand quill's 3b receipt a
+  DOM-level half.
+
+## Task 9 (cascader review round, 2026-09-22) — learnings
+- **BANKED — the co-stamp law, now with a two-page receipt**: named-rung
+  wrappers stamp `data-density="…"` AND `--jx-density-coefficient: 1`,
+  and the pin is LOAD-BEARING — the coefficient is live at the rung's
+  declaring scope (checkbox probe: 3× on a real lg wrapper → box
+  24→72px). The number lane alone is inert only because no scope block
+  matches it. Cascader's density row carries the same omission as
+  checkbox's (the caption names the co-stamp; the row doesn't) — when
+  the cascader fix round lands, add the one-clause pin mention. Model
+  wording: "the rung's wrapper co-stamps the coefficient pinned at 1 —
+  the pin is what keeps the rung exact; the number lane alone, with no
+  rung scope, is the inert case."
+- **TokenTable is Token | Default | Source — `description` never
+  renders, and `structural` maps to an empty source label.** Every page
+  writing token descriptions into that field is writing unreachable
+  prose; all-structural tables (cascader's fixed-paint receipt table)
+  render a visibly blank column. Check the COMPONENT's render contract
+  before trusting a curation field — the type accepting a field is not
+  the component rendering it (the props-curation cousin of 策展覆盖≠渲染).
+- **Entity-encoding is asymmetric in SSR text**: `query&lt;{ … }` — the
+  opening `<` entity-encodes, the closing `>` stays raw. Byte-greps for
+  generic-including text must encode only what the serializer encodes;
+  my first grep demanded `&gt;` and false-FAILED a claim that was
+  served correctly (the inverse of the checkbox false-PASS: both
+  directions of grep sloppiness bite).
+- **The −4° hue drift is the invariant, not the absolute hue**: the
+  wall-clock brand-hue rotation means ring/fill hue readings differ per
+  instant (quill 142→138, me 190→186). Any probe asserting a drift
+  claims the DELTA inside one evaluate, never absolute values across
+  instants — third time this law paid (color axis, theme split, ring).
+
+## Task 10 (chip review round, 2026-09-22) — learnings
+- **A micro-fix review re-runs the RECEIPTS, not the whole audit.** The
+  chip round: verify the corrected ladder in served bytes (new string
+  present, old string ×0), re-run the negative greps the new receipt
+  rows cite, re-parse the regression surface (the 12-row EXTRA-lane
+  table), and live-measure only the numbers the fix touched plus the
+  flip probes. Full re-derivation of unchanged claims would burn the
+  budget without adding information — the prior review's PASS stands
+  unless the fix's blast radius touches it.
+- **Run the cited grep before accepting a receipt-form row.** The
+  radius/color rows now SAY "grep receipt: zero readers" — the form is
+  only honest if the grep reproduces; mine did (0 hits, all four
+  carriers). A receipt claim is itself a claim: re-derive it, cheaply.
+- **Read the prior reviewer's adjudications with their evidence, not
+  just their findings.** I flagged chip's bare `query({ md: 16 }, 14)`
+  as a consistency deviation; vellum had already adjudicated it
+  compliant with a type-check receipt (the §6 ruling governs explicit
+  lists; both params infer here). The consolidation deferred to the
+  better evidence — a NIT that a prior receipt disproves should die,
+  not survive as style disagreement.
+
+## Task 11 (component-canvas review round, 2026-09-22) — learnings
+- **The W-next #3 dead-column law now has a third instance and a shape**:
+  TokenTable renders Token | Default | Source only; `description` never
+  renders, and `structural` source maps to an empty label — so
+  all-structural receipt tables (cascader's fixed-paint table,
+  component-canvas's fixed-voice table) show a visibly blank column and
+  write their evidence into the void. The reviewing posture that works:
+  confirm the RENDERED cells are honest at their granularity, confirm
+  the dead prose matches source (the css receipt), and file the
+  instance under the already-ruled component debt instead of demanding
+  a per-page fix the component owns.
+- **Documenting-consumer pages flip the grep direction.** component-canvas
+  legitimately READS `-effective` carriers (its specimens + §3 anchor
+  pins are the demo), so a fleet-wide "zero effective readers" grep
+  would false-accuse. Scope consumed-vs-supply greps to the family's
+  own paint files (css + the family stylex) and treat the docs page's
+  carrier stamps as the instrument, not the claim.
+- **A table-arity receipt catches rescue arithmetic**: family rows =
+  meta props − split axis lanes − name-filtered seats + extra re-adds
+  (component-canvas: 27 − 6 − 2 + 2 = 21, parsed exactly). The arithmetic
+  turns "the rescue renders" into "the rescue renders and nothing else
+  moved" — the same upgrade quill's 11→12 chip count made; do it on
+  every EXTRA-lane page.
+- **TRANSITION-FRAME (LAW #14) closed my task-7 observation**: the
+  cascader menu's you-are-here paint "not flipping" under the dark
+  toggle was the 100ms background/color transition's start frame —
+  synchronous computed reads return it. Post-law probe discipline: for
+  any transition-bearing claim, await > duration before the after-read
+  (or assert the start frame deliberately). My probe's bytes were
+  honest; the frame was the lie.
+
+## Task 12 (breadcrumb re-verify round, 2026-09-22) — learnings
+- **LAW #14 executed end-to-end on my own overturned finding**: with the
+  250ms await, the you-are-here background read 0.9551 → **0.2178** —
+  scribe's deterministic number, now reproduced under my own probe. The
+  trail stylex inks stayed frozen at 0.3211 in the same evaluate. A
+  re-verify that overturns your own observation is the strongest
+  closure there is: the law predicted both the original artifact (start
+  frame) and the steady-state truth, and both predictions landed.
+- **Re-verify economics**: per-finding verification targets the DIFF
+  (each finding's claimed fix, checked in served bytes + live), plus a
+  spot-check quota over the prior review's receipts (3 of 5 here) and
+  the three gates. Everything else inherits from the prior PASS table
+  unless the fix's blast radius touches it. The full re-derivation
+  instinct is how reviews balloon; the diff-targeted instinct is how
+  they close.
+- **Gate reds under a shared tree get one attributed retry**: the
+  tailwindless RED listed 30 violations all on one sibling's mid-write
+  page (`empty.html`) — attribution by reading the violation paths, one
+  timed retry, GREEN with the receipt verbatim. The retry is justified
+  by the attribution, not hope.
+
+## Task 13 (date-picker review round, 2026-09-22) — learnings
+- **Assert polar invariants, not raw oklch strings.** My hue regex
+  returned null on `oklch(0.7044 0.1872 calc(256 - 4))` — the kernel
+  composes hue as calc() under the wall-clock rotation, so a naive
+  `oklch(L C H)` parse dies exactly on the interesting tokens. The
+  stable assertions are L and C (0.7044/0.1872 dark vs 0.6489/0.237
+  light) plus the −4 offset read from the raw string; the absolute hue
+  is wall-clock noise. Vellum had banked this lesson a round earlier —
+  reading sibling experience files before probing would have saved the
+  miss.
+- **One cell, two formulas is the sharpest THEME-SPLIT receipt shape.**
+  Reading `--primary` (raw, flips) and `--jx-primary` (alias, frozen) on
+  the SAME element removes every confound — no sibling matching, no
+  cross-element comparison. The measured pair (dark formula vs light
+  form at one node) is the strongest possible evidence for the split
+  rows; prefer same-element dual-token reads over two-element
+  comparisons wherever a split claim exists.
+- **Min-height lanes: measure the floor, cite the floor.** The rendered
+  box overshoots its min-height whenever content is taller (my probe:
+  58/70px rendered over 40/48px floors) — a row that says "the box
+  steps" is directionally true but the exact claim is the floor.
+  Quote the min-heights; say "floor" if floor is what the law sets.
+
+## Task 14 (checkbox re-verify round, 2026-09-22) — learnings
+- **A co-stamp law's full lifecycle, observed**: task 8 discovery (the
+  pin is live at the declaring scope, ×3 = 24→72px) → task 12 banked →
+  task 14 the fix round quotes my probe number AT THE CLAIM SITE and
+  puts the wording in the rendered Default cell (respecting W-next #3's
+  dead-description ruling). The lesson: when a finding lands a probe
+  NUMBER, the fix can cite the number — reviewer-provided evidence
+  becomes page content, the strongest fix class.
+- **An id-less canvas can be the honest posture**: the form canvas stays
+  outside the same-source lane because its payload is page state
+  (F4-rejected for extraction) — with the rationale IN THE REVIEW
+  RECORD. Partial same-source coverage is acceptable when each gap is
+  either declared (chip's mirrors) or reasoned (checkbox's form canvas);
+  it was the UNdeclared drift that was the MAJOR.
+- **Count-check greps must model the compiled/runtime form**: my
+  "stage+drawer ×2" expectation for `cx(rt.col16)` failed because the
+  stage COMPILES the call into hashed classes — only the drawer's code
+  text carries the literal. The same discipline as the asymmetric
+  entity-encoding: model what the served artifact actually contains
+  (attribute markup compiles; code-view text encodes) before counting.
+
+## Mistakes to avoid
+- **`rg -rn` is the replace trap** — hit it THREE times this session despite
+  the law in context (third time: a reflexive bare `rg -rn ""` mid-investigation
+  produced a 114MB log). `-r` = `--replace`; output mangles matches to the letter
+  `n`. Recursive+line is plain `rg -n "pattern"`. Banned reflex: NEVER type
+  `rg -rn` at all — even reading it back as "recursive" is the failure.
+- **Don't trust W3-era demo copy**: the old universal card demoed
+  `size={18}` with "the whole disclosure set scales" — contradicted by
+  the family CSS. Trust computed CSS facts over shipped prose. Badge
+  added the inverse: don't trust MY OWN prose either — my "2xs … 18px
+  box" caption was bad arithmetic (line 12.5 + 2×1px hairlines = 14.5)
+  and the probe caught it before review did. "(measured)" annotations
+  are a contract the probe must enforce row by row.
+- **Retitling sections can break lints**: removing the Usage H2 hard-
+    failed docs-structure. Run the structure lint immediately after
+    restructure, before polish.
+- **A missing canvas `id` fails at runtime with the extractor's named
+  error** ("no canvas with id X — the page ids are: […]") — name every
+  ComponentCanvas that resolveRawCode reads BEFORE first render; the
+  error message names the fix, so read it instead of guessing.
+
+## Upgrades applied back to my pages
+- (accordion IS the first page; the techniques above ARE the upgrade —
+  apply the per-axis honesty protocol to badge/figure/card when their
+  turns come)
+- Badge (task 4) DISCHARGED three of my logged upgrade commitments on
+  its own page — the accordion copies stay DEFERRED until its two
+  in-flight reviews land:
+  - quill's meta+docs curation lane → badge is now
+    `<PropsTable meta={badgeMeta} docs={BADGE_DOCS} />` with
+    badge.docs.ts (badge.meta.ts existed, so the migration landed with
+    the rewrite; accordion has no generated meta yet — still waiting).
+  - quill's query() drawer discipline → the query case is an inline
+    compound expression in the canvas children + the `'type { DensityLane }'`
+    and `'{ query }'` bindings in usageFile's imports record; my
+    accordion hand-composed `queryDemo` template is still the two-sources
+    debt to rehome later.
+  - quill's axes-summary honesty index → badge's axes summary opens with
+    the consumed/re-typing/supply-only counts; accordion's summary still
+    owes the same sentence.
+
+## Task 15 — dropdown-menu review (2026-09-22)
+- **Anchor-name targeting beats label-text search on demo-heavy pages**:
+  the level4 demo trigger is labeled "Open" and four UNRELATED buttons
+  carry the text "level4" — my label-based probe clicked a wrong button,
+  found the still-open level2 panel, and read two DIFFERENT panels as one
+  identical stamp (a false "level4 demos level2" almost formed). Target
+  `[data-jx-menu-trigger]` / `span.jx-menu-anchor[anchor-name: …]`, never
+  `button` by text, when a page ships many demo buttons. Corollary: an
+  open popover found by `:popover-open` may be a PREVIOUS step's panel —
+  close or re-scope between opens, and sanity-check the panel's
+  `position-anchor` matches the intended demo.
+- **The [popover] platform element paints nothing BY DESIGN**
+  (jixoai.css `.jx-surface { background: none; border: none }`) — bezel
+  fill, seam and box-shadow live on the `.jx-surface-body` child
+  (`var(--jx-elevation-surface, var(--jx-surface-solid-fill,
+  var(--popover)))` + `var(--jx-elevation-shadow, none)`). Any
+  theme-split or elevation probe that reads the popover root gets
+  rgba(0,0,0,0)/none and may mis-conclude "unthemed".
+- **A family that stamps its own elevation ladder never resolves the
+  --popover fallback**: dropdown-menu's own level2 default always emits
+  the stamp, so the panel fill rides `--jx-elevation-level2-surface` →
+  `--surface-container-low` (0.96 light / 0.185 dark), NOT --popover
+  (dark --popover = 0.3211, kept above the ladder by design). Theme rows
+  that attribute the fill to "--popover raw read" are mechanism-wrong
+  even when the flip outcome is right — the measured dark fill value
+  (0.185 ≠ 0.3211) is the discriminator. Also: the elevation shadow
+  recipes re-declare under `.dark` as WHITE recipes (hsl(0 0% 100%/.16))
+  — a visible flip easy to omit from a FLIPS enumeration.
+- **grep pitfall (recurring family)**: `grep -o "--jx-hit" *.svelte`
+  parses the pattern as a FLAG → silent 0 hits that look like zero-reader
+  receipts. Use `grep -o -e "--jx-hit"` (or `--`). My first zero-reader
+  sweep was all-invalid; only the `-e` re-run produced real receipts.
+- **Composer claims die by import grep**: "menubar panels and
+  navigation-menu mount dropdown-menu" was false at every layer
+  (component import, demo nesting) — menubar's own header documents
+  deliberate duplication ("registry items stay independent, no hidden
+  coupling") and navigation-menu's says "actions belong to
+  dropdown-menu". When a page names composers, run the import grep per
+  name; sibling-family headers often state the true relationship.
+
+## Task 16 — avatar review (2026-09-22)
+- **Inline beats class: the §11 carrier echo kills "fixed voice" claims.**
+  `stampCarriers` (defaults.svelte.ts:570-576) emits `font-size:
+  var(--jx-size-effective, 1rem)` INLINE on any family root with an
+  explicit size lane — an inline declaration overrides the family's
+  stylex `fontSize` atom. So an avatar's initials measure 14/16/18px at
+  the named steps and the BOX EDGE (48px/28px) on the number lane, while
+  the page claimed a fixed 12px label-lg step "at every size". Only the
+  AMBIENT path (no explicit lane → no stamp → class wins) holds a fixed
+  voice. Rule: before crediting any "fixed step/voice" row, read the
+  family's carrier-stamp helper AND measure the EXPLICIT lanes — ambient
+  alone lies.
+- **Measure overflow, don't infer it**: the 48 avatar renders "AL" at
+  48px font in a 46px content box — scrollWidth 52 > clientWidth 46,
+  clipped (the meta's "never overflows" falsified on the number lane).
+  `scrollWidth > clientWidth` on the live element is the receipt;
+  visual inspection of a headless screenshot would not have caught a
+  6px clip reliably.
+- **Carrier-stamp comments are not reads**: avatar.svelte:87 mentions
+  `--jx-size-effective` in a doc comment — a naive grep counts it and
+  breaks a zero-reader receipt. Grep hits need their context classified
+  (comment vs declaration vs read) before they enter a receipt.
+- **Caption-anchored probe locators must anchor on the text PREFIX**: a
+  canvas's description paragraph ("…one real query() case…") contains the
+  caption word too; `find(p => text.includes('query()'))` matched the
+  description, walked up to the grid, and returned the FIRST panel's
+  avatar — a wrong-element read that looked plausible (24px). Anchor on
+  `text.trim().startsWith(caption)` or the full caption string.
+
+## Task 17 — empty review (2026-09-22)
+- **The emission-form law's live receipt**: the typed intermediates emit
+  at `:root, .xbpgcew` inside `@layer components.stylex.priority1` with
+  var(--raw) values — scan `document.styleSheets` (walk nested
+  cssRules, guard CORS) rather than the SSR bytes: in dev the stylex
+  emission is NOT in the served HTML, only in the runtime stylesheet.
+  A substring search for `jx-border` (no colon) finds it; my first scan
+  searched `'--jx-border:'` with a length-based early break and
+  returned an empty array that looked like "no emission".
+- **Clone-stamp probes must not mutate the control variable**: testing
+  the density NUMBER lane by cloning the sm figure and REMOVING its
+  data-density measured the rung removal (sm → ambient: 16→24px pad),
+  not the coefficient. The correct control is the AMBIENT figure (no
+  rung attribute) + the coefficient stamp — byte-identical before/after
+  is then the inertness receipt. My first attempt produced a false
+  "densityInert: false" that a careless read would have filed as a
+  page finding.
+- **A leaf family can be echo-safe**: the §11 size echo lands on
+  empty's root too, but every visible text descendant sets its own
+  font-size atom (term/zero inherit the art's var(--jx-text)), so
+  SUPPLY-ONLY stays true in effect — unlike avatar, where the fallback
+  had no font-size of its own. "Does the echo change anything visible?"
+  is a per-family question; the answer is in the descendant atoms, not
+  the stamp.
+
+## Task 18 — dropdown-menu re-verify (2026-09-22)
+- **Filter-pattern self-exclusion**: `grep … | grep -v "dropdown-menu/"` to
+  exclude the family's own dir also excluded every HIT (the import string
+  itself contains `dropdown-menu/`) — a sweep that silently returned zero
+  and looked like "no importers". Rule: exclusion patterns must never
+  share substrings with the sought pattern; scope by directory instead.
+- **Anchor-name inventory BEFORE probing**: pulling every
+  `anchor-name: --jx-menu-*` from the SSR first (`-t-dark`, not the
+  guessed `-theme-dark`) turned the dark-island probe from a miss into a
+  one-shot. Guessing name shapes from page prose is the residual failure
+  mode; the SSR is the name registry.
+- **Quoting discipline for pages that quote source headers**: quill's fix
+  quotes menubar/navigation-menu headers — every quoted fragment
+  ("duplicated deliberately…", "an independent thin coordinator",
+  "actions belong to dropdown-menu") was grep-verified real before the
+  re-verify PASS. A fabricated quote would have been a new MAJOR on the
+  fix commit itself.
+
+## Task 19 — avatar re-verify (2026-09-22)
+- **The re-verify benchmark is your own probe log**: vellum's reworded
+  rows quoted my task-16 numbers (12/14/16/18/48/28, 52/46, 30/26) and
+  every one reproduced on the current tree. Filing exact numbers (not
+  "clipped") in a review is what makes the fix machine-checkable — the
+  re-verify becomes a diff against your own log.
+- **Entity-encoding asymmetry strikes in both directions**: "52 > 46"
+  serves with a RAW `>` (only `<` is encoded) — a `&gt;`-form grep
+  returns 0 and looks like the fix didn't land. When a byte check
+  fails, try the raw form before concluding absence.
+- **svelte-check page-scope**: `npx svelte-check --workspace apps/www
+  --output machine` from the REPO ROOT; filter diagnostics by path
+  fragment ("avatar.html" for the docs page — "avatar" alone catches
+  the family component's pre-existing warnings). Fleet totals (1622/
+  1623) drift on a shared tree; page-scoped zero is the only stable
+  receipt.
+- **"Zero diagnostics" claims decompose**: page zero ✓ while the family
+  component keeps its 2 documented pre-existing errors — both true,
+  different scopes. A fix claim of "page zero" is satisfied even when
+  `grep avatar` hits the family file; scope the grep to the page path.
+
+## Task 20 — button-group review (2026-09-22)
+- **Provider families move the measurement target**: the group stamps,
+  the COMPOSED buttons consume — so the density ladder is read off the
+  BUTTONS (height/font), not the wrapper; and a channel is "read" if any
+  composed consumer reads it (press-button's paddingInline var(--jx-inset)
+  is a density channel of the GROUP's row). Enumerating "the lanes the
+  joined buttons read" requires sweeping the consumers' atom tables, not
+  the family's own files — my third channel-list miss caught (dropdown
+  size echo, avatar voice, button-group inset) all share the shape: the
+  enumeration lived in one file while the reads lived in another.
+- **Stamp-the-rung-attribute to reach undemoed rungs**: a page demos only
+  default+lg; the xs/sm rungs measure fine by setting data-density on a
+  live clone (the attribute IS the mechanism the named stamp writes).
+  Same for the number lane (coefficient inline) — but always on a clone,
+  never the pinned specimen.
+- **W7 scroll verdicts are JS-stamped strings** (data-jx-scroll-state=
+  "start-closed") — read the stamp first, then the chrome displays;
+  chevron chips are aria-label'd ("Scroll actions backward/forward"),
+  not class-found. Overflow numbers are viewport-relative — always pair
+  scrollWidth/clientWidth with the viewport you measured at.
+- **Dead CSS detection**: a class count in the SERVED CSS is not a DOM
+  count — .jx-btngroup-veil-layer appeared ×2 in the page bytes (the
+  stylesheet text) and ×0 as elements. Grep the stylesheet AND query the
+  DOM separately; the difference IS the dead-rule receipt.
+
+## Task 21 — image review (2026-09-22)
+- **Snippet-vs-default branches have DIFFERENT failure surfaces**: image's
+  `{#if failed && fallback}{@render fallback()}` renders consumer markup
+  BARE — no data-jx-image-broken panel, no data-density stamp. A query()
+  demo that provides a fallback snippet cannot demonstrate "the broken
+  panel's stamp moves" (measured: data-density null at both viewports).
+  When a caption names an element, check the demo's chosen branch renders
+  that element.
+- **PROBE-READINESS loop**: a fallback-slot probe cannot scroll to its
+  own slot text before the slot exists (the span renders only after the
+  swap). Anchor on the always-present canvas title (or warm the whole
+  page by scrolling every img into view first), wait for the swap, then
+  locate. My probe2 crashed on exactly this; probe5 landed the receipt.
+- **The 110-gate counts the hand lane too**: PropsTable's bare `universal`
+  directive emits the same data-jx-props-table-universal marker as a
+  meta-driven table — docs-universal GREEN 110/110 includes hand-table
+  pages. Hand tables can be honest: match rows to the real interface and
+  render axis rows from the shared schema.
+- **Fixed-paint TokenTable pattern**: rows with no source column (every
+  fact in the Default cell) sidestep the W-next #3 structural-label gap —
+  image's paintTokens are the model.
+
+## Task 22 — color-picker review (2026-09-22)
+- **Regex blind spots on generated meta — twice**: `[a-zA-Z][a-zA-Z0-9]*`
+  misses hyphenated keys ('data-density', 'aria-invalid') AND a naive
+  `{`-depth matcher truncates on braces inside strings. A string-aware
+  matcher plus a hyphen-inclusive key regex turned "21 entries, no
+  hidden" into "24 entries, the quoted trio present once" — which
+  falsified the recorded "27 meta − 3 citation dupes" head while
+  CONFIRMING its result (24 − 8 − 4 = 12). Arithmetic chains in review
+  notes must be re-derived from the artifact, not re-quoted; the result
+  being true does not make the intermediate counts real.
+- **Component roots nest**: color-picker's `.jx-field` class appears on
+  the stamped root AND inner wrappers — classify candidates by
+  `hasField` before reading, or getComputedStyle(null) crashes the
+  evaluate. Same family, two elements, two different claims: the well
+  floor + shadow live on the inner trigger span, the carrier stamp +
+  data-density on the outer root — read the css selectors to learn which
+  element owns which claim before probing.
+- **Wall-clock hue, handled end to end**: the caret flip was asserted as
+  the dark formula's L/C signature (0.7044/0.1872 — stable) + the −4°
+  drift (357→353 measured in one evaluate), never absolute hue. The
+  page prose was checked numeric-free the same way. The pairing of
+  "prose claims no absolute hue" + "probe asserts signature+drift" is
+  the reusable pattern for every --primary-flipping surface.
+
+## Task 23 — carousel CODE (2026-09-22)
+- **CODE tasks want the probes BEFORE and AFTER**: probing the served
+  family on the OLD page first fixed the axis story while it was still
+  cheap (the density token rows were falsifiable — --jx-icon/--jx-hit
+  documented, zero reads — and the theme story turned out FROZEN, the
+  opposite of button-group's raw-shadow FOLLOWS). The emission-form grep
+  + a clone probe decided it: typed intermediates freeze, raw tokens
+  follow — two families, one shadow token apart, opposite verdicts.
+- **The ambient matrix only covers the tasksUniverse** (the env-debt-
+  cleanup batches A/B): a page outside those 23 routes needs NO matrix
+  re-pin for its hand axes table — carousel's density/size rows are
+  invisible to candidateKeys. Check AXIS_PROPS ({density, variant, tone,
+  material, size}) AND tasksUniverse membership before hand-wringing
+  about pins.
+- **A transient 500 is a compile-in-progress; a persistent one is
+  real**: the first fetch after a big rewrite raced the compiler. The
+  second 500 was real (dropped PlayFields import) — svelte-check named
+  it in one run. Triage order: refetch → svelte-check → dev log.
+- **PILOTS -u flow**: add the route to PILOTS + two it-blocks with EMPTY
+  toMatchInlineSnapshot(), run vitest -u once (snapshots fill), then a
+  clean run to prove stability. The extractor keeps cx(rt.…)/inline
+  styles verbatim — static stages with rt atoms extract fine.
+
+## Task 24 — hero-section ADJUDICATION (2026-09-22)
+- **PROBE MEDIUM IS PART OF THE CLAIM**: the same page, two instruments,
+  opposite verdicts — raw SSR showed the §9.1 unconditional light base
+  (no .dark anywhere in the section tag), the hydrated probe flipped
+  both directions (dark 0.7044 0.1872 ↔ light 0.55 0.12, tracking
+  matchMedia). vellum's MAJOR was a true observation from a blind
+  instrument. LAW #16: flip claims require hydrated probes; every probe
+  report names its medium. An adjudicator runs BOTH instruments before
+  ruling — the disagreement itself was the diagnosis.
+- **The wall-clock hue showed up inside a single adjudication**: the
+  caret/accent hue read 27 → 56 → 57 across three reads two resize-cycles
+  apart — absolute hue never survives even one probe session. L/C
+  signatures + class state + drift only, every time.
+- **Carousel authored (task 23, same session)**: probe-before/after on
+  CODE tasks; the frozen-pole-vs-follows verdict is decided by the
+  emission-form grep (typed intermediate freezes, raw token follows) —
+  one shadow token apart gave two families opposite theme verdicts.
+
+## Task 25 — descriptions 2nd review (2026-09-22)
+- **CSS-Nesting stylesheet-walk trap**: every CSSStyleRule exposes `.cssRules` (nested-rules list, usually empty), so a `if (r.cssRules) { walk(...); continue; }` census silently skips scanning EVERY style rule — census returned {} against a fully-painted page. Walk must recurse AND scan each rule's own cssText/style. Also: `document.styleSheets` excludes `adoptedStyleSheets` — walk both.
+- **Wrong-element border read**: the dd "flipped" black→white under .dark — but the dd has border-bottom-WIDTH 0; the real edge is the CELL div's `cellBordered` (frozen via --jx-border). The white was the universal `* { border-color: var(--border) }` canvas reset on a 0px border. Read the box model BEFORE reading colors: a 0px edge has no paint to falsify anything.
+- **Control-variable rule for clone stamps**: stamping coefficient 3 on a clone that KEPT data-density="default" measured 36/39/36 (named-rung × coefficient DOES scale) and nearly falsified the inertness claim. The real number-lane state (coefficient WITHOUT a rung attribute) is inert. Never mutate the control variable mid-experiment.
+- **Demo rigs need container-type**: a @container law fires against the nearest ancestor CONTAINER — a wrapper div with only `max-width` is invisible to it, and as a flex item its min-width:auto floor pins it to the content's min-content, so the "drag to fold" demo painted nothing while its output chip claimed the fold. When reviewing interactive demos, drive the REAL control (PlayRange setter + input event) and compare the chip against the paint.
+- **BOARD shorthand vs page anchors**: "#see-both" in the dispatch/BOARD was shorthand for the #install+#see-also restore; grep the SSR for the literal anchor before treating a BOARD phrase as a page claim.
+- **Custom-property freeze mechanism (pinned)**: var() inside a custom-property value substitutes at the DECLARING element's computed value; descendants inherit the resolved literal → typed aliases freeze under .dark islands; direct raw reads at the element flip. Census receipt: aliases at `:root,.xbpgcew` + the doubled stylex theme class only.
+
+## Task 26 — code-card 1st review (2026-09-22)
+- **`:where()` token stacks arbitrate by ORDER, not by intent**: base/dark/jx-light token re-declaration blocks all zero-specificity in one layer — the LAST matching block paints. A page-level stage class (jx-light canvas) silently routes the re-flip; a wrapped `.dark` probe on that stage measures the re-flip path, not the dark block. Lift the stage (and restore!) to measure the clean scope before attributing formulas to a re-declaration block. Two-media receipts or the attribution is guesswork.
+- **Custom-property computed values resolve var() at the DECLARING element** — the receipt shows `--tok-token-keyword` computed to `oklch(0.7044 0.1872 calc(40 - 4))` with the −4° drift arithmetic live inside the computed value. Computed custom props are resolved literals, not token streams.
+- **Client-highlighted pages have empty SSR pres**: shiki span counts are hydrated-DOM receipts — name the medium (LAW #16 extends to "served" wording, not just viewport flips).
+- **Gaps-only review form**: audit by integration diff (what the commit touched vs left) + confirm the canon sections untouched; the toc vs section count can legitimately differ (toc 10 + install + see-also = 12 sections) — reconcile before flagging.
+
+## Task 27 — badge-indicator authored (2026-09-22)
+- **The §11 echo follows the ROOT boundary, not the component boundary**: the same axis (size) is inert on a wrapped chip (mirror on the wrap, typed atom wins) and LIVE on the standalone chip (the chip IS the root — inline mirror beats the class atom, the avatar-echo precedence). My own demo panel falsified my first draft's unconditional "nothing follows" — measured 18px where the row promised 10px. Every "nothing follows" claim is posture-conditional whenever the component has a root-split (children vs standalone).
+- **Probe self-contamination**: measuring the "outside" baseline AFTER an earlier mutation in the same evaluate reads the mutated state (my lg-stamped chip WAS the baseline). Reset state before the baseline read, or take the baseline FIRST.
+- **`:where([data-density='lg'])` rung scopes re-base kernel channels on ANY matching element** — a bare div with the attribute is a live scope; the channels move for the element and its descendants. That is the wrap-scope composition mechanism, measurable without a tenant.
+- **Shared-tree attribution discipline**: other agents' in-flight edits live in the same worktree — a failing gate names its route; stash MY files, re-run, and the attribution receipt is the still-failing clean tree. Never eat or hand off an unattributed red.
+- **resolveRawCode gate**: the PILOTS lane requires ≥1 `resolveRawCode('<id>')` call per pilot page naming a REAL canvas id — a canvas without an `id` prop extracts as `undefined` (the -u run will happily snapshot `undefined`); give every authored canvas an id and wire one drawer through usageFile/resolveRawCode.
+
+## Task 28 — link 2nd review (2026-09-22)
+- **Toc order ≠ DOM order is invisible to a section-list check**: every toc id existed and every label was real — only the BYTE POSITIONS revealed the inversion (accessibility rendered between detection and axes while the toc put it last). Order receipts need positions, not membership. `indexOf` on `id="x"` can false-match code samples; sanity-check the 60 chars before the hit.
+- **A review-log paraphrase can misstate a contract**: `rel="noopener external"` in a receipt vs the served `rel="noreferrer"` + `data-jx-link="external"` — quote served attributes verbatim in probes; paraphrases belong to no report.
+- **The frozen-pole receipt form is now canonical**: co-resident islands + read BOTH `--raw` (flips, formula arithmetic visible in the computed value) and `--jx-alias` (byte-identical) on the SAME elements — the substitution-site story proves itself in one evaluate.
+- **Snippet-type diagnostics are their own class**: an inline `const arrowGlyph = …` infers a Snippet-brand identity that fails the prop's imported `Snippet` type — unlike cx-debt it's not a narrowing gap; the fix is annotating the const with the imported type. Zero runtime effect either way.
+
+## Task 29 — card-grid re-verify (2026-09-22)
+- **Re-verify protocol worked as designed**: my ladder/bridge derivations (and the drawer finding) were filed before reading vellum's fix report; the cross-check then only had to reconcile deltas. The unrecorded delta (theme canvas reusing the axes usage file) is exactly what independence buys.
+- **Query-flip receipts need per-width FRESH LOADS plus a resize sweep**: a resize-only sweep can mislead if the locator drifts between specimens; fresh loads pin the first-paint medium (LAW #16), the resize sweep proves reactivity, and the exact-key straddle (768/767) proves the cited key. Anchor query specimens by their UNIQUE TENANT TEXT, not positional `.pop()` or stylex-hashed classes (`rt.maxWXl` compiles to a hash — the literal never exists in the DOM).
+- **New additions need their own drawers**: a second canvas reusing another canvas's files const silently violates code-shown-equals-code-running — the swap law applies to additions, not just rewrites. Give every new canvas its own usage file or an id + resolveRawCode.
+- **`await fn` vs `await fn()`**: awaiting the function object returns it (JSON.stringify → undefined) — the silent empty-evaluate. Same family: duplicate helper declarations across script edits compile-fail loudly; keep one sleep helper per script.
+
+## Task 30 — navigation-menu 2nd review (2026-09-23)
+- **`:top-layer *` is not a selector** — the top-layer pseudo-class has no universal form; assert via `el.matches(':popover-open')` (and let the popover attribute carry the open-state proof).
+- **Popover receipts await the computed `transitionDuration`** (the WAAPI/kernel entry ran 0.46s — a 700ms settle clears LAW #14) and read the promoted element IN PLACE: DOM-parent checks prove "paint moves, DOM doesn't" without any top-layer enumeration.
+- **Raw-vs-typed theme pairs read best on the SAME element**: `--foreground`/`--popover` flip while the typed ink freezes — one evaluate, two scopes, no hue reads (the neutral-token signal quill's red-herring correction demands). Different reviewers may quote different raw voices (--foreground vs --muted-foreground vs the surface element) — all are the same flip class; reconcile by naming the token, not by arguing values.
+- **"Probe-asserted" receipts must reproduce literally**: the a11y table claimed `tabindex -1`; the DOM carries no tabindex at all. When a reviewer's probe says null, the record says -1, and the intent ("not focusable") is true anyway — the fix is to make the DOM match the record (or vice versa), never to let the citation stand unreproduced.
+- **Menu-family spec coverage split across reviewers**: reconcile the file LIST (5 vs 6 solos) in the cross-read — combined coverage is the receipt, not either run alone.
+
+## Task 31 — file-input 1st review (2026-09-23)
+- **Drop-gate dispatch target = the dashed TRIGGER BUTTON**: the native input and its wrappers carry no handlers; the trigger button (aria-label "drop zone") is the drop surface. Enumerate dashed elements with visible rects (>120×40) — the input's computed border-style can read dashed via clip styling and false-anchors the walk-up. Exclusion receipts must exclude `<code>` subtrees — the usage drawers contain "rejected"/filename strings that false-positive any text scan.
+- **Thumb box vs thumb img**: the thumb atom is knob + 2px hairline (18/22/26) while the inner img is the knob (16/20/24) — measure the box the claim names. Same class of error as the dd-edge-vs-cell: the claim's element boundary decides the number.
+- **Rejected-file receipts split three ways**: value-honesty (the txt never in files), the onreject callback (the page's note renders the names), and the error line + aria-describedby (the "!N dropped file rejected" notice wired to the trigger). All three measured; the "!"+count textContent concatenation is an a11y-announcement nit worth one character.
+- **Served-rows-first arithmetic**: enumerate the api table's first-column names from raw SSR before any meta count — the meta includes quoted safety-net twins ('data-density') that inflate naive counts (23 vs vellum's 22), and the `universal` directive folds axis rows out of the hand table.
+
+## Task 32 — input-otp 1st review (2026-09-23)
+- **OTP distribution has NO paste handler**: paste works NATIVELY (the browser lands multi-char in the focused slot's value) and the INPUT handler distributes the overflow — synthetic ClipboardEvents correctly no-op. The testable contract is the overflow path: setter + input event with multi-char text. Same for the first-empty fallback: it fires on focusin with an OUTSIDE relatedTarget — blur-then-focus (relatedTarget null) skips the redirect, which is the correct reading of `container.contains(prior)`.
+- **`:top-layer *`, `:where()` zero-specificity stacks, max() tie arithmetic**: when a claim says a leg "wins", resolve BOTH legs to computed px — default/lg slot boxes are exact TIES (40=40, 48=48); "wins at the top" would overstate. The careful served row claimed only what reproduces.
+- **Provenance narration belongs in ONE seat**: the falsification story appeared in both a row description and a section summary — consolidate to the section-level note; rows teach mechanisms.
+- **Canary greps need context**: the falsified template text legitimately survives as a REFUTATION QUOTE — a hit is a finding only when it is not inside an explicit refutation.
+- **`.jx-error` scaffold concatenates "!" into the message** ("!code expired", "!1 dropped file rejected") — fleet-level scaffold fix, two family receipts now.
+
+## Task 33 — popconfirm 1st review (2026-09-23)
+- **data-reveal pages hide their rig until scrolled**: [data-probe] panels were absent from the DOM entirely (not just invisible) — a scroll-reveal pass over every [data-reveal] section before ANY selector work is mandatory on these pages. The symptom is "no trigger" everywhere, which reads like a page defect but is probe neglect.
+- **Anchor overlay-family probes by the popovertarget VALUE** (the panel id), not guessed wrapper names — the trigger button and the promoted panel both carry the id, making the open/close loop target-exact even inside anonymous stylex wrappers.
+- **The surface fill paints on the inner `.jx-surface-body`**, not the `[popover]` element (which stays transparent for the UA sheet) — and the shadow rides a sibling `.jx-surface-shadow` layer. Read the painted element, not the container.
+- **The claimed-prop clobber signature**: a component that OWNS an attribute as a prop (popovertarget on PressButton) drops imperative setAttribute values on every re-render, while non-claimed siblings (aria-controls) survive. The fix class: pass the value through the owner's first-class prop — never fight the reconciliation.
+- **Dark-surface alpha receipts**: the popconfirm dark surface is 0.185 at the SAME 0.72 alpha as light — a paraphrased "77%" didn't reproduce; quote the computed string verbatim.
+
+## Task 34 — boot-splash CODE, tier 2 (2026-09-23)
+- **The dead-replay defect class: a canvas with NO rendered instance** — the workbench flipped state and showed an output chip while no `<BootSplash>` existed in its tree at all; the one-way `open={wire}` in the drawer code was the second lie. Fix pattern: render the component UNCONDITIONALLY (it renders nothing while closed), wire `bind:open`, and prove the loop with the bind-back chip (`open false` after the internal dismissal). A state chip is not a mount receipt.
+- **Splash screens are the one surface where "unread tokens" is a FEATURE**: the zero-css law means density/shape/radius/color/elevation are carrier-only BY DESIGN (grep receipts: zero kernel reads), theme's grounds answer the HOST (prefers-color-scheme + ancestor `.dark`) because a pre-paint head block cannot hear props (LAW #16: name the medium — served bytes vs hydrated probe), and the exit runs on the family's OWN duration channel with the reduced-motion kill.
+- **Controlled theme pairs on one stage**: prop-alone (theme="dark", no host class) vs host-bridge (ancestor `.dark`, no prop) — both instances measured in one evaluate; the confounded single demo (prop + ancestor together) proves nothing about which voice the grounds heard.
+- **`el.closest('.dark')` matches the ELEMENT ITSELF**: the theme prop's own `dark` class made the prop-alone layer report `underAncestorDark: true`; ancestor checks must start at `el.parentElement`. Same boundary-discipline family as dd-edge-vs-cell and thumb-box-vs-img.
+- **Svelte template attributes do not process `\"` escapes** — an escaped quote TERMINATES the attribute (parse error "Expected token ="); use single quotes inside double-quoted attributes.
+- **Clock receipts on the splash economy**: fonts-path replay = 350ms floor + 350ms exit + animationend latency (797ms measured vs ~700 nominal — name the latency, don't hide it); reduced-motion on the auto path keeps the floor (531ms) and skips the exit; exit=none = floor only (430ms); manual holds indefinitely (no cap in manual mode — bind:open is yours) and its dismiss runs the same exit (454ms).
+- **svelte-check scoping**: `--workspace <dir>` does NOT scope the run (it checked 622 files); the page-scoped receipt is the full run filtered by path. Family warnings (8× state_referenced_locally on provideUniversalLanes) are fleet-pattern pre-existing debt, separate from page diagnostics.
+
+## Task 35 — popconfirm 2nd review, self-continuation (2026-09-23)
+- **Reproduce-don't-trust applies to your OWN prior PASS**: re-deriving my own task-33 claims on the current tree still caught a targeting error this pass — the override keep-button lives in the OVERRIDE panel (merge-pc), not the default-rendering demo (pc-demo); my first sweep aimed at pc-demo and no-op'd silently (`keep?.click()` with a null find). A self-continuation review must rebuild the probes from scratch and make the targeting explicit in the record, or the receipt chain rots.
+- **Optional-chained clicks hide probe bugs**: `keep?.click()` on a not-found button is a silent no-op that looks like a "panel didn't close" finding — enumerate the panel's buttons (text + popovertarget) BEFORE the click so the anatomy is in the receipt and a null find is visible.
+- **Drift audits go path-by-path AND through the type sources**: `git diff <base>..HEAD -- '*popconfirm*' '*press-button*'` cleared the page/family, but the diagnostics claim also needed defaults.svelte.ts / props-table / blueprints cleared — shared type drift can move a file's diagnostics without the file changing.
+- **The a11y labelledby-drop claim is now measured**: the override panel (content snippet) carries aria-labelledby: null + role: dialog — one more "table said it, probe proves it" conversion.
+- **Sibling-noise attribution needs the uncommitted set too**: git log cleared commits, but `git status --short` naming the in-flight files (input-otp.css, number-input.css) is what proves the keyed noise belongs to others.
+
+## Task 36 — number-input 1st review (2026-09-23)
+- **LAW #14 is a three-time winner**: vellum's frozen-theme read, my own bare-strip read (border-color serialized oklab(0 0 0) MID-transition — a value that exists nowhere in any rule), and the hold-clock plateau all resolve the same way — read transitionDuration FIRST, settle past it, then trust computed values. A computed color that matches no rule in the sheet is a transition-interpolation signature.
+- **The universal fold silently rewrites hand-table shape**: `universal` folds axis-NAMED hand rows (density) into the shared section with GENERIC text — the family's custom row vocabulary is dropped. Enumerate SERVED rows and quote the served cell text before accepting any "the hand table serves N rows, row X's text is…" summary; authored shape ≠ served shape. The popconfirm fold rule (consumed-axis row must re-appear in the axes seat) is the satisfaction check.
+- **Meta brace-count beats eyeballing**: "22 entries" vs measured 21 — parse the meta object (indent-keyed walk or json-with-trailing-comma-strip) and count named props + rest explicitly.
+- **Shared-binding demos bounce component semantics**: empty→undefined at the component becomes min at the demo seat because the PlayRange slider coerces undefined→min and writes back through the shared binding. When a live demo contradicts source, check for a SECOND writer on the same state before flagging the component.
+- **Vocabulary-grep must cover BOTH sides of the same-source seam**: the page purged the falsified claims, but the family header comment (shipped verbatim in the drawer via ?raw) still taught "28px-wide steppers" and "CONSUMED" for supply-only axes — grep page AND family comments; the drawer makes family comments consumer-visible docs.
+- **Token-truth vs pixel-truth**: a "destructive border" computing to oklch(0 0 0) is CORRECT in a monochrome system (--destructive: oklch(0 0 0) light / oklch(1 0 0) dark) — verify the token chain (--jx-destructive → --destructive) before calling a color claim false.
+
+## Task 37 — reference 1st review (2026-09-23)
+- **A demo can name a posture its rig cannot reach**: the "unnumbered section" specimen sat INSIDE the numbered domain, and undeclared descendants number by structure — it rendered "§ 1.2" while the page taught the bare-title fallback. Family-true ≠ demo-exhibited; verify each taught posture against its own specimen's domain membership (sections register targets ANYWHERE via the route registry, but numbers need a domain — the exact inverse of the Figure rig rule).
+- **`span` as a fallback selector grabs the wrong element in numbered contexts**: SectionCard renders `<span data-jx-number>` badges — a posture-exact selector (`p a[data-ref-to]`, or the `??(`-text span) is mandatory near numbering machinery. The tell was an impossible computed value (19.52px nowhere in the design).
+- **Count the served instances, not the dispatched number**: "5 prerendered edge claims" was stale at 11 (the page grew post-integration) — the CONTRACT (every SSR reference claims its edge pre-settle) was the verifiable part; always restate the measured count alongside the contract check.
+- **The frozen-mechanism attribution has a deterministic form**: when a family ships NO css at all, "nothing-declares" is the whole story (no rule for a bridge to activate); "nothing-reads" only earns its keep when declarations exist without var readers. Attribute the mechanism that would STILL hold if the other were violated.
+- **Fleet-wide svelte-check parsing**: svelte-check output associates diagnostics with the most recent `/Users/…` path line — walk lines with a cursor (path → following Error/Warn) instead of grep -B context windows, which smear across neighbors at 60KB scale.
+
+## Task 38 — press-button 1st review (2026-09-23)
+- **Pointer-state probes need ENGAGEMENT RECEIPTS**: a pressed-state read without `el.matches(':active')` is unfalsifiable — my first ghost read showed translate none with no way to tell "the law is wrong" from "the down never landed". Always pair the pose read with the pseudo-class engagement flag, and keep the hover leg SEPARATE from the down (a pressAt helper that moves AND downs collapses hover into active).
+- **The press moves via the `translate` PROPERTY** (individual transform), not `transform` — read both; the transition-property list is the tell (translate, box-shadow, background-color, border-color, color).
+- **Absolute hue digits don't reproduce across the site's hue runtime** (wall-clock rotation, documented at jixoai.css :32-45): the fill re-tint quoted 47→43, measured 129→125 — L/C identical, hue +82. Receipts in hue-ful tokens should quote the L/C signature + the shift, or name the runtime state.
+- **A claimed prop's unset-path clobber is the reconciliation law working, not a bug to fix family-side**: the two receipts compose (explicit path = the contract works; unset path = the non-contract fails) — the resolution is documentation at both seats, not post-write attribute reconciliation. Ledger closure form: "claimed-prop components must expose the wiring as a prop".
+- **DIV+H2 same-id pairs are the scaffold's toc-anchor pattern** — a real-DOM duplicate-id scan MUST be attributed against a second page before it becomes a finding (popconfirm showed the identical overview/see-also pairs).
+- **Sibling-noise attribution can drift DURING a task**: the in-flight set at start (prototype-flex) differed from the set at gate time (prototype-grid + sheet) — re-run git status at gate time and key the failures to the CURRENT tree (the ambient sheet|1|variant|1 failures were quill's, solo-reproduced, zero press-button failures).
+
+## Task 39 — progress 1st review (2026-09-23)
+- **A single capture after the set has a latency blindspot**: screenshots taken ≥200ms after a state change see only settled bars, so a live tween reads as "inert" — the falsification instrument is a BURST (9 clip captures across ~600ms) tracing the fill edge's monotone ease-out. "Two settled frames" and "no transition" are different claims; only the burst separates them.
+- **The discriminator upgrade**: before concluding "the css rule is dead", INJECT a stronger version of the same rule (3s linear !important on the pseudo) — if the tween stretches, the channel is live and the original rule governs; if unchanged, the tween is engine-side. One injection separates "dead rule" from "engine smoothing" — progress's fill turned out to be BOTH (authored 200ms live + engine smoothing that persists under reduced-motion).
+- **Engine-side motion is invisible to reduced-motion kills**: the visible fill tween persisted under prefers-reduced-motion even though the unlayered css kill won the cascade — css cannot suppress what the engine animates. An a11y claim of "killed outright" needs the burst receipt, not the stylesheet.
+- **Pseudo-element computed reads can lie by FALLBACK**: getComputedStyle(el, '::-webkit-progress-value') may return the ELEMENT's styles for properties the pseudo doesn't expose — vellum's "dead rule" artifact and my frame-flagged scan were both instrument artifacts; the fill color match (scan for the known fill RGB) is the unambiguous form.
+- **Meta arithmetic is per-family**: progress stores 12 named entries and NO rest key (a rest-less component) against a summary claiming "11 named + the synthesized rest" — count the stored keys before accepting any "N entries (a named + rest)" sentence.
+
+## Task 40 — scroll-virtual 1st review (2026-09-23)
+- **Virtual-list probes must be LIST-SCOPED**: a page with several virtualized canvases puts three `[data-jx-sv-row]` populations in one document — unscoped index scans report false duplicate keys. Scope to the demo region; uniqueness is a within-list contract.
+- **Forwarding stamps land on the COMPOSED ROOT, one level above the role=region viewport**: read stamps by walking ancestors from a row (data-density / .dark / the thumb var), not off the region — the viewport only carries what is painted on it (the thumb var).
+- **LAW #19's guard has a measurable signature**: the twin-case heading (title slug == wrapper id) ends up ID-LESS (adoption without stamp), while non-matching titles stamp their own slugs — "no duplicate ids" plus "id-less twin-case h2" is the pair of receipts that proves the guard ran, rather than the collision never existing.
+- **The served ToC can disagree with +page.ts both ways**: entries the file lacks (DOM-derived adoption) and entries the file carries that resolve to nothing (stale ids). Receipt the SERVED toc anchors against the DOM, and check the load-data file for dead-data drift — a toc file whose ids don't exist is a misleading artifact even when nothing consumes it.
+- **Sibling-noise attribution drifts within a task**: the ambient sheet keys from task 38 were gone this pass — vellum's in-flight matrix re-pin carried them. Re-run git status AND the failing-key names at gate time; yesterday's attribution is not today's.
+
+## Task 42 — sheet 1st review (2026-09-23)
+- **The docs scroller is .jx-shell-body with scroll-behavior: smooth** — programmatic scrollTop reads bounce to 0 unless you ride out the smooth animation (~800ms), and window.scrollTo does NOTHING on this layout (window max scroll 0; the shell-body is the only scroller). Any wheel-chain or scroll-position probe must identify the real scroller first, then wait past the smooth ride.
+- **Programmatic el.click() never moves focus** — a focus-restore receipt needs a real input click (page.click); the native dialog restores to the pre-open focused element, which under el.click() is whatever had focus before (the skip link), falsely reading as "no restore".
+- **The backdrop wheel is swallowed by the top layer** (event propagates to the shell scroller's listeners — the scroll default does not chain): scrollTop pinned through ±wheel. This contradicts the chaining receipt from the CODE pass — the reconciling variable is unmeasured (likely her wheel point hit the panel's scroll cell at its overscroll boundary); both runs are real, the coordinates differ.
+- **Concordance discipline that worked**: fix the findings in the filed report FIRST, then read the coder's report, then append the addendum — the discordance (her chained wheel vs my pinned scroller) stays a measured disagreement with both runs described, not a negotiated conclusion.
+
+## Task 44 — prototype-grid 1st review (2026-09-23)
+- **Computed grid-template-columns IS the honest instrument for fr tracks** — Chromium resolves fr/minmax to px per track in the computed value, so coercion claims (number → repeat(N, minmax(0,1fr))) are verifiable to the third decimal without screenshots. The claimed integers (240/180/361) were the roundings of 240.328/180.25/360.5 — receipt the unrounded computed string and note the rounding.
+- **A no-blowout guarantee is probe-able by injection**: set a child's min-width to an absurd value; the minmax(0,1fr) form keeps the tracks and overflows the container — one evaluate separates the guarantee from the marketing.
+- **Container width is part of every track claim**: her [240×3] and my [240.328×3] agree only because we both sat at the 1400 viewport — name the container/viewport width beside the resolved px, or a future re-measure reads as drift.
+- **The full-concordance case is worth stating plainly**: every CODE-pass number reproduced to the rounding — when a coder's probes are that honest, the review's value shifts to ADDITIONS (live no-blowout injection, areas geometry, omission-transparency stamp receipts) rather than corrections. Say which kind of review it was.
+
+## Task 46 — skeleton 1st review (2026-09-23)
+- **The rAF opacity sampler is a one-evaluate instrument**: seed window.__samples, run requestAnimationFrame pushes for ~1.65s (past one full 1.4s cycle), then read — min/max over 100 samples pins the oMin/oMax envelope exactly, and the timing function falls out of the sample spacing. For skeleton pulses it doubles as the shimmer disproof: background-image computes to none, so there is no gradient to sweep — brightness-only is provable by absence.
+- **The reveal pass must ride the real scroller**: on the docs layout .jx-shell-body is the only scroller (window max scroll 0) — window.scrollTo reveal passes are silent no-ops and deep lazy canvases stay unmounted, reading as missing demos. Task 42's lesson, re-confirmed; scan scrollHeight/clientHeight first to name the scroller.
+- **Dead-utility sweeps: the DOM query, not the SSR regex** — class="h-3 w-32" inside drawer code text matches any attribute regex (25 false hits); querySelectorAll('.h-3') over the live DOM counts real elements only. The re-hosting receipt is zero elements, not zero strings.
+- **Full-concordance reviews are the coder's grade**: when every CODE-pass number reproduces (skeleton: envelope, freeze, merge, geometry to the pixel), say so plainly and shift the review's value to additions — the absent instruments (no-gradient proof, shells census, scroller note), not corrections.
+
+## Task 48 — stack 1st review (2026-09-23)
+- **Rem-of-document-root is provable by mutation, not assertion**: set html font-size 16→32→16px and read the same elements — gaps doubled (8→16px), the px size stamp never moved (18px), and the page restored exactly. One evaluate replaces a paragraph of token-chain argument; always re-read after restoring.
+- **Count attributes, not strings, in SSR greps**: `data-jx-stack` appeared 19× in SSR but only 17 were attributes — the other 2 were prose mentions in law/TokenTable text. Live querySelectorAll is the reconciling instrument.
+- **Markers have element forms, not just text forms**: the universal marker is `h4[data-jx-props-table-universal]` — an exact-text search for "universal" finds nothing. Query the attribute before concluding absence.
+- **Demonstrated ≠ documented**: the stack page stages gap="8" beside size={18} (non-scaling visible) but never says gaps stay rem-of-document-root; "one number moves the whole stack" reads as more than voice. When a dispatch claims "the page's documented X", grep the page for the statement, not just the demo.
+
+## Task 51 — progress re-verify (2026-09-23)
+- **The falsifier is the re-verify instrument**: having broken the "inert fill" claim with the burst instrument, re-running THAT instrument (not a new one) is what makes the re-verify probative — my runs landed mid-tween at the same times as the coder's independent re-measure (20-56ms vs her 32-53ms), which is agreement, not coincidence.
+- **Settle is a tolerance, not a time**: "settles by 82-99ms" and "settles by ~155-221ms" were both true — decelerating curves spend their tail below any fixed tolerance. State the settle criterion whenever re-deriving a tween, or concordant instruments read as discordant.
+- **The discriminator's slope is instrument-attributed**: under a 3s-linear injection both my runs read an effective span of ~4.1-4.5s (linear, slope-consistent) against the authored 3s — capture-latency attribution and engine tail are candidate explainers. The qualitative proof (injection dominates the paint; channel live) survives the numeric gap; soften "≈3s"-style claims or add CDP capture timestamps.
+- **Computed style on ::-webkit-progress-value is blind twice over**: it reads 0s/ease for the transition (authored 200ms AND injected 3s) and the TRACK color for the fill's background — the pseudo's computed read never witnesses its own live channel. Pixels are the only witness; the page now teaches exactly this.
+- **Old-claim censuses need referent care**: one "killed outright" string survived the fix — inside the NEW sentence with the correct referent (the css transition is killed; the tween persists). Grep hits adjudicate by reading the sentence, not by counting strings.
+
+## Task 52 — prototype-flex 2nd review (2026-09-23)
+- **Byte-identical reverts live at the computed layer, not the attribute layer**: Svelte's style:directives go through the CSSOM, which re-serializes flex-direction+flex-wrap as the flex-flow shorthand (and collapses to `flex-flow: row` on revert). Compare getComputedStyle for the byte claim; disclose the attribute serialization as equivalent-form, or a true PASS reads as a mismatch.
+- **A self-proving typecheck fixture needs an inclusion proof**: 0 diagnostics on the fixture path means the boundary holds ONLY if the fixture was provably in the run — read the COMPLETED line's file count (2495 → 2496 with mine) before claiming the receipt. Then delete and re-run the gate clean.
+- **Predicate/file-name drift kills mirrors silently**: the rig's drawer-tracking resolver matched `rig.svelte` while the file was named `usage.svelte` since integration — the coder's "mirrors the live rig state" receipt was never true, two reviewers (self included, until the open-drawer capture) read past it. Open the drawer and capture the rendered string before believing any tracking claim.
+- **The playground snippet's surface is the DOCK, not the drawer**: component-canvas renders consumer playground snippets in the collapsible canvas-playground dock; "drawer-only" phrasing (landed review note) names the adjacent collapsible. Check the component's architecture comment before naming surfaces in doctrine sentences.
+
+## Task 55 — prototype-waterfall 2nd review (2026-09-23)
+- **Seat-census audits need a text-census backstop**: the correction "landed in all five seats" while a sixth location carried the falsified sentence — the reviewer's seat list and the coder's fix both enumerated seats by memory. Grep the falsified phrase family across the served SSR and count hits; the DOM is the seat ledger.
+- **Two-direction rem experiments land digit-exact when the mechanism is CSS-native**: stamp 18px → floor 224px; root 16→20px → floor 280px (14rem × root) — both reproduced to the pixel on the first run. Element-level stamps move the voice; rem lengths read the document root. The same law as stack's gaps (task 48) — it is now measured on three families.
+- **Quantify phrasing NITs when the mechanism is probeable**: "settles by the first animation frame" was made true-shaped by scribe's phrasing pass, but the stale-read (same task: 16px) vs settled-read (next frame: 24px) pair turns the phrasing into a receipt. One evaluate with a Promise-wrapped rAF.
+- **Lazy snippets still serve claims**: the playground PlayHelp claiming "the usage file mirrors the live control state" is only VISIBLE when the dock opens, but it is served text teaching a mechanism the dormant resolver cannot honor — visibility is not the bar for truth.
+
+## Task 57 — prototype-waterfall re-verify (2026-09-23)
+- **Drive through the framework's protocol path, not synthetic events, when a receipt must land**: the manual native-setter + dispatchEvent pattern silently failed to update Svelte state this session (same pattern worked two tasks ago); Playwright selectOption/fill landed every pick. When a drive receipt matters, prefer the protocol API — and when a drive silently no-ops, the drawer's initial-picks render is still half-evidence (live template vs static constant), but never claim tracking from it.
+- **A mirror fix turns one lie into one truth with the same edit**: renaming the resolver's match target made the drawer track the rig AND made the served PlayHelp sentence true — one-line fixes that repair a mechanism repair every sentence that describes it. Verify both the mechanism and the sentence.
+- **Old-claim censuses are the re-verify's first gate**: the seat that was the single SSR hit last pass is the first thing to recount this pass — 1 → 0 is the cheapest possible proof the fix landed where it mattered.
+
+## Task 58 — system-dialog 1st review (2026-09-23)
+- **Auto-scrolled clicks invalidate pre-click rects**: locator.click scrolls the target into view; a trigger rect captured before the click is stale by the scroll delta. Measure the anchor and the anchored panel in ONE evaluate, after the click settles — a "-301px gap" was my instrument, not the page.
+- **Synthetic-event drives are flaky across sessions; the protocol path is not**: the same native-setter drive that worked in task 55 silently no-oped in 57 and 58's first attempt; Playwright's selectOption/fill lands every time. Receipt-critical drives go through the protocol API.
+- **Body-level censuses need a layer map**: component canvases keep body-level layers (one held 407KB including the page's composed dialog), so "hosts on body" over-counts unless the load-time census separates the permanent layers from the interaction-mounted hosts. Census at load, then again after the interaction.
+- **The width-atom loss is stylesheet-level, not specificity**: the stylex source declares min(24rem,…) but NO served rule carries it — walk document.styleSheets for the declaration before calling a loss "an override". And it is not one number: 544.5 fit-content, 1440 stretch, 370 content-fit — the loss has forms.
+- **A token row that states a falsified measure is worse than no disclosure**: the dispatch expected a loss disclosure; the page instead asserts the measure as true in its TokenTable. When a dispatched disclosure is missing, census what the page says instead — the active false claim sets the severity.
+
+## Task 61 — separator 1st review (2026-09-23)
+- **Fixed-position fixtures are backdrop ROOTS**: wrapping a backdrop-filter element in a position:fixed fixture isolates the backdrop sampling — the filter reads nothing and the strip equals its ground. Test backdrop physics in the page's real flow (locator-scrolled, element-rect-anchored clips), never in synthetic wrappers.
+- **The alias-freeze mechanism splits by read site**: under root-level dark, --jx-border re-derived AT :root (html read oklch(1 0 0)) while the strip's inherited value and painted fill held oklch(0 0 0) — a var can re-derive at its declaring element and still never reach the consumer. When a token-mechanism claim says "re-derives", read the var AND the paint, at both sites; they diverge exactly where the mechanism lives.
+- **Shell layouts ship multiple scrollers**: the shellFlush second column has its own scroll range, so .jx-shell-body is not the universal scroller — find the box's actual scrolling ancestor (walk for scrollHeight > clientHeight) or use locator scrollIntoViewIfNeeded, then anchor clips by element rect.
+- **The strip-row guess is the junk-frame generator**: locate the 1px strip by its element rect (element → clip → fixed row offset), never by scanning for "the row with the most contrast" — borders and edges win that scan.
+
+## Task 63 — scroll-area 2nd review (2026-09-23)
+- **Module-level id counters break the warm-reload law**: a module-scope `let nextViewportId` increments per SSR request, so consecutive fetches hash differently (ids 89-121 → 122+) even when every other byte matches. Diff-isolate before calling warm-reload green, and prefer $props.id() — per-instance stable AND SSR-stable.
+- **Census at the list depth, not the wrapper**: [data-jx-scroll-content] wraps the list container wraps the items — a children.length read at the wrapper reads 1/1/1 and mis-prices LAW #18. Descend to the branching node.
+- **A colored 30%-alpha chrome is a free paint-probe**: the thumb's computed backgroundColor (oklab form) tracks currentColor exactly — the frozen-ink watch reads at the element's computed usage, no pixels needed, and both directions (bare-island no-move, recolor move) fit in one evaluate.
+- **Integration of review corrections needs the compile gate**: the separator MINOR's fix text (an apostrophe in a single-quoted svelte string) shipped as a js_parse_error and 500'd the page — corrections are code; run the page or the suite before considering them landed.
+
+## Task 65 — spin 2nd review / the adjudication (2026-09-23)
+- **The var-vs-paint split adjudicated across two families**: spin's ink and separator's fill behave IDENTICALLY at the element (computed var + painted color hold the light value through html.dark) while the html-level alias re-derives on both — the root-pinned-alias record is FLEET-WIDE frozen, no carve-out. Scribe's "FLIP" was the html-level var read; the two-read protocol (html var vs element computed) is now the standing instrument.
+- **The declaring rule may live outside document.styleSheets**: a stylex theme's custom-property declarations (likely adoptedStyleSheets, possibly @property inherits:false) were invisible to my sheet walk — when a computed var contradicts inheritance theory, suspect the enumeration, not the physics.
+- **Chrome has no .paused on SVGSVGElement — use animationsPaused()**: the boolean accessor is implemented; the getCurrentTime-delta clock is the equivalent instrument when it isn't. Both agree: RM freezes the SMIL clock to delta 0 and resumes it.
+- **Consecutive-fetch hashes are a drift census**: spin.html's SSR differs across requests ONLY in hydration-comment hashes and svg gradient ids (svgInstanceSeq) — the SSR face of the hydration_html_changed LOW. Diff-isolate the drift before judging warm-reload; the drift itself is a finding (module counters vs per-render stability).
+- **The adjudication target's own history matters**: the "measured flip" claim traced to an html-level read — an instrument gap, not a page defect. Severity rides the CLAIM's wording (copy correction), while the underlying defect (frozen ink on dark grounds) goes to the family ledger.
+
+## Task 69 — table 2nd review (2026-09-23)
+- **A landed row can be verified from its own numbers**: the corrected radius row quoted its three lanes; re-deriving the lanes at the specimens (12/10/8 + the stamp-presence rule) is the whole verification — the row that landed carries its own test.
+- **Playground id counters restart per PlayFields instance**: two canvases = two row-1 labels = an aria-labelledby collision with a real AT cost (the second control announces the first's label). The W-next ledger item's cost is at the accessibility layer, not just hygiene.
+- **Mid-reveal reads lie**: a computed font-size read during a reveal transform returned 11px where the settled value is 12px — anchor computed-read probes after the reveal pass completes, and re-read anomalies once before filing them.
+- **Read overflow at the actual scroll container**: the table's scrollWidth equaled its clientWidth because the FIGURE is the scroller — measure scrollW against the frame width (646 > 560), not the table against itself.
+
+## T72 (tags-input 2nd) — the two-read protocol pays off a third time; grep substring artifacts decode
+
+- **The alias-class adjudication must be measured, not reconciled on paper.** The dispatch expected tags-input's --jx-muted to classify slot-block (the reconciliation said so); the two-read protocol showed the chip paint HOLDING under root html.dark AND under a scoped .dark island, with the html-level var flipping — root-pinned alias (tokens.stylex :69 '--jx-muted': 'var(--muted)'), third HOLD data point. A var() custom-property declaration substitutes at its declaring element; no mid-tree class can re-derive it. Fleet FLIP slots (tabs, system-dialog) should each get the two-read before the record accepts them.
+- **Synthetic clipboard events are a second silent no-op class** (after task 63's selectOption): ClipboardEvent('paste') with a hand-built DataTransfer did nothing; grantPermissions + navigator.clipboard.writeText + real Meta+V delivered. Receipt only after the real drive.
+- **Byte-census "oddities" can be my own grep substring artifacts**: `id=""` ×6 were tails of `data-no-subgrid=""`; `id="true"` ×2 were tails of `aria-invalid="true"`. Decode with wider context BEFORE promoting a census anomaly to a finding; the live-DOM re-census (101 ids, zero twins) is the ground truth.
+- **data-density stamps on the wrapper, the shell paints the var**: reading the attr on the paint element returns null and can look like a missing stamp. Find the stamp site in source (:460 wrapper / :560 panel here) before concluding.
+- Flash windows: assert presence DURING the window and absence after window+margin in one probe (350ms after a 300ms window) — two probes risk different chip sets between runs.
+
+## T72 CORRECTION (post-concordance) — the T72 lesson above was wrong and is superseded
+
+- My first T72 adjudication ("tags-input --jx-muted is root-pinned-frozen, third HOLD data point, fleet line slot falsified") was a **single-sample artifact**: the first chip sits inside a `data-theme="light"` demo stage that re-voices the token family. The concordance reads (scribe 66, vellum 43 both measured root-dark chip FLIP) caught the contradiction; the ancestor-walk probe settled it: **14/22 chips flip under root html.dark, 8 hold — every hold has a data-theme="light" pinning ancestor**. The declaring rule is `:root, .xbpgcew { --jx-muted: var(--muted) }` and it is LIVE — a :root-level var() reference re-substitutes when root dark flips the site token, and the recomputed value inherits down.
+- **The correct three-tier model**: (1) root dark flips alias consumers (live); (2) mid-tree .dark islands CANNOT flip them (the alias substitutes above the island — islands stay concordant); (3) data-theme stages locally pin. "Frozen unless pinned", not "frozen by :root".
+- **Concordance contradiction is a probe alarm, not a turf fight**: when my measurement contradicts two independent prior receipts, suspect MY sample site first. Single-element theme reads are not adjudications — census ALL instances of the pattern, then walk ancestors to the pin site.
+- **Fleet consequence flagged to the orchestrator**: separator/spin HOLD slots (incl. my own task-65 "fleet-wide frozen" correction) may be stage pins too — re-adjudicate with the pin-finder (probe6/7 pattern) before the fleet record freezes again.
+
+## T74 (separator+spin re-adjudication) — both HOLD slots were stage pins; the fleet record retires "frozen"
+
+- **The holds were mine.** Task 61's "frozen, twice measured" separator samples and task 65's A/B spin samples all sat inside `data-theme="light"` canvas stages. Under root html.dark: separator's unpinned solid flips 0→1 in place; spin's unpinned inks flip 33/40 (0.6489→0.7044); every hold (1/2 solids, 7/40 inks, 8/22 chips) has the pin ancestor, and every hold FLIPS when the element is cloned to body level. Pin site on all three families: the same stage div (`x78zum5.xz65tgg`, data-theme="light") inside jx-canvas-scroll.
+- **The mechanism law, final**: a var() reference in a :root custom property re-substitutes when the root flips the underlying token — :root aliases are LIVE, island-proof, stage-pinnable. ":root-pinned = frozen" named the declaration site and wrongly inferred the semantics.
+- **Body-level clone is the sharpest instrument in this family**: same element, same classes, moved outside the stage — moves-to-flip TRUE settles STAGE-PIN in one read, immune to sample-site doubt.
+- **One internally inconsistent page seat beat five consistent ones**: spin :248 said root-dark FLIPS while five other seats said frozen-everywhere. When a page disagrees with itself, adjudicate before harmonizing — the minority seat was right.
+- My own prior receipts are not exempt from the concordance-contradiction alarm: task 72's discordance (two sibling receipts vs my one) was the signal that broke this open. Census-all + ancestor-walk + body-clone, in that order, is the full protocol.
+
+## T76 (tabs 2nd) — the pin-finder as routine receipt; two probe bugs worth their price
+
+- The remaining-sweep flag works as a workflow: folding the pin-finder into a routine 2nd review turns the fleet law from "believed" to "receipted" — tabs' 29 holds all walked to the same stage div class, zero anomalies, in one probe.
+- **Unawaited promise in page.evaluate logging prints `{}`** (JSON of a Promise) — looks like an empty result, silently discards the data. Every locator/evaluate helper that returns a promise gets `await` at the call site, not just inside.
+- **When a stamped attr matches both a static demo and the live seat, keying on the attr alone reads the wrong element** (first-match won the static lg demo). Read ALL stamped roots at both viewport ends and take the one whose value CHANGES — the static becomes the control and the receipt gets self-proving.
+- Family type-debt classes to keep separating in gates receipts: the Object.entries-undefined overload (kernel-adjacent, harmless) vs a `Cannot find name` (a missing import — type-layer only while the runtime strips types, but it's a one-line real fix; name it distinctly in the report).
+
+## T78 (tour 1st) — read the ATOMS, not the root; unavailable-target tours auto-finish under you
+
+- **Theme-split ink reads belong on the ink ATOMS, not the card root**: the tour card root's `color` read white under its own dark island (the site `.dark` rule paints the root with the re-derived site token) while the title/desc atoms' computed colors stayed frozen black via the :root aliases. One element higher = the opposite conclusion. Find the element whose stylex rule carries the token before reading "the ink".
+- **A tour with unavailable targets opens, tweens, and auto-finishes mid-probe** (the end-via-onfinish path) — my first focus-law drive chased a card that was already gone. Pick an instance with live targets (the multi-step demo) and census the lease to confirm the drive landed.
+- **The docs shell scrolls an inner container**: window.scrollY is always 0. scrollIntoView receipts must read element visibility (getBoundingClientRect against innerHeight), not window scroll.
+- **A "frozen ink at N:1" claim can rest on a translucent face** — when the only fills are alpha layers over the page, the contrast ratio is ground-dependent by construction. Receipt the layers and the composite arithmetic, flag the single number as unreproducible-without-a-pinned-ground, and let the concordance read settle where the number came from.
+- Reopen-gap A/B in one session (fresh open sampled, Escape, reopen sampled) is the deterministic receipt form — the same opener, two mount paths, var cadence tells the whole story.
+
+## T81 (terminal-footer 2nd) — paint invariance is a METRICS receipt, not a height receipt
+
+- **Height is a layout property; paint is the invariance claim.** My first density pass compared footer heights page-wide and "found" 442/267/290 — different-width containers wrapping the same paint (a 144px wordmark in a 203px rail cell wraps into a tall column). The invariance receipt is the metrics: ghost font-size, meta font-size, padding, max-width — identical at every rung. When a claim says "paint-invariant", measure the paint channels, never a geometry consequence.
+- **Two chains can split inside ONE element group**: the ghost stroke reads var(--border) directly (site token — re-derives with any scope) while the meta ink reads the --jx-muted-foreground :root alias (frozen) — a footer can be half-re-deriving and half-frozen under the same .dark scope. The tier classification is per-CHAIN, not per-element.
+- **Token-injection hover sampling**: set the motion token to 2s on the root, real-hover, sample mid-flight — the interpolated oklab (brand hue components appearing) proves a live ramp, and RM emulation then shows whether the transition survives reduce. Three receipts (authored / injected / RM) from one drive.
+- The §1 size stamp moves the HOST font-size; "nothing renders follows it" is verified by reading the rendered text tiers under TWO different stamps (18 and 13 here) — a constant at one stamp proves nothing.
+
+## T83 (transfer 2nd) — the chain map is a table, not a phrase; placeholder li's pollute label censuses
+
+- **The per-chain census table** (alias var vs base var at the same element, across seats × theme states) is the strongest form the alias-theme law has taken: one row per seat shows `--jx-card` held vs `--card` flipped on the dark seat — the tier-2 signature visible without any prose. Build the table first, then write the paragraph.
+- **Checkbox sets have default value="on"** — keying a transfer/checkbox-group census on input.value reads "on" for every row. Key on row label text (and account for empty-state placeholder li's, which enter/leave label counts and mimic lost rows).
+- **Movers that disable on empty selection will crash a scripted drive** (no enabled button left after a move clears picks). The crash IS the law working — re-check rows before each move class and log the clicked button's text so the transcript is auditable.
+- rest-LESS verification is a two-liner: the Props interface extends nothing + no spread in the component. Don't over-probe what source settles.
+
+## T84 (textarea 2nd) — settled reads; count instances without caps render bare counts; snippet items are text, not DOM
+
+- **"Settled-paint" means wait out the transitions**: the shell law carries color transitions — my first L3 read sampled oklab transition frames. Settled = 1.5s past the injection; the restored read then lands exact.
+- **A count readout with no maxlength renders the bare count** ("251", not "251 / 280") — the family renders maxLen conditionally. Boundary drives must census the instances first (maxlength attr + readout text) and drive one WITH the cap; the bare-count instance teaches a different law (maxLen null → countNear never fires).
+- **Snippet "completions" are code-text items**: a landed "the usage snippet now carries X" verifies by reading the served code block's text, not by hunting a live instance. Check the code block first; a rendered demo may not exist.
+- **The L3 ink consequence is the chain map's punchline**: shell face flips (base tokens) while the typed text stays alias-frozen — black-on-black under theme="dark". The chain split is the audit; the frozen-text-on-flipped-ground consequence is the same #14-family pattern as toast/tour. Read the TEXT element's color separately from the shell's.
+
+## T85 (dialog 1st) — the trap receipt needs containment; elevation audits need the FULL painted-channel walk; dev-CSS order breaks byte-warm-reload
+
+- **A focus-trap receipt is per-press containment, not a final-state glance**: open-dialog COUNT (one, not two), activeElement containment in the dialog, and top-layer membership at EVERY press. The dialog leak walked Close→skip→BUTTON→Close→skip — an alternating pattern no final-state read would catch, and the open-count check ruled out the two-dialog artifact before the finding was graded.
+- **"Does not paint" is a WALK receipt**: box-shadow + filter + backdrop-filter + background-image + background-color, on the element + ::before + ::after + every subtree child + the named paint children (shadow child, card host). A missing reader can hide in any one channel; a flat table across seats (all channels identical) is what proves the ladder unpainted.
+- **The width truism's honest form is computed evidence at three viewports**: the CSSOM serialization missed the atomic rule (my scan keys failed) but 416/416/368 across 1440/800/400 settles min(92vw, 26rem) ships and is live. Computed-across-viewports beats selector hunting.
+- **Dev-server CSS module ORDER breaks byte-warm-reload**: the first divergent page ever — same total bytes, the inlined `<style data-sveltekit>` block concatenates sheets in a different order per request. The warm-reload receipt refines to: strip the dev-assembled style block, then compare. (Prod builds sort; this is a dev-only artifact.)
+- Legacy pages (pre-campaign CODE) carry the whole archetype debt class at once: toc≠DOM, no overview/law, page diagnostics red, AND unpainted claim families. Tier 2 is the shape; budget the audit for all four layers, and expect the disagreement-probes (scrim row, elevation seats) to pay.
+
+## T86 (float-button 1st) — fixed-position drives need keyboard activation; placeholder li's and wrappers are census decoys
+
+- **Fixed-position demo elements can't be scroll-into-view'd** (they don't move) and their click points sit under whatever content the flow puts there — drive them with focus + Enter (real keys). The pointer-intercept timeout is the tell; force-clicks would bypass the honesty check.
+- **A `[data-jx-*]` attr can live on a WRAPPER that legitimately paints nothing** — my "unpainted FAB" candidate was the menu-idiom stack wrapper (anchor carrier, transparent by design). Identify the owner (section walk + class list) before counting an unpainted instance.
+- **Alignment claims are per-corner**: the END-aligned expectation on a bottom-LEFT demo needs the LEFT edges; and when NEITHER edge aligns, print both deltas plus the rects — 276/408 displacement is a different finding than a mirrored alignment.
+- **The elevation finding now has three family confirmations** (dialog ladder, transfer-adjacent tour radius, float-button recipe): the pattern is the STAMP reaching the element (--jx-elevation-effective=6) while the RECIPE var ships empty and no shadow channel paints. The audit form: read the stamp var AND the recipe var AND every paint channel — the gap between the first two is the finding.
+- Warm-reload strip-style refinement held on its second page (raw differs, stripped identical) — the dev-CSS order artifact is stable across families; keep the stripped compare as the standard receipt.
+
+## T87 (form hub 1st) — data-driven ids defeat source grep; hub pages need the archetype waived, not applied
+
+- **Dynamic ids (`id={group.id}` through an each) are invisible to source grep** — my first section census read 7 sections and nearly filed three dead anchors; the LIVE census found all 10 resolving. The toc census instrument must run in the browser, never on source text, for any page that renders sections from data.
+- **Hub pages waive the eight-axes archetype by their own declaration** ("NOT a registry item itself") — applying the universal-props/axes-table checklist to a hub would manufacture findings. The tier proposal says so explicitly and grades by the hub's OWN claims (the density ladder digits, the catalog pill, the law explainer).
+- **Closed popovers are 0×0 and immune to the reveal-CB hazard by construction** (top-layer promotion escapes any transform containing block) — the census receipt is "7 closed dock menus, nothing to measure", not a near-miss finding.
+- verify:docs against the orchestrator's dist can go red on an in-flight SIBLING's page (toast's skeleton order) — receipt the seat, confirm your page's lint line is clean, and don't chase; the dispatch's fresh-build note exists precisely so staleness and sibling noise are distinguishable.
+
+## T88 (icon 1st) — count claims live in layers; the sync-default is verified by driving a bridge name
+
+- **Icon-set counts live in three layers and all can be true at once**: the UNION carries 54 names (incl. 10 lucide: bridge aliases), the generator emits 52 artworks (the gate's count), the playground select offers 44 playable names. A count claim must name its layer; a disagreement-probe that finds "54 vs 52" without the layer names manufactures a phantom drift.
+- **The sync-default claim is verified by driving a name and listening for the chunk request**: zero `virtual:jixoai-icons/chunk` fetches + instant svg = the inline core covers it. The async branch can be budget-dormant on a served page (52 ≤ the core) — receipt "dormant by budget, source-level claim" instead of hunting a pending box that cannot exist.
+- **Staged icon two-reads pin at the HOST stratum**: canvas-stage icons inherit the stage's pinned context color — currentColor chains follow whatever context wins at the element's scope; root-dark flips only reach unstaged instances. Name the chain (currentColor inheritance vs alias var) before calling any icon paint frozen.
+- **Ladder finders must walk to the COLUMN**: `code.closest('div').parentElement.querySelector('svg')` reads the row's FIRST svg four times. `:scope > svg` from the code's own column is the honest walk — the same wrong-ancestor class as T78's root-vs-atoms.
+
+## T89 (math-block 1st) — km gate has a default port; scroll runs need the tabindex receipt; select drives need protocol + real values
+
+- **The km gate's default port (5199) can answer with a stale orphan build** — my first verify:km run went red on a tree that wasn't mine. The gate receipt must name the URL: run `--url` at the server under test, and lsof the default port when red (an orphan node 23502 served a pre-mermaid build).
+- **Scrollable-region keyboard access is a tabindex receipt**: `run.focus()` that doesn't take + IDL tabIndex −1 + a real Tab walk that never reaches the run = the WCAG 2.1.1 scrollable-region failure. The a11y table claimed "focusable scroll run"; the run shipped none. One attribute at the verdict-arming point closes it.
+- **PlaySelect drives: mark the target select with a probe attribute, then protocol selectOption with the OPTION'S VALUE** (not its label — labels ≠ values silently no-ops), and enumerate the dock's selects first — canvas docks carry NINE selects (the seven axis playgrounds + the workbench's own two); `.first()` grabs the Size axis, not the formula.
+- **SSR-half receipts are byte counts of the rendered markup** (96 `class="katex"` hits in the served payload), not "the page loads" — the duality class needs both the served-bytes count and the hydrated-paint match.
+- Error-paint claims verify in three reads at once: the error span's computed color (the errorColor var resolved), the warn line in the console feed, and the raw-source visibility — one drive, three channels.
+
+## T90 (native-select 1st) — the native-control paint lives in background-images and inline html styles; gates have their own port/arg contracts
+
+- **"appearance-none + an inline SVG chevron" can mean the chevron paints as the SELECT'S OWN background-image data-URI** — a DOM-svg hunt finds nothing and nearly manufactures a missing-affordance finding. Native-control paint audits must read the CONTROL's backgroundImage + the CSSOM custom props (--jx-icon-chevron-svg) before claiming anything is missing.
+- **The color-scheme chain audited at the wrong node lies**: the staged select reads light under root dark (HOST pin — correct), and even the UNSTAGED select reads light because the SITE'S THEME SYNC stamps `color-scheme: light` INLINE on `<html>` and never flips it. The chain walk (html → body → field → select, both modes) is the only honest form — the finding lands at the site layer, not the family.
+- **Each gate has its own CLI contract**: verify:km takes `--url`, verify-native-parity takes a BARE PORT (`node scripts/verify-native-parity.mjs 5244`), and its DOM-isomorphism assertion expects CLASS parity at the root path — composition families (stylex shell classes on the control) will always trip it; the finding seats at the family/harness contract, not the page.
+- E-driven FormData receipts: select a real option first — an empty-option form reads `plan=""` and proves the pair's existence, not its payload.
+
+## T91 (pattern-cta 1st) — pattern pages grade by composition law; borrowed claims get NIT-grade receipts
+
+- **Pattern pages waive the eight-axes archetype by composition**: the page DECLARES "all no-own, a composition product over batch A-D1 children" — the audit grades the composition law (ONE copy affordance, the members' roles, the carriers reaching the band root) instead of universal-props ownership. The census: count the copy affordances, name each composed member's role, read the carrier stamps at the band root.
+- **Borrowed claims get NIT-grade receipts**: a pattern quoting "press physics are press-button's own, verified by its own suite" inherits the claim — if the borrowed behavior doesn't paint on the served surface, the finding is a one-line hedge (or the owner's check), never a family rewrite. Grade the SEAT of the claim.
+- **Synthetic mouseover still doesn't engage CSS :hover** (the T81 class, re-proven): real page.hover for any hover-clause receipt, and read the transform (not viewport y — scrolling poisons rect comparisons).
+- **Click-through receipts**: capture-phase preventDefault + a real click — the interceptor counts 1, the href is receipted, the SPA never navigates. Real event, no navigation, auditable transcript.
+- The copied-surface read needs the +120ms sample (the flip) AND the +1.6s restore — one drive, two samples, the whole 1.4s law.
+
+## T92 (pattern-pricing 1st) — the dispatch's assumption gets an N/A receipt; the paint-law audit splits column-half from card-half
+
+- **A dispatch assumption that finds no seat is an N/A RECEIPT, not a finding**: no monthly/yearly toggle exists on pattern-pricing (SSR byte-grep receipt) — the both-directions toggle instrument had nothing to drive. Say "instrument N/A, receipted" and let the matrix instruments carry the audit.
+- **A paint law with two halves can hold on one half and fail on the other**: the recommended-column law painted digit-exact at the COLUMN (th tint = color-mix(primary 14%, table-head) resolved; td flanking inset brand rules both sides) while the CARD half (the summary's border-primary rung) never stamped — all three tier cards shared the same neutral border. Split the claim into its halves, receipt each, and the fix becomes one class instead of a rewrite.
+- **The press-law shadow-pose absence is now a two-pattern constant** (pattern-cta's copy CTA + pattern-pricing's card CTAs: hover paints the tonal brand fill, box-shadow none at rest and hover) — the fleet-level press-button pose question is firming; hedge lines at the seats or the owner's pose check.
+- Color-mix computed values serialize to oklab — a tint receipt is the DIFFERENTIAL vs the un-tinted sibling (oklab(0.912…) vs oklch(0.9551…)), never a source-string match.
+
+## T93 (popover 1st) — DensityDemo cloning mints duplicate ids; the zero-script era copy outlives its component
+
+- **DensityDemo CLONES the seat into every rung scope — any id inside the children snippet is minted N times**: `<Popover id="density-pop">` under a default four-rung DensityDemo produced FOUR panels sharing one id and one anchor-name. Native resolution takes the FIRST: other rungs' triggers open rung 1's panel, their aria-expanded never flips. The LAW #19 dup-id census caught it (1 cluster, ×4); the click-a-lower-rung probe (which panel matches :popover-open, openIdx 0) made it MAJOR. Any multi-mount demo wrapper needs per-instance ids.
+- **A "zero-script" headline is falsifiable by the page's own invitation**: popover's hero says "ships no JavaScript at all — open this page's view source and check" while the component carries the toggle seam + WAAPI kernel, and the SAME page's a11y table credits "the toggle seam" for aria-expanded. Legacy pages accumulate era-stale identity claims; the internal-contradiction scan (hero vs a11y table vs source drawer) is now part of the first-audit pass. The component header's SCOPED phrasing ("zero listeners and zero positioning script" on the default path) is the correct model to copy into the page.
+- **position-try locks at open — probe timing can manufacture a wrong-pose receipt**: opening a popover while the page's data-reveal transition was still moving the trigger locked a try-fallback pose (dy −163/dRight +148); the same open after scroll+settle measured 0/0. Before any popover rect receipt: scrollIntoView + ~1.2s settle, THEN click. The lock itself is the documented open-time law, not a defect.
+- **The try-grid's center cell is a MASTER SWITCH (all-on ⇄ all-off), not a cell toggle**: clicking a lit cell DESELECTS it (canvasTries[0] still bottom-end), and a second click on center re-lights ALL nine. Reading toggleTry's two branches before driving the grid is mandatory; my first E pass misread both behaviors as failures.
+- **The WAAPI shadow has TWO carriers**: the M3 recipe rides `[data-jx-pop-body]`'s box-shadow (var(--jx-elevation-shadow)), the translated alpha layer is the `[data-jx-pop-shadow]` VEIL div — box-shadow "none" on the veil div is the REST POSE, not a missing shadow. Read the body for the recipe, the veil for the rest-pose alpha (oklch(1 0 0 / 0.32) at --jx-p 1).
+- **Chrome does NOT light-dismiss on keyboard focus-out**: Tab out of an open auto popover leaves it open (focus gone, panel up, +700ms). "Focus loss closes" is spec-era prose, not current-Chrome behavior; claims need the engine qualifier. APG doesn't require Tab-out close — reword, don't reimplement.
+- **showPopover() during the hide window silently no-ops** (rAF reopen in toggleTry's seam: no error, panel stays closed at every poll) — "a live panel reopens itself" claims need a live poll receipt, and the r27 ":popover-open judged" guard passes while the reopen still loses.
+
+## T94 (radio 1st) — the checkbox indeterminate law fires on every resting radio group; hydration checks what the source never did
+
+- **`:indeterminate` is a GROUP state for radios, not a JS-only state**: HTML says a radio matches `:indeterminate` whenever no member of its name-group is checked. jixoai.css's checkbox law (`.jx-html-radio:checked, .jx-html-radio:indeterminate { background: primary }`) imported it wholesale, so every yet-unselected radio group paints SOLID PRIMARY DISCS (ring invisible — border same hue). The counter-rule covers only `:checked`. Adjudication path: primary-hue ground → hue-rotation false lead → `matches(':indeterminate')` TRUE with the DOM property FALSE → the spec rule. Screenshot beats theory: two solid blobs where the demo shows unchecked seats. Fix: scope indeterminate fill to checkboxes or counter-rule radios.
+- **Svelte hydration checks an un-authored radio**: `<Radio>` with no checked/value/group, cloned ×4 by DensityDemo (plain children form): SSR ships all unchecked, hydration flips the LAST clone to checked (poll timeline receipt; no-JS load stays unchecked; manual uncheck persists). The served demo renders a selection nothing authored — an SSR/CSR duality mismatch the id census cannot see ($props.id() keeps ids unique; the LAW #19 clone class fires through NAMES and HYDRATION instead). When a seat hydrates differently from its SSR, suspect bind:group with an undefined group value.
+- **The density-clone instrument generalizes**: childrenScoped exists precisely for id-bearing seats, but the risk set is bigger — any clone that shares a NAME forms one cross-scope native group (clicking scope B unchecks scope A), and valueless+groupless inputs let hydration author state. Ids safe ≠ clone safe.
+- **The parity pixel fixture compares like-for-like states — resting-group states need a fixture case**: radio shots passed (pixels equal) while the unchecked-group disc defect lived outside every fixture state. A state-matrix probe case (group with zero checked members) belongs in the parity gate's radio set.
+- **Stale geometry digits hide in hero copy**: "16px circle / 8px dot" measured 20px/14px (the token ladder in the SAME section says 16/18/20/24 — the page contradicts itself one scroll apart). When a hero quotes absolute px, grep the token table before believing either.
+- **CSSOM walk trap (second strike)**: an empty CSSRuleList is TRUTHY — `if (r.cssRules) { walk(r.cssRules); continue; }` skips every plain CSSStyleRule and the "matching rules" list comes back empty by construction. Use `r.cssRules.length` or check constructor names.
+
+## T95 (range 1st) — pseudo-element paint needs pixels, not computed style; synthetic events are legal on addEventListener seams
+
+- **Chromium does not expose `::-webkit-slider-thumb` / `-webkit-slider-runnable-track` computed styles**: `getComputedStyle(el, pseudo)` returns the ORIGINATING ELEMENT's styles (garbage widths, empty shadows). For custom-slider paint receipts the instrument is screenshot pixel-scan: clip the element at dsf 3, load the PNG into an in-page canvas, RLE-scan centerlines/cross-sections with a color classifier (P=chroma>40, W=near-white, K=ink). Fill ratio, thumb diameter, ring thickness, and RTL fill side all became digit receipts (fill end 122.3 vs expected 122.5).
+- **Synthetic WheelEvents DO drive addEventListener handlers** (unlike Svelte's delegated on: attributes): dispatching `new WheelEvent('wheel', {deltaY})` on the element exercised the detent grammar faithfully — including the ±20px clamp (one -400 event = one step). The rule of thumb refined: synthetic no-ops apply to framework-bound (attribute) handlers and platform behaviors driven by trusted-event-only paths; plain addEventListener seams are fair game, and real-input retries still anchor the receipt.
+- **When a real gesture no-ops, bisect the HIT TARGET before suspecting the handler**: `elementFromPoint(center)` === the element, then retry. Both probe2 "failures" (wheel-up, vertical ArrowDown) were pointer-positioning misses; the component was clean.
+- **The cx overload is now a THREE-page clone bug** (popover :245, radio :112, range :153): the page-local `filter(Boolean)`-doesn't-narrow helper gets copied with every split from form.html. Per-page type predicates close the reds; the real fix is one shared util — flag to the orchestrator as a fleet micro-task.
+- **A defined bind:value hydrates clean** — the T94 phantom (hydration checks what nothing authored) required an UNDEFINED $bindable behind bind:group. DensityDemo seats with plain value props and auto ids are clone-safe on both axes (ids unique, no group merge); the childrenScoped guard matters when ids/names/state ride the snippet.
+- **Monochrome-profile paint-flatness is a receipt, not a finding**: `--jx-destructive` wired correctly but resolving to the same black as `--jx-foreground` (textarea T77 precedent, third sighting). Quote the var values side by side and move on; never file "the destructive mark is missing" against a token-true wiring.
+
+## T96 (scaffold-float 1st) — the top layer has TWO slots; the ride receipt needs the inner scroller; type-only imports rot silently
+
+- **The top layer's slot map is the audit's first question**: `.jx-top-layer` carries a `.jx-chrome-slot` per data-area (toc/tree) AND `.jx-float-slot` (dynamic floats) — the toc rail rides `div[data-area=toc].jx-toc ← .jx-chrome-slot ← .jx-top-layer`, NOT the float slot. Claims saying a node "adopts into .jx-float-slot" are only true for the ScaffoldFloat portal; static chrome self-mounts into its chrome cell. Read the ancestry before reconciling any float-plane claim.
+- **The immersive ride receipt is a before/scroll/after triad on the INNER scroller**: `window.scrollBy` no-ops on this site (the scaffold scrolls `.jx-shell-body`). Receipt: header 0→−74.7 while the rail rode 74→0, restored on scroll-back — one plane, one transform, "no second scroll listener" proven structurally.
+- **A type-only import of a missing module is invisible at runtime and rots in the mirror**: scaffold-float.svelte imported `./website-scaffold.svelte` (type-only) while the contract lives at `../website-scaffold/website-scaffold.svelte` — site builds fine (esbuild erases type imports without resolving), svelte-check errors, and the byte-mirrored registry copy ships the broken path to consumers. Type-level rot needs the svelte-check fleet grep to surface; it will never fall out of a smoke test.
+- **Concept pages (no live instance) still earn full receipts**: the served DOM proves the claims via the site's own chrome — the float slot empty (0 children, matching "no LIVE instance on purpose"), the rail in the top layer, the lanes digit-matching the standing W-next #21 map (nav x0 w256; rail x1231 y94 w190). Find the real component by class/aria + lane geometry, not by tag name (`aside` matched the playground controls first).
+- **The W-next #21 lane map reproduced exactly at 1440w on a fresh page** (x1231–1421 × y94+ for the toc rail; left 256px nav) — the lanes are stable page-invariant scaffold geometry, usable as standing coordinates.
+
+## T97 (section-card 1st) — zones pad themselves; the density clone class generalizes from ids to headings
+
+- **The section-card's padding lives on the ZONES, not the root** (structural-separator economy): root padding-inline reads 0 while header/body carry the 16px — a formula receipt aimed at the root would falsely fail. Read the component's structure comment FIRST ("zones pad themselves"), then aim the computed reads at the zones. Same discipline as T94's shadow-div/body split: the carrier is where the design says it is, not where the legacy formula names.
+- **The density clone class generalizes from ids to headings**: DensityDemo's ×4 clone of a heading-bearing seat minted 4 identical H2s on the page outline (17 total, 5 with the same text). Ids stayed clean ($props.id()) — the childrenScoped guard covers ids/names, but a heading cannot be scoped away. Heading-bearing demo seats want the scoped form or a non-heading specimen; the toc rail stays clean either way (data-driven, never heading-walked).
+- **Tone and headingLevel are INDEPENDENT axes on section-card** — a "tone hero · h1" caption over a card without headingLevel={1} renders H2-in-hero-paint. Demo captions that conflate two independent props get falsified by one tagName read.
+- **The eyebrow tracking digit-check pattern**: claimed "0.24em tracking" at an 11px voice = 2.64px computed — multiply the claim's own numbers before opening the browser; when computed matches the product exactly, the receipt is self-contained.
+- **The cx-overload clone is now FIVE pages** (popover/radio/range/scaffold-float/section-card at :245/:112/:153/:61/:121). Each split from the form family copies the helper with its narrowing bug. Per-page predicates close reds one at a time; the shared-util consolidation is the actual fix — keep flagging until it lands.
+- **The non-overlap law receipts in one table**: for every section, root data-region must be null whenever headerRegion is set (and vice versa). One probe pass over all [data-jx-section] roots × their header blocks = the whole ToC-wiring contract in a single receipt.
+
+## T98 (steps 1st) — dispatch premises get audited against the live run; stylex hashes defeat name-based finders
+
+- **A dispatch's recorded diagnostic is a HYPOTHESIS, not a fact**: the "always-true condition" attributed to the steps lane lives today in badge-indicator + float-button; the steps family's actual errors are the cx clone, a circular-$derived implicit-any, and the provideUniversalLanes warn bank. Adjudicate against the CURRENT fleet run and name the real seats — the report corrects the record instead of chasing the stale one.
+- **Stylex atom classes are hashed — name-based finders (`span.sr-only`, `.sr-only`) read null**: locate sr-only/visually-hidden content by STRUCTURE (the li's first span child, the design-named carrier), and prove the clip via computed position/width. Second strike of the T97 zones-carried-padding lesson: the prose names a concept; the DOM carries a hashed implementation.
+- **Sub-element animations live one level down**: "the breathing ⋯" animated the inner `[data-jx-step-index]` span, not the indicator cell the claim points at. When a computed animation reads none, walk one level into the marker's inner span before concluding the breath is missing.
+- **Reduced contrast can ride border-color ALPHA, not opacity**: the disabled step measured li opacity 1.0 with border ink oklab(0 0 0 / 0.6) vs todo's full oklch(0 0 0) — the claim's words matched the mechanism, but only the border-color read proved it.
+- **A wired-but-unlisted section is an orphan ToC extent**: `data-family`/`data-region` on a section that the authored toc omits leaves a family extent no rail entry resolves. Fleet convention: canvases stay unwired; wiring + omission together is the inconsistency to flag.
+- **The C-16 focus-parking pattern verified end-to-end**: done-button click → button unmounts (state flips) → queueMicrotask parks focus on the li's tabindex=-1 slot. `activeIsItem` after a real click is the receipt; "focus rests on the item, never on body" is testable exactly as written.
+
+## T99 (terminal-card 1st) — anchor timing traces on a REPLAY edge, not on page load; the prerender receipt lives in the raw HTML
+
+- **Typing/entrance timelines must anchor on a deterministic replay edge**: hydration's entrance restart lands whenever the dev modules finish loading (observed ~6s after domcontentloaded), so load-anchored samples straddle two cycles (settled SSR, then typing-from-zero). Click the component's own Replay/re-mount control for t0, then poll at 25ms and diff — char events, output events, and stillness all fall out of one trace.
+- **Timer-band claims are receipted by MEDIAN + range, not by exact values**: "42ms + 0–40ms jitter" measured median 73ms (min 50, max 147) — the source digits are exact, the runtime adds setTimeout/polling overhead. Quote the band + overhead; never file the overhead as drift.
+- **Prerender claims are falsifiable in the RAW HTML**: "settled before any JS" = the full command text + every `jx-out-shown` class present in the SSR byte-stream. One fetch, no browser.
+- **The dark-lock claim is a TWO-READ with the tree injection**: inject `html.dark` on a light page — a dark-locked card's ground must not move while a `jx-light` sibling stays light. Both shells read independently of the tree; the per-chain ink question dissolves when the component always wears its own scope class.
+- **Stale hero digits survive five seats**: "6px hard offset shadow" vs the `--shadow` token's 4px in BOTH themes (measured + token-grepped). When a hero quotes a px number, grep the token table AND the consumed var chain before believing either — the claim and the token can both be internally consistent and mutually stale.
+- **`{#each outputs as line (line)}` keys by CONTENT**: duplicate strings collide (Svelte dup-key warning + reconciler ambiguity). Content-keyed each blocks need a uniqueness claim in the API or a composite key (`line + index`) — the LAW #18 habitat extends to string arrays.
+
+## T100 (timeline 1st) — at 42 hosts the arithmetic census IS the receipt; shared svg def ids are the LAW #19 of the drawn layer
+
+- **A page with dozens of stateful instances receipts best by ARITHMETIC CENSUS**: read every host's completed/pending signature (bitstrings) against its authored value in one pass — 42 timeline hosts, zero arithmetic errors, the whole value contract verified in a single table. Per-demo probes would have taken five rounds; the census took one.
+- **Drawn-svg geometry is falsifiable against live rects**: the spine path's M/L coordinates matched the dot rects' centers to 0.05px, and the progress fraction (dashoffset/dasharray) matched the value's expected position exactly (0.75 @ 2.5, 0.25 @ 1.5). The measure-then-draw architecture makes the ENGINE's math auditable from the DOM — read path `d` + dash attributes + rect centers as one receipt.
+- **Shared SVG def ids are the drawn layer's LAW #19**: the beam gradient uses one id for both axis branches — fine while only one axis renders, colliding when vertical + horizontal beams coexist (first-def-wins mis-axes the gradient). The adjacent dot mask does it right with a per-instance uid. Any `id=` inside generated svg wants the same namespacing scrutiny as DOM ids.
+- **data-variant-style hooks can be shared by TWO components** (TimelineDot's corner variant AND the matrix cell's probe hook both read `data-variant`) — a census finder collected both. Scope census selectors to the wrapper hook or the component's own namespace.
+- **Unkeyed each twins of keyed eachs are the cheapest LAW #18 hygiene find**: identical literal lists on one page, one keyed `(phase)` and one bare `as phase` — behaviorally identical, trivially unified.
+- **The TokenTable `source` field is a CLOSED union** ("density"|"color"|"component"|"structural") — a descriptive source string type-errors the page. Law notes belong in `description`; the union is the gate.
+- **Triage honesty scales**: 42 hosts censused arithmetically + six geometry-dense sections at digit grade + the twelve-family gallery at wiring level = one paragraph of "what got the lighter touch" keeps a 1562-line audit honest without faking uniform depth.
+
+## T101 (tree-view 1st) — the path key wins the recursion frontier; inert is provable by the instrument's own refusal
+
+- **Recursive lists want the PATH as the each key**: tree-view keys `(parentPath + '/' + node.name)` — same-value siblings at any depth cannot collide, and the same composite becomes the selection/expansion/cascade/ctx id everywhere. The steps content-key hazard and the timeline composite precedent both resolve to this one design. When auditing recursion, the key IS the architecture claim.
+- **An `inert` subtree proves itself through the instrument's refusal**: Playwright times out clicking an inert element (30s actionability failure) — that timeout IS the receipt. Re-prove gently with a DOM `.click()` (which bypasses actionability) and show nothing happens; both halves make the disabled-subtree claim airtight.
+- **Keyboard-widget censuses must anchor focus INSIDE the widget first**: a bare Tab from page top lands in the header, and every "keypress" reads the anchor tag. `.focus()` the roving-tabindex row (the walker listens on the root, so programmatic focus routes real keys correctly), then press the contract key by key with per-press receipts.
+- **Hover-revealed chrome reads opacity 0 if you race the transition or hover the wrong ancestor** — hover the exact row div the CSS keys on, wait out the 150ms, then read. And read the reveal BEFORE dispatching clicks on the revealed buttons (or force:true with the state re-verified afterward).
+- **"Fixed utilities" vs "rides the ambient chain" is a falsifiable pair**: two summaries on one page claimed fixed paint and ambient flow; the measured 17.5→19.2px row drift across density rungs sides with the latter. When a page makes both claims, measure the rung drift and name the tension — one reword fixes it.
+- **Svelte 5 snippet-type identity across script boundaries**: returning a top-level snippet from an onXxxSlotRender arrow can fail svelte-check with "Two different types with this name exist" (Snippet's nominal unique-symbol differs across module/instance scopes) while runtime renders fine. Typing-debt class — the gate goes red without any behavioral defect; a type assertion or snippet relocation closes it.
+
+## T102 (toggle-group 1st) — the input property lies about the tab order; data hooks can do double duty
+
+- **`input.tabIndex` reads 0 for EVERY same-name radio — the property does not model the radio-group tab-order rule** (enter at checked, arrows inside, Tab exits). Native tab-model claims are only receiptable with REAL Tab presses and `activeElement` reads; property reads manufacture a false "all tabbable" or a false contradiction.
+- **Component data hooks can do double duty**: `data-jx-tgroup` is both the ROOT's family hook and a 1×1 marker div inside every item label — a `[data-jx-tgroup]` census collects empty shadows. When a census selector returns ghosts, inspect tag/size/parent before counting; and when DESIGNING hooks, give item-level markers their own name.
+- **Label-text Playwright locators miss uppercase-transformed or hidden-input labels** — for native-input families the truer interaction path is a DOM click on the real input (which is also the platform path the component claims). Form-native components make the DOM path the honest one.
+- **`:has(input:checked)`-style label paint is the CLEAN checked-pair design** — per-input truth, no group-state pseudo leakage, no `:indeterminate` exposure. When auditing T94-class resting-state pairs on native-input families, verify the selectors route through `:has(input:…)` on LABELS rather than element-level `:checked` on shared classes (the radio incident shape).
+- **A claimed token ladder receipts itself in one rung table**: hit 28/32/40/48, inset 8/8/12/16, text 11/12/13/15, line 16/18/20/24 all measured off the same four labels — token-ladder claims are the cheapest full-credit receipts in the campaign when the DensityDemo scopes are left default.
+- **A mapping section that declares itself SEMANTIC (not 1:1 paint) needs no paint receipts** — quote the framing back and move on; falsification energy belongs to claims that promise the mechanism.
+
+## T103 (hover-card 1st) — the docs shell scrolls inner containers; event-timeStamp clocks; grace timing receipts light dismiss
+
+- **The docs site does not scroll the window** — `scrollingElement.scrollHeight == innerHeight`, `maxScrollY 0`; all content scrolls inside `.jx-shell-body` / `.jx-canvas-scroll`. Every window-scroll-based probe instrument (place-trigger-at-viewport-edge, scroll-to-bottom walks) silently no-ops or clamps; scroll tests must target the inner scroller or use `scrollIntoView`.
+- **Viewport resize is the clean forced-overflow instrument for position-try/flip tests** — the layout cannot place a trigger near the window bottom, so the flip ladder is unreachable by scrolling; `setViewportSize({height: 820})` created the overflow honestly and the ladder flipped (bottom→top, flippedAbove digit-true). Before ruling a fallback ladder dead, force the geometry, don't trust unreachable scroll positions.
+- **Clock receipts must anchor on event.timeStamp listeners, never pre-action node timestamps** — a mark set before `mouse.move` polluted the open clock to 515ms (true value ~300-411 band); listener marks on the same performance timeline gave the real digits. Also: **re-hover requires leave-first** — a pointer resting on the trigger never re-fires pointerenter, so a second hover no-ops; move away, wait out the grace, then return.
+- **Light dismiss (manual-vs-auto) is behaviorally receiptable DURING the close grace**: open via hover, move the pointer out (grace arms at T0), click outside at T0+50 — measured close at T0+213.7ms. An `auto` popover closes AT the click; `manual` lets the grace run. The click-through-during-grace form distinguishes the attribute's behavioral consequence without changing the component.
+- **A transparent popover ::backdrop does NOT steal hit-testing in Chrome** — elementFromPoint at the cursor returns the anchor while the card is open, and a 900ms hold-still stays open. The "backdrop intercepts pointerleave → self-close" theory was tested and killed; don't let a plausible top-layer mechanism survive without the elementFromPoint check.
+- **A demo can have zero focusables while its description scripts interactions INTO them** — census `a[href],button,input,[tabindex]` per rendered panel, not just per page: the hover-card page's card content is two `<p>`s while the description says "Click the link inside it … stays while focus crosses into it". The usage code block showed the link; only the live panel census caught that the demo dropped it.
+- **svelte-check reds can live in the FAMILY component, not just the page** — the cx clone now has a component twin (hover-card.svelte:69) and the focusout crossing seam carries `EventTarget | null` vs `Node | null` reds (:246/:280). Page-scoped greps must include the component's own path or the family's half of the gate stays invisible.
+
+## T104 (input 1st) — zero-reader axes are demoable; the docs shell's inner scrollers; textContent is blind to input values
+
+- **A stamped axis with zero readers is exactly what a demo makes visible**: the input family stamps `--jx-radius-effective` on the field root while jx-pure's shell law hardcodes `border-radius: 0` — the universal-props demo invites `radius="medium"` and nothing paints. The receipt form: inline-style stamp present + computed style unchanged + grep the family sheets for the var (zero hits). Contrast size, which consumes through an inline `font-size: var(--jx-size-effective)` stamp — same mechanism, real paint.
+- **The docs site scrolls `.jx-shell-body`/`.jx-canvas-scroll`, never the window** (scrollHeight == innerHeight, maxScrollY 0) — and reveal transitions run ~1.2s after scrollIntoView. Interaction probes must scroll the inner scroller, wait ~1.6-1.8s, then `elementFromPoint` hit-test before clicking; unstabilized rects produced a whole run of missed clicks and phantom "no-flip" geometry.
+- **textContent cannot see input values** — the time-stepper's "00:00" digits ride maxlength-2 `<input>` values, so a panel textContent read showed only " : 24h" and nearly falsified a true claim. Read `.value` on cell inputs for digit-level claims (the T95 pseudo-element lesson's sibling: choose the channel the pixels actually ride).
+- **Repurposing a native event name surfaces as an extends-type error**: `onselect: (value: string) => void` inside `Props extends HTMLInputAttributes` collides with the platform's text-selection handler typing (input.svelte :174). When a component reuses a native attribute name for a callback, check the Omit list — and expect consumers to be surprised either way.
+- **The playground dock's axis controls are icon-buttons + DropdownMenus with the UNIVERSAL rung names** (auto/small/medium/large) — pages written against the legacy xs/sm/default/lg vocabulary go stale silently; grep `AXIS_CONTROLS` in canvas-playground.svelte before receipting any "flip the dock" instruction.
+- **`--destructive` is BLACK in the one-hue light theme** (oklch(0 0 0), jixoai.css :73) — a probe that expects red will misread every error ink as "not destructive". Resolve the token and compare values, never hue-assume.
+- **The cx-overload clone and the undeclared `chrome` prop repeat across the whole control family** (input, number-input, tags-input, file-input, command-input…) — page-scoped svelte-check greps should include the family component's own path; the shared-util consolidation now has a dozen seats.
+
+## T105 (list 1st) — face scopes eat component atoms; the control-group discipline; a working ::marker channel
+
+- **A `.jx-pure` face scope defeats component atoms by specificity**: jx-pure's B8 restore law `:where(.jx-pure) ul:not(.no-jx-pure, .no-jx-pure *)` carries (0,1,1) — the `:not` arguments count — beating any single atom class (0,1,0). Any component demoed inside a face scope gets its marker/indent channels overridden silently; the law's own `.no-jx-pure` escape exists but nothing stamps it. When a page demos "defaults" inside a face scope, ALWAYS read a same-claim control outside the scope before believing either direction — the scoped vs unscoped pair is what turned this into a cascade finding instead of a blanket component failure.
+- **`::marker` computed reads WORK in Chrome** (color returns the painted ink) — a trustworthy channel, unlike the UA-shadow pseudos (T95's slider-thumb, T104's date indicator). Prefer it for marker-ink claims before reaching for the pixel-scan.
+- **"Every other attribute passes through untouched" rest-row claims are false the moment a component destructures axis props** — destructured props never reach `rest`; the input and list families both intercept the eight axes into carriers/data-density stamps. API tables that document a verbatim spread need a caveat row for intercepted axes.
+- **The no-`{#each}` page is real in this campaign**: the list family renders consumer `li` children through `{@render}` only — LAW #18 has nothing to audit and that is itself the receipt (static markup census, zero keyed-each habitats).
+- **Cross-family counts in hero summaries need a surface census**: "five control adapters" against a sibling exporting seven control-ish parts is the kind of drift the sibling's own review will find late; when reviewing family A's copy about family B, export-list B's index.ts in the same probe run.
+
+## T106 (tooltip 1st) — the rendered table is the claim surface; settle-before-geometry; per-run sampler indices
+
+- **RECORD CORRECTION (T103/T104/T105): the `universal` attribute on PropsTable renders the eight axis rows as a second table (from-meta.ts universalRows) — the "API omits the axes" findings were wrong.** Live census: tooltip [9,8], input [18,8], hover-card [8,8], list [8,8] — all eight axis rows present on every page. T104's LOW-1 fix must NOT land (it would duplicate rendered rows); T105's rest-row caveat was aimed at a non-existent gap; T103 MINOR-2 survives only as summary phrasing. THE LESSON: audit the RENDERED table, never the source props array — the claim surface is what the user reads.
+- **Geometry receipts demand kernel-rest settles**: the tooltip panel translates through a 460ms two-phase entry; a gap measured 40ms after open read 16px against a true 6px. Any measurement on an animating surface waits for translate/opacity to reach rest (or reads the animation state) before the rect is evidence.
+- **Long-lived event samplers need per-run indices**: whole-lifetime open/close arrays plus multi-step batteries produced stale deltas (negative clocks, null leaves) whenever a later step reused an earlier transition. Wire BOTH surfaces' boundary events (anchor AND panel — crossing moves the pointer off the anchor), stamp a run index before each battery leg, and read `opens[closes.length-1]`-style slices per run.
+- **A page can disagree with itself about platform behavior**: tooltip-base credits "Escape plumbing" to the Popover API while the a11y row correctly says manual popovers skip the native Esc path (the component wires its own keydown). When a summary attributes behavior to the platform, spec-check it against the component's own compensation code — the compensation is the tell.
+- **Manual popovers and Escape**: `popover=manual` turns OFF native Escape dismissal by spec — any manual-popover component claiming Escape support must own a window keydown (hover-card and tooltip both do; the claim and the handler co-verify).
+- **filter:none is a rest-state pin, not a style choice**: the jx-waapi cascade computes blur from --jx-p, and a residual blur(0px) keeps a compositor layer alive that disturbs backdrop-filter — the kernel pins filter:none at every rest point (the r30 law). When auditing "invisible" rest states, read filter/opacity/translate INLINE, not just the computed paint.
+
+## T108 (website-scaffold 1st) — the host layer races hydration; measured-vs-token digits; skip links move views, not focus
+
+- **The host layer's own review races hydration on dev** (the T54 captor lesson, again, at full scale): pre-hydration the header band measured 9855px (whole-page) with the RO inline var unwritten; post-hydration it is 74px with the RO's correction stamped on the declaring scope. On a dev-server first compile, networkidle is the earliest honest measurement point — `commit`+sleep is not, even at 2.2s. Measure the chrome AFTER the module graph settles, and re-read any anomaly on a fresh load before filing it.
+- **The immersive −74.74px is −101% × the 74px band** — quill's digits were exact and the gloss ("= the header-h itself") rounds away the 1% overshoot. When a claim's number matches to the hundredth, accept the number and check the MECHANISM separately: the css mechanism is -101% (layout-stable), the token compaction is calc(-1 × var) (toc side reads −74). Two zones, two mechanisms, one visual story.
+- **The growth law is measurable**: the toc's max-height at hidden state reads calc(100% − 1.25rem + header-h) = calc(100% + 54.74px) — height-cap growth cancels the compaction translate so the rail's foot stays pinned. Compaction claims are not receipted by the translate alone; the cap is the other half.
+- **Shared var names across families need scope labels in token tables**: --jx-toc-line is declared by the toc family at :root (76px, standalone consumers) AND derived by the scaffold (calc = 106px, in-shell). The scaffold page's token table cited the toc family's number. When a var is "shared", the default cell must say WHICH scope's value it quotes.
+- **Skip links move the view, not focus** — without tabindex="-1" on the target, Enter after the skip link lands the viewport (measured: mainTop exactly at the toc-line) while activeElement stays BODY. A11y copy that says "focus lands on X" needs the tabindex, or the copy needs to say "the view lands".
+- **Point-in-time receipts decay**: "6164px scrollable" was true at task-70, 11074px now. A live-receipts list should either re-measure at authoring time or carry the measurement date/commit — content-growth numbers (scroll heights, counts) are the fastest-decaying receipts in the bank.
+- **grep receipts verify in seconds and they held 8-for-8**: the zero-reader axis rows (--jx-*-effective, corner-shape: zero hits across the family) were exactly as claimed. The supply-only/no-own axis story is cheap to falsify and worth running on every "no-own container" claim.
+
+## T111 (grid · math-inline · statistic batch) — the 0fr trap demoed broken; section-header p's impersonate demo prose; Vite reloads murder batch probes
+
+- **`grid-template-rows: 0fr` does NOT collapse a track whose child keeps min-height auto** — the auto minimum floors the track at the content's min-content height, so the demo lane read 70px in collapsed, open, AND re-collapsed states. The 0fr→1fr disclosure trick requires min-height:0/overflow:hidden ON THE CONTENT; a demo that omits it shows no animation while the copy promises one. Receipt form: computed gridTemplateRows returns RESOLVED px (not the specified fr) — compare across states, and read the child's min-height/overflow when the states tie.
+- **A section's FIRST <p> is often the header label, not the demo prose** — the math-inline "currentColor fails" reading was the section-header's eyebrow paragraph (accent ink) standing in for the demo paragraph. When receipting color inheritance, resolve the claim's own element (`katex.closest('p')`), never `scope.querySelector('p')`.
+- **Vite dep-optimization fires a full page reload mid-probe** ("Execution context destroyed" + networkidle timeouts on freshly-visited routes). Batch probes across unvisited dev pages: waitUntil 'load' + generous settles (networkidle is a trap on dev), and expect one thrown context per newly-compiled route.
+- **In-page polling beats node-side racing for late-mounting content**: one `page.evaluate(async () => { while (!ready) await sleep(250); …measure… })` survives reloads-by-Vite better than node-side loops (a node-side loop can straddle a reload and measure two different documents — my 9855px-class ghost, again, in miniature).
+- **`{…rest}`-less components still omit props from tables in the OTHER direction**: statistic's rendered API table dedupes its authored `density` row against the universal fold's density row (6 authored → 5 rendered) and omits `class` entirely. Census the RENDERED row NAMES, not just counts, when the claim surface is the table.
+- **`aria-live` recipe claims need a live-DOM check**: the drawer string showed the sr-only region; the live demo dropped it while the help text still described it. Recipe-vs-demo divergence is a recurring seat — grep the LIVE region for the claimed a11y node, not the code string.
+
+## T116 (toc 2nd) — two-stage outline libs; self-adoption stamps fool naive censuses; the pick-line landing cross-receipts the shell
+
+- **A derivation lib can be TWO exports**: toc-outline.ts's deriveTocOutline returns FLAT level-tagged entries; the tree exists only after tocOutlineToSections. A fixture battery that checks children on the entries stage reads false against a correct lib — read the module's export list first and exercise each stage at its own level.
+- **Self-adoption stamps defeat naive opt-out censuses**: the toc component stamps data-area="toc" on ITSELF (the mechanism that lets the layout host it), so a `[data-area="toc"]` census matches 18 component-internal nodes on the very page that ships NO layout rail. The honest absent-receipt is scoped to the consumer seat (`.jx-chrome-slot [data-jx-toc-root]` = 0).
+- **The pick-line landing is the cross-family receipt that keeps giving**: clicking a derived rail anchor lands the runtime-stamped heading at EXACTLY the shell's toc-line (74px here = the scroll-padding), and the scrollspy pick follows the region law (an h3 landing picks its parent h2 extent). One click receipts the toc engine, the shell's scroll-padding, and the a11y row simultaneously.
+- **$derived closures over $props() create circular-inference error clusters** (toc-link.svelte :26 ×4, including "$props used before its declaration") — runtime-clean, svelte-check-loud. The fix family: annotate the destructured fields or move to $derived.by with an explicit return type.
+- **Landed-clause verification has three layers**: the copy (grep the exact wording), the byte (grep the code the clause describes), and the count (re-census the claim's number). The toc page passed all three on clauses 1-2; clause 3's substance held while its fleet digit had drifted 107→120 — substance-true, digit-stale is its own finding class (NIT).
+- **--jx-progress lives on the spine FILL element, not the toc root** — engine-written vars sit on the innermost element they style; read computed vars at the element the css rule targets, or eat an empty-string read.
+
+## T119 (toast 2nd, 2026-09-24)
+
+- **BootSplash eats clicks on cold loads.** The scaffold's FOUC mask (+layout.svelte
+  BootSplash: fonts.ready + 4s cap) lives in the top layer; on a cold vite compile its
+  breathing logo intercepts Playwright pointer events and click retries burn the full
+  30s timeout. Every docs-page probe must `await document.fonts.ready` + settle >4s
+  (I use 9s) before the first locator click. Two 30s timeouts died to this before the
+  fix; stages C/D/E on warm loads clicked fine, which masked it on the first run.
+- **Never rebuild dist while siblings run `vite preview`.** Check `ps` for preview
+  listeners BEFORE any build decision: quill (5241) and scribe (5243) were both serving
+  off the shared dist. When HEAD == dist == the dispatch reference vintage, gating
+  verify:docs against the existing dist is exact and free; a rebuild would have swapped
+  the ground under two live probes (the T71 contamination lesson, inbound this time).
+- **Transition-diff sampling measures EXIT_MS for free.** Sampling card-count
+  transitions at 40ms during a queue promotion caught the 5→4→1 cascade: the queued
+  card enters while the expired four still paint their leaving ghosts, and the ghost
+  window (~210-220ms) falls out of the transitions without a dedicated ghost poller.
+  Record n-transitions, not just endpoints.
+- **The queue-expiry arms-at-first-visibility law is best discriminated by pure
+  observation**: burst past maxVisible, touch nothing, sample to ~11s. Promotion of the
+  oldest + aliveness at 2× duration + unmount at promotion+duration is a three-point
+  proof that needs zero interaction (no dismiss interception risks, no hover timing).
+
+## T122 (grid 2nd of MY OWN 1st, 2026-09-24)
+
+- **The min-h-0/overflow-hidden recipe floors at the lane's BOX, not zero.** The 0fr
+  collapse suppresses exactly the CONTENT floor; padding+border remain (measured 16+16
+  +1+1 = 34px residue, margins 0). "0fr collapses to 0px" is only true of unpadded
+  lanes — when a receipt needs "0px-collapse", decompose the floor first (padT+padB+
+  borT+borB+margins) before calling it a fix failure. The content-clipping read
+  (scrollHeight vs clientHeight) is what proves the recipe landed.
+- **grid-template-rows SNAPs without a consumer transition.** The 0fr→1fr atom changes
+  the track instantly (40ms sampling caught exactly 2 distinct values, no tween) — the
+  component ships no duration and demo snippets usually don't either. "The track IS
+  the animation" copy oversells; the interpolable property needs `transition:
+  grid-template-rows <t>` supplied by the consumer. Sample transitions, don't assume.
+- **Vintage-proofing a shared dist without rebuilding**: dist mtime at the
+  consolidation minute + grep for the landed fix's generated class atoms in the dist
+  CSS proves the vintage carries the fix — then verify:docs against the existing dist
+  is honest, and a sibling's live `vite preview` stays untouched. (Second reuse of the
+  T119 rule; mtime + atom-grep is the cheap proof.)
+- **Re-reviewing MY OWN findings**: read the 1st report first, then re-derive every
+  digit fresh. The drift ledger is the honest form: my 1st said 70px flat, now 34→106
+  →34 — different numbers because the content grew AND the floor changed nature
+  (content floor → box residue). Say why the numbers differ, not just that they do.
+
+## T126 (W-next #19 sweep, 2026-09-24)
+
+- **The containing-block law has a positive test now**: inject data-reveal on a
+  hosting section in-probe → the section's computed transform goes non-identity
+  matrix (the view() progress value, e.g. matrix(1,0,0,1,0,10.16)) and a fixed
+  descendant's rect starts tracking the scroll (measured −282.6). Revert → none /
+  moved 0. This demonstrates the law AND validates the fix shape in one probe —
+  stronger than a census alone.
+- **Opacity-only reveal = no containing block (measured)**: opacity is not a CB
+  trigger; a view()-timeline opacity-only keyframe leaves computed transform at
+  `none` and the fab free. This is the Owner's systemic option, proven on one seat.
+- **The rect-across-scroll test is only valid for PLAIN fixed elements.**
+  Anchor-positioned platform panels (tour card: top: anchor(bottom)) move with
+  scroll BY DESIGN — the anchor tracks its target. For popover platform elements
+  the immunity receipt is `:popover-open` membership (top layer ⇒ viewport CB),
+  not the scroll test. Two probe drives were burned learning this (tour −270
+  misread as suspicious; sysdlg measured closed on the first click).
+- **Fleet classification rule for fixed idioms**: exactly ONE inline fixed
+  renderer exists (float-button — the fab IS the consumer's element); every other
+  fixed atom in the families is a popover PLATFORM panel (top-layer while open,
+  display:none closed) or a float-plane adopter (toast). The sweep reduces to:
+  float-button hosts + a platform-class check everywhere else.
+
+## T128 (skip-link A/B probe, 2026-09-24)
+
+- **Chromium fragment navigation already moves the sequential focus starting
+  point** — Tab-after-skip starts inside main even when focus stays on body. The
+  classic skip-link argument "without tabindex the next Tab restarts from the top"
+  is FALSE on this engine; measure next-Tab in both arms before citing it. What
+  tabindex+focus() actually buys: activeElement ON the target (SR landmark context;
+  the click path otherwise strands focus ON the skip link) + a :focus-visible ring
+  (visual confirmation).
+- **Programmatic focus() needs its outline companion**: a tabindex="-1" landing
+  target paints the UA ring around its FULL box (here 784×5391px). The standard
+  skip-link implementation is three lines, not two — tabindex + focus() + outline:
+  none on the target's :focus. Measure the ring, don't ship it.
+- **focus()-induced scrolling honors scroll-padding** (measured focusDelta 0 after a
+  fragment landing at the toc-line) — the "focus will fight the scroll offset" fear
+  is unfounded in Chromium; no preventScroll gymnastics needed.
+- Assertion hygiene in Tab-walk probes: key stop identities off tagName+id
+  (MAIN#main), and remember the skip link has no id — check the raw stop strings,
+  not a label that assumes one.
+
+## T131 (4-page batch — scroll-run/select/terminal-header/text, 2026-09-24)
+
+- **Runtime-composed Tailwind classes need a feed that actually feeds.** The text
+  modifier playground emits correct class strings whose utilities exist NOWHERE —
+  not dev, not prod, twice-built. The in-file scanner-feed comment block (the
+  "app.css jx-html block precedent" cited in its own comment) is not being read by
+  the scan. Receipts that made it un-arguable: a raw injected div with the class
+  computes nothing + a full sheet walk finds zero matching rules + dist greps across
+  two builds. When a demo renders no change, check the SHEET for the class before
+  blaming the component logic.
+- **vite build vs vite dev on one .svelte-kit = ENOENT race** (manifest-full.js).
+  Kill my dev server before building; a retry heals the partial dist. And a partial
+  build still writes dist files — check dist mtimes after ANY failed build before
+  trusting gates.
+- **Probe locator clicks in canvas demos**: the `[data-jx-canvas-dock]` playground
+  aside intercepts pointers over demo controls at 1280×900 — route demo-control
+  drives through DOM clicks (dispatch the same event) instead of burning 30s
+  timeouts; and force `scroll-behavior: auto` before programmatic scroller
+  assignments (the machine's own trick).
+- **Read the machine's stamped attribute, not my recomputation**: my vertical-run
+  "max" read used the inline axis (0) while the stamped verdict said start-closed —
+  the component's own stamp is the primary source; my geometry re-derivation is the
+  fallback.
+- **In-flight sibling edits 500 pages transiently**: vellum's playground fix batch
+  (play-row $props.id() placement) briefly 500'd select.html mid-save; the file was
+  healed on re-read. On a 500 in a shared tree, check git status for dirty sibling
+  files before filing anything — diagnose, wait, retry.
+
+## T138 (4-page 2nd batch — pattern-login/progressive-blur/prose/result, 2026-09-24)
+
+- **The rg -rn trap bit a THIRD time** (-r is --replace: "?? {}" became "n" in my
+  grep output and I nearly misread landed guards as mangled). The rule is now
+  muscle memory: recursive+line-number is ALWAYS `rg -n`; -r only with an explicit
+  replacement intent.
+- **Token-equality receipts survive vintage drift**: result's success glyph was
+  oklch(…195) at scribe's vintage and oklch(…44) at mine — the brand hue moved —
+  and "glyph == --primary" held BOTH times. Assert token equality, never literal
+  digits; the drift itself becomes the receipt's strongest form.
+- **Degraded-branch emulation**: to measure an @supports-gated engine branch,
+  force the gate's failure (`animation: none !important` for a scroll-timeline
+  reveal) and measure the fallback — PB's "never a wrongly-painted band" went from
+  source-true to measured-true in one injection.
+- **Clean Tab walks need a fresh context**: any prior interaction (clicks, focus)
+  poisons the starting point and the walk silently skips the skip link. One fresh
+  context, no interactions, then walk. My first pattern-login walk was garbage;
+  the clean one verified the page's claim exactly.
+- **Scribe's open questions are fresh-axis gold**: her login Tab-order question and
+  PB degraded-path question both became my measured receipts — reading the 1st
+  report's open questions before picking the fresh axis doubles the value of the
+  pass.
+
+## T141 (mechanical queue verification, 2026-09-24)
+
+- **Unsound casts diagnose themselves**: when a `as SomeType` error says "neither
+  type sufficiently overlaps", the fix is never the double-cast — it's structural
+  (split the derived per branch). The pagination button branch had ALSO been
+  spreading anchor-typed rest onto a <button> (invalid HTML laundered by the cast)
+  — a type error pointing at a semantic wart is a gift; enumerate instead of cast.
+- **Hit-test the demo seat before blaming hover wiring**: elementFromPoint at the
+  target's center in 5 seconds settles "the hover doesn't work" vs "an overlay eats
+  the pointer" — quill's T133 tooltip mystery and my two dock interceptions were the
+  same canvas-dock geometry. The scale-up-viewport trick (1720×1400) re-seats the
+  button clear of the dock and the real-mouse path works.
+- **Grep for split-markup phrases**: "Components pill" never matches
+  `<em>Components</em> pill` — search the distinctive WORD, then read the line.

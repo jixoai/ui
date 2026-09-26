@@ -1,5 +1,6 @@
 <script lang="ts">
   import Alert from '$lib/ui/alert/alert.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ButtonGroup from '$lib/ui/button-group/button-group.svelte';
   import ButtonVariantScope from '$lib/ui/button-group/button-variant-scope.svelte';
   import CodeBlock from '$lib/code-block.svelte';
@@ -198,6 +199,23 @@ ${close}
   <PressButton>joined ghost</PressButton>
   <PressButton variant="fill">keeps fill</PressButton>
 </ButtonGroup>`;
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -208,8 +226,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -218,7 +236,7 @@ ${close}
         title="five dialects became one language — Defaults is the organization layer"
         summary="A button standing alone is outline; the same button inside a dialog footer is ghost, and neither site passes a prop. That is the ambient style contract, and until now it was written in five dialects — density had a key and a plugin seam, paint had a zone scope, entity depth accumulated, medium projected, hue adapted. This change does not add a new foundation: Svelte context, the ?? operator, undefined-as-sentinel and the setup window were all already there, exactly as CompositionLocal, takeOrElse, Color.Unspecified and @Composable are in Jetpack Compose. What was missing is what Compose has and we lacked — an organization layer. Every family with a style vocabulary now ships one XxxDefaults object: the single declared place that answers which vocabulary props the environment may manage, audited by a gate, versioned by classification — the physics texture axis (raised) stays outside by ruling, on its own zone key."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">5 dialects → 1 language</span>
           <span class="pill">density + paint axes</span>
           <span class="pill">every vocabulary style prop has a slot</span>
@@ -236,10 +254,10 @@ ${close}
         title="Change a subtree's defaults — the three doors"
         summary="The question the whole economy answers, asked the way a page asks it: how do I make every button in this region ghost — or every control compact — without drilling a prop into every call site? You never touch a Defaults object from outside; the ambient economy reaches your page through exactly three doors. A zone scope changes the paint default for a subtree; a density stamp changes the scale of a subtree; a plugin intervenes on axis values under a medium. Everything else on this page — the contract files, the slot factories, the gate — exists so these three doors stay honest."
       >
-        <div class="flex flex-col gap-5">
-          <div class="grid grid-cols-1 gap-5 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-3">
-              <span class="text-muted-foreground text-[11px]">
+        <div class={cx(rt.col20)}>
+          <div class={cx(rt.cdGrid20)}>
+            <div class={cx(rt.col12)}>
+              <span class={cx(rt.note11)}>
                 door 1, live — the scope changes the DEFAULT, the explicit prop overrides it
               </span>
               <ComponentCanvas
@@ -247,7 +265,7 @@ ${close}
                 files={[{ name: 'variant-scope-demo.svelte', content: variantScopeDemo, kind: 'usage' }]}
                 stage="center"
               >
-                <div class="flex flex-wrap items-center justify-center gap-3">
+                <div class={cx(rt.rowC12, rt.wrap, rt.justifyCenter)}>
                   <PressButton>lone — outline</PressButton>
                   <ButtonVariantScope variant="ghost">
                     <PressButton>adopts ghost</PressButton>
@@ -260,7 +278,7 @@ ${close}
                   </ButtonGroup>
                 </div>
               </ComponentCanvas>
-              <p class="text-muted-foreground text-[13px] leading-6">
+              <p class={cx(rt.bodyMuted)}>
                 Three answers from one component, zero prop-drilling: the lone button never saw a
                 zone (its own default — outline); inside the scope, unprefixed buttons adopt ghost
                 while the explicit fill wins; the group adds the join on top of the same zone.
@@ -268,7 +286,7 @@ ${close}
               <CodeBlock code={scopeCode} lang="svelte" meta="door 1 — ButtonVariantScope, the zone without layout" />
               <CodeBlock code={groupCode} lang="svelte" meta="door 1b — ButtonGroup, zone + join in one" />
             </div>
-            <div class="flex flex-col gap-3">
+            <div class={cx(rt.col12)}>
               <CodeBlock code={densityCode} lang="svelte" meta="door 2 — density, the css scope channel" />
               <div class="table-scroll">
                 <table class="data-table">
@@ -305,18 +323,18 @@ ${close}
                 wall: an app-level intervention on axis values, which components and Defaults are
                 oblivious to (the plugins → axes → Defaults firewalls, in the why section below).
               </Alert>
-              <p class="m-0 text-muted-foreground text-[13px] leading-6">
+              <p class={cx(rt.bodyMuted, rt.m0)}>
                 Each component page's props table states the truth per prop — the own value in the
-                Default column with the ambient tail (<code class="text-accent">ambient zone</code>,
-                <code class="text-accent">ambient scope</code>, or
-                <code class="text-accent">Own default, not ambient</code>). If a fourth door seems
+                Default column with the ambient tail (<code class={cx(rt.inkAccent)}>ambient zone</code>,
+                <code class={cx(rt.inkAccent)}>ambient scope</code>, or
+                <code class={cx(rt.inkAccent)}>Own default, not ambient</code>). If a fourth door seems
                 needed, that is a design conversation, not a prop.
               </p>
             </div>
           </div>
           <Alert title="The origin story — a dialog footer's buttons">
             This whole economy has one ancestor question (r14, the Owner):
-            <code class="text-accent">can't Context control the default variant of the buttons
+            <code class={cx(rt.inkAccent)}>can't Context control the default variant of the buttons
             inside DialogHeader / DialogFooter?</code>
             The answer became ButtonVariantScope — a zero-DOM context boundary. Dialog wraps its
             head and foot zones in a ghost scope, so every PressButton and IconButton inside —
@@ -336,7 +354,7 @@ ${close}
         title="Five dialects → one language"
         summary="The context economy was already running — but each axis spoke its own dialect, and the reads were scattered through per-component ?? chains. The ambient contract was invisible (no one place answers which props the environment may manage), unauditable (no gate could enforce it) and unversionable (opening one property meant shotgun changes). The fix is Compose's shape, translated one-to-one onto machinery Svelte 5 already had."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={dialectCode} lang="ts" meta="the before — five channels, five idioms" />
           <div class="table-scroll">
             <table class="data-table">
@@ -371,11 +389,11 @@ ${close}
             </table>
           </div>
           <CodeBlock code={layerCode} lang="text" meta="the layer stack — plugins → axes → Defaults → props" />
-          <p class="text-muted-foreground text-[13px] leading-6">
+          <p class={cx(rt.bodyMuted)}>
             The layering has two deliberate firewalls. Plugins (print and other cross-cutting
             concerns) never know components — they intervene on axis values only; and Defaults
             never knows plugins — it just resolves. The second firewall runs the other way too:
-            <code class="text-accent">lib</code> never imports <code class="text-accent">ui</code>
+            <code class={cx(rt.inkAccent)}>lib</code> never imports <code class={cx(rt.inkAccent)}>ui</code>
             (a reverse-dependency gate asserts it), so the tool layer and the axis modules install
             whole into any consumer.
           </p>
@@ -391,30 +409,30 @@ ${close}
         title="The axes & the coverage classes"
         summary="Coverage means every public style prop has a slot — not that every prop is ambient today. A prop's slot is either an axis slot (ambient, the environment may manage it) or a literal family slot (own value declared and auditable, no axis yet). Ambient capability grows as axes open; the classification is gated. Exactly two axes are collected into slots; three keep their own mechanisms; two are honestly on the roadmap."
       >
-        <div class="flex flex-col gap-5">
-          <div class="grid grid-cols-1 gap-5 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-3 text-[13px] leading-6">
-              <h3 class="text-[15px] font-bold">Collected into slots</h3>
-              <p class="text-muted-foreground">
-                <code class="text-accent">density</code> — the four-tier channel (lg / default /
-                sm / xs) with its plugin seam; <code class="text-accent">paint</code> — the
+        <div class={cx(rt.col20)}>
+          <div class={cx(rt.cdGrid20)}>
+            <div class={cx(rt.col12, rt.body13)}>
+              <h3 class={cx(rt.title15Plain)}>Collected into slots</h3>
+              <p class={cx(rt.inkMuted)}>
+                <code class={cx(rt.inkAccent)}>density</code> — the four-tier channel (lg / default /
+                sm / xs) with its plugin seam; <code class={cx(rt.inkAccent)}>paint</code> — the
                 variant ladder's zone channel, on its own key
-                (<code class="text-accent">PAINT_ZONE_KEY</code>, values only — layout stays with
+                (<code class={cx(rt.inkAccent)}>PAINT_ZONE_KEY</code>, values only — layout stays with
                 ButtonGroup's family key — one paint key, no compatibility
                 shims). Both become slot factories any family can declare.
               </p>
-              <h3 class="text-[15px] font-bold">Keeping their own mechanisms</h3>
-              <p class="text-muted-foreground">
-                <code class="text-accent">entity depth</code> (accumulates via provideEntity —
-                border-is-objecthood), <code class="text-accent">medium</code> (a read-only
-                projection — environment truth, never an opinion), <code class="text-accent">hue</code>
+              <h3 class={cx(rt.title15Plain)}>Keeping their own mechanisms</h3>
+              <p class={cx(rt.inkMuted)}>
+                <code class={cx(rt.inkAccent)}>entity depth</code> (accumulates via provideEntity —
+                border-is-objecthood), <code class={cx(rt.inkAccent)}>medium</code> (a read-only
+                projection — environment truth, never an opinion), <code class={cx(rt.inkAccent)}>hue</code>
                 (the runtime adapter). These are structural and environmental axes with no
                 per-prop consumption shape — forcing them into slots would be ceremony, not
                 coverage. They keep their channels; Defaults never wraps them.
               </p>
-              <h3 class="text-[15px] font-bold">On the roadmap (honestly)</h3>
-              <p class="text-muted-foreground">
-                <code class="text-accent">elevation</code> and <code class="text-accent">shape / radius</code>:
+              <h3 class={cx(rt.title15Plain)}>On the roadmap (honestly)</h3>
+              <p class={cx(rt.inkMuted)}>
+                <code class={cx(rt.inkAccent)}>elevation</code> and <code class={cx(rt.inkAccent)}>shape / radius</code>:
                 vocabulary not yet mature or zero real consumers — and a zero-consumer axis is
                 speculative generality. The open-axis protocol template (closed union + token map,
                 zone scope shape + slot factory signature, first-consumer contract) is written;
@@ -455,7 +473,7 @@ ${close}
               </table>
             </div>
           </div>
-          <p class="text-muted-foreground text-[13px] leading-6">
+          <p class={cx(rt.bodyMuted)}>
             The gate asserts the FULL classification: every style prop is a, b or d and carries a
             slot (or an explicit exemption), every class-c prop has a roadmap entry. Compose makes
             the same split — it does not ambient-ize onClick either; instance semantics are not
@@ -473,7 +491,7 @@ ${close}
         title="One contract file, one resolve line"
         summary="Authoring against the seam is two moves. Ship a family defaults file — the family's single declared ambient contract, one object whose slots cover every vocabulary-hit style prop, zero kernel imports, installing with the family. Then read it in exactly one place inside the component — the $derived window. Everything else is the frozen idiom checklist below, learned in the pilot batch and the four migration waves."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={contractCode} lang="ts" meta="the contract file — kbd, the values-first sample" />
           <CodeBlock code={resolveCode} lang="svelte" meta="the read point — one line inside the component" />
           <div class="table-scroll">
@@ -516,57 +534,57 @@ ${close}
           </div>
           <CodeBlock code={literalCode} lang="ts" meta="classification b — the scalar faces: closed booleans + the open domain" />
           <CodeBlock code={providerLaneCode} lang="ts" meta="the provider lane — inherit-then-provide, frozen form" />
-          <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold">The frozen author checklist (pilot batch + four waves)</h3>
-            <ul class="flex flex-col gap-2">
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+          <div class={cx(rt.col12, rt.body13)}>
+            <h3 class={cx(rt.title15Plain)}>The frozen author checklist (pilot batch + four waves)</h3>
+            <ul class={cx(rt.col8)}>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>the values literal is the union's single source of truth —
-                <code class="text-accent">default ∈ values</code> is compile-locked and the
+                <code class={cx(rt.inkAccent)}>default ∈ values</code> is compile-locked and the
                 union is the named slot constant's
-                <code class="text-accent">ReturnType</code> look-up; the gate AST-reads the
+                <code class={cx(rt.inkAccent)}>ReturnType</code> look-up; the gate AST-reads the
                 inline first-argument array and asserts the paint rows equal the frozen
                 availability table in BOTH directions — a missing or extra value fails
                 (meta-feeding families keep their component-Props inline union instead: the
                 surviving half of the drift double-lock — resolve-site assignability — is the
                 documented exception)</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-                <span>the no-values slot factories — <code class="text-accent">absentSlot</code>
-                and <code class="text-accent">defineOpenSlot</code> — take the explicit type
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+                <span>the no-values slot factories — <code class={cx(rt.inkAccent)}>absentSlot</code>
+                and <code class={cx(rt.inkAccent)}>defineOpenSlot</code> — take the explicit type
                 argument (nothing to infer it from — omitting it is a compile error by
                 construction, never a defaulted fallback); the values-first factories infer
                 everything from the tuple: omitting either parameter, or a default outside the
                 domain, cannot compile</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-                <span>the family barrel exports <code class="text-accent">XxxDefaults</code> and
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+                <span>the family barrel exports <code class={cx(rt.inkAccent)}>XxxDefaults</code> and
                 the slot types — the contract is part of the public face; use
-                <code class="text-accent">import type</code> + <code class="text-accent">export type</code>
+                <code class={cx(rt.inkAccent)}>import type</code> + <code class={cx(rt.inkAccent)}>export type</code>
                 (two statements) when re-exporting a union from the module script</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>inherit-then-provide families use the eager-capture provider lane and stack
                 resolve on it (the snippet above) — read-before-write ordering is load-bearing;
                 a lazy read inside the derived loops on the component's own write</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>multi-vocabulary families split honestly: the panel surface keeps
-                <code class="text-accent">variant</code>, the action ladder takes an
-                <code class="text-accent">actionVariant</code> slot — the split is recorded in the
+                <code class={cx(rt.inkAccent)}>variant</code>, the action ladder takes an
+                <code class={cx(rt.inkAccent)}>actionVariant</code> slot — the split is recorded in the
                 defaults file header</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>a family whose domain already lives in lib imports the values constant
                 rather than re-declaring it — toast's
-                <code class="text-accent">TOAST_VARIANT_VALUES</code> /
-                <code class="text-accent">TOAST_MATERIAL_VALUES</code> tuples in the store are
+                <code class={cx(rt.inkAccent)}>TOAST_VARIANT_VALUES</code> /
+                <code class={cx(rt.inkAccent)}>TOAST_MATERIAL_VALUES</code> tuples in the store are
                 the only declaration source, the unions are
-                <code class="text-accent">typeof</code> look-ups, and the slots feed the
-                imported tuple to <code class="text-accent">defineLiteralSlot</code> — one
+                <code class={cx(rt.inkAccent)}>typeof</code> look-ups, and the slots feed the
+                imported tuple to <code class={cx(rt.inkAccent)}>defineLiteralSlot</code> — one
                 source of truth beats two</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>zero vocabulary hits and no legacy reader → ship NO defaults file (an empty
                 contract is speculation); a real density intent may ship a pure declaration slot</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>the docs props table states the truth per prop: the own value in the Default
-                column, with the ambient wording tail — <code class="text-accent">ambient zone</code>,
-                <code class="text-accent">ambient scope</code>, or
-                <code class="text-accent">Own default, not ambient</code></span></li>
+                column, with the ambient wording tail — <code class={cx(rt.inkAccent)}>ambient zone</code>,
+                <code class={cx(rt.inkAccent)}>ambient scope</code>, or
+                <code class={cx(rt.inkAccent)}>Own default, not ambient</code></span></li>
             </ul>
           </div>
         </div>
@@ -581,40 +599,40 @@ ${close}
         title="Guards — what verify:context locks"
         summary="A contract this central only survives if drift fails loudly. The gate (scripts/verify-context-coverage.mjs) walks the registry with the Svelte compiler's AST — not regexes — and every exemption is explicit, versioned and reasoned."
       >
-        <div class="grid grid-cols-1 gap-6 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold">The assertions</h3>
-            <ul class="flex flex-col gap-2">
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+        <div class={cx(rt.cdGrid24)}>
+          <div class={cx(rt.col12, rt.body13)}>
+            <h3 class={cx(rt.title15Plain)}>The assertions</h3>
+            <ul class={cx(rt.col8)}>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>existence — every vocabulary-hit prop has a defaults file and a covering slot</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>slot legality — a slot must be a REGISTERED factory product: a module-private
                 type brand plus a factory-product registry (a bare function, a literal or a
                 forged object is rejected at compile time, and at runtime in dev — the type
                 brand is the production contract)</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>family contract — the component calls its family's resolve, and the retired
                 channels (the old helpers, raw axis-key reads) stay retired</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>availability consistency — family variant unions stay inside the paint axis
                 and match the frozen table (link stays PressButton-only)</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>lib→ui reverse dependency — the tool and axis modules never import a
                 component</span></li>
-              <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+              <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
                 <span>exemptions explicit — bindable / passthrough / no-style / provider / roadmap
                 entries must all hit and carry a reason</span></li>
             </ul>
           </div>
-          <div class="flex flex-col gap-3 text-[13px] leading-6">
-            <h3 class="text-[15px] font-bold">Where this surfaces to readers</h3>
-            <p class="text-muted-foreground">
+          <div class={cx(rt.col12, rt.body13)}>
+            <h3 class={cx(rt.title15Plain)}>Where this surfaces to readers</h3>
+            <p class={cx(rt.inkMuted)}>
               Each component page's props table states the ambient truth per prop (the own value
               plus the ambient wording tail); this page is the map of the system, the component
               pages are the per-family ground truth. The search corpus and the llms.txt mirrors
               regenerate at build — this page joins them automatically.
             </p>
-            <p class="text-muted-foreground">
+            <p class={cx(rt.inkMuted)}>
               Honest edges, on record: elevation and shape are roadmap classes, not shipped axes
               (class c — the open-axis protocol activates with the first real consumer); instance
               semantics are class d forever; and the paint axis is a single-key lane

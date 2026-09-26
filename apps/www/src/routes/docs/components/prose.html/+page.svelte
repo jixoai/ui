@@ -8,9 +8,10 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas, { type TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import Chip from '$lib/ui/chip/chip.svelte';
   import Heading from '$lib/ui/heading/heading.svelte';
@@ -58,7 +59,7 @@
   voice — currentcolor restores against the inherited solid ink.</P>
 </Prose>`;
 
-  const sovereigntyUsage = `<Prose size="1.125rem" leading={2}>
+  const sovereigntyUsage = `<Prose measure="1.125rem" leading={2}>
   <Markdown typography="relaxed" {source} />
 </Prose>
 
@@ -70,7 +71,7 @@
   const sovereigntySource = [
     '## Sovereignty, demonstrated',
     '',
-    'The typography **trio** owns scale inside markdown — this relaxed preset stamps its own root declarations, and the outer `<Prose size leading>` wrapper loses to them **by cascade**, not by JS masking.',
+    'The typography **trio** owns scale inside markdown — this relaxed preset stamps its own root declarations, and the outer `<Prose measure leading>` wrapper loses to them **by cascade**, not by JS masking.',
     '',
     'Ink and flow knobs still pass through: the region mute tints these lines, but the scale stays the trio\'s.',
   ].join('\n');
@@ -99,6 +100,28 @@
       kind: 'usage',
     },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<Prose measure="1.0625rem" size={18}>…</Prose>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/prose-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -109,17 +132,27 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
         tone="hero"
         eyebrow="registry:ui · Data Display"
         title="prose — the reading region, eleven knobs and two channels"
-        summary="NOT <Typography> — that word is markdown's live user-facing vocabulary (<Markdown typography=&quot;relaxed&quot;); the provider is <Prose>, rendering a div.jx-pure[data-jx-prose] host. Eleven frozen v1 knobs, every one an absentSlot in ProseDefaults: ABSENCE IS THE STATE — an unset knob emits nothing, stamps nothing, and the ambient channel (an outer prose region's declarations, or no opinion at all) keeps flowing; nested regions inherit every knob they do not set, nearest setter wins. Two channels carry the state: the JS scope (resolved through the plugin chain AT THE PROVIDER — a print-medium plugin can strip gradient/ground before CSS sees them — then provided through the typography lib's context pair) and the CSS residue sheet (prose.css), whose every rule sits at (0,2,0): above the face element rules, BELOW the markdown sheet. That ladder IS the sovereignty contract — an outer <Prose size leading> can never fight <Markdown typography=…>; ink and flow pass through; chrome stays unaffected BY CASCADE; code/kbd stay mono under family; prose stamps no density."
+        summary="NOT <Typography> — that word is markdown's live user-facing vocabulary (<Markdown typography=&quot;relaxed&quot;); the provider is <Prose>, rendering a div.jx-pure[data-jx-prose] host. Eleven frozen v1 knobs, every one an absentSlot in ProseDefaults: ABSENCE IS THE STATE — an unset knob emits nothing, stamps nothing, and the ambient channel (an outer prose region's declarations, or no opinion at all) keeps flowing; nested regions inherit every knob they do not set, nearest setter wins. Two channels carry the state: the JS scope (resolved through the plugin chain AT THE PROVIDER — a print-medium plugin can strip gradient/ground before CSS sees them — then provided through the typography lib's context pair) and the CSS residue sheet (prose.css), whose every rule sits at (0,2,0): above the face element rules, BELOW the markdown sheet. That ladder IS the sovereignty contract — an outer <Prose measure leading> can never fight <Markdown typography=…>; ink and flow pass through; chrome stays unaffected BY CASCADE; code/kbd stay mono under family; density stamps only for an explicit lane (W3-D2, the markdown trio founding law)."
       >
-        <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install prose">
+          <TerminalCard
+            barTitle="install — prose"
+            command="npx jixoai-ui add prose"
+            outputs={['https://ui.jixoai.com/r/prose.json']}
+          />
+        </div>
+      {/snippet}
+
+        <div class={cx(rt.wrap12)}>
           <span class="pill">11 absentSlot knobs</span>
           <span class="pill">absence IS the state</span>
           <span class="pill">sovereignty by cascade</span>
@@ -128,9 +161,6 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="">
-      <DocsInstall name="prose" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard
@@ -153,23 +183,23 @@
         files={canvasFiles}
         stage="fill"
       >
-        <div class="grid w-full max-w-4xl gap-8 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-2">
-            <span class="text-[11px] text-muted-foreground">ambient — no knob set</span>
+        <div class={cx(rt.prsGrid760)}>
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.note11)}>ambient — no knob set</span>
             <Prose>
               <P>The face's own channels carry this region: 14px body, the p lane at 1.6, ink at the foreground token. Nothing was stamped.</P>
             </Prose>
-            <span class="text-[11px] text-muted-foreground">size + leading — scale and flow</span>
-            <Prose size="1.0625rem" leading={1.9}>
+            <span class={cx(rt.note11)}>size + leading — scale and flow</span>
+            <Prose measure="1.0625rem" leading={1.9}>
               <P>17px by inheritance; the P rides the region's 1.9 leading through the presence-gated residue rule. The same string would move a heading's em ladder for free — ambient size scales the ladder.</P>
             </Prose>
           </div>
-          <div class="flex flex-col gap-2">
-            <span class="text-[11px] text-muted-foreground">align justify + hyphens auto (lang on the host)</span>
-            <Prose align="justify" hyphens="auto" lang="en" size="13.5px">
+          <div class={cx(rt.col8)}>
+            <span class={cx(rt.note11)}>align justify + hyphens auto (lang on the host)</span>
+            <Prose align="justify" hyphens="auto" lang="en" measure="13.5px">
               <P>Justified columns read best when the engine may break words: hyphens auto needs a lang on the host or an ancestor, and the two knobs are documented as a pair — justify without hyphens rivers, hyphens without justify never shows its work.</P>
             </Prose>
-            <span class="text-[11px] text-muted-foreground">wrap pretty — the prose word</span>
+            <span class={cx(rt.note11)}>wrap pretty — the prose word</span>
             <Prose wrap="pretty">
               <P>Pretty wrapping breaks the final line where the reader needs it; balance is the heading-scope word, stable the tabular one.</P>
             </Prose>
@@ -200,19 +230,19 @@
         title="Indent and the drop cap — the P-only lanes"
         summary="indent is a first-line opinion the region holds about paragraphs only (headings never inherit one — a heading is not a paragraph); '2em' is the 中文稿纸 convention. initialLetter ships BOTH sheet arms — @supports initial-letter where the engine has it, the float ::first-letter fallback everywhere else — because a browser-class-dependent drop cap reads as a bug. The same P suppresses the indent: a drop cap plus a first-line indent double-counts. Drop caps KEEP printing on paper — the manuscript posture, the recorded decision."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={indentUsage} lang="svelte" meta="indent + initialLetter" />
-          <div class="grid w-full max-w-4xl gap-8 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-2">
-              <span class="text-[11px] text-muted-foreground">indent 2em — 中文稿纸惯例</span>
-              <Prose indent="2em" size="13.5px">
+          <div class={cx(rt.prsGrid760)}>
+            <div class={cx(rt.col8)}>
+              <span class={cx(rt.note11)}>indent 2em — 中文稿纸惯例</span>
+              <Prose indent="2em" measure="13.5px">
                 <P>中文稿件每段首行缩进两字，正文齐头齐尾。段落之间不加空行，节奏全部由首行缩进承担——这是稿纸的惯例，区域的意见。</P>
                 <P>第二段同样缩进。缩进只作用于段落：区域内的标题永不继承首行缩进，因为标题不是段落。</P>
               </Prose>
             </div>
-            <div class="flex flex-col gap-2">
-              <span class="text-[11px] text-muted-foreground">initialLetter 3 — the drop cap</span>
-              <Prose initialLetter={3} size="13.5px">
+            <div class={cx(rt.col8)}>
+              <span class={cx(rt.note11)}>initialLetter 3 — the drop cap</span>
+              <Prose initialLetter={3} measure="13.5px">
                 <P>The drop cap sinks three lines in every engine: the modern initial-letter path inside @supports, the floated first letter everywhere else. If the same region also set indent, this P would suppress it — the compound rule.</P>
               </Prose>
             </div>
@@ -229,29 +259,29 @@
         title="Ink, gradient, ground — and the chrome that ignores them"
         summary="ink is the curated four-word union (default/muted/primary/destructive → the four foreground tokens) with a raw escape; links keep primary inside a region (the face B2 element rule — the recorded exception). The gradient is FILL-ONLY: background-clip: text with -webkit-text-fill-color, never color: transparent — currentcolor on a mark would resolve to the inherited transparent and vanish; marks restore solid by element rule, and --jx-ty-ink carries only color tokens so Heading's var-fallback utility never sees an invalid var. ground tints the region; Mark's own highlight law is untouched. And the orthogonality probe: chrome beside the paragraph is unaffected BY CASCADE — element-level declarations beat an inherited wrapper color."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={gradientUsage} lang="svelte" meta="the fill-only gradient" />
-          <div class="grid w-full max-w-4xl gap-8 min-[760px]:grid-cols-2">
-            <div class="flex flex-col gap-4">
-              <div class="flex flex-col gap-2">
-                <span class="text-[11px] text-muted-foreground">ink muted + ground muted — the quiet region</span>
-                <Prose ink="muted" ground="muted" class="rounded px-4 py-3">
+          <div class={cx(rt.prsGrid760)}>
+            <div class={cx(rt.col16)}>
+              <div class={cx(rt.col8)}>
+                <span class={cx(rt.note11)}>ink muted + ground muted — the quiet region</span>
+                <Prose ink="muted" ground="muted" class={cx(rt.radius0, rt.px16, rt.py12)}>
                   <P>The region mutes its ink and tints its ground — and the chip beside this paragraph keeps its own ink: element-level declarations beat the inherited wrapper color, so control chrome never follows the region's ink by accident.</P>
-                  <div class="mt-2 flex flex-wrap gap-2">
+                  <div class={cx(rt.mt8, rt.row8, rt.wrap)}>
                     <Chip>chrome keeps ink</Chip>
                     <Chip variant="outline">orthogonal by cascade</Chip>
                   </div>
                 </Prose>
               </div>
-              <Prose ink="destructive" size="13px">
+              <Prose ink="destructive" measure="13px">
                 <P>ink is the four-token union plus the raw escape — destructive here, any css color verbatim for everything else.</P>
               </Prose>
             </div>
-            <div class="flex flex-col gap-2" data-doc-demo-scope="headings-ok">
-              <span class="text-[11px] text-muted-foreground">gradient on the heading + P hooks — marks restore solid</span>
+            <div class={cx(rt.col8)} data-doc-demo-scope="headings-ok">
+              <span class={cx(rt.note11)}>gradient on the heading + P hooks — marks restore solid</span>
               <Prose gradient={{ from: 'var(--primary)', to: 'var(--info)' }}>
-                <Heading level={2} class="text-[1.15rem]">A gradient the marks survive</Heading>
-                <P class="mt-1">Fill-only lane: <Strong>strong</Strong>, <Mark>mark</Mark> and the rest keep their voice — the solid color stays inherited, so currentcolor restores against it. Print and forced-colors restores live in the sheet: the paged clone never re-runs the provider.</P>
+                <Heading level={2} class={cx(rt.prsTitle)}>A gradient the marks survive</Heading>
+                <P class={cx(rt.mt4)}>Fill-only lane: <Strong>strong</Strong>, <Mark>mark</Mark> and the rest keep their voice — the solid color stays inherited, so currentcolor restores against it. Print and forced-colors restores live in the sheet: the paged clone never re-runs the provider.</P>
               </Prose>
             </div>
           </div>
@@ -267,23 +297,23 @@
         title="Family — and the code that will not follow it"
         summary="family words resolve to the theme's --font-* tokens; code and kbd keep their own mono element rules (face B1) — a family change is a prose opinion, never a code opinion, so InlineCode chips inside stay their calibrated mono regardless."
       >
-        <div class="grid w-full max-w-4xl gap-8 min-[760px]:grid-cols-2">
+        <div class={cx(rt.prsGrid760)}>
           <ComponentCanvas id="family" title="prose · family" stage="fill" files={familyFiles}>
-            <div class="flex flex-col gap-2">
-              <span class="text-[11px] text-muted-foreground">family mono — the region, not the chips</span>
-              <Prose family="mono" size="13px">
+            <div class={cx(rt.col8)}>
+              <span class={cx(rt.note11)}>family mono — the region, not the chips</span>
+              <Prose family="mono" measure="13px">
                 <P>The whole region sets in the theme's mono token — and the inline chip <InlineCode lang="text">npm run verify</InlineCode> keeps its own mono law anyway: code's face rules are element-level, so family is prose-only by construction.</P>
               </Prose>
             </div>
           </ComponentCanvas>
-          <div class="flex flex-col gap-2 rounded border border-warning/45 bg-warning/10 p-4">
-            <span class="text-[11px] font-semibold uppercase tracking-[0.12em] text-foreground">serif is a theme-token dependency — pending</span>
-            <p class="m-0 text-[13px] leading-6">
-              The <code class="font-mono text-[0.85em]">serif</code> word resolves to
-              <code class="font-mono text-[0.85em]">var(--font-serif)</code> — and this theme does
-              NOT define <code class="font-mono text-[0.85em]">--font-serif</code> today (only
+          <div class={cx(rt.col8, rt.radius0, rt.prsFrameWarn, rt.prsBgWarn10, rt.p16)}>
+            <span class={cx(rt.text11, rt.semibold, rt.upper, rt.track12, rt.inkFg)}>serif is a theme-token dependency — pending</span>
+            <p class={cx(rt.m0, rt.body13)}>
+              The <code class={cx(rt.fontMono, rt.prsText085)}>serif</code> word resolves to
+              <code class={cx(rt.fontMono, rt.prsText085)}>var(--font-serif)</code> — and this theme does
+              NOT define <code class={cx(rt.fontMono, rt.prsText085)}>--font-serif</code> today (only
               --font-sans and --font-mono). Until the theme ships the token,
-              <code class="font-mono text-[0.85em]">family="serif"</code> degrades to inheritance
+              <code class={cx(rt.fontMono, rt.prsText085)}>family="serif"</code> degrades to inheritance
               (the declaration computes to nothing). That is documented, not assumed: the knob is
               frozen with the word, the token is the theme's to add.
             </p>
@@ -298,21 +328,21 @@
         headerRegion="sovereignty"
         eyebrow="law"
         title="Sovereignty — the trio wins, by cascade"
-        summary="The layering ladder is the whole contract: face element rules (0,1,1) &lt; prose residue rules (0,2,0) &lt; the markdown sheet's §2a (0,2,1) and typography trio (0,3,0) &lt; consumer utilities. An outer <Prose size leading> wrapping a <Markdown typography=…> can never fight the preset — the trio's root declarations beat inheritance, and the residue rules lose to §2a inside [data-jx-markdown]. Zero JS masking, zero markdown changes; ink and flow knobs still pass through."
+        summary="The layering ladder is the whole contract: face element rules (0,1,1) &lt; prose residue rules (0,2,0) &lt; the markdown sheet's §2a (0,2,1) and typography trio (0,3,0) &lt; consumer utilities. An outer <Prose measure leading> wrapping a <Markdown typography=…> can never fight the preset — the trio's root declarations beat inheritance, and the residue rules lose to §2a inside [data-jx-markdown]. Zero JS masking, zero markdown changes; ink and flow knobs still pass through."
       >
-        <div class="flex flex-col gap-5">
+        <div class={cx(rt.col20)}>
           <CodeBlock code={sovereigntyUsage} lang="svelte" meta="the sovereignty probe" />
-          <div class="flex flex-col gap-2" data-doc-demo-scope="headings-ok">
-            <span class="text-[11px] text-muted-foreground">
-              outer Prose size 1.125rem + leading 2 — the relaxed preset ignores both, keeps its own 16/1.75
+          <div class={cx(rt.col8)} data-doc-demo-scope="headings-ok">
+            <span class={cx(rt.note11)}>
+              outer Prose measure 1.125rem + leading 2 — the relaxed preset ignores both, keeps its own 16/1.75
             </span>
-            <Prose size="1.125rem" leading={2} class="max-w-3xl">
+            <Prose measure="1.125rem" leading={2} class={cx(rt.maxW3xl)}>
               <Markdown typography="relaxed" source={sovereigntySource} />
             </Prose>
-            <span class="text-[11px] text-muted-foreground">
+            <span class={cx(rt.note11)}>
               and a plain P in the same region does follow the outer size — sovereignty is scoped to the markdown sheet, not the region
             </span>
-            <Prose size="1.125rem" leading={2} class="max-w-3xl">
+            <Prose measure="1.125rem" leading={2} class={cx(rt.maxW3xl)}>
               <P>This paragraph is not inside markdown: it takes the region's 18px and the P lane's 2.0 leading. The ladder applies where the sheets speak — §2a only ever speaks inside [data-jx-markdown].</P>
             </Prose>
           </div>
@@ -322,7 +352,7 @@
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"
@@ -343,6 +373,21 @@
     </SectionCard>
   </div>
 
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. THE §13 RENAME (Owner table ruling): the type-scale knob is measure now — never size; the freed name is the universal scale axis. Density stamps only for an EXPLICIT lane (the markdown trio's founding law — ambient control chrome keeps flowing)."
+    >
+      <ComponentCanvas title="Prose · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Prose measure="1.0625rem" leading={1.9} size={18}><p>The §13 rename: measure is the css type scale; size is the universal scale axis — both live on one host.</p></Prose></div>
+<div class={cx(rt.panel)}><Prose measure="0.9rem" size="medium" radius="large"><p>Named steps resolve via the alias ladder; the knobs stay sovereign by cascade.</p></Prose></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -351,8 +396,8 @@
       title="API"
       summary="Eleven knobs, every one an absentSlot — no own, no fallback; absence IS the state. Consumer class merges LAST; consumer style lands after the emitted declarations (consumer wins on conflict); rest props pass through untouched."
     >
-      <PropsTable props={[
-        { name: 'size', type: 'CssLength', default: 'absent', description: "The region's type size — inheritance ONLY, never an element stamp: markdown sovereignty is a cascade fact, not a JS mask, and ambient size scales the heading em ladder for free." },
+      <PropsTable universal props={[
+        { name: 'measure', type: 'CssLength', default: 'absent', description: "The region's type scale — inheritance ONLY, never an element stamp: markdown sovereignty is a cascade fact, not a JS mask, and ambient measure scales the heading em ladder for free. RENAMED from size (explicit-props §13, W3-D2): a css measure is not the base-scale axis — the freed name belongs to the universal size lane." },
         { name: 'leading', type: 'number', default: 'absent', description: 'P-only line-height lane (headings keep their 1.25, pre keeps 1.55); applied through the presence-gated residue rule on [data-jx-text=\'p\'].' },
         { name: 'family', type: "'sans' | 'mono' | 'serif' | raw", default: 'absent', description: "Words resolve to the theme --font-* tokens — 'serif' NEEDS the theme to define --font-serif (this theme does not yet; it degrades to inheritance until it does) — or a raw font-family value. Code/kbd keep their own mono element rules." },
         { name: 'ink', type: "'default' | 'muted' | 'primary' | 'destructive' | raw", default: 'absent', description: "The four foreground tokens or a raw color; also mirrors as --jx-ty-ink for Heading's var-fallback utility. Links keep primary inside a region (the face B2 element rule, the recorded exception)." },

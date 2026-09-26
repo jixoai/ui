@@ -9,6 +9,7 @@
 <script lang="ts">
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import Icon from '$lib/ui/icon';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   interface Props {
     code: string;
@@ -17,13 +18,29 @@
   }
 
   let { code, lang = 'ts', meta = '' }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 {#if meta}
   <CodeCard {code} {lang} copyable={false} class="jx-code-block">
     {#snippet header()}
-      <span class="prompt flex items-center" aria-hidden="true"><Icon name="arrowRight" /></span>
-      <span class="font-nav uppercase">{meta}</span>
+      <span class="prompt {cx(siteChrome.cbPromptRow)}" aria-hidden="true"><Icon name="arrowRight" /></span>
+      <span class={cx(siteChrome.cbMeta)}>{meta}</span>
     {/snippet}
   </CodeCard>
 {:else}

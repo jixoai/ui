@@ -98,8 +98,11 @@ export type ProseHyphens = 'auto' | 'none' | 'manual';
  */
 export interface TypoScope {
   /** inheritance ONLY — markdown sovereignty for free (the trio's
-   *  root declaration beats inheritance by cascade) */
-  readonly size?: CssLength;
+   *  root declaration beats inheritance by cascade). RENAMED from
+   *  `size` (explicit-props §13, W3-D2): a css type scale/measure is
+   *  not the base-scale axis — the freed name belongs to the prose
+   *  family's universal size lane (the sheet width precedent) */
+  readonly measure?: CssLength;
   /** P-only lane (headings keep their 1.25); the sheet rule is
    *  presence-gated on the host */
   readonly leading?: number;
@@ -275,11 +278,13 @@ export function resolveTypoStyle(scope: TypoScope): TypoStyleBag {
   const vars: Record<string, string> = {};
   const attrs: Record<string, string> = {};
 
-  // size — inheritance only, never an element stamp (markdown
-  // sovereignty is a cascade fact, not a JS mask)
-  if (scope.size !== undefined) {
-    declarations['font-size'] = scope.size;
-    vars['--jx-ty-size'] = scope.size;
+  // measure — inheritance only, never an element stamp (markdown
+  // sovereignty is a cascade fact, not a JS mask). The CSS channel
+  // keeps its historical name --jx-ty-size (the --jx-sheet-size
+  // precedent: a rename moves the PROP, never the shipped var)
+  if (scope.measure !== undefined) {
+    declarations['font-size'] = scope.measure;
+    vars['--jx-ty-size'] = scope.measure;
   }
   // leading — P-only lane: the var + the presence hook; the sheet
   // rule [data-jx-ty-leading] :is([data-jx-text='p']) applies it

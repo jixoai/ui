@@ -8,6 +8,7 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -79,6 +80,28 @@ ${close}
       .map((item) => (typeof item === 'number' ? item : '…'))
       .join(' ');
   const windows = [fmt(1), fmt(5), fmt(12), fmt(30), pageRange({ current: 2, total: 4 }).join(' ')];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-D2) --------------------
+  const universalUsage = `<Pagination size={18} density="small">…</Pagination>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/pagination-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -90,12 +113,12 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
   <!-- ToC rail: aside precedes the content in the DOM — desktop sticky right
        column, mobile the glass single-row bar under the scaffold header -->
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -104,7 +127,7 @@ ${close}
       title="pagination — a nav of real links"
       summary="W3C-first, composition-first: the nav landmark hosts composed parts — PaginationContent (ul), PaginationItem (li), PaginationLink (real hrefs or an onclick button, aria-current when active), Previous/Next at the edges. The page-window math lives in the exported pure helper pageRange with its current/total/siblings options: sticky edges, siblings around the current page, and two ellipsis TOKENS the consumer branches on. At the bounds Previous/Next become honest disabled spans — a link that goes nowhere is a lie to every input mode."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">nav + a + aria-current</span>
         <span class="pill">pageRange helper</span>
         <span class="pill">ellipsis tokens</span>
@@ -122,10 +145,10 @@ ${close}
       stage="fill"
       onreset={resetCanvas}
     >
-      <div class="w-full max-w-xl">
+      <div class={cx(rt.wFull, rt.maxWXl)}>
         <p
           data-jx-pagination-status=""
-          class="m-0 mb-2 font-nav text-[0.6875rem] uppercase tracking-[0.14em] text-muted-foreground"
+          class={cx(rt.m0, rt.mb8, rt.fontNav, rt.text11, rt.upper, rt.track14, rt.inkMuted)}
           aria-hidden="true"
         >
           page {page} of {total}
@@ -174,13 +197,13 @@ ${close}
       title="The window, as evidence"
       summary="pageRange with its current/total/siblings options — sticky edges, siblings around the current page, ellipsis tokens only when something was actually collapsed. The helper returns numbers interleaved with 'ellipsis-start' | 'ellipsis-end'; consumers branch on the tokens and render PaginationEllipsis. Same math as the closed component, ported exactly."
     >
-      <div class="flex flex-col gap-5">
-        <dl class="grid grid-cols-[8rem_1fr] gap-x-6 gap-y-1.5 font-mono text-[12.5px]">
-          <dt class="text-muted-foreground">page 1 / 30</dt><dd>{windows[0]}</dd>
-          <dt class="text-muted-foreground">page 5 / 30</dt><dd>{windows[1]}</dd>
-          <dt class="text-muted-foreground">page 12 / 30</dt><dd>{windows[2]}</dd>
-          <dt class="text-muted-foreground">page 30 / 30</dt><dd>{windows[3]}</dd>
-          <dt class="text-muted-foreground">page 2 / 4</dt><dd>{windows[4]}</dd>
+      <div class={cx(rt.col20)}>
+        <dl class={cx(rt.pgnGrid)}>
+          <dt class={cx(rt.inkMuted)}>page 1 / 30</dt><dd>{windows[0]}</dd>
+          <dt class={cx(rt.inkMuted)}>page 5 / 30</dt><dd>{windows[1]}</dd>
+          <dt class={cx(rt.inkMuted)}>page 12 / 30</dt><dd>{windows[2]}</dd>
+          <dt class={cx(rt.inkMuted)}>page 30 / 30</dt><dd>{windows[3]}</dd>
+          <dt class={cx(rt.inkMuted)}>page 2 / 4</dt><dd>{windows[4]}</dd>
         </dl>
         <CodeBlock code={usage} lang="svelte" meta="usage" />
       </div>
@@ -189,7 +212,7 @@ ${close}
 
   <div id="types" data-reveal="">
     <SectionCard eyebrow="types" title="Composable pagination parts" summary="The nav root provides the landmark; small parts keep list structure, links, edges, and gaps semantically explicit.">
-      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div class={cx(rt.pgnGrid23)}>
         {#each [
           ['Pagination', 'nav landmark and density root'],
           ['PaginationContent', 'ul list container'],
@@ -198,13 +221,13 @@ ${close}
           ['PaginationPrevious / Next', 'edge controls or disabled spans'],
           ['PaginationEllipsis', 'decorative collapsed range'],
         ] as item}
-          <div class="border border-border/60 p-3"><p class="font-nav text-sm">{item[0]}</p><p class="mt-1 text-xs text-muted-foreground">{item[1]}</p></div>
+          <div class={cx(rt.panel60P12)}><p class={cx(rt.fontNav, rt.textSm)}>{item[0]}</p><p class={cx(rt.mt4, rt.text12, rt.inkMuted)}>{item[1]}</p></div>
         {/each}
       </div>
     </SectionCard>
   </div>
 
-  <div id="usage" data-reveal="">
+  <div data-reveal="">
     <SectionCard eyebrow="usage" title="Render a page window" summary="Use pageRange for the pure window calculation, then map its page numbers and ellipsis tokens to composed pagination parts.">
       <CodeBlock code={usage} lang="svelte" meta="usage" />
     </SectionCard>
@@ -221,7 +244,7 @@ ${close}
 
   <div id="theming" data-reveal="">
     <SectionCard eyebrow="theming" title="Density-aligned page chips" summary="List gaps, link targets, and chip labels all consume the shared density scale; press tokens give interactive pages their elevation pose.">
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <DensityDemo>
           <Pagination label="Example pagination"><PaginationContent><PaginationItem><PaginationLink page={1} isActive href="#usage" /></PaginationItem><PaginationItem><PaginationLink page={2} href="#api" /></PaginationItem></PaginationContent></Pagination>
         </DensityDemo>
@@ -239,10 +262,25 @@ ${close}
   </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Import the family parts and compose them in markup — the full usage file, as the canvas above runs it."><CodeBlock code={usage} lang="svelte" meta="Pagination usage" /></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The landmark nav carries no own — the size axis scales the root, the link parts ride plain inheritance."
+    >
+      <ComponentCanvas title="Pagination · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Pagination size={18} density="small"><PaginationContent><PaginationItem><PaginationPrevious href="#" /></PaginationItem><PaginationItem><PaginationLink page={1} href="#" isActive /><PaginationLink page={2} href="#" /><PaginationEllipsis /></PaginationItem><PaginationItem><PaginationNext href="#" /></PaginationItem></PaginationContent></Pagination></div>
+<div class={cx(rt.panel)}><Pagination size="medium" radius="large"><PaginationContent><PaginationItem><PaginationLink page={1} href="#" isActive /></PaginationItem></PaginationContent></Pagination></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard eyebrow="api" title="Props" summary="The root and links carry the core public contract; composition supplies list structure and page-window policy.">
-      <div class="flex flex-col gap-6">
-        <PropsTable title="Pagination" props={[
+      <div class={cx(rt.col24)}>
+        <PropsTable universal title="Pagination" props={[
           { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' },
           { name: 'label', type: 'string', default: "'Pagination'", description: 'Accessible nav landmark name.' },
           { name: 'children', type: 'Snippet', required: true, description: 'Composed pagination parts.' },

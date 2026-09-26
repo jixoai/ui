@@ -49,7 +49,7 @@
  * specificity, consumer utilities always win. Single-load via
  * side-effect imports.
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   /* the UNCONDITIONAL frost paint — both members, every engine.

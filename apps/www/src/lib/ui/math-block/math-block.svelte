@@ -62,13 +62,47 @@
   import type { HTMLAttributes } from 'svelte/elements';
   import type { KatexOptions } from 'katex';
   import Icon from '$lib/ui/icon';
-  import { cn } from '$lib/utils';
   import { renderTex } from '$lib/katex';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import ScrollChrome from '../scroll-run/scroll-chrome.svelte';
+  import { MathBlockDefaults } from './math-block-defaults.svelte';
   import { createScrollStamp, shadow, type ScrollStamp } from '../scroll-run/scroll-run.svelte';
+  import { mathBlockStyles } from './math-block.stylex';
   import './math-block.css';
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner (all
+  // string values except $$css, space-joined).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     /** TeX source (runtime string — rendered synchronously in display mode). */
     tex: string;
     /** Copy control on the footer bar (press physics, copied feedback, TeX payload). */
@@ -91,6 +125,32 @@
      * horizontal scrollport.
      */
     fit?: boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). The ENGINE's own em scale
+     *  (the formula's fit-mode compensation) is OUTSIDE the supply
+     *  set: this lane scales the shell's chrome (the footer bar,
+     *  labels), the formula keeps its engine-owned scale */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -101,9 +161,30 @@
     strict,
     trust,
     fit = false,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style = '',
     ...rest
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D1 — FIRST-TIME contract, all
+  // no-own: the KaTeX engine's internals are outside the supply set —
+  // the surface rides the family's OWN <figure> root)
+  const d = $derived(
+    MathBlockDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived([carriers, style].filter(Boolean).join('; ') || undefined);
 
   /**
    * SYNC RENDER (the lane ruling): $derived over renderTex — prerender
@@ -300,12 +381,16 @@
 
 <figure
   {...rest}
+  bind:this={uniRoot}
   data-kind="math"
   data-jx-math-block=""
   data-fit={fitActive ? '' : undefined}
-  class={cn('m-0 min-w-0', className)}
+  class={cx(mathBlockStyles.figure, className)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
 >
-  <div class="jx-scroll-host grid [grid-template-columns:minmax(0,1fr)]" bind:this={hostEl}>
+  <div class={cx('jx-scroll-host', mathBlockStyles.host)} bind:this={hostEl}>
     <div data-jx-scroll-run="" data-axis="horizontal" class="scrollport" bind:this={runEl}>
       <div role="math" bind:this={mathEl}>{@html rendered}</div>
     </div>
@@ -319,17 +404,15 @@
   {#if copyable}
     <div
       data-jx-math-block-foot
-      class="flex items-center justify-end gap-3 pt-[0.3rem]"
+      class={cx(mathBlockStyles.foot)}
     >
       <button
         type="button"
         data-jx-math-block-copy
-        class={cn(
-          'jx-press inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
-          '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-          copied
-            ? 'copied bg-secondary text-secondary-foreground hover:bg-secondary'
-            : 'hover:bg-muted',
+        class={cx(
+          'jx-press',
+          mathBlockStyles.copy,
+          copied && cx('copied', mathBlockStyles.copyCopied),
         )}
         onclick={copyTex}
         aria-label={copied ? copiedLabel : copyLabel}
@@ -337,12 +420,12 @@
         {#if copied}
           <!-- the icon law's typed component; the copied check rides
                a strokier strokeWidth -->
-          <span data-jx-math-block-icon class="inline-flex">
+          <span data-jx-math-block-icon class={cx(mathBlockStyles.icon)}>
             <Icon name="check" size={12} strokeWidth={2.5} />
           </span>
           <span>{copiedLabel}</span>
         {:else}
-          <span data-jx-math-block-icon class="inline-flex">
+          <span data-jx-math-block-icon class={cx(mathBlockStyles.icon)}>
             <Icon name="copy" size={12} />
           </span>
           <span>{copyLabel}</span>

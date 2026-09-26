@@ -34,6 +34,23 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 import MathBlock from '../src/lib/ui/math-block/math-block.svelte';
+import { mathBlockStyles } from '../src/lib/ui/math-block/math-block.stylex';
+
+// tailwindless one-shot Wave 1b batch A (2026-09-17): the host's grid
+// paint rides stylex atoms now — membership asserted through the same
+// cx join the component rides (utility-shaped expectations went with
+// the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const mathBlockCss = readFileSync(
   resolve(process.cwd(), 'src/lib/ui/math-block/math-block.css'),
@@ -90,7 +107,9 @@ describe('MathBlock · the sync render lane + structure', () => {
   it('rides the shared scroll-run contract: grid host, run hooks, shadow veil layer + chips from ScrollChrome', async () => {
     const { container } = render(MathBlock, { props: { tex: 'x' } });
     await tick();
-    expect(container.querySelector('.jx-scroll-host.grid')).not.toBeNull();
+    const host = container.querySelector('.jx-scroll-host')!;
+    expect(host).not.toBeNull();
+    expect(host.className).toContain(cx(mathBlockStyles.host));
     const run = container.querySelector('[data-jx-scroll-run][data-axis="horizontal"]')!;
     expect(run).not.toBeNull();
     // the shadow veil pair mounts (verdict-gated by the shared css, not by JS)
@@ -243,7 +262,8 @@ describe('MathBlock · errors never escape the boundary', () => {
 
 describe('MathBlock · math-block.css (source-pinned)', () => {
   it('carries the canonical layer prologue and :where() placement (the placement law)', () => {
-    expect(mathBlockCss.startsWith('@layer theme, base, components, utilities;')).toBe(true);
+    // PFINAL (tailwindless W4-r2): the utilities tier died with the engine
+    expect(mathBlockCss.startsWith('@layer theme, base, components;')).toBe(true);
     // every static rule opener inside @layer rides :where() — consumer utilities win
     const openers = mathBlockCss.match(/^ {2}[^\n]*\{ ?$/gm) ?? [];
     expect(openers.length).toBeGreaterThanOrEqual(1);

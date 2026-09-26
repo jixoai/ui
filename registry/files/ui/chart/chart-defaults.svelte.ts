@@ -16,25 +16,42 @@
  *     convention (table row → definePaintSlot). The values tuple IS
  *     the union (slot-values-first D2); chart.svelte's module script
  *     re-exports it so the public surface keeps its shape.
- *   - density: the no-opinion axis slot. The chart ensemble
- *     (chart.svelte) is the family's density PROVIDER — it resolves
- *     the policy once (the r11 eager-capture provider form) and
- *     stamps data-density so glyph ensembles adopt one tier; the
- *     glyphs themselves carry NO own.
+ *   - density: the universal §4 axis slot (W3-D1 — the legacy
+ *     densitySlot semantics ride the bridged lane). The chart
+ *     ensemble (chart.svelte) is the family's density PROVIDER — it
+ *     resolves the policy once (the r11 eager-capture provider form,
+ *     narrowed at the legacy edge) and stamps data-density so glyph
+ *     ensembles adopt one tier; the glyphs themselves carry NO own.
  *   - size: the literal family's OPEN form (defineOpenSlot, own 96 —
  *     the donut's default outer diameter in px): a free numeric
  *     length, no closed union to enumerate and no axis (the design
  *     table's size-class note — the explicit type argument is the
  *     only enforcement face; a future size axis would first have to
- *     close the union).
+ *     close the union). W3-D1: the icon/spin §13 ruling applies —
+ *     the number lane rides the open literal verbatim.
+ *   - the seven other universal axes (§0/§11, W3-D1, all no-own):
+ *     shape · radius · color · theme · elevation · motion — plus
+ *     density on the bridged densityAxisSlot lane. The ensemble ROOT
+ *     additionally carries the size AXIS whole (no legacy size prop
+ *     at the root — named/auto/query legal there).
  *
  * 惰性律: construction captures own only; context reads happen at
  * resolve time inside the consumer's $derived window. This file is
  * a member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot, defineOpenSlot } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  defineOpenSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 /** the ink's prominence rung through the global hue slots */
 export const chartVariantSlot = defineLiteralSlot(['fill', 'tonal', 'outline'], 'fill');
@@ -42,11 +59,22 @@ export type ChartVariant = ReturnType<typeof chartVariantSlot>;
 
 /** the donut's default outer diameter in px — a free numeric length
  *  on the OPEN literal form (no closed union to enumerate; the
- *  explicit type argument is the only enforcement face) */
+ *  explicit type argument is the only enforcement face). W3-D1 (the
+ *  icon/spin §13 ruling, same semantics): the OPEN literal keeps the
+ *  prop name — a NUMBER is ALSO the universal size axis' number lane
+ *  verbatim (the glyph components stamp the §1 carrier with
+ *  `typeof size === 'number' ? size : undefined`); named/auto stay
+ *  unadopted on glyphs (an svg viewBox cannot eat a named rung) */
 export const chartSizeSlot = defineOpenSlot<number>(96);
 
 export const ChartDefaults = defineComponentDefaults({
   variant: chartVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
   size: chartSizeSlot,
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

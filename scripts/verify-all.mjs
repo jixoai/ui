@@ -69,7 +69,19 @@ try {
 // stale server holding old dist once satisfied it blind for six days.
 // It runs below as a MANAGED probe against this composite's own
 // throwaway server, km's pattern, --url contract.
-for (const name of ['verify:laws', 'verify:icons', 'verify:spins', 'verify:migration', 'verify:mirror', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
+//
+// stylex-kernel-phase0 P0.7 (design §7's final ordering): the two new
+// gates slot authoring → payload → mirror — BEFORE verify:mirror (the
+// byte-twin class), with the popover probe already after the
+// mirror-class gates (4c) and every consumer gate after THAT (step 5).
+// The gates need no build first (the payload generator compiles
+// through the pinned engine itself; the authoring gate scans the
+// ledger), so they run in the cheap early block.
+// verify:tailwindless (2026-09-17 tailwindless-site P0): the ratchet
+// over the pinned utility-class identity census — standalone source
+// scan (no server, no build), slotted right after the mirror class
+// since it reads the same apps/www/src + registry/files trees
+for (const name of ['verify:laws', 'verify:icons', 'verify:spins', 'verify:migration', 'verify:stylex-authoring', 'verify:stylex-payload', 'verify:mirror', 'verify:tailwindless', 'verify:context', 'verify:deps', 'verify:budgets', 'verify:docs', 'verify:meta']) {
   step(name);
   try {
     execFileSync('npm', ['run', '--silent', name], { cwd: root, stdio: 'inherit' });
@@ -130,6 +142,23 @@ try {
     }
     console.log(`[registry-test-mirror] ${regFiles.length} mirrored files byte-identical`);
   }
+}
+
+// ── 4c. the popover position-area alignment probe (stylex-kernel-phase0
+// P0.1, the ONE permanent probe — design.md §5 THE PROBE CONTRACT):
+// real rendered geometry on the built site (self-managed server, the
+// stacking-isolation pattern), ONE metric panelLeft − pillLeft at
+// 1440×900; PRIMARY bottom-start ≤ 0.5px, CONTROL the swapped
+// placement ≥ 1px apart. Gates popover.svelte's placement→area map
+// AND the engine's span-suffix semantics. design.md's final ordering
+// is authoring → payload → mirror → popover probe → shadcn consumer;
+// the authoring/payload gates land with P0.4/P0.5 — this row slots
+// after the mirror-class gates and BEFORE every consumer gate ──────
+step('verify:popover-area (browser probe — self-managed server)');
+try {
+  execFileSync('node', ['scripts/verify-popover-area-align.mjs'], { cwd: root, stdio: 'inherit' });
+} catch {
+  die('popover-area');
 }
 
 // ── 5. real-consumer install contract ────────────────────────────────

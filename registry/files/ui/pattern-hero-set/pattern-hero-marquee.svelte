@@ -13,11 +13,34 @@
 
   Composition-only: PressButton owns the CTA physics; the glyph comes
   from the Icon component over the generated set.
+
+  tailwindless one-shot Wave 1 (2026-09-17): the paint rides
+  pattern-hero-set.stylex.ts atoms (joined through the payload's own
+  cx(); the sm/lg seams ride nested media conditions at Tailwind's
+  own thresholds); the title's bold/1.2/-0.02em rungs + the strip's
+  thin scrollbar ride pattern-hero-set.css keyed on the data hooks.
 -->
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import Icon from '$lib/ui/icon';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { PatternHeroSetDefaults } from './pattern-hero-set-defaults.svelte';
+  import { heroStyles } from './pattern-hero-set.stylex';
   import './pattern-hero-set.css';
 
   interface Props {
@@ -37,6 +60,30 @@
     secondaryHref?: string;
     /** one full pass of the strip, in seconds (default 24) */
     duration?: number;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the strip's own animation
+     *  cadence keeps its duration prop; the chrome scales) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -50,34 +97,72 @@
     secondaryLabel = '',
     secondaryHref = '#',
     duration = 24,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D2 — the family's no-root set form
+  // supplies through context; this sibling owns its section root and
+  // stamps the carriers here directly)
+  const d = $derived(
+    PatternHeroSetDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(carriers || undefined);
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <section
   data-jx-hero-marquee=""
-  class={`mx-auto w-full max-w-[90rem] px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-8 ${className}`}
+  bind:this={uniRoot}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+  class={cx(heroStyles.shell, className)}
 >
-  <div class="min-w-0">
-    <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary">{eyebrow}</p>
+  <div class={cx(heroStyles.inner)}>
+    <p class={cx(heroStyles.eyebrow)}>{eyebrow}</p>
     {#if title}
-      <h2
-        data-jx-hero-marquee-title=""
-        class="mt-4 max-w-[30ch] text-[clamp(2rem,4.4vw,3.6rem)] font-bold leading-[1.2] tracking-[-0.02em] text-balance"
-      >
+      <h2 data-jx-hero-marquee-title="" class={cx(heroStyles.title)}>
         {@render title()}
       </h2>
     {/if}
     {#if summary}
-      <p class="mt-5 max-w-[62ch] text-pretty text-[15px] leading-6 text-muted-foreground sm:text-base sm:leading-7">
+      <p class={cx(heroStyles.lead)}>
         {summary}
       </p>
     {/if}
     {#if ctaLabel}
-      <div class="mt-8 flex flex-wrap gap-3">
+      <div class={cx(heroStyles.ctaRow)}>
         <PressButton variant="fill" href={ctaHref}>
           <span>{ctaLabel}</span>
-          <span class="inline-flex" aria-hidden="true"><Icon name="arrowRight" /></span>
+          <span class={cx(heroStyles.ctaGlyph)} aria-hidden="true"><Icon name="arrowRight" /></span>
         </PressButton>
         {#if secondaryLabel}
           <PressButton variant="outline" href={secondaryHref}>{secondaryLabel}</PressButton>
@@ -87,27 +172,24 @@
 
     <!-- the strip: readable row + aria-hidden duplicate, -50% loop;
          edge fade is a mask so nothing interactive hides under it -->
-    <div
-      data-jx-hero-marquee-strip=""
-      class="jx-hero-marquee mt-10 overflow-x-auto border-y border-border py-3 [scrollbar-width:thin] [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]"
-    >
+    <div data-jx-hero-marquee-strip="" class={cx(heroStyles.strip)}>
       <div
         class="jx-hero-marquee-track"
         style={`--jx-hero-marquee-duration: ${Math.max(6, duration)}s`}
       >
-        <ul data-jx-hero-marquee-row="" class="jx-hero-marquee-row m-0 list-none p-0">
+        <ul data-jx-hero-marquee-row="" class={cx(heroStyles.row)}>
           {#each items as token (token)}
-            <li class="flex items-center gap-[var(--jx-hero-marquee-gap)]">
-              <span class="whitespace-nowrap font-nav text-xs tracking-[0.14em] uppercase text-muted-foreground">{token}</span>
-              <span aria-hidden="true" class="text-primary text-xs">·</span>
+            <li class={cx(heroStyles.token)}>
+              <span class={cx(heroStyles.tokenLabel)}>{token}</span>
+              <span aria-hidden="true" class={cx(heroStyles.dotPrimaryText)}>·</span>
             </li>
           {/each}
         </ul>
-        <ul class="jx-hero-marquee-row m-0 list-none p-0" aria-hidden="true">
+        <ul class={cx(heroStyles.row)} aria-hidden="true">
           {#each items as token (token)}
-            <li class="flex items-center gap-[var(--jx-hero-marquee-gap)]">
-              <span class="whitespace-nowrap font-nav text-xs tracking-[0.14em] uppercase text-muted-foreground">{token}</span>
-              <span aria-hidden="true" class="text-primary text-xs">·</span>
+            <li class={cx(heroStyles.token)}>
+              <span class={cx(heroStyles.tokenLabel)}>{token}</span>
+              <span aria-hidden="true" class={cx(heroStyles.dotPrimary)}>·</span>
             </li>
           {/each}
         </ul>

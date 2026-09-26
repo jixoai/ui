@@ -150,6 +150,13 @@ describe('the palette scroll authority — one ring, the Dialog\'s', () => {
     );
     const list = source.match(/<ul[^>]*role="listbox"[^>]*>/)?.[0] ?? '';
     expect(list).not.toMatch(/max-h-\[|overflow-y-auto|overflow-auto/);
-    expect(source).toMatch(/class="mt-\[14vh\][^"]*max-h-\[calc\(100dvh-14vh-2rem\)\]"/);
+    // tailwindless W1: the Dialog's geometry overrides ride the
+    // dialog ATOM now — the ceiling law asserted as the atom source
+    const atoms = readFileSync(
+      join(import.meta.dirname, '../src/lib/ui/search-palette.stylex.ts'),
+      'utf8',
+    );
+    expect(atoms).toContain("marginTop: '14vh'");
+    expect(atoms).toContain("maxHeight: 'calc(100dvh - 14vh - 2rem)'");
   });
 });

@@ -28,6 +28,8 @@ import ToastViewport from '../src/lib/ui/toast/toast-viewport.svelte';
 import { createToastStore } from '../src/lib/toast-store';
 import ToastAdoptHost from './fixtures/toast-adopt-host.svelte';
 import ToastFeaturesHost from './fixtures/toast-features-host.svelte';
+import { toastStyles } from '../src/lib/ui/toast/toast.stylex';
+import { cx } from './helpers/stylex-atom';
 
 describe('toast — the viewport does not float itself', () => {
   it('inside a REAL website-scaffold it ADOPTS: wrapper in the float slot, flow mode, no fixed', async () => {
@@ -43,15 +45,22 @@ describe('toast — the viewport does not float itself', () => {
     expect(wrapper.getAttribute('data-area')).toBe('float');
     expect(wrapper.closest('.jx-float-slot')).toBeTruthy();
     // and the stack FLOWS inside the plane — no self-floating
-    expect(stack.className).not.toContain('fixed');
+    expect(stack.className).not.toContain('posRightBottom');
     // V1-1 defense: rows are min-content and packed — the dead
     // `align-content-end` utility (align-content never applied) is
     // gone, real alignment utilities took its place. R3 nine-slot law:
     // the DEFAULT slot is right-bottom → the pile CLIMBS from the
     // anchor (content-end); a top slot descends (content-start)
     expect(stack.className).not.toContain('align-content-end');
-    expect(stack.className).toContain('content-end');
-    expect(stack.className).toContain('auto-rows-min');
+    // tailwindless W1: the alignment/rows ride the stack + contentEnd
+    // atoms (compile-lane re-pin W5-r2 — the atom STRINGS after
+    // 012335c4 killed the dev names; the declarations themselves are
+    // css-source in toast.stylex.ts — the separator spec's law)
+    expect(stack.className).toContain(cx(toastStyles.contentEnd));
+    expect(stack.className).toContain(cx(toastStyles.stack));
+    expect(readFileSync('src/lib/ui/toast/toast.stylex.ts', 'utf8')).toContain(
+      "gridAutoRows: 'min-content'",
+    );
   });
 
   it('THE OVERLAY POINTER LAW (D-1): the float wrapper is transparent; the stack and cards opt in themselves', async () => {
@@ -102,16 +111,25 @@ describe('toast — the viewport does not float itself', () => {
     // toast-v2 stacking dialect: the opt-in rides the card's grid-item
     // WRAPPER (the visual card inside it inherits)
     const stack = wrapper.querySelector('[data-jx-toasts]') as HTMLElement;
-    expect(stack.className).toContain('pointer-events-none');
+    expect(stack.className).toContain(cx(toastStyles.stack));
+    expect(readFileSync('src/lib/ui/toast/toast.stylex.ts', 'utf8')).toContain(
+      "pointerEvents: 'none'",
+    );
     const cardHost = stack.querySelector('[data-jx-toast]')?.parentElement as HTMLElement;
-    expect(cardHost.className).toContain('pointer-events-auto');
+    expect(cardHost.className).toContain(cx(toastStyles.wrapper));
+    expect(readFileSync('src/lib/ui/toast/toast.stylex.ts', 'utf8')).toContain(
+      "pointerEvents: 'auto'",
+    );
   });
 
   it('standalone (no scaffold) keeps the legacy fixed corner fallback', () => {
     const store = createToastStore();
     const { container } = render(ToastViewport, { props: { store } });
     const stack = container.querySelector('[data-jx-toasts]') as HTMLElement;
-    expect(stack.className).toContain('fixed');
+    expect(stack.className).toContain(cx(toastStyles.posRightBottom));
+    expect(readFileSync('src/lib/ui/toast/toast.stylex.ts', 'utf8')).toContain(
+      "position: 'fixed'",
+    );
   });
 });
 
@@ -204,19 +222,29 @@ describe('toast — material × effect × countdown', () => {
     const glass = container.querySelector('[data-jx-toast][data-material="glass"]') as HTMLElement;
     expect(glass).toBeTruthy();
     // the frost paint lives in the glass law sheet, keyed on the stamp;
-    // the tuning vars ride the class string (12px / saturate 1 / 55%
-    // fill — the retired backdrop-blur-md ground, computed-equivalent)
+    // the tuning vars ride toast.css keyed on the SAME stamp
+    // (tailwindless W1: custom-property setters are not
+    // atom-expressible) — 12px / saturate 1 / 55% fill, the retired
+    // backdrop-blur-md ground, computed-equivalent
     expect(glass.getAttribute('data-jx-effect')).toBe('blur');
-    expect(glass.className).toContain('[--jx-glass-radius:12px]');
-    expect(glass.className).toContain('[--jx-glass-saturate:1]');
-    expect(glass.className).toContain('[--jx-glass-fill:color-mix(in_oklab,var(--popover)_55%,transparent)]');
+    const toastCss = readFileSync('src/lib/ui/toast/toast.css', 'utf8');
+    expect(toastCss).toContain('--jx-glass-radius: 12px;');
+    expect(toastCss).toContain('--jx-glass-saturate: 1;');
+    expect(toastCss).toContain(
+      '--jx-glass-fill: color-mix(in oklab, var(--popover) 55%, transparent);',
+    );
+    expect(toastCss).toContain(":where([data-jx-toast][data-jx-effect='blur'])");
     // the tailwind blur utility is RETIRED — one formula, in glass.css
     expect(glass.className).not.toContain('backdrop-blur');
-    // the forced-colors Canvas ground survives the rebase
-    expect(glass.className).toContain('forced-colors:bg-[Canvas]');
+    // the forced-colors Canvas ground survives the rebase (css-source:
+    // the @media block keyed on the card hook)
+    expect(toastCss).toContain('@media (forced-colors: active)');
+    expect(toastCss).toMatch(/:where\(\[data-jx-toast\]\)\s*{\s*[\sS]*?background: Canvas;/);
     // the default ground stays solid popover — and never stamps
     const plain = container.querySelector('[data-jx-toast][data-material="popover"]') as HTMLElement;
-    expect(plain.className).toContain('bg-popover');
+    // compile-lane re-pin W5-r2: the whitespace-stripped ATOM string
+    // (012335c4 killed the dev names; identity through the module)
+    expect(plain.className.replace(/\s+/g, '')).toContain(cx(toastStyles.groundPopover).replace(/\s+/g, ''));
     expect(plain.hasAttribute('data-jx-effect')).toBe(false);
   });
 
@@ -251,8 +279,15 @@ describe('toast — material × effect × countdown', () => {
     // the template lives in toast.css (named areas beat positional
     // columns); the card carries the shared material frame (R3-5)
     expect(toast.className).toContain('jx-press');
-    expect(toast.className).toContain('[--jx-press-shadow:var(--shadow)]');
-    expect(toast.className).toContain('[--jx-press-shadow-hover:var(--shadow-md)]');
+    // the press physics tuning is css-source since tailwindless W1
+    // (custom-property setters are not atom-expressible; keyed on the
+    // card hook + the .jx-press law)
+    const pressCss = readFileSync('src/lib/ui/toast/toast.css', 'utf8');
+    expect(pressCss).toContain(':where([data-jx-toast].jx-press)');
+    // W3-C §7: the rest pose composes the elevation recipe first (the
+    // viewport's own level3 — the snackbar rung), falling to --shadow
+    expect(pressCss).toContain('--jx-press-shadow: var(--jx-elevation-shadow, var(--shadow));');
+    expect(pressCss).toContain('--jx-press-shadow-hover: var(--shadow-md);');
     // the close slot is the named icon (R3-3), never a literal symbol
     expect(toast.querySelector('[data-jx-toast-dismiss] [data-jx-icon]')).toBeTruthy();
     expect(toast.querySelector('[data-jx-toast-dismiss]')?.textContent?.trim()).toBe('');

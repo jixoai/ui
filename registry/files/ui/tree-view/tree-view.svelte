@@ -122,6 +122,23 @@
 <script lang="ts" generics="T = unknown">
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { TreeViewDefaults } from './tree-view-defaults.svelte';
+  import { treeStyles } from './tree-view.stylex';
   import './tree-view.css';
 
   interface Props {
@@ -170,6 +187,30 @@
     /** px per level (built-in) */
     indent?: number;
     ariaLabel?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (a dense file tree at
+     *  size={12} is the use case) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -191,8 +232,44 @@
     lines = false,
     indent = 16,
     ariaLabel = 'tree',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D3 — FIRST-TIME contract, all
+  // no-own): the family's own DOM root is the ul[role=tree] (the
+  // multiselect sibling composes it); the rows, carets and language
+  // dots are family internals riding the root's ambient chain — the
+  // engine's ARIA walker stays untouched
+  const d = $derived(
+    TreeViewDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  const rootStyle = $derived(carriers || undefined);
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // expanded folder ids; collapsed groups carry data-collapsed + inert so
   // the keyboard walker never sees hidden rows. defaultExpanded is
@@ -265,6 +342,9 @@
   let focusPath = $state<string | null>(null);
 
   let root: HTMLUListElement | undefined = $state();
+  // the query() anchor rides the tree root (declared above — the
+  // W3-C TDZ law)
+  provideQueryAnchor(() => root ?? null);
 
   function visibleItems(): HTMLElement[] {
     if (!root) return [];
@@ -344,7 +424,10 @@
 <ul
   role="tree"
   aria-label={ariaLabel}
-  class={cn('jx-tree text-muted-foreground font-nav text-xs leading-[2] list-none m-0 p-0', lines && 'jx-tree-lines', className)}
+  class={cn('jx-tree', cx(treeStyles.root), lines && 'jx-tree-lines', className)}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   style:--jx-indent="{indent}px"
   bind:this={root}
   onkeydown={onKeydown}
@@ -376,11 +459,12 @@
         <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
         <div
           class={cn(
-            'jx-tree-row flex items-center gap-[0.45rem] min-w-0 border-l-2 ps-[0.35rem] pe-2 transition-[background-color,border-color,color] duration-150 ease-out',
-            isDisabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+            'jx-tree-row',
+            cx(treeStyles.row),
+            isDisabled ? cx(treeStyles.rowDisabled) : cx(treeStyles.rowEnabled),
             isSel
-              ? 'selected bg-terminal-hover border-l-primary text-foreground'
-              : 'border-l-transparent hover:bg-[color-mix(in_oklab,var(--foreground)_5%,transparent)] hover:text-foreground',
+              ? 'selected ' + cx(treeStyles.rowSelected)
+              : cx(treeStyles.rowIdle),
           )}
           onclick={(event) => {
             const target = event.target as HTMLElement;
@@ -388,7 +472,7 @@
             activate({ path, node, parentPath }, (event.currentTarget as HTMLElement).closest('li')!);
           }}
         >
-          <span class="jx-tree-caret inline-flex items-center justify-center h-[1em] w-[0.75rem] flex-none text-muted-foreground transition-transform duration-150 ease-[ease]" aria-hidden="true">
+          <span class={cn('jx-tree-caret', cx(treeStyles.caret))} aria-hidden="true">
             {#if caret}
               <!-- the consumer owns the glyph (loading states et al.);
                    the jx-tree-caret span keeps the collapse rotation -->
@@ -402,9 +486,9 @@
             {/if}
           </span>
           {#if prefixSnippet}
-            <span data-jx-tree-prefix class="inline-flex items-center flex-none min-w-0 [&_svg]:h-3.5 [&_svg]:w-3.5">{@render prefixSnippet(ctx)}</span>
+            <span data-jx-tree-prefix class={cx(treeStyles.prefix)}>{@render prefixSnippet(ctx)}</span>
           {:else if fileIcons}
-            <span data-jx-tree-prefix class="jx-tree-typeicon inline-flex items-center flex-none min-w-0 text-muted-foreground" aria-hidden="true">
+            <span data-jx-tree-prefix class={cn('jx-tree-typeicon', cx(treeStyles.typeIcon))} aria-hidden="true">
               {#if isDir}
                 <Icon name={ctx.expanded ? 'folderOpen' : 'folder'} size={13} />
               {:else}
@@ -412,23 +496,24 @@
               {/if}
             </span>
           {/if}
-          <span data-jx-tree-label class="flex-1 truncate">
+          <span data-jx-tree-label class={cx(treeStyles.label)}>
             {#if label}{@render label(ctx)}{:else}{node.name}{/if}
           </span>
           {#if suffixSnippet}
-            <span class="jx-tree-suffix inline-flex items-center flex-none gap-[0.15rem] ml-auto opacity-0 pointer-events-none transition-opacity duration-150 ease-out">{@render suffixSnippet(ctx)}</span>
+            <span class={cn('jx-tree-suffix', cx(treeStyles.suffix))}>{@render suffixSnippet(ctx)}</span>
           {/if}
         </div>
         {#if isDir}
           <div
             class={cn(
-              'jx-tree-group grid transition-[grid-template-rows] duration-150 ease-[ease]',
-              isCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+              'jx-tree-group',
+              cx(treeStyles.group),
+              isCollapsed ? cx(treeStyles.groupCollapsed) : cx(treeStyles.groupOpen),
             )}
             data-collapsed={isCollapsed ? '' : undefined}
             inert={isCollapsed || undefined}
           >
-            <ul role="group" class={cn('list-none m-0 p-0 ps-(--jx-indent) min-h-0 overflow-hidden', lines && 'relative')}>
+            <ul role="group" class={cn(cx(treeStyles.groupList), lines && cx(treeStyles.groupListLines))}>
               {@render rows(node.children ?? [], path)}
             </ul>
           </div>

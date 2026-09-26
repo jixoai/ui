@@ -1,0 +1,71 @@
+{
+  "what": "programmatic pixel parity — pilot before(5199 main, read-only)/after(5198 worktree) pairs; vision subagent unavailable (builtin:zai not configured) so parity is proven pixel-level per the fallback discipline; thresholds: delta>8 channel diff counts",
+  "generatedAt": "2026-09-16T20:55:23.986Z",
+  "pairs": [
+    {
+      "width": 375,
+      "dims": [
+        "750x1800"
+      ],
+      "sameDims": true,
+      "pixels": 1350000,
+      "diffPixels": 953,
+      "diffPct": 0.0706,
+      "maxDelta": 92,
+      "meanDelta": 0.022,
+      "diffRuns": 228
+    },
+    {
+      "width": 768,
+      "dims": [
+        "1536x1800"
+      ],
+      "sameDims": true,
+      "pixels": 2764800,
+      "diffPixels": 351,
+      "diffPct": 0.0127,
+      "maxDelta": 31,
+      "meanDelta": 0.003,
+      "diffRuns": 159
+    },
+    {
+      "width": 1099,
+      "dims": [
+        "2198x1800"
+      ],
+      "sameDims": true,
+      "pixels": 3956400,
+      "diffPixels": 435,
+      "diffPct": 0.011,
+      "maxDelta": 34,
+      "meanDelta": 0.003,
+      "diffRuns": 164
+    },
+    {
+      "width": 1100,
+      "dims": [
+        "2200x1800"
+      ],
+      "sameDims": true,
+      "pixels": 3960000,
+      "diffPixels": 371,
+      "diffPct": 0.0094,
+      "maxDelta": 33,
+      "meanDelta": 0.002,
+      "diffRuns": 156
+    },
+    {
+      "width": 1440,
+      "dims": [
+        "2880x1800"
+      ],
+      "sameDims": true,
+      "pixels": 5184000,
+      "diffPixels": 707,
+      "diffPct": 0.0136,
+      "maxDelta": 65,
+      "meanDelta": 0.004,
+      "diffRuns": 226
+    }
+  ]
+}

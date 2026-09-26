@@ -35,12 +35,14 @@
   tour closes instantly, exactly as it did before the law. Rewiring the
   render guard to keep the node through the exit is a future change.
 
-  tw4 (2026-08-24): title/desc/actions paint as token utilities in the
-  markup (canPrev and last-step states are JS-known → conditional
-  strings); tour.css keeps the D1-exempt geometry — the anchor-size()
-  hole (its @supports form re-sets inset/background, so no inset or
-  background utility may ride the hole), the panel's anchor() placement
-  (+ @supports fallback), and ::backdrop.
+  tw4 (2026-08-24) → tailwindless Wave 1 batch 3 (2026-09-17): the
+  title/desc/actions paint rides the family's stylex ATOMS
+  (tour.stylex.ts) joined through cx() — canPrev and last-step states
+  are JS-known → conditional atoms; tour.css keeps the D1-exempt
+  geometry — the anchor-size() hole (its @supports form re-sets
+  inset/background, so no inset or background member may ride the
+  hole atom), the panel's anchor() placement (+ @supports fallback),
+  and ::backdrop.
 
   Motion kernel (2026-08-25): adopts the shared WAAPI surface-motion
   kernel (lib/surface-motion.ts) — the open $effect drives the --jx-p
@@ -66,7 +68,24 @@
   import { createSurfaceMotion } from '$lib/surface-motion';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TourDefaults, type TourSurfaceVariant } from './tour-defaults.svelte';
+  import { tourStyles } from './tour.stylex';
   import './tour.css';
 
   export interface TourStep {
@@ -96,7 +115,7 @@
     skip(): void;
   }
 
-  interface Props extends HTMLAttributes<HTMLElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLElement>, 'color'> {
     steps: TourStep[];
     /** bindable open state — the tour runs while true */
     open?: boolean;
@@ -114,6 +133,29 @@
         the environment asks for reduced transparency) — literal slot,
         own 'auto' */
     variant?: TourSurfaceVariant;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the walkthrough card) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — own level2 (the anchored card's menu rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -129,14 +171,42 @@
     onstep,
     card,
     variant,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
     ...rest
   }: Props = $props();
 
   // the family Defaults is the single read point (context-defaults-
-  // economy 3.4): variant rides a literal slot (own 'auto', never
-  // reads context — the floating-surface grammar, dialog/sheet kin)
-  const d = $derived(TourDefaults.resolve({ variant }));
+  // economy 3.4 + W3-D3): one record — variant rides a literal slot
+  // (own 'auto', never reads context — the floating-surface grammar,
+  // dialog/sheet kin) and the eight universal axes ride the same
+  // record (elevation own level2 — the anchored card's menu rung).
+  // The carriers stamp the CARD root (popover="manual" promotion:
+  // self-carried, the batch C portal law); the anchor + consumption
+  // wires land after the panel state declarations (the W3-C TDZ law)
+  const d = $derived(
+    TourDefaults.resolve({
+      variant,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
 
   let index = $state(0);
   /** the resolved element of the CURRENT step (null = unavailable) */
@@ -145,12 +215,40 @@
   let panelEl = $state<HTMLElement | null>(null);
   let nextEl = $state<HTMLButtonElement | null>(null);
 
+  // the query() anchor rides the PANEL (declared above — the W3-C
+  // TDZ law); §3/§14 radius consumption (the popover dialect): an
+  // explicit lane composes radius-effective × the factor; auto
+  // computes the concentric max(0px, R − P) against the panel's own
+  // ancestors. §7's consumption pair + the solid-fill bridge ride
+  // with them; the consumer style joins LAST (the merge law —
+  // consumer declarations win the cascade)
+  provideQueryAnchor(() => panelEl ?? null);
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const panelStyle = $derived(
+    [
+      carriers,
+      radiusConsumed,
+      elevationConsumed,
+      `position-anchor: ${leaseName}`,
+      consumerStyle ?? undefined,
+    ]
+      .filter(Boolean)
+      .join('; ') || undefined,
+  );
+
   // the shared declarative motion kernel (r29) — anchored to the
   // CURRENT step's resolved target (the lease holder); the live axis
   // re-measures per step with zero extra wiring
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => targetEl });
+  // renamed panelMotion (W3-D3): the §8 axis prop owns the `motion`
+  // name now — the kernel local takes the popover.svelte spelling
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => targetEl });
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
 
   // the manual popover needs its explicit show — the panel is in the
   // top layer while the tour renders, hidden on removal. Open/step
@@ -164,8 +262,8 @@
     if (!(open && panelEl) || index < 0) return;
     if (typeof panelEl.showPopover === 'function' && !panelEl.matches(':popover-open')) {
       panelEl.showPopover();
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     }
     requestAnimationFrame(() => {
       if (typeof requestAnimationFrame === 'function' && panelEl?.matches(':popover-open')) {
@@ -177,8 +275,8 @@
     return () => {
       if (panelEl && typeof panelEl.hidePopover === 'function' && panelEl.matches(':popover-open')) {
         panelEl.classList.remove('jx-rest');
-        motion.play(0);
-        motion.stopTracking();
+        panelMotion.play(0);
+        panelMotion.stopTracking();
         panelEl.hidePopover();
       }
     };
@@ -249,7 +347,7 @@
             .reverse();
     for (const i of order) {
       const el = resolve(steps[i]!);
-      if (!isUnavailable(el)) {
+      if (el !== null && !isUnavailable(el)) {
         index = i;
         targetEl = el;
         lease(el);
@@ -317,18 +415,35 @@
     }
   }
 
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   // nav buttons: the terminal chip (border, bg, shadow-2xs) + the
-  // Next variant's brand lean; disabled rides a conditional swap
-  const navBtn =
-    'inline-flex cursor-pointer appearance-none border px-[0.875rem] py-1.5 font-nav text-[0.6875rem] uppercase tracking-[0.1em] shadow-2xs disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+  // Next variant's brand lean; disabled rides the atom's :disabled
+  const navBtn = cx(tourStyles.navBtn);
 </script>
 
 {#if open && step}
   <!-- the hole: target-sized via CSS anchor-size, ONE huge shadow tint.
        inset stays in the css (the anchored form re-sets it — a markup
-       inset utility would beat the components layer and break it) -->
+       inset member would beat the components layer and break it) -->
   <div
-    class="jx-tour-hole fixed pointer-events-none"
+    class="jx-tour-hole {cx(tourStyles.hole)}"
     class:jx-tour-hole-anchored={targetEl !== null}
     style="position-anchor: {leaseName}"
     aria-hidden="true"
@@ -338,15 +453,17 @@
        focus + keyboard) wins any name collision -->
   <div
     {...rest}
-    {autoId}
+    id={autoId}
     popover="manual"
     role="dialog"
     tabindex="-1"
     aria-modal="false"
     aria-label={step.title}
-    class={cn('jx-tour jx-surface', motion.supported && 'jx-waapi', className)}
+    class={cn('jx-tour jx-surface', panelMotion.supported && 'jx-waapi', className)}
     data-variant={d.variant}
-    style="position-anchor: {leaseName}"
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={panelStyle}
     bind:this={panelEl}
     onkeydown={handleKeydown}
   >
@@ -355,27 +472,27 @@
     <div data-jx-tour-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
     <!-- surface body (fill + ::after shadow); the popover element paints
          nothing (floating-surface law arch r3) -->
-    <div data-jx-tour-surface="" class="jx-surface-body flex flex-col gap-2 px-4 py-[0.875rem]">
+    <div data-jx-tour-surface="" class="jx-surface-body {cx(tourStyles.surfaceBody)}">
     {#if card}
       {@render card({ index, total: steps.length, step, next, prev, skip: () => finish(index) })}
     {:else}
     {#if step.title}
-      <p data-jx-tour-title="" class="m-0 font-nav text-[0.8125rem] uppercase tracking-[0.1em] text-foreground">{step.title}</p>
+      <p data-jx-tour-title="" class={cx(tourStyles.title)}>{step.title}</p>
     {/if}
     {#if step.description}
-      <p data-jx-tour-desc="" class="m-0 text-[0.8125rem] leading-[1.55] text-muted-foreground">{step.description}</p>
+      <p data-jx-tour-desc="" class={cx(tourStyles.description)}>{step.description}</p>
     {/if}
-    <div data-jx-tour-meta="" class="font-mono text-[0.6875rem] text-muted-foreground" aria-hidden="true">{index + 1} / {steps.length}</div>
-    <div data-jx-tour-actions="" class="mt-1 flex items-center justify-between gap-3">
+    <div data-jx-tour-meta="" class={cx(tourStyles.meta)} aria-hidden="true">{index + 1} / {steps.length}</div>
+    <div data-jx-tour-actions="" class={cx(tourStyles.actions)}>
       <button
         type="button"
         data-jx-tour-skip=""
-        class="cursor-pointer appearance-none border-0 bg-transparent font-nav text-[0.6875rem] uppercase tracking-[0.1em] text-muted-foreground underline decoration-dotted hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1"
+        class={cx(tourStyles.skip)}
         onclick={() => finish(index)}
       >
         Skip tour
       </button>
-      <div data-jx-tour-nav="" class="flex gap-2">
+      <div data-jx-tour-nav="" class={cx(tourStyles.navRow)}>
         <button type="button" data-jx-tour-btn="" class={navBtn} disabled={!canPrev} onclick={prev}>
           Back
         </button>
@@ -383,7 +500,7 @@
           type="button"
           data-jx-tour-btn=""
           data-jx-tour-next=""
-          class={cn(navBtn, 'border-primary bg-background text-primary')}
+          class={cn(navBtn, cx(tourStyles.navNext))}
           bind:this={nextEl}
           onclick={next}
         >

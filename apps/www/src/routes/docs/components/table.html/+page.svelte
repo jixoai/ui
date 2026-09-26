@@ -18,11 +18,13 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
   import Checkbox from '$lib/ui/checkbox/checkbox.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
+  import type { TreeFile } from '$lib/ui/component-canvas/component-canvas.svelte';
   import DropdownMenu from '$lib/ui/dropdown-menu/dropdown-menu.svelte';
   import DropdownMenuItem from '$lib/ui/dropdown-menu/dropdown-menu-item.svelte';
   import Input from '$lib/ui/input/input.svelte';
@@ -570,6 +572,110 @@ ${close}
   const tableModesFiles: TreeFile[] = [
     { name: 'table-modes-demo.svelte', content: tableModesDemo, kind: 'usage' },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter((style): style is string | { readonly [key: string]: string | object } => Boolean(style))
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // ---- the law table: the frame-width laws --------------------------------
+  const lawTable = [
+    { posture: 'the frame-width laws', input: 'container: jx-table / inline-size', renders: 'two engines read the FRAME\u0027s own width, never the viewport\u0029s — at ≥ 30rem the scroll law (fit-content columns, native overflow-x, data-sticky pins behind a hairline fold, all logical properties so RTL mirrors free); below it the stack law (thead folds away, td[data-label] renders a muted label beside the value, the first cell takes the head surface). stack={false} pins the scroll law at every width', announces: 'measured both sides of the 30rem line in the workbench' },
+    { posture: 'semantics stay the consumer\u0027s', input: 'thead · tbody · tfoot · th · td · caption', renders: 'real elements authored in the children snippet — rows are never wrapped, numeric alignment stays a consumer class; the component owns only the frame', announces: 'the accessibility tree is the author\u0029s, wholesale' },
+    { posture: 'the a11y split', input: 'caption · scope · data-label · aria-sort · aria-live', renders: 'caption names the table; scope pairs headers with cells; data-label feeds the card law\u0029s labels; the recipes add aria-sort on the sorted th only (the caret stays aria-hidden) and aria-live=polite on the selection readout', announces: 'announcements are measured, never assumed' },
+    { posture: 'the color-freedom seam', input: 'style="--jx-table-hover: …"', renders: 'every paint routes through the --jx-table-* local tokens — one var retunes one aspect per instance; the hover follows --brand-hue at runtime (one number recolors it)', announces: 'a token surface, not a palette' },
+    { posture: 'the density floor', input: 'explicit ?? inherited ?? own sm', renders: 'density is the family\u0029s ONE opinion — the design-frozen local fallback (dense tabular rows are the declared posture), riding the eager-capture provider lane that keeps the chain boundary-legal; the rung stamps by default (measured)', announces: 'the fleet\u0029s density-opinion family' },
+    { posture: 'separate borders', input: 'border-collapse: separate', renders: 'required by the sticky law — collapsed borders tear under sticky pins in some engines; rendering is identical here because the language carries only horizontal hairlines', announces: 'an engine constraint turned into the table\u0029s whole visual grammar' },
+  ];
+
+  // ---- the measured eight-axes layer ---------------------------------------
+  const axisRows = [
+    {
+      name: 'density',
+      type: `'small' | 'medium' | 'large' | 'auto' | number (+ the five legacy spellings)`,
+      default: `'sm' · the family's OWN`,
+      description:
+        "OWN, 'sm' — the fleet's density-opinion family: dense tabular rows are the declared posture, so the rung stamps BY DEFAULT with no prop (measured data-density=\"sm\" on the bare workbench table); an explicit lane overrides, an inherited provider wins over the own. The reactive bridged write carries the supply (the provider-snapshot kernel law — density never rides the literal). Number unit: coefficient.",
+    },
+    {
+      name: 'size',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "STAMP-ONLY, VOICE ON THE FRAME — the §11 pair lands on the figure (measured 18px computed) while the table's OWN text voice is the density-tuned 12px (--jx-text at the sm own — dense tabular text is the declared posture and wins inside the frame); your cells read the table's voice, the frame reads the lane. Number unit: px.",
+    },
+    {
+      name: 'shape',
+      type: `'round' | 'scoop' | 'bevel' | 'notch' | 'square' | 'squircle' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "CONSUMED — corner-shape rides the §14 alias ladder on the frame (the radius law's base is 0 with the bevel upgrade where supported — a table with square corners by intent). Number unit: none.",
+    },
+    {
+      name: 'radius',
+      type: `'small' | 'medium' | 'large' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "STAMPED AND CONSUMED (fixed in-campaign): the lane stamps --jx-radius-effective on the frame and the atom reads var(--jx-radius-consumed, var(--jx-radius)) — measured post-fix: explicit 12 → corner 12px; 'large' → 10px; auto stamps nothing and the site fallback paints 8px. (The pre-fix defect — the atom bound the base token, computed 8px always — is receipted in the CODE report and the ledger's in-campaign fix note.) Number unit: px.",
+    },
+    {
+      name: 'color',
+      type: `'primary' | 'secondary' | 'error' | 'warn' | 'success' | 'info' | 'auto' | number | string`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY, TOKEN SURFACE — the lane lands on the root, but the table's paint is the --jx-table-* local surface (ground, head, hover, hairline, rule, edge); per-instance retuning goes through the style seam, not the hue lane. Number unit: hue degrees.",
+    },
+    {
+      name: 'theme',
+      type: `'light' | 'dark' | 'system' | 'auto'`,
+      default: `'auto'`,
+      description:
+        "BRIDGE — class:dark lands on the frame (measured) and the --jx-table-* tokens re-voice through the theme scope; the consumer-authored cells ride the same bridge. No number lane.",
+    },
+    {
+      name: 'elevation',
+      type: `'level-1' | 'level0' | 'level1' | 'level2' | 'level3' | 'level4' | 'level5' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the frame carries a hairline ring, not a shadow (the table sits IN the plane, flush by intent); the lane supplies for what you nest inside the frame. Number unit: dp.",
+    },
+    {
+      name: 'motion',
+      type: `'reduced' | 'subtle' | 'normal' | 'expressive' | 'auto' | number`,
+      default: `'auto'`,
+      description:
+        "SUPPLY-ONLY — the carrier lands on the root; the family's only choreography is the hover tone (a token mix, not a transition law) and the pulse-free static frame. Reduced motion freezes nothing here because nothing moves. Number unit: coefficient.",
+    },
+  ];
+
+  const axisTokens = [
+    { name: '--jx-table-surface', default: 'var(--background)', source: 'color' as const, description: 'The opaque cell ground — sticky cells need it to mask the content scrolling under them.' },
+    { name: '--jx-table-head', default: 'var(--muted)', source: 'color' as const, description: 'The head band and the stack-law card head.' },
+    { name: '--jx-table-hover', default: 'primary 7% mix', source: 'color' as const, description: 'The hover tone — follows --brand-hue at runtime; the style seam retunes it per instance.' },
+    { name: '--jx-table-hairline / -rule / -edge', default: 'border mixes', source: 'color' as const, description: 'The hairline frame, the row rules, and the sticky fold mark — the only lines the language draws.' },
+    { name: 'the density channels', default: '--jx-inset / -gap / -stack / -text / -line', source: 'density' as const, description: 'The kernel channels the dense mode retunes — the own sm is their floor.' },
+    { name: 'container: jx-table', default: 'inline-size', source: 'structural' as const, description: 'The named container — every responsive decision reads the frame, never the viewport.' },
+  ];
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  // (no TreeFile annotation: this page's imports predate the type's
+  // use here — the array shape matches the canvas files contract)
+  const universalUsage = `<Table caption="axes" size={18}>…</Table>`;
+  const universalFiles = [
+    { name: 'src/lib/ui/table-universal.svelte', content: universalUsage },
+  ];
 </script>
 
 <svelte:head>
@@ -581,10 +687,10 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <!-- page head -->
   <div data-reveal="">
     <SectionCard
@@ -594,7 +700,17 @@ ${close}
       title="table — frame-width laws, token paint, composition recipes"
       summary="The figure frame is a named inline-size container, so every responsive decision reads the FRAME's width, never the viewport's. Wide (≥ 30rem): the scroll law — fit-content columns, native overflow-x, consumer cells opt into pinned columns with data-sticky=start|end behind a hairline fold mark. Narrow: the CodePen card law — thead folds away, td[data-label] renders a muted label with the value flushed right. Every color routes through the --jx-table-* locals. On top of the paint sits the RECIPE SUITE: the component owns only the frame, so sorting, filtering, selection, row actions, column visibility and pagination are page-owned state composed from the family — the shadcn data-table tutorial's layering in terminal paint, ending in the tasks table."
     >
-      <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install table">
+          <TerminalCard
+            barTitle="install — table"
+            command="npx jixoai-ui add table"
+            outputs={['https://ui.jixoai.com/r/table.json', 'zero-dependency; recipes add their own families']}
+          />
+        </div>
+      {/snippet}
+
+      <div class={cx(rt.wrap12)}>
         <span class="pill">container queries on the frame</span>
         <span class="pill">data-sticky pin law</span>
         <span class="pill">data-label card law</span>
@@ -605,15 +721,45 @@ ${close}
   </div>
 
   <!-- install -->
-  <div id="install" data-reveal="">
+  
+  <!-- overview -->
+  <div id="overview" data-reveal="">
     <SectionCard
-      family="install"
-      headerRegion="install"
-      eyebrow="install"
-      title="Install"
-      summary="One zero-dependency item. The recipes below add their own families — checkbox, input, toggle-group, select, pagination, dropdown-menu, popover, press-button — each a separate add."
+      family="overview"
+      headerRegion="overview"
+      eyebrow="overview"
+      title="Overview"
+      summary="The figure frame is a named inline-size container, so every responsive decision reads the FRAME's width, never the viewport's. Two frame-width laws, consumer-owned semantics, token paint, and a recipe suite on top — the component owns only the frame."
     >
-      <CodeBlock code={`npx jixoai-ui add table`} lang="sh" meta="install" />
+      <div class={cx(rt.col20)}>
+        <p class={cx(rt.measurePara)}>
+          table is the fleet's a11y-heavy surface, and its first law is
+          <em>who owns the semantics</em>: the component renders only the
+          figure frame — the real
+          <code>thead/tbody/tfoot/th/td/caption</code> elements are authored
+          by YOU in the children snippet, rows are never wrapped, and the
+          caption prop names the table for assistive technology. On top of
+          that, two frame-width laws run off a named inline-size container:
+          at ≥ 30rem the scroll law (fit-content columns, native overflow-x,
+          <code>data-sticky</code> pins behind a hairline fold, all logical
+          properties so RTL mirrors free); below it the stack law — thead
+          folds away and <code>td[data-label]</code> renders a muted label
+          beside each value, the card law. <code>stack={'{false}'}</code>
+          pins the scroll law at every width.
+        </p>
+        <p class={cx(rt.measurePara)}>
+          The paint is a token surface, not a palette: every color routes
+          through the <code>--jx-table-*</code> locals, so
+          <code>style="--jx-table-hover: …"</code> retunes one var per
+          instance and the hover follows the site's brand hue at runtime.
+          Density is the family's one opinion (the own is
+          <code>sm</code> — dense tabular rows are the declared posture);
+          the seven sibling axes are no-own supply for the cells. And the
+          recipes below — sorting, filtering, selection, pagination, row
+          actions, column visibility — are PAGE-OWNED STATE composed from
+          the family: the component owns the frame, you own the decision.
+        </p>
+      </div>
     </SectionCard>
   </div>
 
@@ -638,7 +784,7 @@ ${close}
             <tr>
               <th data-sticky="start" scope="col">Consumer</th>
               <th scope="col">Status</th>
-              <th scope="col" class="text-right">Items</th>
+              <th scope="col" class={cx(rt.textRight)}>Items</th>
               <th scope="col">Coverage</th>
               <th scope="col">Since</th>
               <th scope="col">Runtime</th>
@@ -656,7 +802,7 @@ ${close}
                   </div>
                 </td>
                 <td data-label="Status"><span class="badge" data-tone={consumer.status}>{consumer.status}</span></td>
-                <td data-label="Items" class="text-right">{consumer.items}</td>
+                <td data-label="Items" class={cx(rt.textRight)}>{consumer.items}</td>
                 <td data-label="Coverage">
                   <span class="meter" role="img" aria-label="{consumer.coverage}% coverage">
                     <span class="meter-fill" style:width="{consumer.coverage}%"></span>
@@ -673,7 +819,7 @@ ${close}
             {/each}
           </tbody>
           <tfoot>
-            <tr><td>Total</td><td>—</td><td class="text-right">54</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><td>Total</td><td>—</td><td class={cx(rt.textRight)}>54</td><td>—</td><td>—</td><td>—</td><td>—</td><td>—</td></tr>
           </tfoot>
         </Table>
       </div>
@@ -705,7 +851,7 @@ ${close}
   </div>
   </div>
 
-  <div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+  <div class={cx(rt.shellFlush)}>
   <!-- usage: the ONE h2 -->
   <div id="usage" data-reveal="">
     <SectionCard
@@ -728,7 +874,7 @@ ${close}
       title="Examples"
       summary="The composition recipes, one ability per demo: sortable headers, filter row + facets, pagination footer, row selection, row actions + column visibility, sticky header — composed into the tasks table at the end."
     >
-      <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+      <p class={cx(rt.bodyMuted, rt.m0)}>
         The component owns the frame; every interactive layer below is page-owned state over
         public component behavior (composition-first — zero registry edits). Missing atoms are
         recorded in the change's followups, never worked around silently.
@@ -752,7 +898,7 @@ ${close}
         { label: 'direction', value: sortKey === null ? '—' : sortDir },
       ]}
     >
-      <div class="w-full max-w-2xl">
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
         <Table caption="tasks — sortable headers" stack={false}>
           <thead>
             <tr>
@@ -782,11 +928,11 @@ ${close}
           <tbody>
             {#each sortableRows.slice(0, 6) as row (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 <td><Badge variant="outline" class="jx-hue-neutral">{row.status}</Badge></td>
                 <td><span class="prio" data-prio={row.priority}>{row.priority}</span></td>
-                <td class="font-mono text-[12px]">{row.due}</td>
+                <td class={cx(rt.fontMono, rt.text12)}>{row.due}</td>
               </tr>
             {/each}
           </tbody>
@@ -822,17 +968,17 @@ ${close}
         { label: 'rows', value: `${filterRows.length} / ${tasks.length}` },
       ]}
     >
-      <div class="w-full max-w-3xl">
+      <div class={cx(rt.wFull, rt.maxW3xl)}>
         <Table caption="tasks — filter row" stack={false}>
           <thead>
             <tr>
               <th scope="col">id</th>
               <th scope="col">title</th>
               <th scope="col">status</th>
-              <th scope="col" class="text-right">due</th>
+              <th scope="col" class={cx(rt.textRight)}>due</th>
             </tr>
             <tr data-filter-row>
-              <th scope="col"><span class="sr-only">filters</span></th>
+              <th scope="col"><span class={cx(rt.srOnly)}>filters</span></th>
               <th scope="col">
                 <Input type="search" bind:value={titleFilter} aria-label="filter by title" placeholder="contains…" />
               </th>
@@ -848,13 +994,13 @@ ${close}
           <tbody>
             {#each filterRows.slice(0, 6) as row (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 <td><Badge variant="outline" class="jx-hue-neutral">{row.status}</Badge></td>
-                <td class="text-right font-mono text-[12px]">{row.due}</td>
+                <td class={cx(rt.textRight, rt.fontMono, rt.text12)}>{row.due}</td>
               </tr>
             {:else}
-              <tr><td colspan="4" class="text-center text-muted-foreground">no rows match the filters</td></tr>
+              <tr><td colspan="4" class={cx(rt.textCenter, rt.inkMuted)}>no rows match the filters</td></tr>
             {/each}
           </tbody>
         </Table>
@@ -888,7 +1034,7 @@ ${close}
         { label: 'rows', value: `${pageRows.length} / ${filterRows.length}` },
       ]}
     >
-      <div class="w-full max-w-3xl">
+      <div class={cx(rt.wFull, rt.maxW3xl)}>
         <Table caption="tasks — pagination footer" stack={false}>
           <thead>
             <tr>
@@ -900,19 +1046,19 @@ ${close}
           <tbody>
             {#each pageRows as row (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 <td><Badge variant="outline" class="jx-hue-neutral">{row.status}</Badge></td>
               </tr>
             {/each}
           </tbody>
         </Table>
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <span class="font-mono text-[11.5px] text-muted-foreground">
+        <div class={cx(rt.rowC12, rt.mt12, rt.wrap, rt.justifyBetween)}>
+          <span class={cx(rt.fontMono, rt.text115, rt.inkMuted)}>
             {pageRows.length} of {filterRows.length} tasks
           </span>
-          <div class="flex flex-wrap items-center gap-3">
-            <div class="w-28">
+          <div class={cx(rt.rowC12, rt.wrap)}>
+            <div class={cx(rt.w28)}>
               <Select options={pageSizeOptions} bind:value={pageSize} aria-label="rows per page" placeholder="rows" />
             </div>
             <Pagination>
@@ -966,7 +1112,7 @@ ${close}
         { label: 'header box', value: selectionState.all ? 'checked' : selectionState.some ? 'indeterminate' : 'unchecked' },
       ]}
     >
-      <div class="w-full max-w-2xl">
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
         <Table caption="tasks — row selection" stack={false}>
           <thead>
             <tr>
@@ -992,13 +1138,13 @@ ${close}
                     onchange={() => (selected = toggleSelected(selected, row.id))}
                   />
                 </td>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
               </tr>
             {/each}
           </tbody>
         </Table>
-        <p class="mt-2 font-mono text-[11.5px] text-muted-foreground" aria-live="polite">
+        <p class={cx(rt.mt8, rt.fontMono, rt.text115, rt.inkMuted)} aria-live="polite">
           {selected.size} of {selectionRows.length} selected
         </p>
       </div>
@@ -1032,10 +1178,10 @@ ${close}
         { label: 'last action', value: actionEcho },
       ]}
     >
-      <div class="w-full max-w-3xl">
-        <div class="mb-3 flex flex-wrap items-center gap-3">
+      <div class={cx(rt.wFull, rt.maxW3xl)}>
+        <div class={cx(rt.rowC12, rt.mb12, rt.wrap)}>
           <Popover id="actions-columns" triggerLabel="columns">
-            <div class="flex flex-col gap-2 p-2">
+            <div class={cx(rt.col8, rt.p8)}>
               <Checkbox
                 label="priority"
                 checked={actionsVisible.priority}
@@ -1048,7 +1194,7 @@ ${close}
               />
             </div>
           </Popover>
-          <span class="font-mono text-[11.5px] text-muted-foreground">last action: {actionEcho}</span>
+          <span class={cx(rt.fontMono, rt.text115, rt.inkMuted)}>last action: {actionEcho}</span>
         </div>
         <Table caption="tasks — row actions" stack={false}>
           <thead>
@@ -1057,16 +1203,16 @@ ${close}
               <th scope="col">title</th>
               {#if actionsVisible.priority}<th scope="col">priority</th>{/if}
               {#if actionsVisible.assignee}<th scope="col">assignee</th>{/if}
-              <th scope="col"><span class="sr-only">actions</span></th>
+              <th scope="col"><span class={cx(rt.srOnly)}>actions</span></th>
             </tr>
           </thead>
           <tbody>
             {#each tasks.slice(0, 5) as row (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 {#if actionsVisible.priority}<td><span class="prio" data-prio={row.priority}>{row.priority}</span></td>{/if}
-                {#if actionsVisible.assignee}<td class="font-mono text-[12px]">{row.assignee}</td>{/if}
+                {#if actionsVisible.assignee}<td class={cx(rt.fontMono, rt.text12)}>{row.assignee}</td>{/if}
                 <td>
                   <DropdownMenu id={`task-actions-${row.id}`} placement="bottom-end">
                     {#snippet trigger()}
@@ -1074,7 +1220,7 @@ ${close}
                         type="button"
                         popovertarget={`task-actions-${row.id}`}
                         aria-label={`actions for ${row.id}`}
-                        class="jx-press inline-flex cursor-pointer appearance-none border border-border bg-background px-2 py-0.5 text-[13px] leading-5 shadow-2xs"
+                        class="jx-press {cx(rt.frame, rt.inlineFlex, rt.cursorPointer, rt.appearanceNone, rt.bgBackground, rt.px8, rt.py2, rt.text13, rt.lead5, rt.shadow2xs)}"
                       >
                         ⋯
                       </button>
@@ -1116,7 +1262,7 @@ ${close}
       stage="fill"
       output={[{ label: 'scrollport', value: 'frame · 16rem clamp' }, { label: 'rows', value: tasks.length }]}
     >
-      <div class="w-full max-w-2xl">
+      <div class={cx(rt.wFull, rt.maxW2xl)}>
         <Table class="sticky-scroll" caption="event log — the head stays" stack={false}>
           <thead>
             <tr>
@@ -1128,7 +1274,7 @@ ${close}
           <tbody>
             {#each tasks as row, index (row.id)}
               <tr>
-                <td class="font-mono text-[12px] text-muted-foreground">08-{26 + (index % 4)} · {String(10 + index).padStart(2, '0')}:42</td>
+                <td class={cx(rt.note12, rt.fontMono)}>08-{26 + (index % 4)} · {String(10 + index).padStart(2, '0')}:42</td>
                 <td>{row.title}</td>
                 <td>{index % 3 === 0 ? 'info' : index % 3 === 1 ? 'warn' : 'error'}</td>
               </tr>
@@ -1169,10 +1315,10 @@ ${close}
         { label: 'sort', value: sortKey === null ? '—' : `${sortKey} ${sortDir}` },
       ]}
     >
-      <div class="w-full">
+      <div class={cx(rt.wFull)}>
         <!-- the toolbar: filter + facets + column visibility -->
-        <div class="mb-3 flex flex-wrap items-center gap-3">
-          <div class="w-56">
+        <div class={cx(rt.rowC12, rt.mb12, rt.wrap)}>
+          <div class={cx(rt.w56)}>
             <Input type="search" bind:value={tasksFilter} aria-label="filter tasks by title" placeholder="filter tasks…" />
           </div>
           <ToggleGroup name="tasks-status" type="multiple" label="filter by status" bind:value={tasksFacets}>
@@ -1181,7 +1327,7 @@ ${close}
             {/each}
           </ToggleGroup>
           <Popover id="tasks-columns" triggerLabel="columns">
-            <div class="flex flex-col gap-2 p-2">
+            <div class={cx(rt.col8, rt.p8)}>
               <Checkbox
                 label="priority"
                 checked={tasksVisible.priority}
@@ -1226,7 +1372,7 @@ ${close}
                 </th>
               {/if}
               {#if tasksVisible.assignee}<th scope="col">assignee</th>{/if}
-              <th scope="col"><span class="sr-only">actions</span></th>
+              <th scope="col"><span class={cx(rt.srOnly)}>actions</span></th>
             </tr>
           </thead>
           <tbody>
@@ -1239,11 +1385,11 @@ ${close}
                     onchange={() => (tasksSelected = toggleSelected(tasksSelected, row.id))}
                   />
                 </td>
-                <td class="font-mono text-[12px] text-muted-foreground">{row.id}</td>
+                <td class={cx(rt.note12, rt.fontMono)}>{row.id}</td>
                 <td>{row.title}</td>
                 <td><Badge variant="outline" class="jx-hue-neutral">{row.status}</Badge></td>
                 {#if tasksVisible.priority}<td><span class="prio" data-prio={row.priority}>{row.priority}</span></td>{/if}
-                {#if tasksVisible.assignee}<td class="font-mono text-[12px]">{row.assignee}</td>{/if}
+                {#if tasksVisible.assignee}<td class={cx(rt.fontMono, rt.text12)}>{row.assignee}</td>{/if}
                 <td>
                   <DropdownMenu id={`tasks-menu-${row.id}`} placement="bottom-end">
                     {#snippet trigger()}
@@ -1251,7 +1397,7 @@ ${close}
                         type="button"
                         popovertarget={`tasks-menu-${row.id}`}
                         aria-label={`actions for ${row.id}`}
-                        class="jx-press inline-flex cursor-pointer appearance-none border border-border bg-background px-2 py-0.5 text-[13px] leading-5 shadow-2xs"
+                        class="jx-press {cx(rt.frame, rt.inlineFlex, rt.cursorPointer, rt.appearanceNone, rt.bgBackground, rt.px8, rt.py2, rt.text13, rt.lead5, rt.shadow2xs)}"
                       >
                         ⋯
                       </button>
@@ -1264,18 +1410,18 @@ ${close}
                 </td>
               </tr>
             {:else}
-              <tr><td colspan="7" class="text-center text-muted-foreground">no tasks match the toolbar</td></tr>
+              <tr><td colspan="7" class={cx(rt.textCenter, rt.inkMuted)}>no tasks match the toolbar</td></tr>
             {/each}
           </tbody>
         </Table>
 
         <!-- the footer: selection readout + page-size + windowed pagination -->
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <span class="font-mono text-[11.5px] text-muted-foreground" aria-live="polite">
+        <div class={cx(rt.rowC12, rt.mt12, rt.wrap, rt.justifyBetween)}>
+          <span class={cx(rt.fontMono, rt.text115, rt.inkMuted)} aria-live="polite">
             {tasksSelected.size} of {tasks.length} selected
           </span>
-          <div class="flex flex-wrap items-center gap-3">
-            <div class="w-28">
+          <div class={cx(rt.rowC12, rt.wrap)}>
+            <div class={cx(rt.w28)}>
               <Select options={pageSizeOptions} bind:value={pageSize} aria-label="rows per page" placeholder="rows" />
             </div>
             <Pagination>
@@ -1300,7 +1446,7 @@ ${close}
           </div>
         </div>
         {#if tasksLog.length}
-          <p class="mt-2 font-mono text-[11.5px] text-muted-foreground">recent: {tasksLog.join(' · ')}</p>
+          <p class={cx(rt.mt8, rt.fontMono, rt.text115, rt.inkMuted)}>recent: {tasksLog.join(' · ')}</p>
         {/if}
       </div>
       {#snippet playground()}
@@ -1327,23 +1473,23 @@ ${close}
       files={[{ name: 'registry/files/ui/table/table.svelte', content: tableSource }]}
       stage="fill"
     >
-      <Table caption="jixoai components — environment support (2026-08)" class="w-full max-w-[40rem]">
+      <Table caption="jixoai components — environment support (2026-08)" class={cx(rt.wFull, rt.maxW40)}>
         <thead>
           <tr>
             <th>Component</th>
             <th>Svelte 5</th>
             <th>Prerendered SSR</th>
-            <th class="text-right">Files</th>
+            <th class={cx(rt.textRight)}>Files</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td data-label="Component">press-button</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class="text-right">1</td></tr>
-          <tr><td data-label="Component">code-card + highlight</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class="text-right">2</td></tr>
-          <tr><td data-label="Component">table</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class="text-right">1</td></tr>
-          <tr><td data-label="Component">tree-view</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class="text-right">1</td></tr>
+          <tr><td data-label="Component">press-button</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class={cx(rt.textRight)}>1</td></tr>
+          <tr><td data-label="Component">code-card + highlight</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class={cx(rt.textRight)}>2</td></tr>
+          <tr><td data-label="Component">table</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class={cx(rt.textRight)}>1</td></tr>
+          <tr><td data-label="Component">tree-view</td><td data-label="Svelte 5">yes</td><td data-label="Prerendered SSR">yes</td><td data-label="Files" class={cx(rt.textRight)}>1</td></tr>
         </tbody>
         <tfoot>
-          <tr><td>Total</td><td>—</td><td>—</td><td class="text-right">5</td></tr>
+          <tr><td>Total</td><td>—</td><td>—</td><td class={cx(rt.textRight)}>5</td></tr>
         </tfoot>
       </Table>
       {#snippet playground()}
@@ -1357,14 +1503,65 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="types" data-reveal="">
-    <SectionCard eyebrow="types" title="Responsive modes" summary="Keep the native table markup; dense reduces row height and stack selects the narrow-frame card law.">
-      <ComponentCanvas title="table · modes" stage="fill" files={tableModesFiles}><div class="grid gap-4 md:grid-cols-2"><Table caption="default"><tbody><tr><td>regular rows</td></tr></tbody></Table><Table dense stack={false} caption="dense scroll"><tbody><tr><td>compact, always scrollable</td></tr></tbody></Table></div></ComponentCanvas>
+  <div id="law" data-reveal="">
+    <SectionCard
+      family="law"
+      headerRegion="law"
+      eyebrow="law"
+      title="The frame-width laws"
+      summary="Two responsive engines read the frame's own width; semantics stay the consumer's; paint is a token surface with a per-instance seam; density is the one opinion. Measured across the 30rem line in the workbench above."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable
+          props={lawTable.map((row) => ({
+            name: row.posture,
+            type: row.input,
+            default: row.renders,
+            description: `announces: ${row.announces}`,
+          }))}
+          title=""
+        />
+      </div>
     </SectionCard>
   </div>
+
+  <div id="types" data-reveal="">
+    <SectionCard eyebrow="types" title="Responsive modes" summary="Keep the native table markup; dense reduces row height and stack selects the narrow-frame card law.">
+      <ComponentCanvas title="table · modes" stage="fill" files={tableModesFiles}><div class={cx(rt.tbGridMd2Full)}><Table caption="default"><tbody><tr><td>regular rows</td></tr></tbody></Table><Table dense stack={false} caption="dense scroll"><tbody><tr><td>compact, always scrollable</td></tr></tbody></Table></div></ComponentCanvas>
+    </SectionCard>
+  </div>
+  <div id="axes" data-reveal="">
+    <SectionCard
+      family="axes"
+      headerRegion="axes"
+      eyebrow="axes"
+      title="The eight axes on table"
+      summary="Density is the family's ONE opinion (own sm — the rung stamps by default); the seven sibling axes are no-own supply landing on the frame root, and the consumer-authored cells inherit through the cascade. Paint stays on the --jx-table-* token surface — the color-freedom seam retunes it per instance."
+    >
+      <div class={cx(rt.col20)}>
+        <PropsTable props={axisRows} title="" />
+        <div class={cx(rt.mt20)}>
+          <TokenTable tokens={axisTokens} />
+        </div>
+        <div class={cx(rt.mt20)}>
+          <ComponentCanvas title="Table · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)} data-probe="table-size"><Table caption="axes" size={18} density="small"><thead><tr><th scope="col">consumer</th><th scope="col">status</th></tr></thead><tbody><tr><td data-label="consumer">unipty</td><td data-label="status">live</td></tr><tr><td data-label="consumer">betlang</td><td data-label="status">beta</td></tr></tbody></Table></div>
+<div class={cx(rt.panel)} data-probe="table-named"><Table caption="named steps" size="medium" radius="large"><thead><tr><th scope="col">consumer</th><th scope="col">status</th></tr></thead><tbody><tr><td data-label="consumer">mermaid</td><td data-label="status">live</td></tr></tbody></Table></div>
+<div class={cx(rt.panel)} data-probe="table-stamps"><Table caption="stamps" density="large" theme="dark" radius={12}><thead><tr><th scope="col">consumer</th></tr></thead><tbody><tr><td data-label="consumer">sysdlg</td><td data-label="status">live</td></tr></tbody></Table></div>
+          </ComponentCanvas>
+          <p class={cx(rt.bodyMuted, rt.mt16)}>
+            The stamps panel rides the merge law: density="small" overrides
+            the own sm rung, the dark bridge re-voices the token surface, and
+            radius={'{12}'} lands on the frame — the family's concentric
+            anchor. The cells inherit the cascade untouched.
+          </p>
+        </div>
+      </div>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable universal props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Compact row padding — measured note (2026-09-23): the gap channel equals the inset channel at every measured rung (8px at sm, 16px at lg — the A/B ran both), so the dense rule is a visual no-op on row height (34px either way); whether it ever bites is the W-next #10 design call.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', default: "'sm' · ambient scope", description: 'Explicit override, then the inherited scope, then the family own sm — dense tabular rows are the table’s declared posture (the design-frozen local fallback, now the density slot’s own).' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'caption', value: 'native table caption', description: 'Names the table for assistive technology.' }, { name: 'scope', value: 'col | row', description: 'Associates headers with their cells.' }, { name: 'data-label', value: 'string', description: 'Labels values in the narrow card layout.' }, { name: 'aria-sort', value: 'ascending | descending', description: 'Recipe wiring: lives on the sorted th only; the caret glyph stays aria-hidden.' }, { name: 'aria-live', value: 'polite', description: 'Selection count readout announces changes without stealing focus.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Table caption="density"><tbody><tr><td>row</td></tr></tbody></Table></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-table-surface', default: 'var(--background)', source: 'component' }, { name: '--jx-table-head', default: 'var(--muted)', source: 'component' }, { name: '--jx-table-hover', default: 'primary 7% mix', source: 'color' }, { name: '--jx-table-hairline', default: 'border 12% mix', source: 'color' }, { name: '--jx-table-rule', default: 'border 18% mix', source: 'color' }, { name: '--jx-table-edge', default: 'border 34% mix', source: 'color' }, { name: '--jx-inset', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line-secondary', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Table props"><PropsTable props={[{ name: 'caption', type: 'string', default: "''", description: 'Native table caption.' }, { name: 'dense', type: 'boolean', default: 'false', description: 'Uses compact row padding.' }, { name: 'stack', type: 'boolean', default: 'true', description: 'Enables narrow-frame card rows.' }, { name: 'density', type: 'Density', default: "'sm' · ambient scope", description: 'Explicit override, then the inherited scope, then the family own sm — dense tabular rows are the table’s declared posture (the design-frozen local fallback, now the density slot’s own).' }, { name: 'style', type: 'string', default: "''", description: 'Overrides local table tokens.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">
     <SectionCard
@@ -1374,7 +1571,7 @@ ${close}
       title="See also"
       summary="The families the recipes compose with."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/pagination.html">pagination — the footer family</a>
         <a class="pill" href="/docs/components/checkbox.html">checkbox — the selection column</a>
         <a class="pill" href="/docs/components/dropdown-menu.html">dropdown-menu — the row-actions column</a>

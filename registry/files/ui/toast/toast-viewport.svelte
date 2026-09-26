@@ -96,6 +96,23 @@
   } from '$lib/toast-store';
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { toastStyles as tst } from './toast.stylex';
   import ScaffoldFloat from '$lib/ui/scaffold-float/scaffold-float.svelte';
   import type { TopLayerApi } from '$lib/ui/website-scaffold/website-scaffold.svelte';
   import ToastCountdown from './toast-countdown.svelte';
@@ -125,6 +142,32 @@
      *  resolved per POSTURE from the slot vocabulary (the growth law:
      *  a drag dismisses toward the stack's nearest screen edges) */
     swipeDirections?: readonly SwipeDirection[];
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level3 = the notification's historic z-feel (6dp, M3's
+     *  snackbar rung) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** extra classes on the stack */
     class?: string;
   }
@@ -136,8 +179,54 @@
     expand = false,
     gap = 8,
     swipeDirections,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // THE DEFAULTS READ POINT (W3-C — the viewport owns the surface):
+  // the eight universal axes resolve in ONE record here, in the
+  // VIEWPORT's component window (the mount context — where the
+  // consumer's ambient flows), and the carriers stamp the STACK root —
+  // PORTAL LAW: the stack adopts into the scaffold's float plane
+  // (a REAL portal — the DOM moves), so a trigger ancestor's CSS
+  // carriers never span the adoption; the stamps make the resolved
+  // axes SELF-CARRIED on the portal root. Svelte CONTEXT (the
+  // snippet children's ambient) follows the component tree and needs
+  // no such bridge. Own elevation level3 = the snackbar rung
+  const d = $derived(
+    ToastDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §7's consumption pair + the solid-fill bridge (rides the stack
+  // root; the cards read it through the portal-local inheritance)
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+
+  // the payload's own join (separator's serialize law): plain strings
+  // pass through whole; stylex objects contribute their string members
+  // ($$css dropped) — the canonical cx (tailwindless W4: this file's
+  // pre-canonical body spread STRING args per character — nested
+  // cx results and hook strings became single-letter garbage classes)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // the float plane contract — present inside a website-scaffold,
   // undefined in a standalone registry mount (the fixed fallback)
@@ -146,6 +235,7 @@
   let items = $state<ToastItem[]>([]);
   /** the stack container (bind:this) — the touch lift's outside check */
   let stackEl = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => stackEl ?? null);
   /** dismissed snapshots still painting their exit frame, by id */
   let leavingItems = $state<ToastItem[]>([]);
   /** the unified hold: ids currently frozen (hover/focus can overlap —
@@ -276,17 +366,18 @@
     topLevel ? (rtl ? pos.startsWith('right-') : pos.startsWith('left-')) : pos.startsWith('left-'),
   );
   /** the nine-slot fixed-inset vocabulary for the standalone posture —
-   *  physical names, physical insets (the mirror of the adopted CSS) */
+   *  physical names, physical insets (the mirror of the adopted CSS);
+   *  tailwindless W1: atom groups (static cx walks at module scope) */
   const STANDALONE_POS_CLASS: Record<string, string> = {
-    'left-top': 'fixed left-4 top-4',
-    'center-top': 'fixed left-1/2 top-4 -translate-x-1/2',
-    'right-top': 'fixed right-4 top-4',
-    'left-center': 'fixed left-4 top-1/2 -translate-y-1/2',
-    'center-center': 'fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2',
-    'right-center': 'fixed right-4 top-1/2 -translate-y-1/2',
-    'left-bottom': 'fixed left-4 bottom-4',
-    'center-bottom': 'fixed left-1/2 bottom-4 -translate-x-1/2',
-    'right-bottom': 'fixed right-4 bottom-4',
+    'left-top': cx(tst.posLeftTop),
+    'center-top': cx(tst.posCenterTop),
+    'right-top': cx(tst.posRightTop),
+    'left-center': cx(tst.posLeftCenter),
+    'center-center': cx(tst.posCenterCenter),
+    'right-center': cx(tst.posRightCenter),
+    'left-bottom': cx(tst.posLeftBottom),
+    'center-bottom': cx(tst.posCenterBottom),
+    'right-bottom': cx(tst.posRightBottom),
   };
   const rows = $derived.by(() => {
     void measureTick;
@@ -680,33 +771,35 @@
   // variant grammar: the ladder drives border + ink; MATERIAL picks the
   // ground independently (popover solid default; glass = the shared
   // stamp channel's frost — the entity law's restrained ground). Tonal
-  // tints 12% OVER the ground; the §6 forced-colors degradations ride
-  // every rung.
+  // tints 12% OVER the ground. Tailwindless W1 (2026-09-17): atom
+  // groups at module scope; the §6 forced-colors degradations moved to
+  // toast.css (one @media block keyed on the data hooks — every rung's
+  // degradation collapses to Canvas/CanvasText exactly as the
+  // utilities did).
   const variantBorder = {
-    outline: 'border-[color:var(--jx-outline)] forced-colors:border-[CanvasText]',
-    tonal: 'border-[color-mix(in_oklab,var(--jx-tonal)_45%,transparent)] forced-colors:border-[CanvasText]',
+    outline: cx(tst.borderOutline),
+    tonal: cx(tst.borderTonal),
   } as const;
   const materialGround = {
-    popover: 'bg-popover forced-colors:bg-[Canvas]',
+    popover: cx(tst.groundPopover),
     // the glass member rides the SHARED stamp channel (glass-effect
     // design §6): the law sheet (glass.css) paints the frost off
-    // data-jx-effect='blur'; the tuning vars ride the class string as
-    // arbitrary properties — the card's style attribute is JS-OWNED by
-    // the swipe (the wrapper's belongs to Svelte's stacking vars), so a
-    // Svelte style attr here is forbidden. Values 12px / saturate 1 /
-    // 55% fill = the retired backdrop-blur-md ground verbatim
-    // (computed-equivalence); the forced-colors Canvas ground stays.
-    glass:
-      '[--jx-glass-radius:12px] [--jx-glass-saturate:1] [--jx-glass-fill:color-mix(in_oklab,var(--popover)_55%,transparent)] forced-colors:bg-[Canvas]',
+    // data-jx-effect='blur'; the tuning vars ride toast.css keyed on
+    // the same stamp (custom-property setters are not atom-expressible
+    // and the card's style attribute is JS-OWNED by the swipe — the
+    // wrapper's belongs to Svelte's stacking vars). Values 12px /
+    // saturate 1 / 55% fill = the retired backdrop-blur-md ground
+    // verbatim (computed-equivalence).
+    glass: '',
   } as const;
-  const tonalGround = 'bg-[color-mix(in_oklab,var(--jx-tonal)_12%,var(--popover))]';
+  const tonalGround = cx(tst.groundTonal);
   const titleInk = {
-    outline: 'text-foreground forced-colors:text-[CanvasText]',
-    tonal: 'text-[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
+    outline: cx(tst.inkForeground),
+    tonal: cx(tst.inkTonal),
   } as const;
   const descInk = {
-    outline: 'text-muted-foreground forced-colors:text-[CanvasText]',
-    tonal: 'text-[color:var(--jx-tonal)] forced-colors:text-[CanvasText]',
+    outline: cx(tst.inkMuted),
+    tonal: cx(tst.inkTonal),
   } as const;
   // the family Defaults is the single read point (context-defaults-
   // economy 3.2): a push IS the explicit lane — variant/material
@@ -731,17 +824,20 @@
     data-expanded={expanded ? '' : undefined}
     bind:this={stackEl}
     class={cn(
-      'grid auto-rows-min pointer-events-none',
-      // the growth law in alignment form: a TOP slot descends from the
-      // cell top, every other slot climbs from its anchor; standalone
-      // mirrors the adopted slot with physical fixed insets
-      growsDown ? 'content-start' : 'content-end',
-      topLevel
-        ? 'h-full w-auto p-4'
-        : `${STANDALONE_POS_CLASS[pos] ?? STANDALONE_POS_CLASS['right-bottom']} z-[90] w-[min(22rem,calc(100vw-2rem))]`,
+      cx(
+        tst.stack,
+        // the growth law in alignment form: a TOP slot descends from
+        // the cell top, every other slot climbs from its anchor;
+        // standalone mirrors the adopted slot with physical insets
+        growsDown ? tst.contentStart : tst.contentEnd,
+        topLevel ? tst.topLevel : tst.standaloneMeasure,
+      ),
+      topLevel ? '' : (STANDALONE_POS_CLASS[pos] ?? STANDALONE_POS_CLASS['right-bottom']),
       className,
     )}
-    style={`gap: ${gap}px; --jx-toast-gap: ${gap}px; --jx-toast-extend: ${stackExtend}px`}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={`gap: ${gap}px; --jx-toast-gap: ${gap}px; --jx-toast-extend: ${stackExtend}px${elevationConsumed ? `; ${elevationConsumed}` : ''}${carriers ? `; ${carriers}` : ''}`}
     role="group"
     aria-label="notifications"
     onpointerenter={stackPointerEnter}
@@ -757,7 +853,7 @@
            visual card inside, which JS owns) -->
       <div
         {@attach fromAction(bindCard, () => item.id)}
-        class={`pointer-events-auto [grid-area:1/1] justify-self-stretch ${growsDown ? 'self-start' : 'self-end'}`}
+        class={cx(tst.wrapper, growsDown ? tst.wrapperStart : tst.wrapperEnd)}
         style={wrapperStyle(i, collapsedY, expandedY)}
         {...swipeHandlers(item)}
       >
@@ -770,19 +866,25 @@
             // the float-button material (Owner R3-5): the press law at
             // float scale — rest on --shadow, hover grows, active
             // counter-shrinks; the card is a float-tier interactive
-            // surface exactly like the fab
-            'jx-toast jx-press grid items-start gap-x-2.5 gap-y-1.5 box-border px-3.5 py-3 border text-popover-foreground rounded overflow-hidden animate-[jx-toast-in_200ms_cubic-bezier(0.22,1,0.36,1)] [--jx-press-shadow:var(--shadow)] [--jx-press-shadow-hover:var(--shadow-md)] [--jx-press-shadow-active:var(--shadow-md-press)]',
-            material === 'glass' ? materialGround.glass : variant === 'tonal' ? tonalGround : materialGround.popover,
-            variantBorder[variant],
-            leaving && 'jx-toast-leaving animate-[jx-toast-out_180ms_ease-in_forwards]',
-            item.expandable && 'cursor-pointer',
-            // the ORIGIN card hides while its dialog is open: the
-            // shared element morphs out of it, and a card painted
-            // underneath the flight doubles the content mid-morph and
-            // strands a half-faded remnant at the origin (vision R3).
-            // visibility (not display) keeps its box — the collapse
-            // morph needs the rect to fly back into
-            dialogId === item.id && 'invisible',
+            // surface exactly like the fab. The enter/exit animations
+            // and the press/glass custom-property tuning ride
+            // toast.css (tailwindless W1 — motion and custom-property
+            // setters are not atom-expressible; keyed on the hooks)
+            'jx-toast jx-press',
+            cx(
+              tst.card,
+              material === 'glass' ? materialGround.glass : variant === 'tonal' ? tonalGround : materialGround.popover,
+              variantBorder[variant],
+              item.expandable ? tst.cursorPointer : undefined,
+              // the ORIGIN card hides while its dialog is open: the
+              // shared element morphs out of it, and a card painted
+              // underneath the flight doubles the content mid-morph
+              // and strands a half-faded remnant at the origin (R3).
+              // visibility (not display) keeps its box — the collapse
+              // morph needs the rect to fly back into
+              dialogId === item.id ? tst.invisible : undefined,
+            ),
+            leaving && 'jx-toast-leaving',
             item.class,
           )}
           role={item.assertive ? 'alert' : 'status'}
@@ -801,34 +903,34 @@
           }}
         >
           {#if item.leading}
-            <div data-jx-toast-leading="" class="flex-none self-start pt-0.5 [grid-area:leading]">{@render item.leading()}</div>
+            <div data-jx-toast-leading="" class={cx(tst.leading)}>{@render item.leading()}</div>
           {/if}
-          <div data-jx-toast-body="" class="grid min-w-0 gap-1 [grid-area:body]">
-            <p data-jx-toast-title="" class={cn('font-nav text-xs tracking-[0.1em] uppercase', titleInk[variant])}>{item.title}</p>
+          <div data-jx-toast-body="" class={cx(tst.body)}>
+            <p data-jx-toast-title="" class={cx(tst.title, titleInk[variant])}>{item.title}</p>
             {#if item.description}
               {#if collapsedSlab}
                 <!-- rear slabs keep the description's GEOMETRY (even
                      slab heights for the depth illusion) but withhold
                      its ink; the text stays in the a11y tree as-is -->
-                <p data-jx-toast-desc="" class="text-[0.8125rem] leading-[1.5] text-transparent">{item.description}</p>
+                <p data-jx-toast-desc="" class={cx(tst.desc, tst.inkTransparent)}>{item.description}</p>
               {:else}
-                <p data-jx-toast-desc="" class={cn('text-[0.8125rem] leading-[1.5]', descInk[variant])}>{item.description}</p>
+                <p data-jx-toast-desc="" class={cx(tst.desc, descInk[variant])}>{item.description}</p>
               {/if}
             {/if}
           </div>
           {#if item.trailing}
-            <div data-jx-toast-trailing="" class="flex flex-none items-center gap-2.5 self-stretch [grid-area:trail]">{@render item.trailing()}</div>
+            <div data-jx-toast-trailing="" class={cx(tst.trailing)}>{@render item.trailing()}</div>
           {/if}
           <button
             type="button"
             data-jx-toast-dismiss=""
-            class="flex-none appearance-none inline-flex items-center justify-center size-5 mt-[3px] border-0 bg-transparent text-muted-foreground cursor-pointer hover:text-foreground focus-visible:outline-1 focus-visible:outline-ring focus-visible:outline-offset-[-1px] forced-colors:outline-2 forced-colors:outline-offset-2 forced-colors:[outline-color:Highlight] forced-colors:text-[ButtonText] [grid-area:close]"
+            class={cx(tst.dismiss)}
             aria-label="dismiss notification"
             onclick={() => store.api.dismiss(item.id)}
           >
             <!-- the named icon library (Owner R3-3): the glyph is the
                  icon system's x, never a literal symbol -->
-            <span class="inline-flex" aria-hidden="true"><Icon name="x" /></span>
+            <span class={cx(tst.dismissGlyph)} aria-hidden="true"><Icon name="x" /></span>
           </button>
           {#if item.countdown && (item.duration ?? 5000) > 0}
             <!-- the countdown FLOOR (Owner R3-4): a full-width drain
@@ -845,7 +947,7 @@
     {#if queuedCount > 0}
       <div
         data-jx-toast-queued={queuedCount}
-        class="pointer-events-auto justify-self-end box-border px-2.5 py-1 border rounded bg-popover text-popover-foreground font-nav text-[0.6875rem] tracking-[0.1em] uppercase text-muted-foreground forced-colors:bg-[Canvas] forced-colors:border-[CanvasText] forced-colors:text-[CanvasText]"
+        class={cx(tst.queued)}
         aria-hidden="true"
       >
         +{queuedCount} queued

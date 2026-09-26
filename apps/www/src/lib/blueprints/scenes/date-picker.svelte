@@ -6,18 +6,34 @@
   import Skeleton from '$lib/ui/skeleton/skeleton.svelte';
   import { fromAction } from 'svelte/attachments';
   import { forceShowPopovers } from '$lib/blueprints/force-show';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   // a month away from "today" keeps the today ring out of the frame —
   // the panel view follows the committed value, not the clock
   let deploy = $state('2026-03-18');
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-5 p-10" {@attach fromAction(forceShowPopovers)}>
-  <div class="flex flex-col gap-3 opacity-60">
-    <Skeleton class="h-3 w-1/2"></Skeleton>
-    <Skeleton class="h-3 w-2/3"></Skeleton>
-  </div>
-  <div class="w-full max-w-[280px]">
+<Stack direction="column" justify="center" gap="20" class={cx(bpA.datePickerStage)} } {@attach fromAction(forceShowPopovers)}>
+  <Stack direction="column" gap="12" class={cx(bpA.datePickerMuted)} }>
+    <Skeleton class={cx(bpA.datePickerSkeletonA)}></Skeleton>
+    <Skeleton class={cx(bpA.datePickerSkeletonB)}></Skeleton>
+  </Stack>
+  <div class={cx(bpA.datePickerFrame)}>
     <DatePicker id="bp-date" label="deploy date" bind:value={deploy} />
   </div>
-</div>
+</Stack>

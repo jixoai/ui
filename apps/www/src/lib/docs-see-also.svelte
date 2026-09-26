@@ -10,6 +10,7 @@
 -->
 <script lang="ts">
   import { componentContext } from '$lib/docs-route-model';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   interface Props {
     /** registry item name whose related components are listed */
@@ -19,25 +20,41 @@
   let { name }: Props = $props();
 
   const related = $derived(componentContext(name)?.related ?? []);
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <section data-doc-see-also="" aria-label="see also">
-  <h2 class="font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]">See Also</h2>
+  <h2 class={cx(siteChrome.saTitle)}>See Also</h2>
   {#if related.length > 0}
-    <ul class="mt-3 flex flex-wrap gap-2">
+    <ul class={cx(siteChrome.saList)}>
       {#each related as item (item.entry.name)}
         <li>
           <a
             href={item.entry.href}
-            class="border-border bg-card/40 hover:border-primary hover:text-primary inline-flex items-baseline gap-2 border px-3 py-1.5 text-[13px] transition-colors"
+            class={cx(siteChrome.saLink)}
           >
-            <span class="font-mono">{item.entry.name}</span>
-            <span class="text-muted-foreground text-[11px]">{item.groupLabel}</span>
+            <span class={cx(siteChrome.saName)}>{item.entry.name}</span>
+            <span class={cx(siteChrome.saGroup)}>{item.groupLabel}</span>
           </a>
         </li>
       {/each}
     </ul>
   {:else}
-    <p class="text-muted-foreground mt-3 text-[13px]">No same-group neighbors yet.</p>
+    <p class={cx(siteChrome.saEmpty)}>No same-group neighbors yet.</p>
   {/if}
 </section>

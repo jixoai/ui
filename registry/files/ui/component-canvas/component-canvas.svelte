@@ -54,21 +54,30 @@
     header title is a STYLED PARAGRAPH (`p[data-jx-canvas-title]`),
     never a real heading — the page's own outline stays page-owned
     (the h2 leak, audit root cause). No canvas heading joins a ToC.
-  - STAGE CHROME (unified-chrome ruling, Owner amendment 2026-09-08):
-    the theme/density toggle-groups MOVED from the header into the DOCK
-    HEAD — one icon button flips `bind:theme` light↔dark (sun/moon,
-    aria-pressed carries state), a compact native select drives
-    `bind:density` with the REPO-STANDARD Density vocabulary
-    (xs/sm/default/lg) stamped onto the STAGE element DIRECTLY as
-    `data-density` (the comfortable/compact mapping is dead), plus
-    `data-theme` and the theme sheet's own `dark` / `jx-light`
-    token-scope classes — scoped to the STAGE only; the docs chrome
-    and sibling canvases never re-theme. State is composition-first:
-    the page owns it through the bindables; the dock only renders
-    controls and the stage carries the scoping attributes. The stage
-    anchors `text-foreground` itself: the scope classes redefine
-    TOKENS only, so inherit-based text must re-anchor or it keeps the
-    page's resolved color (the white-on-light-stage leak, 2026-09-01).
+  - STAGE CHROME (the EIGHT-AXIS BAR, the Owner's post-acceptance
+    directive 2026-09-21 — the successor of the unified-chrome ruling
+    of 2026-09-08): the dock head speaks the AXIS GRAMMAR — one
+    icon-button per axis: theme (the sun/moon cycle flipping
+    `bind:theme`, aria-pressed carrying state) plus SEVEN menu axes
+    (size · shape · radius · density · color · elevation · motion —
+    icon-button + the family's DropdownMenu, `auto` + the named
+    steps, a check glyph on the current value, `auto` the default
+    that stamps nothing), the eight riding ONE scrollable ButtonGroup
+    at density xs (the smaller bar). The bar's lanes are DOCK-OWNED
+    (`axes` state, bound up into this root) and SUPPLIED here —
+    resolved UNDER the consumer's explicit lane props, carriers
+    stamped + lanes provided on the workbench root — never forced:
+    any stage component receives them as AMBIENT and may consume or
+    ignore them. The stage still carries `data-theme` and
+    `data-density` (the page-owned bindable's rung) plus the theme
+    sheet's own `dark` / `jx-light` token-scope classes — scoped to
+    the STAGE only; the docs chrome and sibling canvases never
+    re-theme. State is composition-first: the page owns theme/density
+    through the bindables; the dock only renders controls and the
+    stage carries the scoping attributes. The stage anchors
+    `text-foreground` itself: the scope classes redefine TOKENS only,
+    so inherit-based text must re-anchor or it keeps the page's
+    resolved color (the white-on-light-stage leak, 2026-09-01).
     Static under reduced motion by construction (no transition rides
     the re-theme).
   - DRAWER SHAPE: the tree pane ALWAYS — one shape for every file count
@@ -114,13 +123,33 @@
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import CodeCard from '$lib/ui/code-card/code-card.svelte';
   import TreeView, { type TreeNode } from '$lib/ui/tree-view/tree-view.svelte';
-  import CanvasPlayground from './canvas-playground.svelte';
+  import CanvasPlayground, {
+    CANVAS_AXIS_LANES,
+    type CanvasAxisLanes,
+  } from './canvas-playground.svelte';
   import { controlsFor, schemaDefaultsOf } from './canvas-schema.svelte';
   import type { CanvasSchema, PlayOutput } from './canvas-schema.svelte';
   import type { Density } from '$lib/density.svelte';
+  import {
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+  } from '$lib/defaults.svelte';
   import { ComponentCanvasDefaults } from './component-canvas-defaults.svelte';
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
+  import { canvasStyles } from '$lib/surface/component-canvas.stylex';
+  import Stack, { stackStyles } from '$lib/ui/stack';
+  import { gridStyles } from '$lib/ui/grid';
+  import { animateGridDisclosure } from '$lib/disclosure-motion';
+  import { tokenScope } from '$lib/tokens.stylex';
   import './component-canvas.css';
 
   /** Demo code file for the code drawer: name may carry a path. */
@@ -210,16 +239,18 @@
      * Stage preview theme — PAGE-OWNED (bindable). Projects
      * `data-theme` + the theme sheet's `dark`/`jx-light` token-scope
      * class onto the STAGE element only; the docs chrome and sibling
-     * canvases never re-theme. The dock head's icon button flips it
-     * (the unified chrome, 2026-09-08).
+     * canvases never re-theme. The dock bar's theme icon button flips
+     * it (the eight-axis bar's theme axis, 2026-09-21).
      */
     theme?: 'light' | 'dark';
     /**
      * Stage density — PAGE-OWNED (bindable), the REPO-STANDARD Density
-     * union (xs | sm | default | lg in the dock's select). Stamped as
-     * `data-density` on the STAGE element DIRECTLY — the old
-     * comfortable/compact mapping died with the header toggle-groups
-     * (Owner amendment, 2026-09-08).
+     * union (xs | sm | default | lg). Stamped as `data-density` on the
+     * STAGE element DIRECTLY — the rung half of the axis. The legacy
+     * dock-head select RETIRED with the eight-axis bar (2026-09-21):
+     * the bar's DENSITY AXIS speaks the universal grammar
+     * (auto/small/medium/large) and rides the SUPPLIED lane to stage
+     * components instead — this bindable keeps the page-owned rung.
      */
     density?: Density;
     /** Playground dock — consumer-authored interactive controls. */
@@ -246,7 +277,34 @@
     resolveFileContent?: (file: TreeFile) => string;
     /** Explicit id override when two canvases on one page would slug-collide. */
     id?: string;
+    /**
+     * The stage element's aria-label override — default `${title} demo`.
+     * The timeline family page pins frozen probe identifiers this way
+     * (the reui family inventory's mapping table, W4 2026-09-15): a
+     * stage must read "timeline demo · <family>" exactly, a shape the
+     * title-derived default cannot compose.
+     */
+    stageLabel?: string;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the canvas is chrome, not a
+     *  density-scaled control — an explicit lane is the consumer's
+     *  say, no-own otherwise) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
+    style?: string;
   }
 
   let {
@@ -268,8 +326,39 @@
     output,
     resolveFileContent,
     id,
+    stageLabel,
+    size,
+    shape,
+    radius,
+    color,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    // `object` (not a keyed shape): stylex's Theme products (the
+    // same-map createTheme stamp) are branded interfaces with NO
+    // index signature — their runtime truth IS the compiled styles
+    // map ({<varGroupHash>: 'cls1 cls2', $$css: true}); the joiner
+    // narrows by VALUE typeof, the parameter just admits the shape
+    ...styles: (object | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : style === undefined
+            ? ''
+            : Object.entries(style ?? {}).flatMap(([key, value]) =>
+                key !== '$$css' && typeof value === 'string' ? [value] : [],
+              ).join(' '),
+      )
+      .join(' ');
 
   // deterministic aria wiring: derived from the title so server and client
   // agree (Math.random ids would hydrate-mismatch). Distinct titles slug
@@ -359,10 +448,99 @@
     current ? (resolveFileContent?.(current) ?? current.content) : '',
   );
   // the single read point (A3): explicit lane permanently hot via the
-// destructure default — the ambient zone never rides the stage
-const dDensity = $derived(ComponentCanvasDefaults.resolve({ density }).density);
+  // destructure default — the ambient zone never rides the stage
+  const dDensity = $derived(ComponentCanvasDefaults.resolve({ density }).density);
+
+  // ── THE EIGHT-AXIS BAR'S SUPPLY (the Owner directive, 2026-09-21:
+  //    「这些都是相对过时的，改成我们 8 轴…不过 DomCanvas 是否要遵守
+  //    使用这些控件提供的值是它的自由」) ────────────────────────────────
+  // The dock head's bar owns the seven non-theme lanes in DOCK state
+  // (`axes`, all-`auto` seed, bound down through CanvasPlayground);
+  // THIS root joins them UNDER the consumer's explicit lane props
+  // (explicit ?? bar — a page-owned seat always wins, the bar is
+  // inert there, honestly) and resolves + stamps + supplies on the
+  // workbench <section>: any stage component receives the lanes as
+  // AMBIENT and may consume or ignore them — SUPPLY, never force.
+  // `auto` translates to NO OPINION (undefined at the resolve
+  // boundary), so the ambient zone keeps flowing through an unflipped
+  // axis; a flipped one carries its named step verbatim.
+  let axes = $state<CanvasAxisLanes>({ ...CANVAS_AXIS_LANES });
+  const laneOf = <T,>(lane: T): Exclude<T, 'auto'> | undefined =>
+    lane === 'auto' ? undefined : (lane as Exclude<T, 'auto'>);
+  // GETTER-FIELDED, not a plain literal: provideUniversalLanes closes
+  // over the record it is handed, and a value-object would snapshot
+  // the bar's state at mount — the getters keep every consumer's
+  // $derived re-resolving in the same frame a menu item flips (the
+  // provideDensity bridge's own reactive law; the E4 literal-parse
+  // never sees this file — it has no reactive density bridge, so
+  // density riding the getters is lawful, the provider-snapshot law
+  // satisfied trivially)
+  const barLanes = {
+    get size() {
+      return size ?? laneOf(axes.size);
+    },
+    get shape() {
+      return shape ?? laneOf(axes.shape);
+    },
+    get radius() {
+      return radius ?? laneOf(axes.radius);
+    },
+    get density() {
+      return laneOf(axes.density);
+    },
+    get color() {
+      return color ?? laneOf(axes.color);
+    },
+    get elevation() {
+      return elevation ?? laneOf(axes.elevation);
+    },
+    get motion() {
+      return motion ?? laneOf(axes.motion);
+    },
+  };
+
+  // ── the W3-D5 six-axis surface (the hole round), now bar-fed: the
+  // workbench <section> root resolves ONE no-own record for size ·
+  // shape · radius · color · elevation · motion (+ the bar's density
+  // axis lane — the stage-preview BINDABLE still owns that PROP name,
+  // the §13 no-rename law; the universal density lane rides the supply
+  // below, its rung half staying with the stage's own data-density
+  // stamp), stamps the §10 carriers (JOINing the consumer style attr —
+  // the merge law), supplies downward and anchors query() after the
+  // anchor state declaration. The stage's own data-theme/data-density
+  // stamps (the scoped re-theming surface) stay exactly as they were —
+  // this surface never touches them
+  const d = $derived(ComponentCanvasDefaults.resolve({ ...barLanes }));
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes(barLanes);
+  let uniRoot = $state<HTMLElement | null>(null);
+  provideQueryAnchor(() => uniRoot ?? null);
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
 
 let codeOpen = $state(false);
+  let drawerEl = $state<HTMLElement | null>(null);
+
+  // the 0fr→1fr motion rides the rAF lane (lib/disclosure-motion —
+  // the Chrome 146 clock-freeze receipt; classes keep the endpoints,
+  // the lane interpolates inline). Mount = resting state, no frames
+  let prevCodeOpen: boolean | undefined;
+  // $effect.pre: measure the OLD endpoint BEFORE the class flip —
+  // with the css transition retired, the class change is instant,
+  // and the post-update effect would read the FINAL state as the
+  // motion's start; the .pre lane sees the pre-flip track, then the
+  // frames' inline interpolation takes over past the flip
+  $effect.pre(() => {
+    const state = codeOpen;
+    const el = drawerEl;
+    if (prevCodeOpen === undefined || !el) {
+      prevCodeOpen = state;
+      return;
+    }
+    animateGridDisclosure(el, state);
+    prevCodeOpen = state;
+  });
 
   // ---- drawer shape (Owner revert 2026-09-01) ----------------------------
   // ONE shape: the tree pane, every file count. The two-file tabs floor
@@ -396,18 +574,20 @@ let codeOpen = $state(false);
 </script>
 
 <section
+  bind:this={uniRoot}
   data-jx-canvas
   data-toc-skip=""
-  class={cn('@container/jx-canvas-host bg-background border border-border rounded-none min-w-0', className)}
+  class={cn(cx(canvasStyles.root), className)}
+  style={rootStyle}
 >
-  <header data-jx-canvas-head class="flex flex-wrap items-start justify-between gap-4 px-4 py-[0.8rem] border-b border-border">
-    <div class="jx-canvas-head-text min-w-0">
+  <header data-jx-canvas-head class={cx(canvasStyles.head)}>
+    <div class={cn('jx-canvas-head-text', cx(canvasStyles.headText))}>
       <!-- OUTLINE LAW (canvas-floor-lab): a STYLED PARAGRAPH, never a real
            heading — the root data-toc-skip plus this demotion keep the
            canvas chrome out of every page ToC (the h2 leak root fix) -->
-      <p data-jx-canvas-title class="m-0 text-foreground font-nav text-[15px] font-normal tracking-[0.01em] leading-[1.3]" id={titleId}>{title}</p>
+      <p data-jx-canvas-title class={cx(canvasStyles.title)} id={titleId}>{title}</p>
       {#if description}
-        <p data-jx-canvas-description class="m-0 mt-[0.3rem] text-muted-foreground text-[12.5px] leading-[1.5] max-w-[62ch] text-pretty">{description}</p>
+        <p data-jx-canvas-description class={cx(canvasStyles.description)}>{description}</p>
       {/if}
     </div>
     <!-- the actions row is POINTER-MODAL CHROME (chrome-density-tier law):
@@ -417,7 +597,7 @@ let codeOpen = $state(false);
          MOVED TO THE DOCK HEAD with the unified-chrome ruling (Owner
          amendment, canvas-playground-dock 2026-09-08) — the header keeps
          title/description/install/source only -->
-    <div data-jx-canvas-head-actions data-jx-chrome class="flex flex-none flex-wrap items-center gap-2 pt-[0.1rem]">
+    <div data-jx-canvas-head-actions data-jx-chrome class={cx(canvasStyles.headActions)}>
       {#if install}
         <!-- copy-command badge (the Terminal-round absorbed output): the
              install argument in mono, clipboard flash on commit -->
@@ -425,7 +605,7 @@ let codeOpen = $state(false);
           type="button"
           data-jx-canvas-install
           data-copied={copiedInstall || undefined}
-          class="jx-press jx-canvas-install inline-flex min-h-[calc(var(--jx-hit)+2px)] items-center gap-[0.45rem] border border-border bg-background px-[0.55rem] text-foreground/80 hover:text-foreground cursor-pointer text-[11px] font-mono whitespace-nowrap [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+          class={cn('jx-press jx-canvas-install', cx(canvasStyles.install))}
           aria-label={copiedInstall ? 'Install command copied' : `Copy the install command for ${install}`}
           title={copiedInstall ? 'copied' : 'copy install command'}
           onclick={() => copyInstall()}
@@ -441,7 +621,7 @@ let codeOpen = $state(false);
              their 1px group border on both edges) — one flush toolbar line -->
         <a
           data-jx-canvas-source
-          class="jx-press inline-flex h-[calc(var(--jx-hit)+2px)] w-[calc(var(--jx-hit)+2px)] flex-none items-center justify-center border border-border bg-background text-foreground/70 hover:text-foreground [--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]"
+          class={cn('jx-press', cx(canvasStyles.source))}
           href={sourceUrl}
           target="_blank"
           rel="noreferrer"
@@ -472,7 +652,7 @@ let codeOpen = $state(false);
     <div
       data-jx-canvas-scroll
       data-scroll={scroll}
-      class="jx-canvas-scroll @container/jx-canvas min-h-0 min-w-0"
+      class={cn('jx-canvas-scroll', cx(canvasStyles.scroll))}
     >
       <div
         data-jx-canvas-stage
@@ -480,19 +660,30 @@ let codeOpen = $state(false);
         data-theme={theme}
         data-density={dDensity}
         class={cn(
-          'jx-canvas-stage flex min-h-[200px] min-w-0 gap-4 p-6 bg-[color-mix(in_oklab,var(--muted)_42%,var(--background))] text-foreground',
-          // theme sheet vocabulary, scoped to the stage subtree only: .dark
-          // flips the token set (and dark: utilities) inside the demo;
-          // .jx-light pins light tokens even under a dark docs page.
-          // text-foreground re-anchors inherit-based demo text onto the
-          // STAGE's scoped token — the scope classes redefine tokens only,
-          // so without it inherited color stays the page's (2026-09-01)
+          cx(canvasStyles.stage),
+          // cx(tokenScope): the vars-group theme class — the stage's
+          // --jx-* atoms (its color, and every demo component's ink)
+          // re-resolve against THIS stage's scope instead of :root's
+          // frozen page-theme literal (the island law, 2026-09-19:
+          // the sheet vocabulary below flips the BACKGROUND (plain
+          // var(--muted)/var(--background) channels re-resolve under
+          // .dark/.jx-light), but the --jx-* channel was frozen —
+          // the Owner caught it as 'bg flips, text color doesn't')
+          cx(tokenScope),
+          // theme sheet vocabulary, scoped to the stage subtree only:
+          // .dark flips the token set inside the demo; .jx-light pins
+          // light tokens even under a dark docs page. Both scope
+          // classes pair with the tokenScope stamp above — vocabulary
+          // AND typed mirror flip together (the 2026-09-01
+          // text-foreground re-anchor was this same law's tailwind
+          // era; the utility died with the engine, the stamp is the
+          // tailwindless form)
           theme === 'dark' ? 'dark' : 'jx-light',
-          stage === 'center' && 'flex-wrap items-center justify-center',
-          stage === 'start' && 'flex-wrap items-start justify-start',
-          stage === 'fill' && 'flex-wrap items-stretch [justify-content:stretch]',
+          stage === 'center' && cx(stackStyles.wrap, stackStyles.alignCenter, stackStyles.justifyCenter),
+          stage === 'start' && cx(stackStyles.wrap, stackStyles.alignStart, stackStyles.justifyStart),
+          stage === 'fill' && cx(stackStyles.wrap, stackStyles.alignStretch, stackStyles.justifyStretch),
         )}
-        aria-label={`${title} demo`}
+        aria-label={stageLabel ?? `${title} demo`}
       >
         <!-- the demo-content scope (site-polish F10): consumer-authored
              demo markup renders inside this marker so the docs structure
@@ -501,7 +692,7 @@ let codeOpen = $state(false);
              the lint, while this canvas's OWN chrome (title, Playground)
              stays outside the wrapper and exempt. display:contents keeps
              the stage's flex layout on the demo nodes themselves. -->
-        <div data-doc-demo-content="" class="contents">
+        <div data-doc-demo-content="" class={cx(canvasStyles.demoScope)}>
           {@render children()}
         </div>
       </div>
@@ -510,7 +701,8 @@ let codeOpen = $state(false);
       <CanvasPlayground
         {title}
         bind:theme
-        bind:density
+        bind:axes
+        resolvedLanes={barLanes}
         {playground}
         rows={schema ? rows : undefined}
         schemaDefaults={schema ? defaults : undefined}
@@ -521,41 +713,40 @@ let codeOpen = $state(false);
       />
     {:else}
       <!-- chrome-only dock (the unified-chrome ruling, 2026-09-08): the
-           head row [grip, theme, size] ships on EVERY canvas — without
-           body content there is no chevron and no expansion -->
-      <CanvasPlayground {title} bind:theme bind:density />
+           eight-axis bar ships on EVERY canvas — without body content
+           there is no chevron and no expansion -->
+      <CanvasPlayground {title} bind:theme bind:axes resolvedLanes={barLanes} />
     {/if}
   </div>
 
-  <div data-jx-canvas-code-bar class="flex items-center justify-between gap-3 border-t border-border pt-[0.35rem] pe-2 pb-[0.35rem] ps-[0.6rem]">
+  <div data-jx-canvas-code-bar class={cx(canvasStyles.codeBar)}>
     <!-- one disclosure (D6): chevron + Code + the count adjacent; the
          chevron rotates with aria-expanded -->
     <button
       type="button"
       class={cn(
-        'jx-press jx-canvas-code-toggle inline-flex items-center gap-[0.4rem] bg-background border border-border text-foreground hover:bg-muted cursor-pointer text-[11px] font-medium tracking-[0.04em] px-[0.6rem] py-1 whitespace-nowrap',
-        '[--jx-press-shadow:var(--shadow-2xs)] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]',
-        codeOpen && 'bg-muted',
+        'jx-press jx-canvas-code-toggle',
+        cx(canvasStyles.codeToggle),
+        codeOpen && cx(canvasStyles.codeToggleOpen),
       )}
       aria-expanded={codeOpen}
       aria-controls={drawerId}
       onclick={() => (codeOpen = !codeOpen)}
     >
       <span
-        class="jx-canvas-chevron inline-flex transition-transform duration-150 ease-out"
-        class:rotate-180={codeOpen}
+        class={cn('jx-canvas-chevron', cx(stackStyles.baseInline), codeOpen ? cx(canvasStyles.chevronDown) : '')}
         aria-hidden="true"
       >
         <Icon name="chevronDown" size={13} />
       </span>
       <span>Code</span>
-      <span class="text-muted-foreground font-mono text-[10px]">· {files.length}</span>
+      <span class={cx(canvasStyles.count)}>· {files.length}</span>
     </button>
-    <div data-jx-canvas-code-actions class="flex items-center gap-3">
+    <Stack align="center" gap="12" data-jx-canvas-code-actions>
       {#if usageFile}
         <button
           type="button"
-          class="jx-press jx-canvas-copy-usage inline-flex size-6 items-center justify-center border border-border bg-background text-muted-foreground hover:text-primary cursor-pointer [--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]"
+          class={cn('jx-press jx-canvas-copy-usage', cx(canvasStyles.copyUsage))}
           aria-label={copiedUsage ? 'Usage copied' : 'Copy the usage snippet'}
           title={copiedUsage ? 'copied' : 'copy usage'}
           onclick={() => copyUsage()}
@@ -563,13 +754,15 @@ let codeOpen = $state(false);
           <Icon name={copiedUsage ? 'check' : 'copy'} size={12} />
         </button>
       {/if}
-    </div>
+    </Stack>
   </div>
 
   <div
+    bind:this={drawerEl}
     class={cn(
-      'jx-canvas-code-drawer border-t border-border grid grid-rows-[0fr] transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)]',
-      codeOpen && 'grid-rows-[1fr]',
+      'jx-canvas-code-drawer',
+      cx(canvasStyles.drawer),
+      codeOpen && cx(gridStyles.rowsOpen),
     )}
     id={drawerId}
     role="region"
@@ -577,10 +770,10 @@ let codeOpen = $state(false);
     data-open={codeOpen || undefined}
     inert={!codeOpen || undefined}
   >
-    <div data-jx-canvas-code-clip class="min-h-0 overflow-hidden">
-      <div class="jx-canvas-code-panels flex flex-col max-h-[28rem]">
+    <div data-jx-canvas-code-clip class={cx(canvasStyles.drawerClip)}>
+      <div class={cn('jx-canvas-code-panels', cx(canvasStyles.codePanels))}>
         <aside
-          class="jx-canvas-tree bg-background border-b border-border flex-none max-h-40 overflow-y-auto"
+          class={cn('jx-canvas-tree', cx(canvasStyles.treePane))}
           aria-label="demo files"
         >
           <TreeView
@@ -591,7 +784,7 @@ let codeOpen = $state(false);
             onselect={(ctx) => (selectedPath = ctx.id)}
           />
         </aside>
-        <div class="jx-canvas-code-view flex flex-1 flex-col min-h-0 min-w-0">
+        <div class={cn('jx-canvas-code-view', cx(canvasStyles.codeView))}>
           {#if current}
             <!-- copyable=false: the code bar's inline-end copy button owns
                  copying — a footer bar with one duplicate button is noise

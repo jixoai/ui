@@ -339,7 +339,20 @@ describe('meta side — generated meta ambient fields on exact-key axis props', 
   // effect-attachments (2026-09-10): chip gains a GENERATED meta (the
   // rest-spread rework ran component-metadata-gen for it) and its real
   // ambient axes surface — density scope / variant zone / shape own
-  const expectedCarriers = new Set(['checkbox', 'chip', 'combobox', 'date-picker', 'popover', 'press-button', 'select', 'inline-code', 'separator', 'component-canvas', 'dialog', 'icon-button', 'sheet', 'tabs']);
+  // the carriers freeze, re-pinned W5-r2 (2026-09-21): the 13-name list
+  // was the PRE-migration world; explicit-props W3/W4 put the eight-axis
+  // surface on the whole fleet (the census: 105 surface families) and
+  // the GENERATED metas followed (verify:meta). The list below is the
+  // live carrier set frozen as the pin — exactly the way the founding
+  // 13 was frozen; the no-UNEXPECTED-carrier duty now rides the census
+  // gate (verify:explicit-props E2, the TS-AST axis surface) plus this
+  // freeze. History of the founding list kept above.
+  // RE-PINNED (the Owner's eight-axis bar directive, 2026-09-21):
+  // canvas-playground LEAVES the carrier set — its `density` prop (the
+  // "ambient": "scope" row that made it a carrier) retired with the
+  // dock-head rung select; the bar's `axes` record is the replacement
+  // surface and carries no density/variant member
+  const expectedCarriers = new Set(['avatar','badge','badge-indicator','blockquote','boot-splash','card','card-grid','carousel','cascader','chart','checkbox','chip','code-card','color-picker','combobox','command','component-canvas','date-picker','descriptions','dialog','dropdown-menu','empty','figure','file-input','float-button','ghostty-term','grid','heading','hero-section','hover-card','icon','icon-button','inline-code','input','input-group','input-otp','item','kbd','language-switcher','link','list','markdown','math-block','math-inline','menubar','mermaid','native-select','navigation-menu','number-input','pagination','pattern-cta','pattern-faq','pattern-hero-set','pattern-login','pattern-pricing','popconfirm','popover','press-button','progress','progressive-blur','prose','prototype-canvas','prototype-flex','prototype-grid','radio','range','scaffold-float','scroll-area','scroll-chrome','scroll-virtual','section-card','select','separator','sheet','spin','stack','statistic','steps','table','tabs','tags-input','terminal-card','terminal-footer','terminal-header','text','textarea','timeline','toast-viewport','toc','toggle','toggle-group','tooltip','tour','transfer','tree-view','website-scaffold']);
   it('exactly the known carriers have axis props', () => {
     const carriers = new Set<string>();
     for (const f of readdirSync(META_DIR).filter((f) => f.endsWith('.meta.ts'))) {
@@ -377,16 +390,64 @@ describe('meta side — generated meta ambient fields on exact-key axis props', 
 
 // ── exemptions: the two rows outside the economy by design ───────────────
 describe('exemptions', () => {
-  // RE-PINNED (canvas-playground-dock, 2026-09-08): the canvas density
-  // prop speaks the REPO-STANDARD Density union (xs | sm | default | lg)
-  // since the Owner amendment — default 'default', the comfortable/compact
-  // pair is retired. Still page-owned, still marker-less.
+  // RE-PINNED (docs-eight-axes-mdn task 7, quill 2026-09-22): the canvas
+  // props table migrated to the GENERATED meta + docs curation, and the
+  // density PROP — a family seat sharing an axis name (the §13 no-rename
+  // law, the census D-fold) — renders from the curation's extra lane (the
+  // chip precedent; UNIVERSAL_AXIS_NAMES would silently drop it from the
+  // main table). The pin scans the curation file now. Same three facts,
+  // same intent: the rung bindable stays page-owned with its own default,
+  // no ambient marker inside the default cell, page-owned prose.
+  const CANVAS_DOCS_PATH = join(
+    WWW,
+    'src/lib/ui/props-table/docs/component-canvas.docs.ts',
+  );
+
+  const extraRowsOf = (source: string): Row[] => {
+    const sf = ts.createSourceFile('d.ts', source, ts.ScriptTarget.ESNext, true);
+    let arr: ts.ArrayLiteralExpression | null = null;
+    const findExtra = (n: ts.Node): void => {
+      if (arr) return;
+      if (
+        ts.isPropertyAssignment(n) &&
+        ts.isIdentifier(n.name) &&
+        n.name.text === 'extra' &&
+        ts.isArrayLiteralExpression(n.initializer)
+      ) {
+        arr = n.initializer;
+        return;
+      }
+      ts.forEachChild(n, findExtra);
+    };
+    findExtra(sf);
+    if (!arr) return [];
+    return (arr as ts.ArrayLiteralExpression).elements.map((el) => {
+      if (!ts.isObjectLiteralExpression(el)) return { raw: el.getText(sf) };
+      const row: Row = {};
+      for (const p of el.properties) {
+        if (!ts.isPropertyAssignment(p)) continue;
+        const key = p.name.getText(sf).replace(/^['"]|['"]$/g, '');
+        let v = p.initializer.getText(sf);
+        if ((v.startsWith("'") && v.endsWith("'")) || (v.startsWith('"') && v.endsWith('"'))) v = v.slice(1, -1);
+        row[key] = v;
+      }
+      return row;
+    });
+  };
+
   it('component-canvas#density stays page-owned (no marker, Density default, page-owned prose)', () => {
-    const rows = axisRowsOf(pageSource('component-canvas')).filter((c) => c.prop === 'density');
+    const rows = extraRowsOf(readFileSync(CANVAS_DOCS_PATH, 'utf8')).filter(
+      (r) => r.name === 'density',
+    );
     expect(rows.length).toBe(1);
-    expect(rows[0].row.default).toBe("'default'");
-    expect(rows[0].row.default).not.toContain('ambient');
-    expect(rows[0].row.description).toContain('page-owned bindable');
+    expect(rows[0].default).toBe("'default'");
+    expect(rows[0].default).not.toContain('ambient');
+    expect(rows[0].description).toContain('page-owned bindable');
+    // the extra lane carries BOTH §13 seats (the theme twin is the same
+    // rescue): the stage-preview bindable rides beside the rung
+    expect(
+      extraRowsOf(readFileSync(CANVAS_DOCS_PATH, 'utf8')).some((r) => r.name === 'theme'),
+    ).toBe(true);
   });
 
   it("inline-code#variant keeps its canonical definePaintSlot 'ambient zone' cell (never edited, never matrix-bound)", () => {
@@ -410,14 +471,41 @@ describe('exemptions', () => {
 // duplicated occurrence or an extra same-key entry cannot cancel against
 // a missing one.)
 describe('matrix↔tasks bijection', () => {
-  const tasksMd = readFileSync(
-    // the ACTIVE change's living tasks copy (not the frozen archive): the
-  // bijection runs against the LIVE route universe, and a page rename
-  // (alert-dialog → system-dialog, 2026-09-09) must carry into the
-  // batch lists — frozen history cannot chase a live filesystem
-    join(REPO, 'openspec/changes/2026-09-04-env-debt-cleanup/tasks.md'),
-    'utf8',
-  );
+  // the change's tasks copy — live while active, its frozen archive
+  // after landing (W5-r2 wiring: the env-debt-cleanup change archived
+  // at 37ad6c9d, so the live path vanished; the same live→archive
+  // resolution verify-tailwindless took at 012335c4 — the frozen
+  // archive is the canonical home once the change closes)
+  const tasksPath = ['openspec/changes/2026-09-04-env-debt-cleanup', 'openspec/changes/archive/2026-09-04-env-debt-cleanup']
+    .map((dir) => join(REPO, dir, 'tasks.md'))
+    .find((p) => existsSync(p));
+  let tasksMd = readFileSync(tasksPath!, 'utf8');
+  // ARCHIVE-STALENESS RENAME LEDGER (the Codex W6-final P1 fold): the
+  // frozen archive predates the 2026-09-09 rename amendment (the
+  // pre-sweep live copy at 37ad6c9d^ already spelled system-dialog; the
+  // sweep kept the older archive). The transformation is AUDITABLE, not
+  // blanket: each ledger entry asserts its stale premise still holds
+  // (a regenerated archive that already spells the new token THROWS,
+  // forcing the entry's retirement) and applies exactly one mapping.
+  // Any OTHER stale token survives this loop untouched and fails the
+  // bijection below as a PARSE VIOLATION — nothing is ever masked.
+  const RENAME_LEDGER = [
+    {
+      from: 'alert-dialog',
+      to: 'system-dialog',
+      evidence: '2026-09-09 rename amendment; pre-sweep live copy at 37ad6c9d^',
+    },
+  ] as const;
+  for (const { from, to } of RENAME_LEDGER) {
+    const staleCount = tasksMd.split(from).length - 1;
+    if (staleCount === 0) {
+      throw new Error(
+        `RENAME_LEDGER stale entry: '${from}' no longer appears in the frozen archive — ` +
+          `the archive was regenerated with the new vocabulary; retire the ledger entry`,
+      );
+    }
+    tasksMd = tasksMd.split(from).join(to);
+  }
 
   // the independent route universe: every docs page directory that really
   // exists on disk (the matrix is never consulted)
@@ -469,6 +557,17 @@ describe('matrix↔tasks bijection', () => {
     for (const route of tasksUniverse) {
       for (const c of axisRowsOf(pageSource(route))) {
         if (route === 'inline-code' && c.prop === 'variant') continue; // exempt: invariant-locked
+        // exempt (docs-eight-axes-mdn task 10, quill 2026-09-22):
+        // dropdown-menu's table[2] is the per-axis MECHANISM table — the
+        // campaign's hand rows documenting consumption/supply per family
+        // (density's lanes, the §3/§14 radius chain), outside the ambient
+        // economy this matrix guards. The page's ambient facts stayed
+        // pinned: the root table migrated to the GENERATED meta + the
+        // shared universal section (variant Own-'auto' / density ambient-
+        // scope render from meta.universal — verify:meta's meta-side
+        // ambient check + the 110-page universal manifest gate them), and
+        // the item hand table's density row keeps its matrix entry t1.
+        if (route === 'dropdown-menu' && c.tableIndex === 2) continue;
         out.push(keyOf(route, c.tableIndex, c.prop, c.ordinal));
       }
     }

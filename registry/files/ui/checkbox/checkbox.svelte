@@ -49,12 +49,44 @@
 -->
 <script lang="ts">
   import type { HTMLInputAttributes } from 'svelte/elements';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { CheckboxDefaults } from './checkbox-defaults.svelte';
+  import { checkboxStyles } from './checkbox.stylex';
   import { cn } from '$lib/utils';
   import './checkbox.css';
 
-  interface Props extends HTMLInputAttributes {
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  interface Props extends Omit<HTMLInputAttributes, 'size' | 'color'> {
     /** same-row label; renders label[for] */
     label?: string;
     /** wired into label[for] / error[id]; auto-generated when omitted */
@@ -72,7 +104,33 @@
     /** $bindable; bound ⇒ controlled two-way, absent ⇒ uncontrolled */
     checked?: boolean;
     /** density policy: explicit override, then inherited provider */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     'data-density'?: string;
   }
 
@@ -88,6 +146,13 @@
     bare = false,
     checked = $bindable(),
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     class: className = '',
     ...rest
@@ -96,7 +161,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): explicit ?? ambient scope per slot, one line, no
   // legacy helper channels
-  const d = $derived(CheckboxDefaults.resolve({ density }));
+  const d = $derived(
+    CheckboxDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   const errorId = $derived(`${id}-error`);
   const invalid = $derived(error != null && error !== '');
@@ -126,7 +200,12 @@
   <!-- bare posture: with no label/error to stack, the field wrapper
        is dead weight — a w-fit inline host instead (inside list-item end
        lanes the control must sit at inline-END, not stretch the lane) -->
-  <div data-density={d.density} class={cn(!label && !error ? 'inline-flex w-fit' : 'jx-field')}>
+  <div
+    bind:this={uniRoot}
+    data-density={densityRungOf(d.density)}
+    class:dark={d.theme === 'dark'}
+    style={carriers || undefined}
+    class={cn(!label && !error ? cx(checkboxStyles.host) : 'jx-field')}>
     <span
       data-jx-check
       data-jx-check-left={labelSide === 'left' ? '' : undefined}

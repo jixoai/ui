@@ -4,16 +4,13 @@
  * tagged union's TAG offset — lines=+3 literally became tag=ROW with
  * row 0, jumping the viewport to the top of scrollback on every scroll.
  */
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { Terminal, loadGhosttyVT } from '../../../registry/files/lib/ghostty-vt';
-
-const wasmPath = process.env.JIXOAI_GHOSTTY_WASM_PATH ?? '/tmp/ghostty-research/ghostty-vt.wasm';
+import { acquireWasmBytes } from './helpers/ghostty-wasm';
 
 describe('readScrollbar live (owner scroll-bug fix)', () => {
   it('delta scrolls by exact lines; huge deltas clamp, never jump', async () => {
-    const core = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmPath)) });
+    const core = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
     const term = new Terminal({ core, cols: 80, rows: 10 });
     const enc = new TextEncoder();
     for (let i = 0; i < 200; i++) term.write(enc.encode(`line ${i}\r\n`));

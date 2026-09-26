@@ -6,9 +6,10 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CodeBlock from '$lib/code-block.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import MathInline from '$lib/ui/math-inline';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
@@ -98,6 +99,28 @@ ${close}
   const laneFiles: TreeFile[] = [
     { name: 'math-inline-lane-demo.svelte', content: mathInlineLaneDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<MathInline size="medium">…</MathInline>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/math-inline-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -108,8 +131,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <!-- page head -->
     <div data-reveal="">
       <SectionCard
@@ -119,7 +142,17 @@ ${close}
         title="math-inline — real math in prose, no chrome"
         summary={heroSummary}
       >
-        <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install math-inline">
+          <TerminalCard
+            barTitle="install — math-inline"
+            command="npx jixoai-ui add math-inline"
+            outputs={['https://ui.jixoai.com/r/math-inline.json']}
+          />
+        </div>
+      {/snippet}
+
+        <div class={cx(rt.wrap12)}>
           <span class="pill">based on KaTeX</span>
           <span class="pill">one span · zero chrome</span>
           <span class="pill">currentColor · zero re-render</span>
@@ -130,9 +163,6 @@ ${close}
 
     <!-- the demo-standard skeleton: Install then Usage sit ABOVE the
          demos — Intro → Install → Usage → Examples → API → See Also -->
-    <div data-reveal="">
-      <DocsInstall name="math-inline" />
-    </div>
 
     <div id="usage" data-reveal="">
       <SectionCard
@@ -158,7 +188,7 @@ ${close}
         output={[{ label: 'tex', value: tex || '—' }]}
         resolveFileContent={resolveUsage}
       >
-        <p class="max-w-md text-pretty text-[15px] leading-7">
+        <p class={cx(rt.maxWMd, rt.pretty, rt.text15, rt.miLead7)}>
           The identity
           <MathInline {tex} />
           ties the five constants together — type another one and watch it
@@ -189,8 +219,8 @@ ${close}
         summary="Display math owns its figure; inline math rides the sentence. The span carries nothing but the formula output, so prose rhythm, wrapping, and color all belong to the paragraph around it."
       >
         <ComponentCanvas title="math-inline · prose lane" stage="fill" files={laneFiles}>
-          <div class="border border-border p-4">
-          <p class="text-pretty text-[15px] leading-7">
+          <div class={cx(rt.panel)}>
+          <p class={cx(rt.pretty, rt.text15, rt.miLead7)}>
             A Gaussian beam narrows to a waist
             <MathInline tex={'w_0 = \\sqrt{\\frac{2\\lambda}{\\pi \\, \\mathrm{NA}}}'} />
             before diverging at half-angle
@@ -210,7 +240,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="accessibility" data-reveal="">
     <SectionCard
       family="accessibility"
@@ -231,6 +261,20 @@ ${close}
       />
     </SectionCard>
   </div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: the span paints nothing (prose currentColor; the engine css rides $lib/katex)."
+    >
+      <ComponentCanvas title="MathInline · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Inline math: the span forwards the tree's axes.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal="">
     <SectionCard
       family="api"
@@ -239,7 +283,7 @@ ${close}
       title="API"
       summary="Five props plus the HTML rest; tex is the only required one."
     >
-      <PropsTable
+      <PropsTable universal
         props={[
           { name: 'tex', type: 'string', default: '—', description: 'TeX source (runtime string, rendered synchronously in inline mode).', required: true },
           { name: 'macros', type: "KatexOptions['macros']", default: '—', description: 'KaTeX macros — merged per key OVER the site-level registerMacros table ($lib/katex).' },

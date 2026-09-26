@@ -1,6 +1,7 @@
 /**
  * The canvas playground dock suite (test/canvas-playground.spec.ts,
- * canvas-playground-dock 2026-09-08).
+ * canvas-playground-dock 2026-09-08; the eight-axis bar re-pin
+ * 2026-09-21, the Owner's post-acceptance directive).
  *
  * The dock gates, read through the DOM: mounts EXPANDED (the Owner
  * ruling 默认展开); the head toggle collapses to the chip (aria-expanded
@@ -9,12 +10,20 @@
  * rows render as ItemGroup rows (li[data-slot=item-row]); the consumer
  * snippet keeps escape-hatch precedence; the horizontal drag clamp is
  * a PURE table test (the toast-swipe precedent — jsdom never needs
- * real pointer capture).
+ * real pointer capture). THE EIGHT-AXIS BAR: the head ships theme (the
+ * cycle button) + the SEVEN menu axes (size · shape · radius ·
+ * density · color · elevation · motion — icon-button + the family's
+ * DropdownMenu, `auto` + the named steps, a check on the current
+ * value); the bar's lanes ride the canvas root's SUPPLY (a flip
+ * re-stamps the §10 carriers), never the stage's rungs.
  */
 import { fireEvent, render } from '@testing-library/svelte';
 import { describe, expect, it } from 'vitest';
 
-import CanvasPlayground, { clampDockX } from '$lib/ui/component-canvas/canvas-playground.svelte';
+import CanvasPlayground, {
+  CANVAS_AXIS_LANES,
+  clampDockX,
+} from '$lib/ui/component-canvas/canvas-playground.svelte';
 
 import CanvasHost from './fixtures/canvas-host.svelte';
 import CanvasPlainHost from './fixtures/canvas-plain-host.svelte';
@@ -41,10 +50,12 @@ describe('dock: default expanded (the Owner ruling)', () => {
     const { container } = render(CanvasPlainHost);
     const dock = container.querySelector<HTMLElement>('[data-jx-canvas-dock]')!;
     expect(dock).not.toBeNull();
-    // the unified-chrome ruling: [grip, theme, size] ships on EVERY
-    // canvas — the chevron and the body exist only when there is body
+    // the eight-axis bar (Owner directive 2026-09-21): [grip, theme +
+    // the seven menu axes in one ButtonGroup] ships on EVERY canvas —
+    // the chevron and the body exist only when there is body
     expect(dock.querySelector('[data-jx-canvas-theme-toggle]')).not.toBeNull();
-    expect(dock.querySelector('[data-jx-canvas-density-select]')).not.toBeNull();
+    expect(dock.querySelectorAll('[data-jx-canvas-axis]').length).toBe(7);
+    expect(dock.querySelector('[data-jx-canvas-dock-axes]')).not.toBeNull();
     expect(dock.querySelector('[data-jx-canvas-dock-toggle]')).toBeNull();
     expect(dock.querySelector('.jx-canvas-dock-collapse')).toBeNull();
   });
@@ -64,16 +75,52 @@ describe('dock: the unified chrome head (Owner amendment 2026-09-08)', () => {
     expect(theme.getAttribute('aria-pressed')).toBe('true');
   });
 
-  it('the density select carries the repo-standard union, stamped DIRECTLY', async () => {
+  // RE-PINNED (the Owner's eight-axis bar directive, 2026-09-21): the
+  // legacy xs/sm/default/lg rung select RETIRED — the density control
+  // is now the axis grammar's menu (auto/small/medium/large) and the
+  // lane rides the canvas root's SUPPLY (carriers + ambient lanes),
+  // never the stage's data-density rung. The menu items are real
+  // buttons in the DOM (the popover panel renders closed; jsdom
+  // dispatches clicks regardless), so the interaction is asserted
+  // end-to-end through the same path a user drives
+  it('the seven axis menus carry the axis grammar; a flip re-stamps the canvas root (supply-not-force)', async () => {
     const { container } = render(CanvasSchemaHost);
-    const stage = container.querySelector<HTMLElement>('[data-jx-canvas-stage]')!;
-    expect(stage.getAttribute('data-density')).toBe('default');
+    const dock = container.querySelector<HTMLElement>('[data-jx-canvas-dock]')!;
+    const canvasRoot = container.querySelector<HTMLElement>('[data-jx-canvas]')!;
 
-    const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-density-select]')!;
-    expect(select.getAttribute('aria-label')).toBe('Density');
-    expect([...select.options].map((o) => o.value)).toEqual(['xs', 'sm', 'default', 'lg']);
-    await fireEvent.change(select, { target: { value: 'sm' } });
-    expect(stage.getAttribute('data-density')).toBe('sm');
+    // every axis ships its named steps + auto (the universal
+    // vocabulary — the retired select's rungs are gone from the bar)
+    const entries = (axis: string) =>
+      [...dock.querySelectorAll<HTMLButtonElement>(`#jx-canvas-schema-host-axis-${axis} [data-axis-value]`)];
+    expect(entries('size').map((el) => el.getAttribute('data-axis-value'))).toEqual([
+      'auto', 'small', 'medium', 'large',
+    ]);
+    expect(entries('shape').map((el) => el.getAttribute('data-axis-value'))).toEqual([
+      'auto', 'round', 'scoop', 'bevel', 'notch', 'square', 'squircle',
+    ]);
+    expect(entries('elevation').map((el) => el.getAttribute('data-axis-value'))).toEqual([
+      'auto', 'level-1', 'level0', 'level1', 'level2', 'level3', 'level4', 'level5',
+    ]);
+    expect(entries('density').map((el) => el.getAttribute('data-axis-value'))).toEqual([
+      'auto', 'small', 'medium', 'large',
+    ]);
+
+    // `auto` is the default and the current value carries the check
+    expect(entries('size')[0]!.hasAttribute('data-axis-current')).toBe(true);
+    expect(entries('size')[3]!.hasAttribute('data-axis-current')).toBe(false);
+
+    // the flip: menu item click → the dock's lane record → the canvas
+    // root's §10 carrier (size=large stamps the §1 declaration; the
+    // check state follows)
+    await fireEvent.click(entries('size')[3]!);
+    expect(canvasRoot.getAttribute('style')).toContain('--jx-size-effective: var(--jx-size-large)');
+    expect(entries('size')[3]!.hasAttribute('data-axis-current')).toBe(true);
+    expect(entries('size')[0]!.hasAttribute('data-axis-current')).toBe(false);
+
+    // and back to auto — stamps nothing again (the pre-existing
+    // density coefficient-1 aside, the slot's own 'default')
+    await fireEvent.click(entries('size')[0]!);
+    expect(canvasRoot.getAttribute('style')).not.toContain('--jx-size-effective');
   });
 });
 
@@ -196,5 +243,19 @@ describe('dock: the component is importable with its pure helper', () => {
   it('CanvasPlayground is a component; clampDockX is a named export', () => {
     expect(typeof CanvasPlayground).toBe('function');
     expect(typeof clampDockX).toBe('function');
+  });
+
+  it('the eight-axis lanes seed all-auto (the default stamps nothing)', () => {
+    expect(CANVAS_AXIS_LANES).toEqual({
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      density: 'auto',
+      color: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
+    // the seed is FROZEN — writers reassign the record, never mutate
+    expect(Object.isFrozen(CANVAS_AXIS_LANES)).toBe(true);
   });
 });

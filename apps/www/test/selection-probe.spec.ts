@@ -10,20 +10,16 @@
  *   - press+release+press within the 250ms window = click tier 2 = word.
  *   - RowSnapshot.selection spans are both-inclusive viewport columns.
  */
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { loadGhosttyVT, type RowSnapshot } from '../../../registry/files/lib/ghostty-vt';
-
-const wasmPath =
-  process.env.JIXOAI_GHOSTTY_WASM_PATH ?? '/tmp/ghostty-research/ghostty-vt.wasm';
+import { acquireWasmBytes } from './helpers/ghostty-wasm';
 
 const enc = (text: string): Uint8Array => new TextEncoder().encode(text);
 
 describe('selection (live wasm)', () => {
   it('drag press→drag→release produces the cross-line span, text, and row spans', async () => {
-    const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmPath)) });
+    const vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
     vt.resize(40, 6);
     vt.vtWrite(enc('hello world\r\nsecond line here\r\nthird'));
     for (const _ of vt.dirtyRows());
@@ -51,7 +47,7 @@ describe('selection (live wasm)', () => {
   });
 
   it('double-click (tier 2) selects the word under the pointer', async () => {
-    const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmPath)) });
+    const vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
     vt.resize(40, 6);
     vt.vtWrite(enc('hello world\r\nsecond line here\r\nthird'));
     for (const _ of vt.dirtyRows());
@@ -77,7 +73,7 @@ describe('selection (live wasm)', () => {
   });
 
   it('triple-click (tier 3) selects the whole line and clear() drops it', async () => {
-    const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmPath)) });
+    const vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
     vt.resize(40, 6);
     vt.vtWrite(enc('hello world\r\nsecond line here\r\nthird'));
     for (const _ of vt.dirtyRows());
@@ -96,7 +92,7 @@ describe('selection (live wasm)', () => {
   });
 
   it('cell drag within one row selects the cells before the pointer', async () => {
-    const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmPath)) });
+    const vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
     vt.resize(40, 6);
     vt.vtWrite(enc('hello world'));
     for (const _ of vt.dirtyRows());

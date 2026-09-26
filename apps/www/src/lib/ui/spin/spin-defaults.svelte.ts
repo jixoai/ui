@@ -28,19 +28,41 @@
  *            2-4): unset/'auto' falls back to the HAND-TUNED pair;
  *            0 hides at the interval handoff; context/plugin
  *            injectable like the interval.
- *   density  class a, the open axis with NO family own — no opinion:
- *            the indicator never stamped data-density and does not
- *            start now; the slot declares the channel OPEN without
- *            manufacturing an opinion (fleet law — the ambient css
- *            scope channel keeps flowing).
+ *   density  class a, the universal §4 axis (W3-B — the legacy
+ *            densitySlot semantics ride the bridged lane), no family
+ *            opinion on RUNG DEFAULTS — but the composed root DOES
+ *            stamp data-density with the resolved rung (measured lg@1280
+ *            → sm@600 through the page's query seat, task 41); the
+ *            slot keeps the channel OPEN without manufacturing rung
+ *            opinions (fleet law — the ambient css scope channel keeps
+ *            flowing).
+ *   shape/radius/color/theme/elevation/motion — the other universal
+ *            axes (W3-B, all no-own): the eight-axis surface minus
+ *            the size axis (below), supply-forwarding only.
+ *
+ * W3-B / §13 mapping (task 3.6): `size: number` is the universal
+ * size axis' NUMBER lane verbatim (px, same semantics — explicit
+ * numbers additionally stamp the §1 carrier through the component);
+ * the raw-string lane and the ABSENT state (the density ruler's
+ * var(--jx-icon)) remain the family's own per the recorded absent
+ * law — named/auto/query lanes are NOT adopted on the loader.
  *
  * 惰性律: construction captures own only; context reads happen at
- * resolve time inside the consumer's $derived window. This file is a
- * member of the registry:ui item (installs with the family, byte
+ * resolve time inside the consumer's $derived window. This file is
+ * a member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { absentSlot, defineComponentDefaults } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  absentSlot,
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 
 /** the svg posture's square edge — a free CSS length (px number or any
  *  valid CSS length string). ABSENT is the state (review R1,
@@ -71,5 +93,11 @@ export const SpinDefaults = defineComponentDefaults({
   interval: spinIntervalSlot,
   linger: spinLingerSlot,
   lingerType: spinLingerTypeSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

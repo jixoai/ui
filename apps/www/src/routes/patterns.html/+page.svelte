@@ -14,6 +14,7 @@
 -->
 <script lang="ts">
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import { CATALOG, type CatalogEntry } from '$lib/catalog';
 
   /** the five terminal patterns, gallery order */
@@ -34,6 +35,23 @@
     }
     return entry;
   });
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -44,7 +62,7 @@
   />
 </svelte:head>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-10 px-4 py-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shell, rt.flex, rt.col, rt.gap40)}>
   <div id="gallery" data-reveal="">
     <SectionCard
       headingLevel={1}
@@ -53,7 +71,7 @@
       title="Patterns — the composition product"
       summary="Five landing sections composed from the atoms you already have: login, pricing, heroes, FAQ, CTA. A pattern adds no primitives — it declares the atoms it composes, and installing it pulls the whole closure. Every card links to the pattern's canonical docs page; the source stays yours after add."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <span class="pill">{cards.length} patterns</span>
         <span class="pill">composition-only</span>
         <span class="pill">terminal idiom</span>
@@ -62,23 +80,19 @@
   </div>
 
   <section aria-label="pattern gallery" data-region="pattern-cards">
-    <div class="grid gap-4 min-[760px]:grid-cols-2 min-[1100px]:grid-cols-3">
+    <div class={cx(rt.ptGrid)}>
       {#each cards as card (card.name)}
         <a
           href={card.href}
-          class="group flex flex-col gap-3 border border-border bg-card p-4 rounded-(--radius)
-            transition-[transform,box-shadow,border-color] duration-150
-            hover:border-primary hover:shadow-sm
-            active:translate-x-px active:translate-y-px active:shadow-none
-            motion-reduce:transition-none"
+          class={cx(rt.flex, rt.col, rt.gap12, rt.frame, rt.bgCard, rt.p16, rt.ptRadius, rt.ptCardFx)}
         >
-          <p class="m-0 font-nav text-[11px] uppercase tracking-[0.24em] text-primary">
+          <p class={cx(rt.m0, rt.eyebrowPrimary)}>
             {card.type.replace('registry:', '')}
           </p>
-          <h2 class="m-0 font-nav text-[1.05rem] leading-tight tracking-tight">{card.name}</h2>
-          <p class="m-0 min-h-[3.2rem] text-[13px] leading-5 text-muted-foreground">{card.summary}</p>
-          <p class="m-0 mt-auto font-nav text-xs tracking-[0.04em] text-muted-foreground">
-            <span class="text-primary" aria-hidden="true">$</span>
+          <h2 class={cx(rt.m0, rt.fontNav, rt.ptHeading, rt.trackTight)}>{card.name}</h2>
+          <p class={cx(rt.m0, rt.ptSummary)}>{card.summary}</p>
+          <p class={cx(rt.m0, rt.ptMtAuto, rt.fontNav, rt.text12, rt.ptTrack04, rt.inkMuted)}>
+            <span class={cx(rt.inkPrimary)} aria-hidden="true">$</span>
             npx jixoai-ui add {card.name}
           </p>
         </a>

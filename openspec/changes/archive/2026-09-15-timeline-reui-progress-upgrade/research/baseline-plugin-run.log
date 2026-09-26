@@ -1,0 +1,218 @@
+
+> @jixoai/ui-vite-plugin@0.3.0 test
+> vitest run --maxWorkers=1
+
+
+ RUN  v4.1.11 /Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin
+
+ ❯ test/icons/library/example-hmos.test.ts (6 tests | 6 skipped) 21698ms
+     ↓ the inline-core bundle carries the REAL artwork bytes + scoped ids
+     ↓ the lazy chunk asset carries the overflow names (the budget split)
+     ↓ index.html wires the built bundle
+     ↓ every icon mounts (12 markers); the inline core paints synchronously
+     ↓ the document-collision law: ids unique, every use reference resolves once
+     ↓ the regenerated artifact matches the committed one byte-for-byte
+ ❯ test/plugin.test.ts (5 tests | 1 failed) 7986ms
+     × lib mode: emits the content-addressed asset and a node-importable module 2982ms
+     ✓ browser JS input: emitted entry references the frozen asset name  2362ms
+     ✓ SSR builds emit no client asset 40ms
+     ✓ serves application/wasm immutable at the content-addressed path  2534ms
+     ✓ passes unrelated routes through synchronously without resolving the wasm 56ms
+ ✓ test/icons/library/packaging.test.ts (9 tests) 5991ms
+     ✓ the package name is the Owner-confirmed @jixoai/ui-vite-plugin  1039ms
+     ✓ npm pack --dry-run lists the bridge target + the type contracts + the channel sub-entries  989ms
+ ✓ test/spinners/packaging.test.ts (7 tests) 3981ms
+     ✓ npm pack --dry-run lists the spinners entry (js + d.ts)  1234ms
+ ✓ test/stylex/packaging.test.ts (6 tests) 2395ms
+ ✓ test/canvas/vite-plugin.test.ts (8 tests) 1168ms
+     ✓ serves the emitted module: canvasIds + resolveRawCode; tolerates ?t=; watches the page  810ms
+     ✓ serves the module through the page-importer path; a page edit re-extracts (the addWatchFile HMR contract)  307ms
+ ✓ test/icons/library/vite-build.test.ts (2 tests) 285ms
+ ✓ test/icons/library/resolution.test.ts (31 tests) 338ms
+     ✓ defaults pack in manifest order; customs append in insertion order  313ms
+ ✓ test/icons/library/generate.test.ts (16 tests) 222ms
+ ✓ test/icons/library/prefix-compiler-lifecycle.test.ts (7 tests) 411ms
+     ✓ buildStart generates without scans; transforms collect; a UNION change refreshes  306ms
+ ✓ test/icons/library/prefix-compiler.test.ts (29 tests) 361ms
+ ✓ test/icons/library/font-sources.test.ts (15 tests) 370ms
+ ✓ test/stylex/wiring.test.ts (10 tests) 317ms
+ ✓ test/canvas/extract.test.ts (20 tests) 302ms
+ ✓ test/icons/library/channels.test.ts (26 tests) 322ms
+ ✓ test/icons/library/umbrella-bridge.test.ts (8 tests) 279ms
+ ✓ test/icons/library/optimize.test.ts (3 tests) 209ms
+stderr | test/icons/library/adapter.test.ts > the artifact module (the configured output path) > write:true writes ONLY on content change (single-writer opt-in)
+[jixoai-icons] icon-set artifact src/lib/icon-set.gen.ts created (write:true is a consumer opt-in — in-repo apps run write:false)
+
+ ✓ test/icons/library/adapter.test.ts (8 tests) 225ms
+ ✓ test/vite-native.test.ts (2 tests) 67ms
+ ✓ test/icons/vite-plugin.test.ts (14 tests) 243ms
+ ✓ test/icons/providers/font.test.ts (11 tests) 159ms
+ ✓ test/icons/library/validation.test.ts (11 tests) 58ms
+ ✓ test/icons/providers/svg.test.ts (9 tests) 126ms
+ ✓ test/icons/woff2-roundtrip.test.ts (3 tests) 130ms
+stderr | test/resolve.test.ts > download hardening > fails when the downloaded size disagrees with the pin
+[jixoai-ghostty] size mismatch, retrying — attempt 1: received 44 bytes, pin expects 45 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)
+
+stderr | test/resolve.test.ts > download hardening > fails when the downloaded size disagrees with the pin
+[jixoai-ghostty] size mismatch, retrying — attempt 2: received 44 bytes, pin expects 45 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)
+
+stderr | test/resolve.test.ts > resolver against the real shipped pin (env path with real bytes) > env override verifies the real wasm against the shipped pin (both variants)
+[test:helpers] wasm small unavailable (offline with cold cache) — skipping network-dependent assertions. CI prerequisite: run online once or pre-seed the cache. ([jixoai-ghostty] SHA256 MISMATCH — JIXOAI_GHOSTTY_WASM_PATH file /var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-resolve-mieQpF/real-full.wasm hashes to 0fb5949ce28da01bf265143782b2b44487568fefd6ff40528900688565ec6a12 but the pin expects ffa28810cb4fd5dd1f77072d362d06f4fefb0bfc75ef77dab7947d261ff9c623; the pinned sha256 and the upstream release asset disagree — check the ghostty-wasm-sync workflow status; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust)
+
+stderr | test/resolve.test.ts > resolver against the real shipped pin (env path with real bytes) > env override verifies the real wasm against the shipped pin (both variants)
+[resolve.test] skipping real-pin env test for small (wasm unavailable offline)
+
+ ✓ test/resolve.test.ts (21 tests) 246ms
+stderr | test/spinners/vite-plugin.test.ts > buildStart generation (bare {} + custom sources) > custom inline + {file} sources land in the written artifact (union + payload)
+[jixoai-spinners] spin-set artifact src/lib/spin-set.gen.ts created (write:true is a consumer opt-in — in-repo apps run write:false)
+
+stderr | test/spinners/vite-plugin.test.ts > buildStart generation (bare {} + custom sources) > includeDefaults: false packs the custom set only
+[jixoai-spinners] spin-set artifact src/lib/spin-set.gen.ts created (write:true is a consumer opt-in — in-repo apps run write:false)
+
+stderr | test/spinners/vite-plugin.test.ts > buildStart generation (bare {} + custom sources) > the default output is src/lib/spin-set.gen.ts, project-root-relative
+[jixoai-spinners] spin-set artifact src/lib/spin-set.gen.ts created (write:true is a consumer opt-in — in-repo apps run write:false)
+
+ ✓ test/spinners/vite-plugin.test.ts (13 tests) 83ms
+ ✓ test/probe.test.ts (15 tests) 77ms
+ ✓ test/pin.test.ts (21 tests) 37ms
+ ✓ test/icons/library/scan.test.ts (21 tests) 25ms
+ ✓ test/spinners/packs.test.ts (6 tests) 56ms
+ ✓ test/spinners/resolve.test.ts (16 tests) 16ms
+ ✓ test/icons/providers/lucide.test.ts (5 tests) 18ms
+ ✓ test/spinners/generate.test.ts (14 tests) 17ms
+ ✓ test/icons/ink-equivalence.test.ts (8 tests) 14ms
+ ✓ test/icons/safety-config.test.ts (4 tests) 13ms
+ ✓ test/icons/safety.test.ts (25 tests) 10ms
+ ✓ test/icons/umbrella.test.ts (6 tests) 14ms
+ ✓ test/icons/library/packing.test.ts (9 tests) 13ms
+ ✓ test/spinners/umbrella.test.ts (7 tests) 7ms
+ ✓ test/icons/serializer.test.ts (19 tests) 12ms
+ ✓ test/icons/geometry-consistency.test.ts (4 tests) 13ms
+ ✓ test/icons/ink.test.ts (17 tests) 8ms
+ ✓ test/icons/providers/mixin.test.ts (8 tests) 9ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/icons/library/example-hmos.test.ts [ test/icons/library/example-hmos.test.ts ]
+Error: npm run build failed in /var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons
+
+> build
+> vite build
+
+vite v8.3.0 building client environment for production...
+✓ 0 modules transformed.
+
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./src/lib/icons/hmos" without a file extension (vite.config.ts:7:22). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+[jixoai-ghostty] size mismatch, retrying — attempt 1: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)
+[jixoai-ghostty] size mismatch, retrying — attempt 2: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)
+✗ Build failed in 5.83s
+error during build:
+Build failed with 1 error:
+
+[plugin jixoai-ghostty]
+Error: [jixoai-ghostty] WASM RESOLVE FAILED — [jixoai-ghostty] SIZE MISMATCH after 3 attempts — attempt 3: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too); likely causes: a proxy truncating the transfer (check http_proxy/HTTP_PROXY), or upstream pin drift; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust; the pinned sha256 and the upstream release asset disagree — check the ghostty-wasm-sync workflow status; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust
+    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:36:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async resolveOnce (file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:35:16)
+    at async PluginContextImpl.buildStart (file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:43:4)
+    at async plugin (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:1446:3)
+    at async plugin.<computed> (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:2127:12)
+    at aggregateBindingErrorsIntoJsError (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:48:18)
+    at unwrapBindingResult (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:18:128)
+    at #build (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/rolldown-B-jRyK4b.mjs:133:34)
+    at async buildEnvironment (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34082:66)
+    at async Object.build (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34503:19)
+    at async Object.buildApp (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34500:153)
+    at async CAC.<anonymous> (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/cli.js:780:3) {
+  errors: [Getter/Setter]
+}
+
+ ❯ dist/index.js:36:10
+ ❯ resolveOnce dist/index.js:35:16
+ ❯ PluginContextImpl.buildStart dist/index.js:43:4
+ ❯ plugin ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:1446:3
+ ❯ plugin.<computed> ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:2127:12
+ ❯ aggregateBindingErrorsIntoJsError ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:48:18
+ ❯ unwrapBindingResult ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:18:128
+ ❯ #build ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/rolldown-B-jRyK4b.mjs:133:34
+ ❯ buildEnvironment ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34082:66
+ ❯ Object.build ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34503:19
+ ❯ Object.buildApp ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34500:153
+ ❯ run test/icons/library/example-hmos.test.ts:48:11
+     46|   } catch (cause) {
+     47|     const out = (cause as { stdout?: string; stderr?: string });
+     48|     throw new Error(
+       |           ^
+     49|       `${command} ${args.join(' ')} failed in ${cwd}\n` +
+     50|         `${out.stdout ?? ''}\n${out.stderr ?? ''}`,
+ ❯ test/icons/library/example-hmos.test.ts:108:3
+
+Caused by: Error: Command failed: npm run build
+(!) Your Vite config uses features that are unsupported by `configLoader: 'native'`, which is planned to become the default in a future major version of Vite:
+  - import "./src/lib/icons/hmos" without a file extension (vite.config.ts:7:22). Add the file extension
+Set `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.
+[jixoai-ghostty] size mismatch, retrying — attempt 1: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)
+[jixoai-ghostty] size mismatch, retrying — attempt 2: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)
+✗ Build failed in 5.83s
+error during build:
+Build failed with 1 error:
+
+[plugin jixoai-ghostty]
+Error: [jixoai-ghostty] WASM RESOLVE FAILED — [jixoai-ghostty] SIZE MISMATCH after 3 attempts — attempt 3: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too); likely causes: a proxy truncating the transfer (check http_proxy/HTTP_PROXY), or upstream pin drift; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust; the pinned sha256 and the upstream release asset disagree — check the ghostty-wasm-sync workflow status; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust
+    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:36:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async resolveOnce (file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:35:16)
+    at async PluginContextImpl.buildStart (file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:43:4)
+    at async plugin (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:1446:3)
+    at async plugin.<computed> (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:2127:12)
+    at aggregateBindingErrorsIntoJsError (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:48:18)
+    at unwrapBindingResult (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:18:128)
+    at #build (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/rolldown-B-jRyK4b.mjs:133:34)
+    at async buildEnvironment (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34082:66)
+    at async Object.build (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34503:19)
+    at async Object.buildApp (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34500:153)
+    at async CAC.<anonymous> (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/cli.js:780:3) {
+  errors: [Getter/Setter]
+}
+
+ ❯ dist/index.js:36:10
+ ❯ resolveOnce dist/index.js:35:16
+ ❯ PluginContextImpl.buildStart dist/index.js:43:4
+ ❯ plugin ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:1446:3
+ ❯ plugin.<computed> ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:2127:12
+ ❯ aggregateBindingErrorsIntoJsError ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:48:18
+ ❯ unwrapBindingResult ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:18:128
+ ❯ #build ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/rolldown-B-jRyK4b.mjs:133:34
+ ❯ buildEnvironment ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34082:66
+ ❯ Object.build ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34503:19
+ ❯ Object.buildApp ../../../../../../../../private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34500:153
+ ❯ run test/icons/library/example-hmos.test.ts:45:5
+ ❯ test/icons/library/example-hmos.test.ts:108:3
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { status: 1, signal: null, output: [ null, '\n> build\n> vite build\n\nvite v8.3.0 building client environment for production...\n✓ 0 modules transformed.\n', '(!) Your Vite config uses features that are unsupported by `configLoader: \'native\'`, which is planned to become the default in a future major version of Vite:\n  - import "./src/lib/icons/hmos" without a file extension (vite.config.ts:7:22). Add the file extension\nSet `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.\n[jixoai-ghostty] size mismatch, retrying — attempt 1: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)\n[jixoai-ghostty] size mismatch, retrying — attempt 2: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)\n✗ Build failed in 5.83s\nerror during build:\nBuild failed with 1 error:\n\n[plugin jixoai-ghostty]\nError: [jixoai-ghostty] WASM RESOLVE FAILED — [jixoai-ghostty] SIZE MISMATCH after 3 attempts — attempt 3: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too); likely causes: a proxy truncating the transfer (check http_proxy/HTTP_PROXY), or upstream pin drift; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust; the pinned sha256 and the upstream release asset disagree — check the ghostty-wasm-sync workflow status; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust\n    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:36:10\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async resolveOnce (file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:35:16)\n    at async PluginContextImpl.buildStart (file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:43:4)\n    at async plugin (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:1446:3)\n    at async plugin.<computed> (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:2127:12)\n    at aggregateBindingErrorsIntoJsError (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:48:18)\n    at unwrapBindingResult (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:18:128)\n    at #build (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/rolldown-B-jRyK4b.mjs:133:34)\n    at async buildEnvironment (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34082:66)\n    at async Object.build (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34503:19)\n    at async Object.buildApp (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34500:153)\n    at async CAC.<anonymous> (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/cli.js:780:3) {\n  errors: [Getter/Setter]\n}\n' ], pid: 85311, stdout: '\n> build\n> vite build\n\nvite v8.3.0 building client environment for production...\n✓ 0 modules transformed.\n', stderr: '(!) Your Vite config uses features that are unsupported by `configLoader: \'native\'`, which is planned to become the default in a future major version of Vite:\n  - import "./src/lib/icons/hmos" without a file extension (vite.config.ts:7:22). Add the file extension\nSet `VITE_CONFIG_NATIVE_IGNORE_WARNING=true` to suppress this warning.\n[jixoai-ghostty] size mismatch, retrying — attempt 1: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)\n[jixoai-ghostty] size mismatch, retrying — attempt 2: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too)\n✗ Build failed in 5.83s\nerror during build:\nBuild failed with 1 error:\n\n[plugin jixoai-ghostty]\nError: [jixoai-ghostty] WASM RESOLVE FAILED — [jixoai-ghostty] SIZE MISMATCH after 3 attempts — attempt 3: received 1006943 bytes, pin expects 1006740 (received != expected ⇒ truncated transfer, NOT pin drift — a drifted asset changes the sha too); likely causes: a proxy truncating the transfer (check http_proxy/HTTP_PROXY), or upstream pin drift; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust; the pinned sha256 and the upstream release asset disagree — check the ghostty-wasm-sync workflow status; to force a local file, set JIXOAI_GHOSTTY_WASM_PATH to a wasm you trust\n    at file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:36:10\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async resolveOnce (file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:35:16)\n    at async PluginContextImpl.buildStart (file:///Users/kzf/Dev/GitHub/jixoai-labs/ui-stylex/packages/vite-plugin/dist/index.js:43:4)\n    at async plugin (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:1446:3)\n    at async plugin.<computed> (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/bindingify-input-options-XQ0947n1.mjs:2127:12)\n    at aggregateBindingErrorsIntoJsError (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:48:18)\n    at unwrapBindingResult (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/error-CRNyaqoL.mjs:18:128)\n    at #build (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/rolldown/dist/shared/rolldown-B-jRyK4b.mjs:133:34)\n    at async buildEnvironment (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34082:66)\n    at async Object.build (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34503:19)\n    at async Object.buildApp (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/chunks/node.js:34500:153)\n    at async CAC.<anonymous> (file:///private/var/folders/tn/y_b12zxs2dldn8thmfnpy9c80000gp/T/jixoai-hmos-e2e-YsoVXm/hmos-icons/node_modules/vite/dist/node/cli.js:780:3) {\n  errors: [Getter/Setter]\n}\n' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/plugin.test.ts > jixoai() build > lib mode: emits the content-addressed asset and a node-importable module
+TypeError: Invalid URL
+ ❯ test/plugin.test.ts:112:12
+    110|     };
+    111|     expect(mod.url.endsWith(`assets/ghostty-vt-${pinSha16}.wasm`)).toB…
+    112|     expect(new URL(mod.url).protocol).toBe('file:');
+       |            ^
+    113|     expect(mod.sha256).toBe(pinSha);
+    114|     expect(mod.variant).toBe('full');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed | 41 passed (43)
+      Tests  1 failed | 498 passed | 6 skipped (505)
+   Start at  05:32:51
+   Duration  58.93s (transform 1.15s, setup 0ms, import 3.44s, tests 48.34s, environment 4ms)
+

@@ -1,12 +1,14 @@
 // Route-level toc policy (firstpaint era, 2026-08-24): the sections
 // ship as PAGE DATA — the layout owns the toc in the scaffold's chrome
 // snippet, SSR-rendered in its final grid cell.
-// 2026-08-30 (table-grid-toolbar): the recipe suite lands between
-// usage and the semantic set — ability-named, one per demo.
+// Order follows the page DOM (MDN archetype, docs-eight-axes-mdn task 36).
+// install + see-also are chrome OUT of the toc; overview and the
+// frame-width laws (law) are new; theming folded into the axes layer;
+// the recipe suite keeps its ability-named entries (table-grid-toolbar).
 import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
-  { id: 'install', label: 'Install' },
+  { id: 'overview', label: 'Overview' },
   { id: 'table-workbench', label: 'live demo' },
   { id: 'usage', label: 'Usage' },
   { id: 'examples', label: 'Examples' },
@@ -18,11 +20,11 @@ const toc: TocSection[] = [
   { id: 'table-sticky-header', label: 'with sticky header' },
   { id: 'table-tasks', label: 'the tasks table' },
   { id: 'table-semantic-set', label: 'semantic set' },
+  { id: 'law', label: 'The frame-width laws' },
   { id: 'types', label: 'Responsive modes' },
-  { id: 'accessibility', label: 'Accessibility' },
-  { id: 'theming', label: 'Density and tokens' },
   { id: 'api', label: 'API' },
-  { id: 'see-also', label: 'See also' },
+  { id: 'axes', label: 'The eight axes' },
+  { id: 'accessibility', label: 'Accessibility' },
 ];
 
 export const load = () => ({ toc });

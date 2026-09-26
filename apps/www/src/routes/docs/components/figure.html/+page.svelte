@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import PropsTable from '$lib/ui/props-table/props-table.svelte';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
@@ -25,6 +26,29 @@
     { name: 'registry/files/ui/figure/figure.svelte', content: figureSource },
     { name: 'src/lib/figure-usage.svelte', content: usage },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Figure size="medium">…</Figure>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/figure-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -35,8 +59,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -45,7 +69,7 @@
         title="figure — the 浮 primitive"
         summary="A native <figure> that numbers itself from its Section's numbering domain: chapter-scoped per kind (Eq 4.5) or document-continuous by declaration, the caption riding label + number + text, the id making it referenceable. The line carries structure; the point inside carries meaning — code today, math and industry points as they land."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">native &lt;figure&gt;</span>
           <span class="pill">kind axis · figure/table/equation/listing</span>
           <span class="pill">display currency — reorder renumbers</span>
@@ -53,7 +77,7 @@
       </SectionCard>
     </div>
 
-    <div data-reveal="">
+    <div id="numbering-walkthrough" data-reveal="">
       <ComponentCanvas
         title="figure"
         stage="fill"
@@ -63,21 +87,21 @@
       >
         <div data-doc-demo-scope="headings-ok">
         <NumberingProvider>
-          <SectionCard numbering="decimal" title="Results" eyebrow="4" headerRegion="results">
-            <div class="flex flex-col gap-5">
+          <SectionCard numbering="decimal" title="Results" eyebrow="1" headerRegion="results">
+            <div class={cx(rt.col20)}>
               <Figure kind="equation" id="eq-4-1" caption="the momentum balance">
                 <CodeBlock code="p = m · v" lang="ts" meta="eq 4.1" />
               </Figure>
               <Figure kind="equation" id="eq-4-2" caption="the energy bound" citedIn={['§ 4.1']}>
                 <CodeBlock code="E ≤ mc²" lang="ts" meta="eq 4.2" />
               </Figure>
-              <p class="text-[13.5px]">the bound of <Reference to="eq-4-2" /> follows from <Reference to="eq-4-1" />.</p>
+              <p class={cx(rt.text135)}>the bound of <Reference to="eq-4-2" /> follows from <Reference to="eq-4-1" />.</p>
             </div>
           </SectionCard>
         </NumberingProvider>
         </div>
         {#snippet playground()}
-          <p class="text-xs text-muted-foreground">
+          <p class={cx(rt.note12)}>
             static demo — numbering is DOM-order display currency: reorder the figures in markup and
             the numbers (and every reference) follow.
           </p>
@@ -102,9 +126,23 @@
       </SectionCard>
     </div>
 
-    <div id="api" data-reveal="">
+    <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. FIRST-TIME contract, all no-own: document content (the numbering machinery is structural context, never paint)."
+    >
+      <ComponentCanvas title="Figure · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>The float primitive forwards the axes; the figcaption shape is frozen.</p></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal="">
       <SectionCard eyebrow="api" title="Figure props">
-        <PropsTable
+        <PropsTable universal
           props={[
             { name: 'kind', type: "'figure' | 'table' | 'equation' | 'listing'", required: true, description: 'The counter membership and display word (single-source labels; the customization axis is the R5 preset round).' },
             { name: 'id', type: 'string', description: 'Optional explicit address — a Figure without an id still numbers but is not referenceable; numbers are display currency, never addresses.' },

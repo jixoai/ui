@@ -1,5 +1,6 @@
 <script lang="ts">
     import { catalogByGroup, CATALOG } from '$lib/catalog';
+  import { rt } from '$lib/surface/routes.stylex';
   import DocsSectionsNav from '$lib/ui/docs-sections-nav.svelte';
   import DocsPager from '$lib/ui/docs-pager.svelte';
   // site-wide ⌘K (nav-fuzzy-filter change, N2): the palette rides the
@@ -17,6 +18,11 @@
   // see vite.config.ts for why this is a JS import, not an app.css
   // @import)
   import 'virtual:jixoai-icons.css';
+  // the stylex atoms' dev css (tailwindless W4-r6): a fetcher module
+  // pulling the live collected css from the plugin's dev middleware —
+  // in build it is a no-op (generateBundle's bake owns the payload),
+  // so it is never a duplicate emission lane
+  import 'virtual:jixoai-stylex-dev';
   // site-only docs surfaces (tw4 P2.2): tables + pill serve several routes
   import '$lib/site/docs-tables.css';
   // scrollbar law (2026-08-22): side-effect probe publishes the measured
@@ -31,6 +37,7 @@
   import { page } from '$app/state';
   import type { Snippet } from 'svelte';
   import WebsiteScaffold from '$lib/ui/website-scaffold/website-scaffold.svelte';
+  import BootSplash from '$lib/ui/boot-splash/boot-splash.svelte';
   import TerminalFooter from '$lib/ui/terminal-footer/terminal-footer.svelte';
   import TerminalFooterColumn from '$lib/ui/terminal-footer/terminal-footer-column.svelte';
   import TerminalHeader from '$lib/ui/terminal-header/terminal-header.svelte';
@@ -49,7 +56,6 @@
   import { onMount } from 'svelte';
   import { GITHUB_URL } from '$lib/site';
   import Icon from '$lib/ui/icon';
-  import { cn } from '$lib/utils';
   // the docs tree's single route model feeds the composed header pills
   // (D8's single-active law lives in the current derivations below)
   import { docsComponentGroups, docsSections } from '$lib/docs-route-model';
@@ -488,18 +494,22 @@
   );
 
   // the pill paint: the bezel's language over the navigation-menu
-  // family's base (padding + color utilities merge through cn(); the
+  // family's base (padding + color atoms join through cx(); the
   // typography resets live in terminal-header.css band 2)
   const pill = (current: boolean): string =>
-    cn(
-      'px-2.5 py-1 lg:px-3',
-      current ? 'text-terminal-foreground' : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+    cx(
+      rt.layPx10,
+      rt.py4,
+      rt.layPxLg,
+      current ? rt.inkTermFg : cx(rt.inkTermFg70, rt.layHoverFg),
     );
-  const pillTrigger = (current: boolean): string => cn('gap-1', pill(current));
+  const pillTrigger = (current: boolean): string => cx(rt.gap4, pill(current));
   const drawerLink = (active: boolean): string =>
-    cn(
-      'px-1 py-2 transition-colors',
-      active ? 'bg-terminal-hover text-terminal-foreground' : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+    cx(
+      rt.layPx4,
+      rt.py8,
+      rt.transitionColors,
+      active ? cx(rt.layBgTermHover, rt.inkTermFg) : cx(rt.inkTermFg70, rt.layHoverFg),
     );
 
   // the mobile drawer's own disclosure state; closing the drawer
@@ -510,6 +520,23 @@
   $effect(() => {
     if (!drawerOpen) drawerExpanded = {};
   });
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
 </script>
 
 <!-- layout-local content snippets: the composed header's shared glyphs
@@ -517,7 +544,7 @@
      component owns only the chrome) -->
 {#snippet caret()}
   <svg
-    class="jx-caret w-2.5 h-2.5 flex-none transition-transform duration-150 ease-out"
+    class="jx-caret {cx(rt.layCaret)}"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -532,7 +559,7 @@
 {#snippet ext()}
   <span
     data-jx-ext
-    class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
+    class="jx-ext-ico {cx(rt.layExt)}"
     aria-hidden="true"
   ><Icon name="externalLink" /></span>
 {/snippet}
@@ -541,16 +568,16 @@
        shave law (the -m-px grid bleeds into it); a second 14rem track
        never fits below 28rem and the container rule stacks the groups
        (terminal-header.css) -->
-  <div class="overflow-hidden">
-    <div class="grid -m-px grid-cols-[repeat(auto-fill,minmax(13.5rem,1fr))]">
+  <div class={cx(rt.overflowHidden)}>
+    <div class={cx(rt.layMegaGrid)}>
       {#each groups as group (group.label)}
         <div
-          class="jx-group min-w-0 py-2 px-3 pb-[0.625rem] border-t border-l border-[color:color-mix(in_oklab,var(--terminal-foreground)_15%,transparent)]"
+          class="jx-group {cx(rt.layGroupCell)}"
         >
           {#if group.label}
             <div
               data-jx-group-label
-              class="font-nav text-[10px] leading-[1.2] uppercase tracking-[0.18em] opacity-55 p-0 pe-[0.625rem] mb-2"
+              class={cx(rt.layGroupLabel)}
             >{group.label}</div>
           {/if}
           <div data-jx-group-list>
@@ -560,15 +587,15 @@
                 aria-current={link.active ? 'page' : undefined}
                 target={link.external ? '_blank' : undefined}
                 rel={link.external ? 'noreferrer' : undefined}
-                class="jx-sub-link grid grid-cols-1 items-start py-[0.4375rem] px-[0.625rem] transition-[background-color] duration-[120ms] ease-out"
+                class="jx-sub-link {cx(rt.laySubLink)}"
                 onclick={() => headerRef?.closeAll()}
               >
-                <span data-jx-sub-text class="flex flex-col gap-0.5">
-                  <span class="text-[13px] font-medium leading-snug">
+                <span data-jx-sub-text class={cx(rt.flex, rt.col, rt.gap2)}>
+                  <span class={cx(rt.laySubLabel)}>
                     {link.label}{#if link.external}{@render ext()}{/if}
                   </span>
                   {#if link.description}
-                    <span class="text-[11px] leading-snug opacity-60 line-clamp-2">{link.description}</span>
+                    <span class={cx(rt.laySubDesc)}>{link.description}</span>
                   {/if}
                 </span>
               </a>
@@ -582,12 +609,17 @@
 {#snippet drawerSection(key: string, label: string, href: string, current: boolean, groups: PanelGroup[])}
   <!-- parent row: full-width disclosure toggle; the parent href survives
        as the adjacent "all →" link -->
-  <div class="flex items-stretch">
+  <div class={cx(rt.layRowStretch)}>
     <button
       type="button"
-      class={cn(
-        'flex flex-1 items-center gap-1 px-1 py-2 text-left transition-colors',
-        current ? 'text-terminal-foreground' : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+      class={cx(
+        rt.grow,
+        rt.rowC4,
+        rt.layPx4,
+        rt.py8,
+        rt.textLeft,
+        rt.transitionColors,
+        current ? rt.inkTermFg : cx(rt.inkTermFg70, rt.layHoverFg),
       )}
       aria-expanded={drawerExpanded[key] ? 'true' : 'false'}
       onclick={() => (drawerExpanded[key] = !drawerExpanded[key])}
@@ -599,11 +631,11 @@
       href={href}
       onclick={() => (drawerOpen = false)}
       aria-label="all {label}"
-      class="flex items-center px-2 text-terminal-foreground/60 transition-colors hover:text-terminal-foreground"
+      class={cx(rt.rowC8, rt.layInkTerm60, rt.transitionColors, rt.layHoverFg)}
     >
       all <span
         data-jx-ext
-        class="inline-flex flex-none w-3 h-3 ms-1 align-[-0.125em] [&_svg]:w-full [&_svg]:h-full"
+        class="jx-ext-ico {cx(rt.layExt)}"
         aria-hidden="true"
       ><Icon name="arrowRight" /></span>
     </a>
@@ -611,16 +643,15 @@
   <!-- nested group: the same height-only collapse as the drawer itself
        (grid-rows 0fr → 1fr) -->
   <div
-    class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-200"
-    class:grid-rows-[1fr]={drawerExpanded[key]}
+    class={cx(rt.layCollapse, drawerExpanded[key] && rt.layCollapseOpen)}
   >
-    <div class="overflow-hidden">
-      <div class="flex flex-col border-l border-terminal-foreground/15 pl-3">
+    <div class={cx(rt.overflowHidden)}>
+      <div class={cx(rt.flex, rt.col, rt.layBorderL, rt.ps12)}>
         {#each groups as group (group.label)}
           {#if group.label}
             <div
               data-jx-m-group-label
-              class="font-nav text-[10px] uppercase tracking-[0.18em] opacity-55 pt-[0.625rem] pb-1 ps-1"
+              class={cx(rt.layMGroupLabel)}
             >{group.label}</div>
           {/if}
           {#each group.links as link (link.label)}
@@ -630,16 +661,21 @@
               aria-current={link.active ? 'page' : undefined}
               target={link.external ? '_blank' : undefined}
               rel={link.external ? 'noreferrer' : undefined}
-              class={cn(
-                'flex flex-col gap-0.5 py-1.5 pl-2 transition-colors',
+              class={cx(
+                rt.flex,
+                rt.col,
+                rt.gap2,
+                rt.py6,
+                rt.layPs8,
+                rt.transitionColors,
                 link.active
-                  ? 'bg-terminal-hover text-terminal-foreground'
-                  : 'text-terminal-foreground/70 hover:text-terminal-foreground',
+                  ? cx(rt.layBgTermHover, rt.inkTermFg)
+                  : cx(rt.inkTermFg70, rt.layHoverFg),
               )}
             >
               <span>{link.label}{#if link.external}{@render ext()}{/if}</span>
               {#if link.description}
-                <span class="text-[10px] leading-tight opacity-60">{link.description}</span>
+                <span class={cx(rt.text10, rt.layLeadTight, rt.layOp60)}>{link.description}</span>
               {/if}
             </a>
           {/each}
@@ -649,7 +685,81 @@
   </div>
 {/snippet}
 
+<!-- the splash fan's dark-ground desaturation (2026-09-21 polish):
+     the six squares ride the system's dark-profile primaries (C 0.1872),
+     which glare on the splash's near-black ground when output direct.
+     The treatment is PRESENTATION-LAYER — saturate() on the fan alone,
+     the swatch values stay the header-identical resource — and it rides
+     THIS head-inline block, never the compiled sheet, because the splash
+     law demands first-paint availability (the boot-splash block's own
+     vehicle; SSR bakes it into every page's HTML). The 0.78 ratio is the
+     theme's own light→dark chroma step (0.237 → 0.1872, ×0.79) applied
+     once more — the system's desaturation grammar, not a hand-picked
+     number. Media-query + class-bridge cover the same two dark lanes
+     the splash grounds use; the one edge (explicitly-light page + dark
+     OS) is the host one-liner the boot-splash block already documents. -->
+<svelte:head>
+  <style data-jx-splash-fan="">
+    @media (prefers-color-scheme: dark) {
+      .jx-splash-fan { filter: saturate(0.78); }
+    }
+    .dark .jx-splash-fan,
+    :root.dark .jx-splash-fan {
+      filter: saturate(0.78);
+    }
+  </style>
+</svelte:head>
+
 <WebsiteScaffold>
+  {#snippet splash()}
+    <!-- the FOUC mask (Owner design, 2026-09-19): styles ride the HTML
+         itself (inline + the head-carried block), so this paints before
+         any async stylesheet and dismisses on fonts.ready (4s cap).
+         The LOGO slot (Owner ask, 2026-09-20): the site's rainbow
+         swatch fan, the same six squares the terminal header carries
+         (centers stride 7, rotational symmetry, bell sizes) — rendered
+         ZERO-CSS-DEPENDENT for the splash law: attributes inline, the
+         breath is SMIL (animate opacity), never the header's
+         jx-logo-breath class (that sheet may not have arrived yet) -->
+    <BootSplash
+      title="jixoai-ui"
+      subtitle="the terminal design language"
+      description="loading the style sheet…"
+      exit="blur-out"
+    >
+      {#snippet logo()}
+        <svg class="jx-splash-fan" viewBox="0 0 48 48" width="64" height="64" aria-hidden="true">
+          {#each [
+              { hue: 356, size: 11, center: 6.5 },
+              { hue: 56, size: 14.5, center: 13.5 },
+              { hue: 116, size: 18, center: 20.5 },
+              { hue: 176, size: 18, center: 27.5 },
+              { hue: 236, size: 14.5, center: 34.5 },
+              { hue: 296, size: 11, center: 41.5 },
+            ] as swatch, i (swatch.hue)}
+            {@const pos = swatch.center - swatch.size / 2}
+            <rect
+              x={pos}
+              y={pos}
+              width={swatch.size}
+              height={swatch.size}
+              fill="oklch(0.7044 0.1872 {swatch.hue})"
+              stroke="var(--jx-boot-splash-mark, oklch(1 0 0 / 0.85))"
+              stroke-width="1"
+            >
+              <animate
+                attributeName="opacity"
+                values="1;0.55;1"
+                dur="3.6s"
+                begin={i * -600 + 'ms'}
+                repeatCount="indefinite"
+              />
+            </rect>
+          {/each}
+        </svg>
+      {/snippet}
+    </BootSplash>
+  {/snippet}
   {#snippet chrome()}
     <!-- static chrome (SSR-stable): the catalog tree + the page toc —
          authored in their final grid cells from the first paint -->
@@ -707,14 +817,14 @@
            CSS, currentColor through the muted chain) -->
       <button
         type="button"
-        class="mr-1.5 flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] flex-none items-center justify-center text-terminal-foreground/70 transition-colors hover:text-terminal-foreground [&_svg]:h-[18px] [&_svg]:w-[18px]"
+        class="jx-ico-18 {cx(rt.laySearchBtn)}"
         aria-label="Search the docs"
         title="Search the docs (⌘K)"
         onclick={() => document.dispatchEvent(new CustomEvent('jx-search-open'))}
       >
         <Icon name="search" />
       </button>
-      <NavigationMenu label="Primary" class="flex-nowrap items-center gap-0">
+      <NavigationMenu label="Primary" class={cx(rt.layNav)}>
         <NavigationMenuLink
           href="/"
           current={normalized === '/'}
@@ -762,7 +872,7 @@
              11,14.5,18,18,14.5,11 — no heavy end, equal 1px margins all round;
              exposure bands widen toward the tail, compensating the shrinking
              squares so every hue reads with similar visual weight -->
-        <svg viewBox="0 0 48 48" class="h-7 w-7" aria-hidden="true">
+        <svg viewBox="0 0 48 48" class={cx(rt.layLogo)} aria-hidden="true">
           {#each [
               { hue: 356, size: 11, center: 6.5 },
               { hue: 56, size: 14.5, center: 13.5 },
@@ -790,7 +900,7 @@
         <HuePopover />
       {/snippet}
       {#snippet drawer()}
-        <nav class="flex flex-col border-t border-terminal-foreground/10 py-2 text-xs" aria-label="Primary">
+        <nav class={cx(rt.layDrawerNav)} aria-label="Primary">
           <a
             href="/"
             onclick={() => (drawerOpen = false)}
@@ -855,6 +965,18 @@
 </div>
 
 <style>
+  /* the migrated descendant-selector channels (tailwindless Wave 3):
+     TW's [&_svg] utilities target CHILD-COMPONENT svgs — the page-style
+     channel is their lawful destination (the scoped-pruning law) */
+  .jx-ext-ico :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+  .jx-ico-18 :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+
   /* Logo breathing (Owner request, 2026-08-21): a traveling sine wave —
      adjacent squares sit 60° out of phase (one full wavelength across
      the fan), negative delays so the wave is mid-flight at first paint — an

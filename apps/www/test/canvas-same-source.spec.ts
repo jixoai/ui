@@ -49,6 +49,17 @@ const routePage = (rel: string): string =>
 // surface — no canvases, by design.
 const PILOTS = [
   'components/blockquote.html',
+  'components/alert.html',
+  'components/accordion.html',
+  'components/badge.html',
+  'components/avatar.html',
+  'components/button-group.html',
+  'components/breadcrumb.html',
+  'components/checkbox.html',
+  'components/color-picker.html',
+  'components/carousel.html',
+  'components/descriptions.html',
+  'components/badge-indicator.html',
   'components/link.html',
   'components/prose.html',
   'components/list.html',
@@ -128,8 +139,8 @@ describe('canvas same-source — the pilot drift gate', () => {
 describe('canvas same-source — the extracted blocks (the human drift proof)', () => {
   it('blockquote.html :: rungs', async () => {
     expect((await extractionFor('components/blockquote.html')).canvases['rungs']).toMatchInlineSnapshot(`
-      "<div class="flex w-full max-w-xl flex-col gap-4">
-        <div class="grid gap-4 min-[640px]:grid-cols-2">
+      "<div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+        <div class={cx(rt.bqGrid640a)}>
           <Blockquote>
             outline (own) — transparent ground, a soft 4px left rule at a lightened mix, 0.875em muted body: the classic quote.
           </Blockquote>
@@ -137,7 +148,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             tonal — the alert recipe verbatim: 12% tinted ground, 45% border, rounded box.
           </Blockquote>
         </div>
-        <div class="grid gap-4 min-[640px]:grid-cols-2">
+        <div class={cx(rt.bqGrid640a)}>
           <Blockquote variant="tonal" class="jx-hue-info" label="Note">
             The streaming prefix never remounts while chunks arrive.
           </Blockquote>
@@ -154,28 +165,28 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('blockquote.html :: rule', async () => {
     expect((await extractionFor('components/blockquote.html')).canvases['rule']).toMatchInlineSnapshot(`
-      "<div class="flex w-full max-w-3xl flex-col gap-6">
-        <div class="flex flex-col gap-3">
-          <span class="text-muted-foreground text-[11px]">outline — shadow (own) × border, 1 | 4 | 8</span>
-          <div class="grid gap-4 min-[640px]:grid-cols-3">
-            <Blockquote rule="shadow" ruleSize={1}>shadow-4 — the default: a 1px inset rule painted over geometry.</Blockquote>
-            <Blockquote rule="shadow" ruleSize={4}>shadow-4 — the emphasis quote, still 0.875rem of pad.</Blockquote>
+      "<div class={cx(rt.col24, rt.wFull, rt.maxW3xl)}>
+        <div class={cx(rt.col12)}>
+          <span class={cx(rt.note11)}>outline — shadow (own) × border, 1 | 4 | 8</span>
+          <div class={cx(rt.bqGrid640b)}>
+            <Blockquote rule="shadow" ruleSize={1}>shadow-1 — the hairline: a 1px inset rule painted over geometry.</Blockquote>
+            <Blockquote rule="shadow" ruleSize={4}>shadow-4 — the emphasis quote, pad fixed at 14px (calc(var(--jx-unit) * 3.5)).</Blockquote>
             <Blockquote rule="shadow" ruleSize={8}>shadow-8 — the pull quote; ps stays fixed, the paint widens.</Blockquote>
             <Blockquote rule="border" ruleSize={1}>border-1 — the classic geometry-consuming rule.</Blockquote>
             <Blockquote rule="border" ruleSize={4}>border-4 — consumes 3px more of the box.</Blockquote>
             <Blockquote rule="border" ruleSize={8}>border-8 — the widest structural edge.</Blockquote>
           </div>
         </div>
-        <div class="flex flex-col gap-3">
-          <span class="text-muted-foreground text-[11px]">the resolved default — 4 won the browser review; 1 stays the xs2-scale hairline</span>
-          <div class="grid gap-4 min-[640px]:grid-cols-2">
+        <div class={cx(rt.col12)}>
+          <span class={cx(rt.note11)}>the resolved default — 4 won the browser review; 1 stays the xs2-scale hairline</span>
+          <div class={cx(rt.bqGrid640a)}>
             <Blockquote rule="shadow" ruleSize={1}>shadow-1: the hairline — fits xs2-scale contexts only.</Blockquote>
             <Blockquote rule="shadow" ruleSize={4}>shadow-4: the default manuscript bar every quote now ships.</Blockquote>
           </div>
         </div>
-        <div class="flex flex-col gap-3">
-          <span class="text-muted-foreground text-[11px]">tonal — the box border stays; the shadow rule rides beside it</span>
-          <div class="grid gap-4 min-[640px]:grid-cols-3">
+        <div class={cx(rt.col12)}>
+          <span class={cx(rt.note11)}>tonal — the box border stays; the shadow rule rides beside it</span>
+          <div class={cx(rt.bqGrid640b)}>
             <Blockquote variant="tonal" rule="shadow" ruleSize={1}>tonal + shadow-1: a deliberate near-no-op — axis uniformity over special-casing.</Blockquote>
             <Blockquote variant="tonal" rule="shadow" ruleSize={4}>tonal + shadow-4: the rule starts to read through the tint.</Blockquote>
             <Blockquote variant="tonal" rule="shadow" ruleSize={8}>tonal + shadow-8: two edges, one hue source.</Blockquote>
@@ -184,17 +195,808 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
       </div>"
     `);
   });
+  it('alert.html :: axes', async () => {
+    // the axes drawer joined the same-source lane with the page's task-4
+    // micro-fix (the hand literal had drifted from its stage at birth —
+    // "…= 6px" vs "off the banner's anchor"); the stage is the one source
+    expect((await extractionFor('components/alert.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16, rt.wFull)}>
+        <!-- radius: the banner SUPPLIES the concentric anchor; size stamps the root -->
+        <Alert variant="tonal" title="concentric anchor" radius={20} size={18}>
+          <Card radius="auto">child at auto — corners resolve max(0px, 20 − 14) = 6px off the banner's anchor</Card>
+        </Alert>
+        <!-- density: the named rung moves the × hit lane -->
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}><Alert title="large rung" density="lg" dismiss="manual">The × affordance rides the lg hit lane.</Alert></div>
+          <div class={cx(rt.panel)}><Alert title="2xs rung" density="2xs" dismiss="manual">The × affordance rides the 2xs hit lane.</Alert></div>
+        </div>
+      </div>"
+    `);
+  });
+  it('accordion.html :: postures', async () => {
+    // the five axes canvases joined the same-source lane with the page's
+    // task-5 fix round (vellum M2: four hand mirrors already drifted at
+    // birth; the hand literals are gone — the stages are the one source).
+    // The FAQ canvas stays unextracted BY DESIGN: its stage carries the
+    // playground's page state ({exclusive}/{ghost} shorthand bindings —
+    // the F4 self-containment rejection class), so its drawer file is the
+    // labeled hand mirror (src/lib/ui/accordion-faq.svelte).
+    expect((await extractionFor('components/accordion.html')).canvases['postures']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridMd3)}>
+        <div class={cx(rt.panel)}>
+          <!-- default — the framed group -->
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>default — framed</p>
+          <Accordion>
+            <AccordionItem>
+              {#snippet summary()}framed{/snippet}
+              One collapsed 1px border around the set.
+            </AccordionItem>
+            <AccordionItem>
+              {#snippet summary()}seams{/snippet}
+              1px seams between items, not double borders.
+            </AccordionItem>
+          </Accordion>
+        </div>
+        <div class={cx(rt.panel)}>
+          <!-- ghost — antd Collapse ghost paint, frameless -->
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>ghost</p>
+          <Accordion ghost>
+            <AccordionItem>
+              {#snippet summary()}ghost{/snippet}
+              antd Collapse ghost mapping — frameless, hairline separators only.
+            </AccordionItem>
+          </Accordion>
+        </div>
+        <div class={cx(rt.panel)}>
+          <!-- bare item — without the group: a single styled details/summary -->
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>bare item</p>
+          <AccordionItem>
+            {#snippet summary()}one-off disclosure{/snippet}
+            Without the group: a single styled details/summary.
+          </AccordionItem>
+        </div>
+      </div>"
+    `);
+  });
+  it('accordion.html :: density', async () => {
+    expect((await extractionFor('components/accordion.html')).canvases['density']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col20, rt.wFull)}>
+        <DensityDemo>
+          <Accordion>
+            <AccordionItem>
+              {#snippet summary()}shipping{/snippet}
+              Orders leave the warehouse within 48h.
+            </AccordionItem>
+          </Accordion>
+        </DensityDemo>
+        <!-- explicit rungs — the documented vocabulary (aliases of sm/lg) -->
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}>
+            <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>density="large" — 15px summary</p>
+            <Accordion density="large">
+              <AccordionItem>
+                {#snippet summary()}large{/snippet}
+                The lg rung — 15px summary text.
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <div class={cx(rt.panel)}>
+            <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>density="small" — 12px summary</p>
+            <Accordion density="small">
+              <AccordionItem>
+                {#snippet summary()}small{/snippet}
+                The sm rung — 12px summary text.
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </div>
+      </div>"
+    `);
+  });
+  it('accordion.html :: theme', async () => {
+    expect((await extractionFor('components/accordion.html')).canvases['theme']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.wFull)}>
+        <Accordion theme="dark">
+          <AccordionItem>
+            {#snippet summary()}warranty{/snippet}
+            Two years against defects — the summary ink flips to the dark profile; the card
+            ground stays light.
+          </AccordionItem>
+          <AccordionItem>
+            {#snippet summary()}returns{/snippet}
+            30 days, no questions asked.
+          </AccordionItem>
+        </Accordion>
+      </div>"
+    `);
+  });
+  it('accordion.html :: concentric', async () => {
+    expect((await extractionFor('components/accordion.html')).canvases['concentric']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.wFull, rt.maxWXl)}>
+        <Accordion radius={20}>
+          <AccordionItem>
+            {#snippet summary()}concentric anchor{/snippet}
+            <Card radius="auto">
+              <div class={cx(rt.panel)}>the auto Card computes max(0px, 20px − its 0.875rem inset) = 6px — the radius var inherits the group root stamp through the plain cascade (native-details content is in flow; no portal boundary)</div>
+            </Card>
+          </AccordionItem>
+        </Accordion>
+      </div>"
+    `);
+  });
+  it('accordion.html :: query', async () => {
+    expect((await extractionFor('components/accordion.html')).canvases['query']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.wFull, rt.maxWXl)}>
+        <Accordion density={query<{ sm: DensityLane }, DensityLane>({ sm: 'default' }, 'small')}>
+          <AccordionItem>
+            {#snippet summary()}shipping{/snippet}
+            The compact rhythm below the 40rem viewport — the default rhythm above. Resize
+            the window and watch the summary step.
+          </AccordionItem>
+          <AccordionItem>
+            {#snippet summary()}returns{/snippet}
+            30 days, no questions asked.
+          </AccordionItem>
+        </Accordion>
+      </div>"
+    `);
+  });
+  it('badge.html :: usage', async () => {
+    // the badge page joined the same-source lane with its task-6 fix
+    // round (the task-4 gap — both canvases compose from resolveRawCode
+    // since birth; the gate entry + snapshots close the lane).
+    expect((await extractionFor('components/badge.html')).canvases['usage']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.flex, rt.col, rt.itemsStart, rt.gap16)}>
+        <div class={cx(rt.wrapRow12)}>
+          <Badge>v1.2.0</Badge>
+          <Badge variant="fill">new</Badge>
+          <Badge variant="outline">beta</Badge>
+        </div>
+        <div class={cx(rt.wrapRow12)}>
+          <Badge class="jx-hue-neutral">draft</Badge>
+          <Badge class="jx-hue-error">failed</Badge>
+          <Badge shape="pill" class="jx-hue-success">
+            {#snippet slotStart()}<Icon name="check" />{/snippet}
+            passing
+          </Badge>
+        </div>
+      </div>"
+    `);
+  });
+  it('badge.html :: axes', async () => {
+    expect((await extractionFor('components/badge.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16, rt.wFull)}>
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}>
+            <Badge density="2xs">2xs rung — 10px label, 14.5px box (measured)</Badge>
+          </div>
+          <div class={cx(rt.panel)}>
+            <Badge density="lg">lg rung — 14px label, 23px box (measured)</Badge>
+          </div>
+          <div class={cx(rt.panel)}>
+            <Badge size={14}>size 14 — the label re-types, the box stays 20px</Badge>
+          </div>
+          <div class={cx(rt.panel)}>
+            <Badge theme="dark">dark island — the hue slots re-declare</Badge>
+          </div>
+        </div>
+        <div class={cx(rt.panel, rt.wFull)}>
+          <Badge density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}>
+            responsive — the lg base below 40rem, the sm rung at 40rem and wider
+          </Badge>
+        </div>
+      </div>"
+    `);
+  });
+  it('avatar.html :: silhouettes', async () => {
+    // the avatar page joined the same-source lane at birth (vellum task 9):
+    // the silhouettes / fallback / axes canvases compose from resolveRawCode;
+    // the play-state lab stays a hand file (the page-state rejection class).
+    expect((await extractionFor('components/avatar.html')).canvases['silhouettes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16)}>
+        <div class={cx(rt.wrapRow16)}>
+          <Avatar name="张伟" variant="bevel" size="lg" alt="" />
+          <Avatar name="JX AoI" variant="bevel" size="md" alt="" />
+          <Avatar name="JX AoI" variant="bevel" size="sm" alt="" />
+          <code class={cx(rt.inkAccent, rt.text115, rt.lead5)}>corner-shape: bevel + var(--radius) × 0.75 / 1 / 1.25 (6·8·10px)</code>
+        </div>
+        <div class={cx(rt.wrapRow16)}>
+          <Avatar name="张伟" variant="rounded" size="lg" alt="" />
+          <Avatar name="JX AoI" variant="rounded" size="md" alt="" />
+          <Avatar name="JX AoI" variant="rounded" size="sm" alt="" />
+          <code class={cx(rt.inkAccent, rt.text115, rt.lead5)}>corner-shape: round + border-radius: 50%</code>
+        </div>
+        <div class={cx(rt.wrapRow16)}>
+          <Avatar name="张伟" variant="squircle" size="lg" alt="" />
+          <Avatar name="JX AoI" variant="squircle" size="md" alt="" />
+          <Avatar name="JX AoI" variant="squircle" size="sm" alt="" />
+          <code class={cx(rt.inkAccent, rt.text115, rt.lead5)}>corner-shape: squircle + border-radius: 50%</code>
+        </div>
+      </div>"
+    `);
+  });
+  it('avatar.html :: fallback', async () => {
+    expect((await extractionFor('components/avatar.html')).canvases['fallback']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>the initials algorithm</p>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" alt="" />
+            <Avatar name="Gaubee" alt="" />
+            <Avatar name="张伟" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>AL · GA · 张伟 — first+last initials, two code points of one word, CJK-safe</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>sm halves the block</p>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" size="sm" alt="" />
+            <Avatar name="张伟" size="sm" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>one code point — two full-width glyphs cannot fit 24px, and a badge must never wrap</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>image + tooltip</p>
+          <div class={cx(rt.rowC12)}>
+            <Avatar src="/icon.svg" name="JX AoI" size="lg" />
+            <span class={cx(rt.noteSmall)}>hover or focus — the full name rides the default tooltip</span>
+          </div>
+        </div>
+        <div class={cx(rt.panel)}>
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>decorative: alt=&quot;&quot;</p>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="JX AoI" alt="" />
+            <span class={cx(rt.noteSmall)}>beside a visible name — the fallback block goes aria-hidden, no label</span>
+          </div>
+        </div>
+      </div>"
+    `);
+  });
+  it('avatar.html :: axes', async () => {
+    expect((await extractionFor('components/avatar.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2)}>
+        <div class={cx(rt.panel)}>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" size="small" alt="" />
+            <Avatar name="Ada Lovelace" size="medium" alt="" />
+            <Avatar name="Ada Lovelace" size="large" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>named steps · 24 / 32 / 40px (measured)</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" size="sm" alt="" />
+            <Avatar name="Ada Lovelace" size="md" alt="" />
+            <Avatar name="Ada Lovelace" size="lg" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>legacy aliases · sm/md/lg → small/medium/large, the same boxes</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" size={48} alt="" />
+            <Avatar name="Ada Lovelace" size={28} alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>number lane · the box edge in px verbatim (48 / 28) — the initials follow the edge too (the §11 inline echo beats the fixed label step), and 48 clips its two letters (scrollWidth 52 > clientWidth 46 — drift ledger #7)</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Avatar name="Ada Lovelace" size={query<{ lg: number }, number>({ lg: 48 }, 40)} alt="" />
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>query() · 40px below the lg rung, 48px at ≥64rem — resize the window</p>
+        </div>
+        <div class={cx(rt.panel)}>
+          <div class={cx(rt.rowC12)}>
+            <Avatar name="Ada Lovelace" alt="" />
+            <Avatar name="Ada Lovelace" theme="dark" alt="" />
+          </div>
+          <p class={cx(rt.mt8, rt.text12, rt.inkMuted)}>theme dark · the bridge lands, nothing repaints — the documented absence (W-next #1)</p>
+        </div>
+      </div>"
+    `);
+  });
+  it('button-group.html :: axes', async () => {
+    // the button-group page joined the same-source lane at its tier-2
+    // restructure (vellum task 12): the axes canvas composes from
+    // resolveRawCode; the lab/scroll (page-state) and the query() canvas
+    // (the responsive query() embed) stay hand files (the rejection class).
+    expect((await extractionFor('components/button-group.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2, rt.wFull)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density default — the pointer-lane row (40px hits, 13px type)</span>
+          <ButtonGroup label="density default row">
+            <PressButton variant="outline">copy</PressButton>
+            <PressButton variant="outline">move</PressButton>
+            <PressButton variant="outline">delete</PressButton>
+          </ButtonGroup>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density="lg" — the touch tier steps the whole row (48px, 15px)</span>
+          <ButtonGroup label="density touch row" density="lg">
+            <PressButton variant="outline">copy</PressButton>
+            <PressButton variant="outline">move</PressButton>
+            <PressButton variant="outline">delete</PressButton>
+          </ButtonGroup>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>radius="medium" — the group anchors; the joined buttons compute R − seam</span>
+          <ButtonGroup label="radius row" radius="medium">
+            <PressButton variant="outline">copy</PressButton>
+            <PressButton variant="outline">move</PressButton>
+            <PressButton variant="outline">delete</PressButton>
+          </ButtonGroup>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>theme="dark" — the variant borders flip; the label ink stays frozen; the seams stay color-free; the cluster shadow follows the theme</span>
+          <ButtonGroup label="dark row" theme="dark">
+            <PressButton variant="outline">copy</PressButton>
+            <PressButton variant="outline">move</PressButton>
+            <PressButton variant="outline">delete</PressButton>
+          </ButtonGroup>
+        </div>
+      </div>
+      <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+        The number lane (a coefficient) stamps and re-bases nothing here — the declaring
+        element for every channel this family reads is outside the wrapper. Measure the hit
+        ladder, not the coefficient: 28 / 32 / 40 / 48px across xs / sm / default / lg.
+      </p>"
+    `);
+  });
+  it('carousel.html :: carousel-demo', async () => {
+    // the carousel page joined the same-source lane at its tier-2
+    // restructure (marginalia task 23): the lab + axes canvases are
+    // STATIC stages composed from resolveRawCode; the query() canvas
+    // embeds the responsive call (the documented rejection class).
+    expect((await extractionFor('components/carousel.html')).canvases['carousel-demo']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.wFull, rt.maxWXl)}>
+        <Carousel>
+          <figure class={cx(rt.panel)} style="display: flex; align-items: center; justify-content: center; gap: 1rem; min-height: 9rem; margin: 0;">
+            <span class={cx(rt.inkAccent)}>01</span> deploy
+          </figure>
+          <figure class={cx(rt.panel)} style="display: flex; align-items: center; justify-content: center; gap: 1rem; min-height: 9rem; margin: 0;">
+            <span class={cx(rt.inkAccent)}>02</span> audit
+          </figure>
+          <figure class={cx(rt.panel)} style="display: flex; align-items: center; justify-content: center; gap: 1rem; min-height: 9rem; margin: 0;">
+            <span class={cx(rt.inkAccent)}>03</span> ship
+          </figure>
+        </Carousel>
+      </div>"
+    `);
+  });
+  it('carousel.html :: axes', async () => {
+    expect((await extractionFor('components/carousel.html')).canvases['axes']).toMatchInlineSnapshot(`
+            "<div class={cx(rt.gridSm2, rt.wFull)}>
+              <div class={cx(rt.panel)} data-probe="row-default">
+                <span class={cx(rt.note11)}>density ambient — the chrome's fixed micro-geometry</span>
+                <Carousel label="density ambient row">
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">one</figure>
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">two</figure>
+                </Carousel>
+              </div>
+              <div class={cx(rt.panel)} data-probe="row-lg">
+                <span class={cx(rt.note11)}>density="lg" — the chrome unmoved; the supply flows to the slides</span>
+                <Carousel label="density lg row" density="lg">
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">one</figure>
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">two</figure>
+                </Carousel>
+              </div>
+              <div class={cx(rt.panel)} data-probe="row-dark">
+                <span class={cx(rt.note11)}>theme="dark" — .dark stamps; nothing flips (the frozen pole)</span>
+                <Carousel label="dark row" theme="dark">
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">one</figure>
+                  <figure class={cx(rt.panel)} style="min-height: 6rem; display: grid; place-items: center; margin: 0;">two</figure>
+                </Carousel>
+              </div>
+            </div>
+            <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+              Measured: the lg rung's data-density lands on the root while arrows, dots and track
+              stay unmoved — the chrome rides fixed space steps, and the slides inherit the
+              re-based channels through the supply. The dark island flips nothing: every painted
+              voice is the stylex :root emission (byte-identical arrows and dots).
+            </p>"
+          `);
+  });
+  it('checkbox.html :: states', async () => {
+    expect((await extractionFor('components/checkbox.html')).canvases['states']).toMatchInlineSnapshot(`
+      "<CardGrid min="200px">
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="unchecked" name="demo_cb" />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="checked" name="demo_cb" checked />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="indeterminate" name="demo_cb" indeterminate />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="label left" name="demo_cb" labelSide="left" />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="disabled" name="demo_cb" disabled />
+        </div>
+        <div class="demo-cell" data-no-subgrid>
+          <Checkbox label="error" name="demo_cb" error="consent is required" />
+        </div>
+      </CardGrid>"
+    `);
+  });
+  it('checkbox.html :: query', async () => {
+    expect((await extractionFor('components/checkbox.html')).canvases['query']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16, rt.wFull, rt.maxWXl)}>
+        <Checkbox
+          label="responsive hit lane"
+          name="axes-query"
+          density={query<{ sm: DensityLane }, DensityLane>({ sm: 'small' }, 'large')}
+        />
+        <p class={cx(rt.para)}>
+          Media keys are min-width: below 40rem the base applies — the large rung, the
+          24px box under a 48px lane (touch); at 40rem and wider the sm case wins — the
+          compact 18px box in a 32px lane (pointer). Resize the window.
+        </p>
+      </div>"
+    `);
+  });
+  it('checkbox.html :: bare', async () => {
+    expect((await extractionFor('components/checkbox.html')).canvases['bare']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm3, rt.wFull)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>bare — one input</span>
+          <Checkbox bare checked name="bare-plain" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>bare + density lg — inert</span>
+          <Checkbox bare checked density="lg" name="bare-inert" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.eyebrowPrimary)}>wrapped + density lg — the stamps live here</span>
+          <Checkbox checked label="wrapped" name="wrapped-contrast" density="lg" />
+        </div>
+      </div>"
+    `);
+  });
+  it('checkbox.html :: axes', async () => {
+    expect((await extractionFor('components/checkbox.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.col16, rt.wFull)}>
+        <!-- density: the NAMED lane paints on this family — the
+             rung stamps the data-density scope on the field
+             wrapper, the scope block re-declares the channels AT
+             the wrapper, and the box, the hit lane, the gap and
+             the label voice all move together. (The NUMBER lane
+             stamps only a coefficient — inert here: substitution
+             runs at the declaring element, so nothing re-declares
+             at the stamp.) -->
+        <div class={cx(rt.gridSm2)}>
+          <div class={cx(rt.panel)}><Checkbox label="lg rung — box and lane step up" name="axes-d-lg" density="lg" /></div>
+          <div class={cx(rt.panel)}><Checkbox label="2xs rung — the floor lowers to 24px" name="axes-d-2xs" density="2xs" /></div>
+        </div>
+      </div>"
+    `);
+  });
+  it('color-picker.html :: types', async () => {
+    // the color-picker page joined the same-source lane at its tier-2
+    // restructure (scribe task 16): the TYPES canvas is a static stage
+    // (no page state — the lab/catalogue/error demos stay hand mirrors,
+    // the bind:value rejection class)
+    expect((await extractionFor('components/color-picker.html')).canvases['types']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.cpGridSm)}>
+        <div class={cx(rt.panel)}><ColorPicker label="hex" value="#007924" format="hex" /></div>
+        <div class={cx(rt.panel)}><ColorPicker label="hsl" value="hsl(145 100% 24%)" format="hsl" /></div>
+        <div class={cx(rt.panel)}><ColorPicker label="oklch" value="oklch(0.6489 0.237 145)" format="oklch" showValue={false} /></div>
+      </div>"
+    `);
+  });
+  it('color-picker.html :: axes', async () => {
+    expect((await extractionFor('components/color-picker.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2, rt.wFull)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density default — the ruler's floor equation (46px well, 13px type)</span>
+          <ColorPicker label="density default well" value="#007924" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density="lg" — the touch tier steps the whole lane (58px, 15px)</span>
+          <ColorPicker label="density lg well" value="#007924" density="lg" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>theme="dark" — the caret, swatch border and well shadow flip; the trigger chrome stays frozen</span>
+          <ColorPicker label="dark well" value="#007924" theme="dark" />
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>color="error" — stamped, unread: the instrument stays hue-neutral (the lane paints nothing semantic)</span>
+          <ColorPicker label="color carrier well" value="#007924" color="error" />
+        </div>
+      </div>
+      <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+        The number lanes stamp and re-base nothing here — the declaring element for every
+        channel the family reads is the ambient scope (:root), the wrapper never re-declares
+        (the declaring-element law). Measure the well floor, not the coefficient:
+        34 / 36 / 46 / 58px across xs / sm / default / lg — the ruler equation
+        max(--jx-hit, --jx-icon + 2×--jx-inset + 2px).
+      </p>"
+    `);
+  });
+  it('descriptions.html :: types', async () => {
+    // the descriptions page joined the same-source lane at its tier-2
+    // restructure (scribe task 17): the types and vertical canvases are
+    // static stages; the lab/responsive/extra stay hand mirrors (the
+    // bind:value rejection class)
+    expect((await extractionFor('components/descriptions.html')).canvases['types']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.deGridMd2)}>
+        <div class={cx(rt.panel)}><Descriptions><DescriptionsItem term="owner">gaubee</DescriptionsItem></Descriptions></div>
+        <div class={cx(rt.panel)}><Descriptions columns={2} bordered><DescriptionsItem term="status">live</DescriptionsItem><DescriptionsItem term="scope">public</DescriptionsItem></Descriptions></div>
+      </div>"
+    `);
+  });
+  it('descriptions.html :: vertical', async () => {
+    expect((await extractionFor('components/descriptions.html')).canvases['vertical']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.deGrid)}>
+        <Descriptions>
+          <DescriptionsItem term="owner" class={cx(rt.deCols1Imp)}>@gaubee</DescriptionsItem>
+          <DescriptionsItem term="region" class={cx(rt.deCols1Imp)}>iad1 · washington</DescriptionsItem>
+          <DescriptionsItem term="status" class={cx(rt.deCols1Imp)}><Badge>passing</Badge></DescriptionsItem>
+        </Descriptions>
+        <Descriptions bordered>
+          <DescriptionsItem term="build" class={cx(rt.deCols1Imp)}>4f2a1c</DescriptionsItem>
+          <DescriptionsItem term="runtime" class={cx(rt.deCols1Imp)}>node 24 · bun</DescriptionsItem>
+          <DescriptionsItem term="notes" class={cx(rt.deCols1Imp)} />
+        </Descriptions>
+      </div>"
+    `);
+  });
+  it('descriptions.html :: axes', async () => {
+    expect((await extractionFor('components/descriptions.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2, rt.wFull)}>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density default — 13px values, 12px secondary terms, 12px padding</span>
+          <Descriptions bordered>
+            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          </Descriptions>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>density="lg" — the touch tier steps the whole grid (15px, 16px padding)</span>
+          <Descriptions bordered density="lg">
+            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          </Descriptions>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>theme="dark" — the bridge lands; the chrome stays frozen (nothing repaints)</span>
+          <Descriptions bordered theme="dark">
+            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          </Descriptions>
+        </div>
+        <div class={cx(rt.panel)}>
+          <span class={cx(rt.note11)}>color="error" — stamped, unread: content is not a painted object</span>
+          <Descriptions bordered color="error">
+            <DescriptionsItem term="build">4f2a1c</DescriptionsItem>
+            <DescriptionsItem term="owner">@gaubee</DescriptionsItem>
+          </Descriptions>
+        </div>
+      </div>
+      <p class={cx(rt.mt8, rt.note12, rt.inkMuted70)}>
+        The number lanes stamp and re-base nothing here — the declaring element for every
+        channel this family reads is the ambient scope (:root), the wrapper never
+        re-declares (the declaring-element law). Measure the voices, not the coefficient:
+        10 / 11 / 12 / 14px terms, 11 / 12 / 13 / 15px values, 8 / 8 / 12 / 16px padding.
+      </p>"
+    `);
+  });
+  it('breadcrumb.html :: demo', async () => {
+    expect((await extractionFor('components/breadcrumb.html')).canvases['demo']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.flex, rt.col, rt.itemsStart, rt.gap20)}>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components.html">components</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components/breadcrumb.html?trail=1">page 1</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbCollapse>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=2">page 2</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=3">page 3</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=4">page 4</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=5">page 5</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/breadcrumb.html?trail=6">page 6</BreadcrumbLink></BreadcrumbItem>
+            </BreadcrumbCollapse>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/docs/components/breadcrumb.html?trail=7">page 7</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+            <BreadcrumbItem>
+              <BreadcrumbPage href="/docs/components/breadcrumb.html?trail=8">page 8</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>"
+    `);
+  });
+  it('breadcrumb.html :: fold', async () => {
+    expect((await extractionFor('components/breadcrumb.html')).canvases['fold']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.bcGrid)}>
+        <div class={cx(rt.panel)}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbCollapse href="/docs">
+                <BreadcrumbItem><BreadcrumbLink href="/docs">docs</BreadcrumbLink></BreadcrumbItem>
+              </BreadcrumbCollapse>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div class={cx(rt.panel)}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/">home</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbSeparator><span class={cx(rt.inkMuted)}>/</span></BreadcrumbSeparator>
+              </BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage>current</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+      </div>"
+    `);
+  });
+  it('breadcrumb.html :: dropdown', async () => {
+    expect((await extractionFor('components/breadcrumb.html')).canvases['dropdown']).toMatchInlineSnapshot(`
+      "  <div class={cx(rt.maxWXl, rt.panel)}>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+              </BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+              <BreadcrumbItem><BreadcrumbPage href="/docs/components/breadcrumb.html">breadcrumb</BreadcrumbPage></BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>"
+    `);
+  });
+  it('breadcrumb.html :: axes', async () => {
+    expect((await extractionFor('components/breadcrumb.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "      <div class={cx(rt.gridSm2, rt.wFull)}>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>auto — ambient scope, stamps nothing</span>
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>density="small" — open the node: the menu rides the rung</span>
+                <Breadcrumb density="small">
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem>
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+                    </BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>density="large" — the same trail, the roomy rung</span>
+                <Breadcrumb density="large">
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem>
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+                    </BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>radius="large" — the trail is cornerless; the menu panel takes it</span>
+                <Breadcrumb radius="large">
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem>
+                      <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+                    </BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+              <div class={cx(rt.panel)}>
+                <span class={cx(rt.note11)}>theme="dark" — a split, measured: the trail text keeps the light stylex inks; the chevron, focus ring and the composed menu re-theme</span>
+                <Breadcrumb theme="dark">
+                  <BreadcrumbList>
+                    <BreadcrumbItem><BreadcrumbLink href="/">registry</BreadcrumbLink></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                    <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                  </BreadcrumbList>
+                </Breadcrumb>
+              </div>
+            </div>
+            <div class={cx(rt.col20, rt.wFull, rt.anMt32)}>
+              <span class={cx(rt.note11)}>density={"{query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}"}</span>
+              <Breadcrumb density={query<{ lg: DensityLane }, DensityLane>({ lg: 'large' }, 'small')}>
+                <BreadcrumbList>
+                  <BreadcrumbItem><BreadcrumbLink href="/docs/components/overview.html">docs</BreadcrumbLink></BreadcrumbItem>
+                  <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                  <BreadcrumbItem>
+                    <BreadcrumbDropdown label="components" current="/docs/components/breadcrumb.html" items={[
+        { label: 'tabs', href: '/docs/components/tabs.html' },
+        { label: 'toast', href: '/docs/components/toast.html' },
+        { label: 'breadcrumb', href: '/docs/components/breadcrumb.html' },
+      ]} />
+                  </BreadcrumbItem>
+                  <BreadcrumbItem><BreadcrumbSeparator /></BreadcrumbItem>
+                  <BreadcrumbItem><BreadcrumbPage>breadcrumb</BreadcrumbPage></BreadcrumbItem>
+                </BreadcrumbList>
+              </Breadcrumb>
+              <p class={cx(rt.mt4, rt.note12, rt.inkMuted70)}>
+                SSR resolves the query's base (small) onto the root's rung stamp — inspect the
+                markup: data-density="sm" on this nav, and the nav's scope block re-declares the
+                five channels the composed menu reads. At the lg viewport rung (≥64rem) the engine
+                re-resolves to large and the scope re-stamps; open the node on either side of 64rem
+                and watch the menu rhythm step.
+              </p>
+            </div>"
+    `);
+  });
   it('link.html :: lanes', async () => {
     expect((await extractionFor('components/link.html')).canvases['lanes']).toMatchInlineSnapshot(`
-      "<div class="flex w-full max-w-xl flex-col gap-3 text-[13.5px] leading-7">
-        <p class="m-0">
+      "<div class={cx(rt.flex, rt.wFull, rt.maxWXl, rt.col, rt.gap12, rt.lkBody)}>
+        <p class={cx(rt.m0)}>
           Same document, different lanes: read
           <Link href="/docs/components/markdown.html" title="the markdown page">the markdown page</Link>
           here, or leave for
           <Link href="https://github.com/jixoai/ui" title="the repository">the repository</Link>
           in a new tab.
         </p>
-        <p class="m-0 text-muted-foreground">
+        <p class={cx(rt.m0, rt.inkMuted)}>
           Prose composition — the offset keeps the underline off the descenders:
           <Link href="https://commonmark.org" title="the CommonMark spec">CommonMark</Link>,
           <Link href="https://tailwindcss.com/docs/typography-plugin" title="the Typography plugin">Tailwind Typography</Link>,
@@ -205,22 +1007,22 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('link.html :: icon', async () => {
     expect((await extractionFor('components/link.html')).canvases['icon']).toMatchInlineSnapshot(`
-      "<div class="flex w-full max-w-xl flex-col gap-3 text-[13.5px] leading-7">
-        {#snippet arrowGlyph()}<span aria-hidden="true" class="font-mono">→</span>{/snippet}
-        <p class="m-0">
+      "<div class={cx(rt.flex, rt.wFull, rt.maxWXl, rt.col, rt.gap12, rt.lkBody)}>
+        {#snippet arrowGlyph()}<span aria-hidden="true" class={cx(rt.fontMono)}>→</span>{/snippet}
+        <p class={cx(rt.m0)}>
           undefined (omitted) — the default glyph on an external:
           <Link href="https://github.com/jixoai/ui">the repository</Link>
         </p>
-        <p class="m-0">
+        <p class={cx(rt.m0)}>
           null — the lane explicitly off:
           <Link href="https://github.com/jixoai/ui" icon={null}>a quiet external</Link>
           (still target=_blank; only the glyph is gone)
         </p>
-        <p class="m-0">
+        <p class={cx(rt.m0)}>
           snippet — custom content in the lane:
           <Link href="https://github.com/jixoai/ui" icon={arrowGlyph}>leaving the document</Link>
         </p>
-        <p class="m-0 text-muted-foreground">
+        <p class={cx(rt.m0, rt.inkMuted)}>
           internal — the lane never ships:
           <Link href="/docs/components/markdown.html">staying in the document</Link>
         </p>
@@ -229,10 +1031,10 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('list.html :: shapes', async () => {
     expect((await extractionFor('components/list.html')).canvases['shapes']).toMatchInlineSnapshot(`
-      "<div class="grid w-full max-w-3xl gap-8 min-[760px]:grid-cols-2">
+      "<div class={cx(rt.liGrid)}>
         <List>
           <li>prefix keys freeze while the tail grows</li>
-          <li>the tail mutates in place on its <code class="font-mono text-[0.85em]">:tail</code> key</li>
+          <li>the tail mutates in place on its <code class={cx(rt.fontMono, rt.liCode85)}>:tail</code> key</li>
           <li>
             nesting composes:
             <List>
@@ -251,8 +1053,8 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('list.html :: markers', async () => {
     expect((await extractionFor('components/list.html')).canvases['markers']).toMatchInlineSnapshot(`
-      "<div class="grid w-full max-w-3xl gap-x-10 gap-y-6 min-[760px]:grid-cols-2">
-        <div class="flex flex-col gap-4">
+      "<div class={cx(rt.liGridXY)}>
+        <div class={cx(rt.flex, rt.col, rt.gap16)}>
           <List marker="disc">
             <li>disc — the ul platform default</li>
             <li>a core utility; the byte-parity stamp</li>
@@ -270,7 +1072,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             <li>the indent is structural, not decorative</li>
           </List>
         </div>
-        <div class="flex flex-col gap-4">
+        <div class={cx(rt.flex, rt.col, rt.gap16)}>
           <List ordered marker="decimal">
             <li>decimal — the ol platform default</li>
             <li>continues from start when set</li>
@@ -293,24 +1095,24 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('list.html :: nav', async () => {
     expect((await extractionFor('components/list.html')).canvases['nav']).toMatchInlineSnapshot(`
-      "<div class="grid w-full max-w-3xl gap-8 min-[760px]:grid-cols-2">
-        <div class="jx-pure flex flex-col gap-2">
-          <span class="text-[11px] text-muted-foreground">in a jx-pure scope — bare anchors ride the B2 lane</span>
+      "<div class={cx(rt.liGrid)}>
+        <div class="jx-pure {cx(rt.col8)}">
+          <span class={cx(rt.text11, rt.inkMuted)}>in a jx-pure scope — bare anchors ride the B2 lane</span>
           <List nav="On this page">
             <li><a href="#usage">Usage</a></li>
             <li><a href="#markers">The marker matrix</a></li>
             <li><a href="#api">API</a></li>
           </List>
         </div>
-        <div class="flex flex-col gap-2">
-          <span class="text-[11px] text-muted-foreground">with an explicit marker — the list-style default yields, ps-0 stays</span>
+        <div class={cx(rt.col8)}>
+          <span class={cx(rt.text11, rt.inkMuted)}>with an explicit marker — the list-style default yields, ps-0 stays</span>
           <List nav="Chapters" ordered marker="decimal">
             <li>the arrival</li>
             <li>the turn</li>
           </List>
-          <p class="m-0 text-[12.5px] leading-6 text-muted-foreground">
+          <p class={cx(rt.m0, rt.text125, rt.lead6, rt.inkMuted)}>
             Standalone (no face scope), a bare anchor is unstyled by design — compose the
-            <a class="text-accent underline underline-offset-2" href="/docs/components/link.html">Link part</a>
+            <a class={cx(rt.linkAccent)} href="/docs/components/link.html">Link part</a>
             for the prose lane; chrome lists inside app chrome use their own controls.
           </p>
         </div>
@@ -319,23 +1121,23 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('prose.html :: knobs', async () => {
     expect((await extractionFor('components/prose.html')).canvases['knobs']).toMatchInlineSnapshot(`
-      "<div class="grid w-full max-w-4xl gap-8 min-[760px]:grid-cols-2">
-        <div class="flex flex-col gap-2">
-          <span class="text-[11px] text-muted-foreground">ambient — no knob set</span>
+      "<div class={cx(rt.prsGrid760)}>
+        <div class={cx(rt.col8)}>
+          <span class={cx(rt.note11)}>ambient — no knob set</span>
           <Prose>
             <P>The face's own channels carry this region: 14px body, the p lane at 1.6, ink at the foreground token. Nothing was stamped.</P>
           </Prose>
-          <span class="text-[11px] text-muted-foreground">size + leading — scale and flow</span>
-          <Prose size="1.0625rem" leading={1.9}>
+          <span class={cx(rt.note11)}>size + leading — scale and flow</span>
+          <Prose measure="1.0625rem" leading={1.9}>
             <P>17px by inheritance; the P rides the region's 1.9 leading through the presence-gated residue rule. The same string would move a heading's em ladder for free — ambient size scales the ladder.</P>
           </Prose>
         </div>
-        <div class="flex flex-col gap-2">
-          <span class="text-[11px] text-muted-foreground">align justify + hyphens auto (lang on the host)</span>
-          <Prose align="justify" hyphens="auto" lang="en" size="13.5px">
+        <div class={cx(rt.col8)}>
+          <span class={cx(rt.note11)}>align justify + hyphens auto (lang on the host)</span>
+          <Prose align="justify" hyphens="auto" lang="en" measure="13.5px">
             <P>Justified columns read best when the engine may break words: hyphens auto needs a lang on the host or an ancestor, and the two knobs are documented as a pair — justify without hyphens rivers, hyphens without justify never shows its work.</P>
           </Prose>
-          <span class="text-[11px] text-muted-foreground">wrap pretty — the prose word</span>
+          <span class={cx(rt.note11)}>wrap pretty — the prose word</span>
           <Prose wrap="pretty">
             <P>Pretty wrapping breaks the final line where the reader needs it; balance is the heading-scope word, stable the tabular one.</P>
           </Prose>
@@ -349,10 +1151,10 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   // reviewing these blocks IS reviewing what each drawer ships
   it('variant-grammar.html :: ladder', async () => {
     expect((await extractionFor('variant-grammar.html')).canvases['ladder']).toMatchInlineSnapshot(`
-      "<div class="flex flex-col gap-6">
-        <div class="flex flex-col gap-3">
-          <span class="text-muted-foreground text-[11px]">PressButton — the full union (default: outline)</span>
-          <div class="flex flex-wrap items-center gap-3">
+      "<div class={cx(rt.col24)}>
+        <div class={cx(rt.col12)}>
+          <span class={cx(rt.note11)}>PressButton — the full union (default: outline)</span>
+          <div class={cx(rt.rowC12, rt.wrap)}>
             <PressButton variant="fill">deploy</PressButton>
             <PressButton variant="tonal">preview</PressButton>
             <PressButton variant="outline">cancel</PressButton>
@@ -360,26 +1162,26 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             <PressButton variant="link">read the docs</PressButton>
           </div>
         </div>
-        <div class="grid gap-6 min-[760px]:grid-cols-2">
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">Badge — fill / tonal (default) / outline</span>
-            <div class="flex flex-wrap items-center gap-3">
+        <div class={cx(rt.grid760g24)}>
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.note11)}>Badge — fill / tonal (default) / outline</span>
+            <div class={cx(rt.rowC12, rt.wrap)}>
               <Badge variant="fill">new</Badge>
               <Badge>running</Badge>
               <Badge variant="outline">beta</Badge>
             </div>
-            <span class="text-muted-foreground text-[11px]">
+            <span class={cx(rt.note11)}>
               Chip — all four rungs, control-scale on the hit lane
             </span>
-            <div class="flex flex-wrap items-center gap-3">
+            <div class={cx(rt.rowC12, rt.wrap)}>
               <Chip variant="fill">filter: owner</Chip>
               <Chip>filter: open</Chip>
               <Chip variant="outline">filter: label</Chip>
               <Chip variant="ghost">clear filters</Chip>
             </div>
           </div>
-          <div class="flex flex-col gap-3">
-            <span class="text-muted-foreground text-[11px]">
+          <div class={cx(rt.col12)}>
+            <span class={cx(rt.note11)}>
               Alert — outline (default) / tonal; Blockquote — outline (default) / tonal;
               InlineCode — fused (default) / tonal / outline
             </span>
@@ -398,7 +1200,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
               the rule itself is now the shadow channel (an inset rule at 1px by default, the
               rule×size axis beside the rungs).
             </Blockquote>
-            <p class="text-[13px] leading-6">
+            <p class={cx(rt.body13)}>
               Inline code rides the same ladder:
               <InlineCode>npm run verify</InlineCode> is the fused default (the band fused
               from the backdrop behind it), and
@@ -412,10 +1214,10 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('variant-grammar.html :: injection', async () => {
     expect((await extractionFor('variant-grammar.html')).canvases['injection']).toMatchInlineSnapshot(`
-      "<div class="grid gap-6 min-[760px]:grid-cols-2">
-        <div class="flex flex-col gap-3">
-          <span class="text-muted-foreground text-[11px]">STATUS hues — the tonal slot, reported states</span>
-          <div class="flex flex-wrap items-center gap-3">
+      "<div class={cx(rt.grid760g24)}>
+        <div class={cx(rt.col12)}>
+          <span class={cx(rt.note11)}>STATUS hues — the tonal slot, reported states</span>
+          <div class={cx(rt.rowC12, rt.wrap)}>
             <Badge class="jx-hue-neutral">draft</Badge>
             <Badge class="jx-hue-error">failed</Badge>
             <Badge shape="pill" class="jx-hue-success">
@@ -425,41 +1227,41 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             <Badge class="jx-hue-warning">degraded</Badge>
             <Badge class="jx-hue-info">canary</Badge>
           </div>
-          <span class="text-muted-foreground text-[11px]">ACTION hue — the fill pair, verbs that destroy</span>
-          <div class="flex flex-wrap items-center gap-3">
+          <span class={cx(rt.note11)}>ACTION hue — the fill pair, verbs that destroy</span>
+          <div class={cx(rt.rowC12, rt.wrap)}>
             <PressButton variant="fill" class="jx-pair-destructive">delete workspace</PressButton>
             <PressButton variant="outline">cancel</PressButton>
           </div>
-          <p class="text-muted-foreground text-[13px] leading-6">
-            The pair law: <code class="text-accent">--jx-fill</code> and
-            <code class="text-accent">--jx-fill-ink</code> are ALWAYS injected together — one
+          <p class={cx(rt.bodyMuted)}>
+            The pair law: <code class={cx(rt.inkAccent)}>--jx-fill</code> and
+            <code class={cx(rt.inkAccent)}>--jx-fill-ink</code> are ALWAYS injected together — one
             without the other paints brand ink on a destructive ground.
           </p>
         </div>
-        <div class="flex flex-col gap-3">
-          <span class="text-muted-foreground text-[11px]">
+        <div class={cx(rt.col12)}>
+          <span class={cx(rt.note11)}>
             the same failure, both grammars — STATUS error (left) vs ACTION destructive (right)
           </span>
-          <div class="grid gap-3">
+          <div class={cx(rt.grid, rt.gap12)}>
             <Alert variant="tonal" assertive title="Canary failed">
               The canary build errored on seat 3 — an error STATUS reads tonal + the error hue.
             </Alert>
-            <div class="flex flex-wrap items-center gap-3">
-              <span class="text-muted-foreground text-[11px]">confirm the destructive action:</span>
+            <div class={cx(rt.rowC12, rt.wrap)}>
+              <span class={cx(rt.note11)}>confirm the destructive action:</span>
               <PressButton variant="fill" class="jx-pair-destructive">discard changes</PressButton>
             </div>
           </div>
-          <span class="text-muted-foreground text-[11px]">
+          <span class={cx(rt.note11)}>
             inheritance — one injection on the wrapper retunes every consumer below
           </span>
-          <div class="jx-hue-info flex flex-wrap items-center gap-3">
+          <div class="jx-hue-info {cx(rt.rowC12, rt.wrap)}">
             <Badge>info badge</Badge>
             <Chip>info chip</Chip>
             <PressButton variant="tonal">tonal button</PressButton>
             <PressButton variant="outline">outline — hover me</PressButton>
           </div>
-          <p class="text-muted-foreground text-[13px] leading-6">
-            The wrapper carries <code class="text-accent">class="jx-hue-info"</code> — the
+          <p class={cx(rt.bodyMuted)}>
+            The wrapper carries <code class={cx(rt.inkAccent)}>class="jx-hue-info"</code> — the
             slots are ordinary custom properties, so the subtree inherits them; even the
             outline rung's 8% hover overlay follows the retuned hue.
           </p>
@@ -469,9 +1271,9 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('variant-grammar.html :: intent-utilities', async () => {
     expect((await extractionFor('variant-grammar.html')).canvases['intent-utilities']).toMatchInlineSnapshot(`
-      "<div class="flex flex-col gap-4">
-        <span class="text-muted-foreground text-[11px]">the closed set, live — every intent is one class</span>
-        <div class="flex flex-wrap items-center gap-3">
+      "<div class={cx(rt.col16)}>
+        <span class={cx(rt.note11)}>the closed set, live — every intent is one class</span>
+        <div class={cx(rt.rowC12, rt.wrap)}>
           <Badge class="jx-hue-primary">primary</Badge>
           <Badge class="jx-hue-neutral">neutral</Badge>
           <Badge class="jx-hue-error">error</Badge>
@@ -479,26 +1281,26 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
           <Badge class="jx-hue-warning">warning</Badge>
           <Badge class="jx-hue-info">info</Badge>
         </div>
-        <span class="text-muted-foreground text-[11px]">
+        <span class={cx(rt.note11)}>
           jx-pair-destructive vs the arbitrary pair it replaces
         </span>
-        <div class="flex flex-wrap items-center gap-3">
+        <div class={cx(rt.rowC12, rt.wrap)}>
           <PressButton variant="fill" class="jx-pair-destructive">the pair utility</PressButton>
           <PressButton
             variant="fill"
-            class="[--jx-fill:var(--destructive)] [--jx-fill-ink:var(--destructive-foreground)]"
+            class={cx(rt.vgFillDestructive, rt.vgInkDestructive)}
           >
             the arbitrary pair
           </PressButton>
         </div>
-        <p class="text-muted-foreground text-[13px] leading-6">
+        <p class={cx(rt.bodyMuted)}>
           Identical paint — but the utility cannot half-apply, cannot typo a token name, and
           documents its intent in the class list.
         </p>
-        <span class="text-muted-foreground text-[11px]">the escape hatch — anything outside the closed set</span>
-        <div class="flex flex-wrap items-center gap-3">
-          <Badge class="[--jx-tonal:oklch(0.72_0.14_300)]">untitled violet</Badge>
-          <span class="text-muted-foreground text-[11px]">
+        <span class={cx(rt.note11)}>the escape hatch — anything outside the closed set</span>
+        <div class={cx(rt.rowC12, rt.wrap)}>
+          <Badge class={cx(rt.vgTonalViolet)}>untitled violet</Badge>
+          <span class={cx(rt.note11)}>
             a hue no semantic token owns — the arbitrary form stays canonical for it
           </span>
         </div>
@@ -507,11 +1309,11 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('variant-grammar.html :: dedupe', async () => {
     expect((await extractionFor('variant-grammar.html')).canvases['dedupe']).toMatchInlineSnapshot(`
-      "<div class="flex flex-col gap-4">
-        <span class="text-muted-foreground text-[11px]">
+      "<div class={cx(rt.col16)}>
+        <span class={cx(rt.note11)}>
           cn() dedupe — last-wins, exactly like the arbitrary form
         </span>
-        <div class="flex flex-wrap items-center gap-3">
+        <div class={cx(rt.rowC12, rt.wrap)}>
           <Badge class="jx-hue-error">base — error</Badge>
           <Badge class="jx-hue-error jx-hue-success">naive concat</Badge>
           <Badge class={cn('jx-hue-error', 'jx-hue-success')}>cn() deduped</Badge>
@@ -521,24 +1323,24 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('variant-grammar.html :: elevation', async () => {
     expect((await extractionFor('variant-grammar.html')).canvases['elevation']).toMatchInlineSnapshot(`
-      "<div class="flex flex-wrap items-end gap-x-10 gap-y-5 text-[12.5px]">
-        <div class="text-muted-foreground flex flex-col gap-2">
+      "<div class={cx(rt.flex, rt.wrap, rt.itemsEnd, rt.gapX10, rt.gapY20, rt.text125)}>
+        <div class={cx(rt.col8, rt.inkMuted)}>
           <PressButton variant="fill">raise</PressButton>
           <span>press law · xs → sm on hover</span>
         </div>
-        <div class="text-muted-foreground flex flex-col gap-2">
+        <div class={cx(rt.col8, rt.inkMuted)}>
           <Kbd>engrave</Kbd>
           <span>--shadow-engrave · incised inset</span>
         </div>
-        <div class="text-muted-foreground flex max-w-[16rem] flex-col gap-2">
+        <div class={cx(rt.col8, rt.inkMuted, rt.maxW16)}>
           <Blockquote rule="shadow" ruleSize={4}>inset rule — blockquote's rule channel</Blockquote>
           <span>shadow-4 · the inset standard consumed as structure</span>
         </div>
-        <div class="text-muted-foreground flex flex-col gap-2">
+        <div class={cx(rt.col8, rt.inkMuted)}>
           <Chip variant="outline">raise twin</Chip>
           <span>badge scale, press physics</span>
         </div>
-        <div class="text-muted-foreground flex flex-col gap-2">
+        <div class={cx(rt.col8, rt.inkMuted)}>
           <Badge>flush</Badge>
           <span>display glyph · no elevation</span>
         </div>
@@ -569,10 +1371,10 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('jx-pure.html :: buttons', async () => {
     expect((await extractionFor('jx-pure.html')).canvases['buttons']).toMatchInlineSnapshot(`
-      "<div class="grid gap-6 min-[760px]:grid-cols-2">
-        <div class="flex flex-col gap-3">
-          <span class="text-muted-foreground text-[11px]">inside .jx-pure — the law</span>
-          <div class="jx-pure flex flex-wrap items-center gap-3">
+      "<div class={cx(rt.grid760g24)}>
+        <div class={cx(rt.col12)}>
+          <span class={cx(rt.note11)}>inside .jx-pure — the law</span>
+          <div class="jx-pure {cx(rt.rowC12, rt.wrap)}">
             <button type="button">plain button</button>
             <button type="button" disabled>disabled</button>
             <input type="button" value="input button" />
@@ -580,14 +1382,14 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             <a href="#buttons">plain link</a>
           </div>
         </div>
-        <div class="flex flex-col gap-3">
-          <span class="text-muted-foreground text-[11px]">outside the scope — untouched UA paint</span>
-          <div class="flex flex-wrap items-center gap-3">
+        <div class={cx(rt.col12)}>
+          <span class={cx(rt.note11)}>outside the scope — untouched UA paint</span>
+          <div class={cx(rt.rowC12, rt.wrap)}>
             <button type="button">plain button</button>
             <button type="button" disabled>disabled</button>
             <a href="#buttons">plain link</a>
           </div>
-          <span class="text-muted-foreground text-[11px]">
+          <span class={cx(rt.note11)}>
             opt-in is structural: no class on the ancestor, no jixoai face
           </span>
         </div>
@@ -596,7 +1398,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('jx-pure.html :: forms', async () => {
     expect((await extractionFor('jx-pure.html')).canvases['forms']).toMatchInlineSnapshot(`
-      "<div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 60rem">
+      "<div class="jx-pure {cx(rt.grid760a)}" style="max-width: 60rem">
         <form onsubmit={(e) => e.preventDefault()}>
           <fieldset>
             <legend>account</legend>
@@ -692,7 +1494,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('jx-pure.html :: nav-lists', async () => {
     expect((await extractionFor('jx-pure.html')).canvases['nav-lists']).toMatchInlineSnapshot(`
-      "<div class="grid gap-6 min-[760px]:grid-cols-2">
+      "<div class={cx(rt.grid760g24)}>
         <div class="jx-pure" style="max-width: 28rem">
           <nav>
             <a href="#nav-lists">docs</a> · <a href="#nav-lists">registry</a> · <a href="#nav-lists">tokens</a>
@@ -740,8 +1542,8 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('jx-pure.html :: media-flow', async () => {
     expect((await extractionFor('jx-pure.html')).canvases['media-flow']).toMatchInlineSnapshot(`
-      "<div class="grid gap-6 min-[760px]:grid-cols-2">
-        <div class="jx-pure flex flex-col gap-4" style="max-width: 30rem">
+      "<div class={cx(rt.grid760g24)}>
+        <div class="jx-pure {cx(rt.col16)}" style="max-width: 30rem">
           <div>
             <small>progress · 60%</small><br />
             <progress value="60" max="100"></progress>
@@ -756,7 +1558,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             <meter value="20" min="0" max="100" low="30" high="90" optimum="80"></meter>
             <meter value="95" min="0" max="100" low="30" high="90" optimum="80"></meter>
           </div>
-          <form onsubmit={(e) => e.preventDefault()} class="flex flex-wrap items-center gap-2">
+          <form onsubmit={(e) => e.preventDefault()} class={cx(rt.rowC8, rt.wrap)}>
             <label for="mf-a">a</label>
             <input id="mf-a" type="number" value="6" style="width: 5rem" />
             <label for="mf-b">b</label>
@@ -777,7 +1579,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('jx-pure.html :: switch', async () => {
     expect((await extractionFor('jx-pure.html')).canvases['switch']).toMatchInlineSnapshot(`
-      "<div class="jx-pure flex flex-wrap items-center gap-6" style="max-width: 44rem">
+      "<div class="jx-pure {cx(rt.rowC24, rt.wrap)}" style="max-width: 44rem">
         <label class="jx-switch-sm"><input type="checkbox" role="switch" /> sm auto-save</label>
         <label><input type="checkbox" role="switch" /> md notifications</label>
         <label class="jx-switch-lg"><input type="checkbox" role="switch" checked /> lg telemetry</label>
@@ -788,8 +1590,8 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('jx-pure.html :: validation', async () => {
     expect((await extractionFor('jx-pure.html')).canvases['validation']).toMatchInlineSnapshot(`
-      "<div class="jx-pure grid gap-5 min-[760px]:grid-cols-2" style="max-width: 52rem">
-        <form onsubmit={(e) => e.preventDefault()} class="flex flex-col gap-3">
+      "<div class="jx-pure {cx(rt.grid760a)}" style="max-width: 52rem">
+        <form onsubmit={(e) => e.preventDefault()} class={cx(rt.col12)}>
           <label for="v-ok">valid lane (aria-invalid='false')</label>
           <input id="v-ok" type="text" value="gaubee" aria-invalid="false" />
           <label for="v-bad">invalid lane (aria-invalid='true')</label>
@@ -797,7 +1599,7 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
           <label for="v-sel-bad">invalid select</label>
           <select id="v-sel-bad" aria-invalid="true"><option>pick…</option></select>
         </form>
-        <div class="flex flex-col gap-3">
+        <div class={cx(rt.col12)}>
           <label><input type="checkbox" aria-invalid="true" checked /> invalid checkbox</label>
           <label><input type="checkbox" aria-invalid="false" checked /> valid checkbox</label>
           <label><input type="radio" name="v-radio" aria-invalid="true" checked /> invalid radio</label>
@@ -812,9 +1614,9 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('jx-pure.html :: dark-mode', async () => {
     expect((await extractionFor('jx-pure.html')).canvases['dark-mode']).toMatchInlineSnapshot(`
-      "<div class="grid gap-6 min-[760px]:grid-cols-2">
-        <div class="flex flex-col gap-2">
-          <span class="text-muted-foreground text-[11px]">&lt;div class="jx-pure"&gt; — light (inherits :root)</span>
+      "<div class={cx(rt.grid760g24)}>
+        <div class={cx(rt.col8)}>
+          <span class={cx(rt.note11)}>&lt;div class="jx-pure"&gt; — light (inherits :root)</span>
           <div class="jx-pure" style="max-width: 26rem">
             <p><label for="d-l">label</label><br />
               <input id="d-l" type="text" placeholder="light lane" /></p>
@@ -824,8 +1626,8 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             </p>
           </div>
         </div>
-        <div class="flex flex-col gap-2">
-          <span class="text-muted-foreground text-[11px]">&lt;div class="dark jx-pure"&gt; — scoped dark island</span>
+        <div class={cx(rt.col8)}>
+          <span class={cx(rt.note11)}>&lt;div class="dark jx-pure"&gt; — scoped dark island</span>
           <div class="dark jx-pure" style="max-width: 26rem">
             <p><label for="d-d">label</label><br />
               <input id="d-d" type="text" placeholder="dark lane" /></p>
@@ -835,8 +1637,8 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
             </p>
           </div>
         </div>
-        <div class="flex flex-col gap-2">
-          <span class="text-muted-foreground text-[11px]">&lt;div class="jx-light jx-pure"&gt; — forced light under a dark root</span>
+        <div class={cx(rt.col8)}>
+          <span class={cx(rt.note11)}>&lt;div class="jx-light jx-pure"&gt; — forced light under a dark root</span>
           <div class="dark jx-pure" style="padding: 0.75rem; max-width: 26rem">
             <div class="jx-light jx-pure">
               <p><label for="d-lf">label</label><br />
@@ -853,70 +1655,70 @@ describe('canvas same-source — the extracted blocks (the human drift proof)', 
   });
   it('icons.html :: sizes', async () => {
     expect((await extractionFor('icons.html')).canvases['sizes']).toMatchInlineSnapshot(`
-      "<div class="flex flex-wrap items-end justify-center gap-x-10 gap-y-5" data-icon-size-demo="">
-        <div class="flex flex-col items-center gap-2">
+      "<div class={cx(rt.flex, rt.wrap, rt.itemsEnd, rt.justifyCenter, rt.gapX10, rt.gapY20)} data-icon-size-demo="">
+        <div class={cx(rt.col8, rt.itemsCenter)}>
           <Icon name="eye" size={12} />
-          <code class="text-muted-foreground font-mono text-[11px]">size={12}</code>
+          <code class={cx(rt.note11, rt.fontMono)}>size={12}</code>
         </div>
-        <div class="flex flex-col items-center gap-2">
+        <div class={cx(rt.col8, rt.itemsCenter)}>
           <Icon name="eye" size={16} />
-          <code class="text-muted-foreground font-mono text-[11px]">size={16}</code>
+          <code class={cx(rt.note11, rt.fontMono)}>size={16}</code>
         </div>
-        <div class="flex flex-col items-center gap-2">
+        <div class={cx(rt.col8, rt.itemsCenter)}>
           <Icon name="eye" size={24} />
-          <code class="text-muted-foreground font-mono text-[11px]">size={24}</code>
+          <code class={cx(rt.note11, rt.fontMono)}>size={24}</code>
         </div>
-        <div class="flex flex-col items-center gap-2">
+        <div class={cx(rt.col8, rt.itemsCenter)}>
           <Icon name="eye" size={32} />
-          <code class="text-muted-foreground font-mono text-[11px]">size={32}</code>
+          <code class={cx(rt.note11, rt.fontMono)}>size={32}</code>
         </div>
       </div>"
     `);
   });
   it('icons.html :: channel-gallery', async () => {
     expect((await extractionFor('icons.html')).canvases['channel-gallery']).toMatchInlineSnapshot(`
-      "<div class="flex flex-col gap-3" data-channel-gallery="">
+      "<div class={cx(rt.col12)} data-channel-gallery="">
         <!-- STATIC literals by law: the scanner collects static
              name="…" attributes only — a dynamic name={expr} here
              would be unpacked at runtime (the runtime lane), not
              scanned. These six cells ARE the dogfood. -->
-        <div class="flex flex-wrap gap-3">
-          <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:home">
+        <div class={cx(rt.wrap12)}>
+          <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="md:home">
             <Icon name="md:home" size={24} />
-            <code class="text-muted-foreground font-mono text-[11px]">md:home</code>
-            <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · outlined/400</span>
+            <code class={cx(rt.note11, rt.fontMono)}>md:home</code>
+            <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>material · outlined/400</span>
           </div>
-          <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="md:copy_all">
+          <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="md:copy_all">
             <Icon name="md:copy_all" size={24} />
-            <code class="text-muted-foreground font-mono text-[11px]">md:copy_all</code>
-            <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">material · snake_case</span>
+            <code class={cx(rt.note11, rt.fontMono)}>md:copy_all</code>
+            <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>material · snake_case</span>
           </div>
-          <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="ph:atom">
+          <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="ph:atom">
             <Icon name="ph:atom" size={24} />
-            <code class="text-muted-foreground font-mono text-[11px]">ph:atom</code>
-            <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">phosphor · regular</span>
+            <code class={cx(rt.note11, rt.fontMono)}>ph:atom</code>
+            <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>phosphor · regular</span>
           </div>
-          <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="rx:system:add-line">
+          <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="rx:system:add-line">
             <Icon name="rx:system:add-line" size={24} />
-            <code class="text-muted-foreground font-mono text-[11px]">rx:system:add-line</code>
-            <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">remix · category-prefixed</span>
+            <code class={cx(rt.note11, rt.fontMono)}>rx:system:add-line</code>
+            <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>remix · category-prefixed</span>
           </div>
-          <div class="border-border/60 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="check">
+          <div class={cx(rt.col8, rt.frame60, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="check">
             <Icon name="check" size={24} />
-            <code class="text-muted-foreground font-mono text-[11px]">check</code>
-            <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · built-in</span>
+            <code class={cx(rt.note11, rt.fontMono)}>check</code>
+            <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>lucide · built-in</span>
           </div>
-          <div class="border-primary/40 bg-card/40 flex flex-col items-center gap-2 border px-4 py-3" data-channel-cell="lucide:check">
+          <div class={cx(rt.col8, rt.framePrimary40, rt.bgCard40, rt.itemsCenter, rt.px16, rt.py12)} data-channel-cell="lucide:check">
             <Icon name="lucide:check" size={24} />
-            <code class="text-muted-foreground font-mono text-[11px]">lucide:check</code>
-            <span class="text-muted-foreground text-[10px] uppercase tracking-[0.14em]">lucide · equivalence → check</span>
+            <code class={cx(rt.note11, rt.fontMono)}>lucide:check</code>
+            <span class={cx(rt.inkMuted, rt.text10, rt.upper, rt.track14)}>lucide · equivalence → check</span>
           </div>
         </div>
-        <div class="flex flex-wrap items-center gap-3 border-border border p-4" data-alias-demo="">
+        <div class={cx(rt.rowC12, rt.panel, rt.wrap)} data-alias-demo="">
           <Icon name="md:copy_all as copy2" size={20} />
           <Icon name="copy2" size={20} />
-          <span class="text-muted-foreground text-[13px] leading-6">
-            the <code class="text-accent">as</code> form, live: the left cell writes the full literal, the right
+          <span class={cx(rt.bodyMuted)}>
+            the <code class={cx(rt.inkAccent)}>as</code> form, live: the left cell writes the full literal, the right
             resolves the alias — ONE packed payload, three legal spellings (the artifact's ALIASES row)
           </span>
         </div>
@@ -950,10 +1752,11 @@ describe('canvas same-source — rendered parity through the real pipeline', () 
     )!;
     await fireEvent.click(toggle);
     const drawers = container.querySelectorAll<HTMLElement>('.jx-canvas-code-drawer');
-    // 3 canvases: rungs, rule, and the icon-lane demo swept through a
-    // canvas (canvas-everywhere-demos, 2026-09-08) — a plain-files
-    // canvas; it never joins the same-source lane below
-    expect(drawers.length).toBe(3);
+    // 4 canvases: rungs, rule, the icon-lane demo swept through a
+    // canvas (canvas-everywhere-demos, 2026-09-08), and the W3-B
+    // universal-props demo (explicit-props, 2026-09-21) — both
+    // plain-files canvases; they never join the same-source lane below
+    expect(drawers.length).toBe(4);
     const rungsDrawer = drawers[0]!;
     expect(rungsDrawer.hasAttribute('data-open')).toBe(true);
     expect(rungsDrawer.textContent).toContain('blockquote-usage.svelte');
@@ -969,5 +1772,57 @@ describe('canvas same-source — rendered parity through the real pipeline', () 
     expect(ruleDrawer.hasAttribute('data-open')).toBe(true);
     expect(ruleDrawer.textContent).toContain('blockquote-rule-usage.svelte');
     expect(ruleDrawer.textContent).toContain('border-8 — the widest structural edge');
+  });
+
+  it('badge-indicator.html :: badge-indicator-demo', async () => {
+    // the badge-indicator page joined the same-source lane at its tier-2
+    // authoring (marginalia task 27): the demo canvas is a STATIC stage
+    // (four posture chips over plain span children — no state, no
+    // stores), so the extractor holds it verbatim.
+    expect(
+      (await extractionFor('components/badge-indicator.html')).canvases['badge-indicator-demo'],
+    ).toMatchInlineSnapshot(`
+      "<div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gap32)}>
+        <BadgeIndicator dot label="2 unread">
+          <span class={cx(rt.biChild)}>GB</span>
+        </BadgeIndicator>
+        <BadgeIndicator count={5}>
+          <span class={cx(rt.biChild)}>AL</span>
+        </BadgeIndicator>
+        <BadgeIndicator count={250} />
+        <BadgeIndicator count={0} showZero />
+      </div>"
+    `);
+  });
+
+  it('badge-indicator.html :: axes', async () => {
+    expect((await extractionFor('components/badge-indicator.html')).canvases['axes']).toMatchInlineSnapshot(`
+      "<div class={cx(rt.gridSm2, rt.wFull)}>
+        <div class={cx(rt.panel)} data-probe="wrap-default">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>density default — tenant 40px</p>
+          <BadgeIndicator count={5} density="default">
+            <PressButton>inbox</PressButton>
+          </BadgeIndicator>
+        </div>
+        <div class={cx(rt.panel)} data-probe="wrap-lg">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>density lg — tenant 48px, chip 18px</p>
+          <BadgeIndicator count={5} density="lg">
+            <PressButton>inbox</PressButton>
+          </BadgeIndicator>
+        </div>
+        <div class={cx(rt.panel)} data-probe="stamped-chip">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>stamped lg on the chip — 18px stays</p>
+          <BadgeIndicator count={5} density="lg" />
+        </div>
+        <div class={cx(rt.panel)} data-probe="size-echo">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>size 18 standalone — the inline mirror outruns the micro atom</p>
+          <BadgeIndicator count={5} size={18} />
+        </div>
+        <div class={cx(rt.panel)} data-probe="supply-only">
+          <p class={cx(rt.eyebrow, rt.mb12, rt.inkMuted)}>color error + radius large — the paint does not move</p>
+          <BadgeIndicator count={8} radius="large" color="error" />
+        </div>
+      </div>"
+    `);
   });
 });

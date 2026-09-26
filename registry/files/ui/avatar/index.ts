@@ -3,4 +3,9 @@
 // carries module-level named exports/types. No logic lives here.
 export { default } from './avatar.svelte';
 export * from './avatar.svelte';
-export { AvatarDefaults, type AvatarSize, type AvatarVariant } from './avatar-defaults.svelte';
+export {
+  AVATAR_SIZE_ALIASES,
+  AvatarDefaults,
+  normalizeAvatarSize,
+  type AvatarVariant,
+} from './avatar-defaults.svelte';

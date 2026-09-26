@@ -75,7 +75,7 @@
  * specificity, so consumer utilities still win (the layer law).
  * Reduced motion: nothing here moves (layout only).
  */
-@layer theme, base, components, utilities;
+@layer theme, base, components;
 
 @layer components {
   /* the cluster shadow: the joined row's ONE convex shadow (the press

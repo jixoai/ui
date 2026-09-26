@@ -186,14 +186,20 @@ const AST_SPEC = {
 };
 
 // KNOWN tier1-only consumption classes OUTSIDE the standard layer —
-// tracked debt of the register fusion (each standardizes onto the
-// jx-html-* vocabulary or retires; DELETE entries as they migrate, at
-// which point the strict scoped-class comparison enforces itself).
-// Anything not jx-html-* and not listed here still FAILS the gate.
+// what began as register-fusion debt has SETTLED as the tailwindless
+// law-class architecture: jx-control/-lane are the Part A postures,
+// jx-textarea stays a consumed law class (textarea.stylex.ts says so
+// explicitly), jx-tgroup-item/-content are static hook strings whose
+// owner is the shared components-layer paint, and scheme-light /
+// dark:scheme-dark is the select's color-scheme pair. An entry may be
+// DELETED only when its class truly leaves the carrier tree — until
+// then the strict scoped-class comparison stays disarmed over exactly
+// these names. Anything not jx-html-* and not listed here still FAILS
+// the gate.
 const AST_LEGACY_CARRIERS = [
   'jx-control', 'jx-control-lane', // Part A postures → jx-html-control/-lane
-  'jx-textarea', // → jx-html-textarea
-  'jx-tgroup-item', 'jx-tgroup-content', // retire (§11.2: bare label/span)
+  'jx-textarea', // consumed law class — settled (tailwindless W4 review)
+  'jx-tgroup-item', 'jx-tgroup-content', // static hooks, shared-sheet paint — settled (tailwindless W4 review)
   'scheme-light', 'dark:scheme-dark', // the select's color-scheme pair
 ];
 

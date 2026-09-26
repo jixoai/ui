@@ -27,18 +27,41 @@ describe('pilot page schema playground', () => {
     // (segmented/segmented/toggle/toggle/text/toggle — r13 added
     // popovertarget, the raised physics axis added its toggle, Owner
     // 2026-09-03; the native inert pose disabled added its toggle,
-    // issue #4, 2026-09-13)
+    // issue #4, 2026-09-13) + the W4 4.1 axis trio: seven axes
+    // (theme scoped out page-side — the stage-preview bindable owns
+    // re-theming) × {axis-enum, :query} + six :number rows = 20 → 26
+    // total
     const rows = container.querySelectorAll('[data-jx-canvas-row]');
-    expect(rows.length).toBe(6);
+    expect(rows.length).toBe(26);
+    expect(container.querySelector('[data-jx-canvas-axis-select]')).not.toBeNull();
+    expect(container.querySelectorAll('[data-jx-canvas-axis-select]').length).toBe(7);
+    // the axis siblings stay HIDDEN until their mode is selected
+    expect(container.querySelector('[data-jx-canvas-axis-number]')).toBeNull();
+    expect(container.querySelector('[data-jx-canvas-axis-query]')).toBeNull();
     expect(container.querySelector('[data-jx-canvas-toggle]')).not.toBeNull();
     // no hand-written kit selects remain (the canvas-everywhere sweep,
-    // 2026-09-08, mounts the dock chrome on every canvas — each carries
-    // the head's density select; the body and the rows pane have none)
-    expect(container.querySelector('[data-jx-canvas-dock-scroll] select')).toBeNull();
+    // 2026-09-08, mounts the dock chrome on every canvas; the body's
+    // rows pane carries ONLY schema-lowered selects — the W4 axis
+    // enums, never kit ones. RE-PINNED 2026-09-21, the Owner's
+    // eight-axis bar: the dock head's density SELECT retired — the
+    // head speaks the axis grammar through icon-button menus now, so
+    // the only <select>s left on the page are the seven axis enums)
+    const rowSelects = [...container.querySelectorAll('[data-jx-canvas-dock-scroll] select')];
+    expect(rowSelects.length).toBe(7);
+    expect(
+      rowSelects.every((s) => s.hasAttribute('data-jx-canvas-axis-select')),
+      'dock-body selects are all axis enums',
+    ).toBe(true);
     const selects = [...container.querySelectorAll('select')];
-    expect(selects.length).toBe(3);
-    expect(selects.every((s) => s.getAttribute('aria-label') === 'Density')).toBe(true);
-    expect(container.querySelector('select')!.getAttribute('aria-label')).toBe('Density');
+    // W3-B (explicit-props): the universal-props demo canvas joined —
+    // four canvases; W4 4.1 put the seven axis enum selects inside the
+    // schema canvas's dock body, and the eight-axis bar (2026-09-21)
+    // retired the four head density selects — 11 → 7, all enums
+    expect(selects.length).toBe(7);
+    expect(
+      selects.every((s) => s.hasAttribute('data-jx-canvas-axis-select')),
+      'every select on the page is an axis enum — the head run carries none',
+    ).toBe(true);
 
     // flip variant → the driven instance restamps data-jx-press-button
     // (grindstone #17-3: the segmented rows ride ItemSegmented — the
@@ -71,5 +94,101 @@ describe('pilot page schema playground', () => {
     await fireEvent.click(container.querySelector<HTMLButtonElement>('[data-jx-canvas-reset]')!);
     expect(container.querySelector('[data-jx-press-button="outline"]')).not.toBeNull();
     expect(container.querySelector('[data-jx-press-button="outline"] .jx-pulse-layer')).toBeNull();
+  });
+
+  it('flips an axis control → the driven instance re-stamps live (canvas-schema spec scenario)', async () => {
+    const { container } = render(Page);
+    // the canvas-schema delta's scenario, verbatim: elevation auto →
+    // level4 re-renders with the 8dp recipe — asserted as the STAMPED
+    // DECLARATION on the driven root's style attr (the D3
+    // receipt-authoring law: assert the declaration, never the
+    // computed value of an unregistered custom property)
+    const drivenRoot = () => {
+      const label = [...container.querySelectorAll('span')].find(
+        (s) => s.textContent?.trim() === 'driven by the playground',
+      );
+      return label?.parentElement?.querySelector<HTMLButtonElement>('button') ?? null;
+    };
+    const elevationSelect = container.querySelector<HTMLSelectElement>(
+      '[data-jx-canvas-axis-select]#jx-canvas-press-button-ctl-elevation',
+    )!;
+    expect(elevationSelect).toBeDefined();
+    expect(drivenRoot()?.getAttribute('style')).not.toContain('--jx-elevation-effective');
+    await fireEvent.change(elevationSelect, { target: { value: 'level4' } });
+    expect(drivenRoot()?.getAttribute('style')).toContain('--jx-elevation-effective: 8');
+
+    // the number spinner: size mode → number row appears → typing the
+    // exact value stamps the px carrier (the rest lane lands the
+    // data-jx-canvas-axis-number hook ON the native input itself)
+    const sizeSelect = container.querySelector<HTMLSelectElement>(
+      '[data-jx-canvas-axis-select]#jx-canvas-press-button-ctl-size',
+    )!;
+    await fireEvent.change(sizeSelect, { target: { value: 'number' } });
+    const sizeInput = container.querySelector<HTMLInputElement>('[data-jx-canvas-axis-number]');
+    expect(sizeInput).not.toBeNull();
+    await fireEvent.input(sizeInput!, { target: { value: '20' } });
+    await fireEvent.change(sizeInput!, { target: { value: '20' } });
+    expect(drivenRoot()?.getAttribute('style')).toContain('--jx-size-effective: 20px');
+
+    // the query editor: mode query() → the source editor appears; a
+    // valid case stamps the media-conditional carrier declaration
+    await fireEvent.change(sizeSelect, { target: { value: 'query()' } });
+    const queryInput = container.querySelector<HTMLInputElement>('[data-jx-canvas-axis-query]');
+    expect(queryInput).not.toBeNull();
+    await fireEvent.input(queryInput!, { target: { value: "{ sm: 'large' }" } });
+    // jsdom has no live media ticks here — the media case resolves at
+    // the ENGINE's matchMedia lane — the honest jsdom assertion is
+    // the engine's SSR/base law: nothing matches until the media
+    // flips, so the carrier stamps nothing (auto base). The BROWSER
+    // probe (scripts/probe-w4-canvas-docs.mjs) owns the live-boundary
+    // receipt.
+    expect(drivenRoot()?.getAttribute('style')).not.toContain('--jx-size-effective: 20px');
+  });
+
+  // W7-r2 (the vision round's bar/panel desync MAJOR): the bar's lane
+  // record and the panel's axis rows are ONE state — a bar write carries
+  // the panel's own axis-enum row along (the record the page's stage
+  // drivers read), a panel write mirrors into the bar's record, and the
+  // panel's select DISPLAYS the canvas's resolved lane (the
+  // consumer-explicit ?? bar-lane getter record handed down as
+  // `resolvedLanes`). Asserted end-to-end through both write paths.
+  it('the bar and the panel share ONE truth — both write paths carry each other', async () => {
+    const { container } = render(Page);
+    const sizeSelect = container.querySelector<HTMLSelectElement>(
+      '[data-jx-canvas-axis-select]#jx-canvas-press-button-ctl-size',
+    )!;
+    const sizeBtn = container.querySelector<HTMLElement>('[data-jx-canvas-axis="size"]')!;
+    const shapeSelect = container.querySelector<HTMLSelectElement>(
+      '[data-jx-canvas-axis-select]#jx-canvas-press-button-ctl-shape',
+    )!;
+    const shapeBtn = container.querySelector<HTMLElement>('[data-jx-canvas-axis="shape"]')!;
+
+    // BAR PATH: menu item click → the panel's own size select reads the
+    // pick (the resolved lane the carriers ride), the bar button paints
+    // set (data-axis-auto absent), and the page's driven stage instance
+    // stamps the lane (values carried along — explicit + ambient agree)
+    const large = container.querySelector<HTMLButtonElement>(
+      '#jx-canvas-press-button-axis-size [data-axis-value="large"]',
+    )!;
+    await fireEvent.click(large);
+    expect(sizeSelect.value).toBe('large');
+    expect(sizeBtn.hasAttribute('data-axis-auto')).toBe(false);
+
+    // PANEL PATH: the shape select's write mirrors into the bar's own
+    // record — the button's set state flips without touching the bar
+    await fireEvent.change(shapeSelect, { target: { value: 'squircle' } });
+    expect(shapeBtn.hasAttribute('data-axis-auto')).toBe(false);
+    expect(
+      container
+        .querySelector('#jx-canvas-press-button-axis-shape [data-axis-value="squircle"]')!
+        .hasAttribute('data-axis-current'),
+    ).toBe(true);
+
+    // the panel's number mode clears the bar lane (the bar has no
+    // number mode — an honest bar shows no stale set)
+    await fireEvent.change(sizeSelect, { target: { value: 'number' } });
+    expect(sizeBtn.hasAttribute('data-axis-auto')).toBe(true);
+    // the axis-number row appears in number mode (the seeded exact value)
+    expect(container.querySelector('[data-jx-canvas-axis-number]')).not.toBeNull();
   });
 });

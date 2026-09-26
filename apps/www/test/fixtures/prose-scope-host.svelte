@@ -36,7 +36,7 @@
   <!-- all eleven knobs set at once -->
   <div data-testid="full-wrap">
     <Prose
-      size="1.125rem"
+      measure="1.125rem"
       leading={1.9}
       family="serif"
       ink="primary"
@@ -60,9 +60,9 @@
   </div>
 
   <!-- nested: nearest setter wins per knob; absent knobs keep the
-       ambient channel flowing (outer size/leading, inner ink) -->
+       ambient channel flowing (outer measure/leading, inner ink) -->
   <div data-testid="nested-wrap">
-    <Prose size="16px" leading={outerLeading}>
+    <Prose measure="16px" leading={outerLeading}>
       <Prose ink={innerInk}>
         <P>nested body</P>
         <ScopeReader testid="reader-inner" />
@@ -89,10 +89,10 @@
     </Prose>
   </div>
 
-  <!-- the sovereignty probe: Prose size+leading wrapping Markdown
+  <!-- the sovereignty probe: Prose measure+leading wrapping Markdown
        typography=relaxed (the trio must keep its own scale) -->
   <div data-testid="sovereignty-wrap">
-    <Prose size="20px" leading={1.4}>
+    <Prose measure="20px" leading={1.4}>
       <Markdown source="para one" typography="relaxed" />
     </Prose>
   </div>

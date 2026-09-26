@@ -223,3 +223,81 @@ The docs canvases' shown code SHALL BE the canvas's real markup.
 > state-bearing demos await identifier lifting). The fleet sweep
 > (33 more pages + the no-hand-usage lint on migrated pages) is a
 > recorded follow-up.
+
+### Requirement: the timeline docs page carries the reui demo families and the fractional-progress demos (Owner 2026-09-15 r2)
+
+The timeline docs page SHALL demonstrate the full reui-standard
+capability surface AND our highlights beyond it, every demo inside the
+canvas-stage skeleton (the docs lint's scope): the TWELVE official
+reui families, ONE stage each (the official full titles are the
+inventory's source of truth — research/reui-family-inventory.md —
+whose mapping table pins each stage's aria-label; docs short names
+are display aliases) — Basic · roadmap · order status
+· git activity · milestones · pipeline steps · roadmap items ·
+vertical · horizontal with leading labels · deployment log ·
+activity feed with user avatars · compact horizontal milestone —
+PLUS our highlights: the 8-directional dot-slot matrix, the spine
+presets, the custom geometry snippet, and a decimal-progress tween +
+controlled-stepper demo (playing `value` through fractional
+mid-states so the path draw is visible). The page's props
+table SHALL document the value contract (`defaultValue` / `value` /
+`onValueChange`, decimals; item `step`). The scroll-area docs page
+SHALL demonstrate the radius and width configuration; the
+effects/press-button copy SHALL state the scope-token fill basis.
+
+#### Scenario: the families render on the page
+
+- GIVEN the upgraded timeline docs page
+- THEN each of the TWELVE official families mounts in its own canvas
+  stage (aria-label matching the inventory's frozen mapping table,
+  one row per family) and the docs structure
+  lint passes on the page (skeleton-scoped, as the standing gate
+  runs it)
+
+#### Scenario: the value contract is demonstrated live
+
+- GIVEN the controlled-stepper and decimal-tween demos
+- THEN a visitor can move the value by the buttons and watch both the
+  discrete completion and the fractional stroke respond (probe: the
+  stepper buttons change `data-completed` counts; the tween demo's
+  stroke dashoffset varies over time)
+
+### Requirement: every component page documents the eight axes at its recorded tier
+
+Every `/docs/components/*.html` page SHALL document the universal eight-axis
+surface (size · shape · radius · density · color · theme · elevation · motion)
+at the depth its RECORDED tier calls for — the tier and its justification live
+in the docs-eight-axes campaign ledger (`assignment.json` per page), and the
+two-review sign-off enforced depth-at-tier at closure. The archived
+docs-eight-axes-mdn delta's unconditional per-axis-table SHALL is superseded
+by this tier-conditional form (Owner ruling 2026-09-24, decision #13 option
+B+C).
+
+#### Scenario: a tier-2/3 page (完全重构/优化重构) documents its real axis surface
+
+- GIVEN a page whose recorded tier is 2 or 3
+- THEN its axis section carries a bespoke per-axis table for the axes the
+  family actually carries (mechanism with real carrier/var names · named
+  steps · number-lane unit · default), grouped runnable examples, deviations
+  cited to the migration census, and one real `query()` case
+- AND any absent axis is documented with the census citation — never silently
+  omitted, never invented
+
+#### Scenario: a tier-1 page (简单重构) satisfies the contract through the shared section
+
+- GIVEN a page whose recorded tier is 1
+- THEN the shared universal props section renders from the one generated
+  source (`data-jx-props-table-universal`) AND the page names the family's
+  real mechanisms for the axes it materially consumes (prose or table rows)
+- AND a `query()` case is present when the family carries lane-bearing axes
+  the demo can drive, else the absence is named
+
+#### Scenario: the successor gate flip stays scoped to the skeleton contract
+
+- WHEN `2026-08-30-docs-demo-standard-global-gate` flips the skeleton lint
+  to hard-fail-everywhere
+- THEN axis depth is adjudicated against this requirement's depth-at-tier
+  rule — a tier-1 page without a bespoke axis table does not fail that flip
+  by that fact alone
+- AND the skeleton-contract gaps (Install / See-Also / Usage-order) remain
+  that successor's backlog until emptied, per `scripts/docs-skeleton-scope.json`

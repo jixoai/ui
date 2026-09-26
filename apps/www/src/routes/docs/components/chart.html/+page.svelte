@@ -10,6 +10,8 @@
 -->
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
@@ -42,7 +44,7 @@
   const SEV = [4, 3, 2, 1];
 
   // ---- live demo state (playground protocol: snapshots + reset) --------
-  const canvasInitial = { table: false, cells: 'braille', area: false, markers: true };
+  const canvasInitial = { table: false, cells: 'braille' as 'block' | 'braille', area: false, markers: true };
   let showTable = $state(canvasInitial.table);
   let cellMode = $state<'block' | 'braille'>(canvasInitial.cells);
   let lineArea = $state(canvasInitial.area);
@@ -108,6 +110,29 @@ ${close}
     <span class="tabular-nums">10</span>
   </ChartDonut>
 </Chart>`;
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-D1) --------------------
+  const universalUsage = `<Chart size="medium">…</Chart>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/chart-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -118,8 +143,8 @@ ${close}
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex min-w-0 flex-col gap-8">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.shellCol)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -128,7 +153,17 @@ ${close}
         title="chart — terminal-native charts, zero dependencies"
         summary="Four deterministic display primitives, not a chart library: horizontal bars drawn in Unicode block glyphs on the mono text grid, one-line sparklines in block or braille cells, an SVG polyline over hairline rules, and a stroke-dasharray donut ring in the theme's OKLCH chart palette. Every part renders static data — no Recharts, no animation runtime, no tooltips — and every degenerate input (empty, all-negative, constant, NaN, zero-total) has a frozen, unit-tested output. Each chart is role=img with a REQUIRED accessible name and an opt-in visually-hidden data table fallback."
       >
-        <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install chart">
+          <TerminalCard
+            barTitle="install — chart"
+            command="npx jixoai-ui add chart"
+            outputs={['https://ui.jixoai.com/r/chart.json', 'the family context, four parts + the barrel — one item']}
+          />
+        </div>
+      {/snippet}
+
+        <div class={cx(rt.wrap12)}>
           <span class="pill">zero runtime deps</span>
           <span class="pill">block · braille glyphs</span>
           <span class="pill">frozen degenerates</span>
@@ -138,18 +173,7 @@ ${close}
       </SectionCard>
     </div>
 
-    <div id="install" data-reveal="">
-      <SectionCard
-        family="install"
-        headerRegion="install"
-        eyebrow="install"
-        title="Install"
-        summary="One registry item — the family context, the four parts and the barrel ship together (the glyph math exports ride the same folder)."
-      >
-        <CodeBlock code={`npx jixoai-ui add chart`} lang="sh" meta="install" />
-      </SectionCard>
-    </div>
-
+    
     <div id="chart-demo" data-region="chart-demo" data-family="chart-demo" data-reveal="">
       <ComponentCanvas
         title="chart"
@@ -165,34 +189,42 @@ ${close}
         ]}
         resolveFileContent={resolveUsage}
       >
-        <div class="flex w-full flex-col gap-8">
-          <div class="grid gap-8 lg:grid-cols-2">
-            <ChartBar data={WEEK} labels={DAYS} label="deploys per day" table={showTable} />
-            <div class="flex flex-col justify-center gap-3">
-              <p class="m-0 font-nav text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                week at a glance
+        <div class={cx(rt.col32, rt.wFull)}>
+          <!-- the four primitives, ONE geometry: a 2×2 of identically
+               shaped cells (eyebrow label on top, the chart below) —
+               the Owner's walkthrough catch replaced the old stack of
+               two differently-shaped grids (1fr/1fr over 2fr/1fr) with
+               three alignment postures and an unlabeled bar -->
+          <div class={cx(rt.chGridLg2)}>
+            <div class={cx(rt.col12)}>
+              <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track14, rt.inkMuted)}>
+                deploys per day — block bars
+              </p>
+              <ChartBar data={WEEK} labels={DAYS} label="deploys per day" table={showTable} />
+            </div>
+            <div class={cx(rt.col12)}>
+              <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track14, rt.inkMuted)}>
+                week at a glance — sparkline
               </p>
               <ChartSparkline data={WEEK} label="deploys this week" cells={cellMode} table={showTable} />
-              <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+              <p class={cx(rt.bodyMuted, rt.m0)}>
                 one line, no axes — the finite min and max own the glyph range's endpoints
               </p>
             </div>
-          </div>
-          <div class="grid gap-8 lg:grid-cols-[2fr_1fr]">
-            <div class="flex flex-col gap-3">
-              <p class="m-0 font-nav text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                deploy trend · 8 weeks
+            <div class={cx(rt.col12)}>
+              <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track14, rt.inkMuted)}>
+                deploy trend · 8 weeks — line
               </p>
               <ChartLine data={TREND} label="deploy trend" area={lineArea} markers={lineMarkers} table={showTable} />
             </div>
-            <div class="flex flex-col items-start gap-3">
-              <p class="m-0 font-nav text-xs uppercase tracking-[0.14em] text-muted-foreground">
-                incident severities
+            <div class={cx(rt.col12)}>
+              <p class={cx(rt.m0, rt.fontNav, rt.text12, rt.upper, rt.track14, rt.inkMuted)}>
+                incident severities — donut
               </p>
               <ChartDonut data={SEV} label="incident severities" table={showTable}>
-                <div class="flex flex-col items-center">
-                  <span class="font-nav text-[10px] uppercase tracking-[0.14em] text-muted-foreground">total</span>
-                  <span class="text-lg tabular-nums text-foreground">10</span>
+                <div class={cx(rt.flex, rt.col, rt.itemsCenter)}>
+                  <span class={cx(rt.fontNav, rt.text10, rt.upper, rt.track14, rt.inkMuted)}>total</span>
+                  <span class={cx(rt.textLg, rt.tabular, rt.inkFg)}>10</span>
                 </div>
               </ChartDonut>
             </div>
@@ -229,7 +261,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="usage" data-reveal="">
     <SectionCard
       family="usage"
@@ -250,7 +282,7 @@ ${close}
       title="Examples"
       summary="Ability-named demos — one phrase, one capability. Every demo is live; open the code drawer for the exact composition."
     >
-      <p class="m-0 text-muted-foreground text-[13px] leading-6">
+      <p class={cx(rt.bodyMuted, rt.m0)}>
         The live demo up top plays the presentation flags. These canvases pin the family's
         compositional abilities: the a11y mirror, the inline trend, authored axes, the center
         slot, and the stat-card ensemble.
@@ -273,7 +305,7 @@ ${close}
         label="deploys per day"
         cells={14}
         table={fallbackOn}
-        class="max-w-md"
+        class={cx(rt.maxWMd)}
       />
       {#snippet playground()}
         <PlayFields>
@@ -298,20 +330,20 @@ ${close}
       files={[{ name: 'registry/files/ui/chart/chart-sparkline.svelte', content: chartSparklineSource }]}
       stage="fill"
     >
-      <div class="flex flex-wrap items-center gap-x-10 gap-y-6">
+      <div class={cx(rt.flex, rt.wrap, rt.itemsCenter, rt.gapX10, rt.gapY24)}>
         <Statistic title="deploys / week" value="42" trend="up">
           {#snippet suffix()}
             <ChartSparkline data={WEEK} label="deploys this week, trending up" />
           {/snippet}
         </Statistic>
-        <p class="m-0 text-[13px] leading-6 text-foreground">
+        <p class={cx(rt.body13, rt.m0, rt.inkFg)}>
           latency p95
-          <ChartSparkline data={[18, 14, 15, 9, 11, 8]} label="latency p95 trend" class="mx-2 align-middle" />
+          <ChartSparkline data={[18, 14, 15, 9, 11, 8]} label="latency p95 trend" class={cx(rt.chSparkPad, rt.chMiddle)} />
           down 12%
         </p>
-        <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+        <p class={cx(rt.bodyMuted, rt.m0)}>
           braille packs two points per cell
-          <ChartSparkline data={WEEK} label="deploys this week" cells="block" class="mx-2 align-middle" />
+          <ChartSparkline data={WEEK} label="deploys this week" cells="block" class={cx(rt.chSparkPad, rt.chMiddle)} />
           block rides the eighth-block ramp
         </p>
       </div>
@@ -335,17 +367,17 @@ ${close}
       files={[{ name: 'registry/files/ui/chart/chart-line.svelte', content: chartLineSource }]}
       stage="fill"
     >
-      <div class="flex max-w-2xl flex-col gap-2">
+      <div class={cx(rt.col8, rt.maxW2xl)}>
         <ChartLine data={TREND} label="deploy trend over eight weeks" area>
           {#snippet yAxis()}
-            <text x="1" y="7" font-size="5" class="fill-muted-foreground">peak 12</text>
+            <text x="1" y="7" font-size="5" class={cx(rt.fillMuted)}>peak 12</text>
           {/snippet}
           {#snippet xAxis()}
-            <text x="0" y="39" font-size="5" class="fill-muted-foreground">w1</text>
-            <text x="94" y="39" font-size="5" class="fill-muted-foreground" text-anchor="end">w8</text>
+            <text x="0" y="39" font-size="5" class={cx(rt.fillMuted)}>w1</text>
+            <text x="94" y="39" font-size="5" class={cx(rt.fillMuted)} text-anchor="end">w8</text>
           {/snippet}
         </ChartLine>
-        <p class="m-0 text-[12px] leading-5 text-muted-foreground">
+        <p class={cx(rt.note12, rt.m0, rt.lead5)}>
           the hairline rules are grid GEOMETRY (top / mid / bottom) — ticks and labels are the
           consumer's authored snippets
         </p>
@@ -371,15 +403,15 @@ ${close}
       stage="fill"
       output={[{ label: 'segments', value: String(SEV.length) }, { label: 'total', value: String(SEV.reduce((a, b) => a + b, 0)) }]}
     >
-      <div class="flex flex-wrap items-center gap-8">
+      <div class={cx(rt.rowC32, rt.wrap)}>
         <ChartDonut data={SEV} label="incident severities" size={112}>
-          <div class="flex flex-col items-center">
-            <span class="font-nav text-[10px] uppercase tracking-[0.14em] text-muted-foreground">total</span>
-            <span class="text-lg tabular-nums text-foreground">10</span>
+          <div class={cx(rt.flex, rt.col, rt.itemsCenter)}>
+            <span class={cx(rt.fontNav, rt.text10, rt.upper, rt.track14, rt.inkMuted)}>total</span>
+            <span class={cx(rt.textLg, rt.tabular, rt.inkFg)}>10</span>
           </div>
         </ChartDonut>
         <ChartDonut data={[6, 5, 4, 3, 2, 1]} label="a six-segment ring" size={96} thickness={10}>
-          <span class="text-sm tabular-nums text-foreground">21</span>
+          <span class={cx(rt.textSm, rt.tabular, rt.inkFg)}>21</span>
         </ChartDonut>
       </div>
       {#snippet playground()}
@@ -404,32 +436,32 @@ ${close}
       stage="fill"
     >
       <Chart density="sm">
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div class="flex flex-col gap-2 border border-border bg-card p-4">
-            <span class="font-nav text-[10px] uppercase tracking-[0.14em] text-muted-foreground">deploys / week</span>
-            <span class="text-xl tabular-nums text-foreground">42</span>
+        <div class={cx(rt.chGrid4)}>
+          <div class={cx(rt.col8, rt.panel, rt.bgCard)}>
+            <span class={cx(rt.fontNav, rt.text10, rt.upper, rt.track14, rt.inkMuted)}>deploys / week</span>
+            <span class={cx(rt.textXl, rt.tabular, rt.inkFg)}>42</span>
             <ChartSparkline data={WEEK} label="deploys per day" />
           </div>
-          <div class="flex flex-col gap-2 border border-border bg-card p-4">
-            <span class="font-nav text-[10px] uppercase tracking-[0.14em] text-muted-foreground">p95 latency</span>
-            <span class="text-xl tabular-nums text-foreground">184ms</span>
+          <div class={cx(rt.col8, rt.panel, rt.bgCard)}>
+            <span class={cx(rt.fontNav, rt.text10, rt.upper, rt.track14, rt.inkMuted)}>p95 latency</span>
+            <span class={cx(rt.textXl, rt.tabular, rt.inkFg)}>184ms</span>
             <ChartSparkline data={[18, 14, 15, 9, 11, 8]} label="latency trend" cells="block" />
           </div>
-          <div class="flex flex-col gap-2 border border-border bg-card p-4 sm:col-span-2">
-            <span class="font-nav text-[10px] uppercase tracking-[0.14em] text-muted-foreground">throughput by lane</span>
+          <div class={cx(rt.chSpan2Sm, rt.col8, rt.panel, rt.bgCard)}>
+            <span class={cx(rt.fontNav, rt.text10, rt.upper, rt.track14, rt.inkMuted)}>throughput by lane</span>
             <ChartBar data={[8, 5, 3]} labels={['edge', 'worker', 'batch']} label="throughput by lane" cells={12} variant="tonal" />
           </div>
-          <div class="flex items-center gap-4 border border-border bg-card p-4 sm:col-span-2 lg:col-span-2">
+          <div class={cx(rt.chSpan2Sm, rt.chSpan2Lg, rt.rowC16, rt.panel, rt.bgCard)}>
             <ChartDonut data={SEV} label="incident severities" size={80} thickness={10}>
-              <span class="text-sm tabular-nums text-foreground">10</span>
+              <span class={cx(rt.textSm, rt.tabular, rt.inkFg)}>10</span>
             </ChartDonut>
-            <div class="flex flex-col gap-1">
-              <span class="font-nav text-[10px] uppercase tracking-[0.14em] text-muted-foreground">incidents by severity</span>
-              <span class="text-[12.5px] leading-5 text-muted-foreground">sev1 4 · sev2 3 · sev3 2 · sev4 1</span>
+            <div class={cx(rt.flex, rt.col, rt.gap4)}>
+              <span class={cx(rt.fontNav, rt.text10, rt.upper, rt.track14, rt.inkMuted)}>incidents by severity</span>
+              <span class={cx(rt.noteSmall, rt.lead5)}>sev1 4 · sev2 3 · sev3 2 · sev4 1</span>
             </div>
           </div>
-          <div class="flex flex-col gap-2 border border-border bg-card p-4 sm:col-span-2">
-            <span class="font-nav text-[10px] uppercase tracking-[0.14em] text-muted-foreground">error budget burn</span>
+          <div class={cx(rt.chSpan2Sm, rt.col8, rt.panel, rt.bgCard)}>
+            <span class={cx(rt.fontNav, rt.text10, rt.upper, rt.track14, rt.inkMuted)}>error budget burn</span>
             <ChartLine data={TREND} label="error budget burn trend" markers={false} />
           </div>
         </div>
@@ -454,7 +486,7 @@ ${close}
       title="Accessibility"
       summary="Every chart is a named image; the glyphs are decoration with the semantics carried once, by the name — and the opt-in table mirror gives the actual numbers back to the screen reader."
     >
-      <div class="flex flex-col gap-6">
+      <div class={cx(rt.col24)}>
         <A11yTable
           aria={[
             { name: 'role', value: 'img', description: 'Every part, always — a chart is one image to the a11y tree, never a soup of glyphs.' },
@@ -474,14 +506,28 @@ ${close}
             labels={DAYS}
             label="deploys per day, with the screen-reader mirror on"
             table={true}
-            class="max-w-md"
+            class={cx(rt.maxWMd)}
           />
         </ComponentCanvas>
-        <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+        <p class={cx(rt.bodyMuted, rt.m0)}>
           inspect the DOM: beside the role=img root sits a real table with a caption, scoped
           headers and one row per datum — visually hidden, machine-honest.
         </p>
       </div>
+    </SectionCard>
+  </div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The ensemble ROOT carries the size axis whole; the glyphs ride the icon §13 law (a NUMBER is the size number lane verbatim — the donut diameter literal keeps the name)."
+    >
+      <ComponentCanvas title="Chart · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><p class={cx(rt.text13)}>Deterministic display primitives: zero runtime, the axes ride the family root only.</p></div>
+      </ComponentCanvas>
     </SectionCard>
   </div>
 
@@ -493,8 +539,8 @@ ${close}
       title="API"
       summary="One family: a context root that shares a density tier, and four standalone parts. The glyph math (barRun, sparkBraille, linePoints, donutGeometry…) exports from the folder for your own tests."
     >
-      <div class="flex flex-col gap-6">
-        <PropsTable
+      <div class={cx(rt.col24)}>
+        <PropsTable universal
           props={[
             { name: 'data', type: 'readonly number[]', default: '—', description: 'The series — one row / point / segment per datum. A value-domain payload: the family renders it, never re-authors it.', required: true },
             { name: 'label', type: 'string', default: '—', description: 'The REQUIRED accessible name (role=img + aria-label). No default by contract.', required: true },
@@ -530,21 +576,21 @@ ${close}
       title="Density and tokens"
       summary="Text-glyph parts size from the shared density ruler; every color is a token — the semantic chart palette, the variant slots, the mono face."
     >
-      <div class="flex flex-col gap-5">
+      <div class={cx(rt.col20)}>
         <DensityDemo scopes={['xs', 'default', 'lg']}>
-          <div class="flex flex-col gap-4">
+          <div class={cx(rt.col16)}>
             <ChartBar data={WEEK} labels={DAYS} label="deploys per day, density demo" cells={12} />
             <ChartSparkline data={WEEK} label="deploys this week, density demo" />
           </div>
         </DensityDemo>
         <TokenTable
           tokens={[
-            { name: '--chart-1 .. --chart-5', default: 'semantic palette', source: 'theme' },
-            { name: '--brand-hue', default: 'oklch hue degrees', source: 'theme (neutral ladder)' },
-            { name: '--jx-fill / --jx-tonal / --jx-outline', default: 'variant slots', source: 'hue injection' },
-            { name: '--font-mono', default: 'JetBrains Mono stack', source: 'theme (the glyph lock)' },
+            { name: '--chart-1 .. --chart-5', default: 'semantic palette', source: 'color' },
+            { name: '--brand-hue', default: 'oklch hue degrees', source: 'color' },
+            { name: '--jx-fill / --jx-tonal / --jx-outline', default: 'variant slots', source: 'color' },
+            { name: '--font-mono', default: 'JetBrains Mono stack', source: 'component' },
             { name: '--jx-text / --jx-line / --jx-gap', default: 'density scale', source: 'density' },
-            { name: '--border / --muted', default: 'theme', source: 'grid hairlines / donut track' },
+            { name: '--border / --muted', default: 'theme', source: 'color' },
           ]}
         />
       </div>
@@ -559,7 +605,7 @@ ${close}
       title="See also"
       summary="The family around the numbers."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/statistic.html">statistic — the metric readout</a>
         <a class="pill" href="/docs/components/table.html">table — the native data grid</a>
         <a class="pill" href="/docs/components/progress.html">progress — the single share</a>

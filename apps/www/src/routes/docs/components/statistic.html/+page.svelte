@@ -15,8 +15,10 @@
 -->
 <script lang="ts">
   import A11yTable from '$lib/ui/a11y-table/a11y-table.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import Badge from '$lib/ui/badge/badge.svelte';
   import CodeBlock from '$lib/code-block.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import DensityDemo from '$lib/ui/density-demo/density-demo.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
@@ -162,6 +164,29 @@ ${close}
   const statisticStatesFiles: TreeFile[] = [
     { name: 'statistic-states-demo.svelte', content: statisticStatesDemo, kind: 'usage' },
   ];
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+  // ---- the universal props demo (explicit-props W3-D3) --------------------
+  const universalUsage = `<Statistic title="axes joined" value="42" size={18} density="small" />`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/statistic-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
@@ -170,13 +195,23 @@ ${close}
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard headingLevel={1} tone="hero" eyebrow="registry:ui · General" title="statistic — the metric readout" summary="Micro-label over a big tabular-nums value with prefix/suffix snippets and text-glyph trends. The component never guesses what good means for your metric — you compose it.">
-        <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install statistic">
+          <TerminalCard
+            barTitle="install — statistic"
+            command="npx jixoai-ui add statistic"
+            outputs={['https://ui.jixoai.com/r/statistic.json', 'zero-dependency; recipes add press-button + badge']}
+          />
+        </div>
+      {/snippet}
+
+        <div class={cx(rt.wrap12)}>
           <span class="pill">tabular-nums value</span>
           <span class="pill">prefix/suffix snippets</span>
           <span class="pill">text-glyph trends</span>
@@ -185,19 +220,7 @@ ${close}
       </SectionCard>
     </div>
 
-  <!-- install -->
-  <div id="install" data-reveal="">
-    <SectionCard
-      family="install"
-      headerRegion="install"
-      eyebrow="install"
-      title="Install"
-      summary="One zero-dependency item; the recipes below add press-button (controls) and badge (the finished flag)."
-    >
-      <CodeBlock code={`npx jixoai-ui add statistic`} lang="sh" meta="install" />
-    </SectionCard>
-  </div>
-
+  
   <div id="statistic-demo" data-region="statistic-demo" data-family="statistic-demo" data-reveal="">
     <ComponentCanvas
       title="statistic"
@@ -206,7 +229,7 @@ ${close}
       files={canvasFiles}
       stage="fill"
     >
-      <div class="grid gap-6 min-[560px]:grid-cols-3">
+      <div class={cx(rt.stGrid560)}>
         <Statistic title="deploys / week" value="42" trend="up" />
         <Statistic title="failed builds" value="3" trend="down" />
         <Statistic title="registry items" value="69" />
@@ -225,7 +248,7 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <!-- usage: the ONE h2 -->
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="The value is yours — strings or numbers render verbatim; formatting happens before the component."><CodeBlock code={usage} lang="svelte" meta="usage" /></SectionCard></div>
 
@@ -238,7 +261,7 @@ ${close}
       title="Examples"
       summary="Ability-named recipes: the countdown and the affix + precision matrix."
     >
-      <p class="m-0 text-[13px] leading-6 text-muted-foreground">
+      <p class={cx(rt.m0, rt.bodyMuted)}>
         Both recipes compose the public value/snippet surface — the component renders what it is
         handed, the tick and the digits are page law (a first-class countdown item is the
         recorded followup).
@@ -263,17 +286,21 @@ ${close}
         { label: 'state', value: finished ? 'finished' : running ? 'running' : 'idle' },
       ]}
     >
-      <div class="flex flex-col gap-4">
-        <div class="flex flex-wrap items-end gap-4">
+      <div class={cx(rt.col16)}>
+        <div class={cx(rt.stWrapEnd)}>
           <Statistic title="deploy window closes in" value={mmss} />
           {#if finished}<Badge variant="fill">window closed</Badge>{/if}
         </div>
-        <div class="flex flex-wrap gap-2">
+        <!-- the recipe's sr-only live region, served in the live demo too
+             (task 111 LOW 2 — the PlayHelp claims it; the claim needs a
+             seat, not just the drawer string) -->
+        <p class={cx(rt.srOnly)} aria-live="polite">{finished ? 'window closed' : ''}</p>
+        <div class={cx(rt.stWrap8)}>
           <PressButton variant="outline" onclick={startCountdown} disabled={running || finished}>start</PressButton>
           <PressButton variant="ghost" onclick={stopCountdown} disabled={!running}>pause</PressButton>
           <PressButton variant="ghost" onclick={resetCountdown}>reset</PressButton>
         </div>
-        <p class="m-0 font-mono text-[11.5px] text-muted-foreground">
+        <p class={cx(rt.m0, rt.stMono115)}>
           {finished ? 'the window closed — reset to re-arm' : running ? 'ticking · 1s interval' : 'idle'}
         </p>
       </div>
@@ -306,16 +333,16 @@ ${close}
         { label: 'digits', value: digits },
       ]}
     >
-      <div class="grid gap-6 min-[720px]:grid-cols-3">
+      <div class={cx(rt.stGrid720)}>
         <Statistic title="revenue / mo" value={precise}>
-          {#snippet prefix()}<span class="text-muted-foreground">$</span>{/snippet}
-          {#snippet suffix()}<span class="text-muted-foreground">USD</span>{/snippet}
+          {#snippet prefix()}<span class={cx(rt.inkMuted)}>$</span>{/snippet}
+          {#snippet suffix()}<span class={cx(rt.inkMuted)}>USD</span>{/snippet}
         </Statistic>
         <Statistic title="cache hit rate" value="97.4">
-          {#snippet suffix()}<span class="text-muted-foreground">%</span>{/snippet}
+          {#snippet suffix()}<span class={cx(rt.inkMuted)}>%</span>{/snippet}
         </Statistic>
         <Statistic title="p95 latency" value={precise}>
-          {#snippet suffix()}<span class="text-muted-foreground">ms</span>{/snippet}
+          {#snippet suffix()}<span class={cx(rt.inkMuted)}>ms</span>{/snippet}
         </Statistic>
       </div>
       {#snippet playground()}
@@ -334,10 +361,25 @@ ${close}
     </ComponentCanvas>
   </div>
 
-  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Metric states" summary="The readout supports neutral metrics, directional trends and composed affixes."><ComponentCanvas title="statistic · states" stage="fill" files={statisticStatesFiles}><div class="grid gap-4 sm:grid-cols-3"><Statistic title="neutral" value="69" /><Statistic title="up" value="42" trend="up" /><Statistic title="down" value="3" trend="down" /></div></ComponentCanvas></SectionCard></div>
+  <div id="types" data-reveal=""><SectionCard eyebrow="types" title="Metric states" summary="The readout supports neutral metrics, directional trends and composed affixes."><ComponentCanvas title="statistic · states" stage="fill" files={statisticStatesFiles}><div class={cx(rt.gridSm3)}><Statistic title="neutral" value="69" /><Statistic title="up" value="42" trend="up" /><Statistic title="down" value="3" trend="down" /></div></ComponentCanvas></SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard eyebrow="a11y" title="Accessibility"><A11yTable aria={[{ name: 'title', value: 'visible label', description: 'Names the metric for every reader.' }, { name: 'value', value: 'text content', description: 'Keeps formatted values readable and copyable.' }, { name: 'aria-live (recipe)', value: 'polite, one-shot', description: 'The countdown announces the CLOSE, never every tick — a ticking live region is noise.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Statistic title="deploys" value="42" trend="up" /></DensityDemo><div class="mt-5"><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
-  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value (format before it reaches the component).', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }]} /></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard eyebrow="theming" title="Density and tokens"><DensityDemo scopes={['xs', 'default', 'lg']}><Statistic title="deploys" value="42" trend="up" /></DensityDemo><div class={cx(rt.mt20)}><TokenTable tokens={[{ name: '--jx-stack', default: 'density scale', source: 'density' }, { name: '--jx-gap', default: 'density scale', source: 'density' }, { name: '--jx-text', default: 'density scale', source: 'density' }, { name: '--jx-text-secondary', default: 'density scale', source: 'density' }, { name: '--jx-line', default: 'density scale', source: 'density' }]} /></div></SectionCard></div>
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The metric readout is flat content, all no-own; the size axis scales the root and the supply chain is the point. Radius is STAMPED, NEVER CONSUMED (measured, task 111): the readout is flat text with no corner geometry to round — the family reads no --jx-radius-* var (the color-picker #19 class); the demo lane teaches the stamp, the paint stays honest about it."
+    >
+      <ComponentCanvas title="Statistic · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.panel)}><Statistic title="axes joined" value="42" size={18} density="small" /></div>
+<div class={cx(rt.panel)}><Statistic title="named steps" value="97.4%" size="medium" radius="large" /></div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
+  <div id="api" data-reveal=""><SectionCard eyebrow="api" title="Statistic props"><PropsTable universal props={[{ name: 'title', type: 'string', description: 'Metric label.', required: true }, { name: 'value', type: 'string | number', description: 'Displayed metric value (format before it reaches the component).', required: true }, { name: 'trend', type: "'up' | 'down'", description: 'Optional directional glyph.' }, { name: 'prefix', type: 'Snippet', description: 'Content before the value.' }, { name: 'suffix', type: 'Snippet', description: 'Content after the value.' }, { name: 'density', type: 'Density', default: 'ambient scope', description: 'Explicit override of the ambient density scope; no opinion stamps nothing and the ambient css scope channel flows.' }, { name: 'class', type: 'string', default: "''", description: 'Forwarded to the readout root; consumer classes land last.' }]} /></SectionCard></div>
 
   <div id="see-also" data-reveal="">
     <SectionCard
@@ -347,7 +389,7 @@ ${close}
       title="See also"
       summary="The readouts and surfaces statistic composes with."
     >
-      <div class="flex flex-wrap gap-3">
+      <div class={cx(rt.wrap12)}>
         <a class="pill" href="/docs/components/descriptions.html">descriptions — the detail view</a>
         <a class="pill" href="/docs/components/badge.html">badge — the finished flag</a>
         <a class="pill" href="/docs/components/press-button.html">press-button — the countdown controls</a>

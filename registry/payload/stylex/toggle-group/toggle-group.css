@@ -1,0 +1,18 @@
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2;
+
+@layer components.stylex.priority1 {
+  .x1xsfxl3 {
+    gap: calc(var(--jx-gap) / 2);
+  }
+}
+
+@layer components.stylex.priority2 {
+  .x6s0dn4 {
+    align-items: center;
+  }
+
+  .x3nfvp2 {
+    display: inline-flex;
+  }
+}
+/* buildId: fa64ecad5239b9c22987268e54d1df02526b078881da49e0c55932e51dfdb0e9 · generator: @jixoai/ui-vite-plugin@0.6.0 · engine: @stylexjs/unplugin@0.19.0 */

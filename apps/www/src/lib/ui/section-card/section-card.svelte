@@ -46,8 +46,25 @@
 <script lang="ts">
   import { getContext, onDestroy, setContext } from 'svelte';
   import type { Snippet } from 'svelte';
+  import { cn } from '$lib/utils';
   import Separator from '../separator/separator.svelte';
   import './section-card.css';
+  import { sectionCardStyles } from './section-card.stylex';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { SectionCardDefaults, type SectionCardTone } from './section-card-defaults.svelte';
   import {
     NUMBERING_DOMAIN_KEY,
@@ -73,6 +90,12 @@
     title: string;
     summary?: string;
     children: Snippet;
+    /** The header region's RIGHT wing (the hero's terminal seat, Owner
+     *  walkthrough 2026-09-24): when given, the header's text stack
+     *  (eyebrow + title + summary) and this aside form a two-wing row —
+     *  text left, aside right at the wide tier, aside stacked below on
+     *  narrow. The body (children) always stays full-width below. */
+    headerAside?: Snippet;
     class?: string;
     headingLevel?: 1 | 2;
     tone?: SectionCardTone;
@@ -109,6 +132,31 @@
      *  registry — absent id means numbered but unreferenceable (the
      *  same law as Figure). Mount-time structural param. */
     id?: string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) — the content atom's density ADOPTION keeps
+     *  resolving through the ambient css scope channel; an explicit
+     *  lane stamps the rung on the section root itself */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   let {
@@ -116,6 +164,7 @@
     title,
     summary,
     children,
+    headerAside,
     class: className = '',
     headingLevel = 2,
     tone,
@@ -127,7 +176,31 @@
     numbering,
     floatScope,
     id,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // ── the numbering tree (design §1/§1.1b) ─────────────────────────────
   // Immutable precondition (§1.2): numbering/floatScope/id are mount-
@@ -235,27 +308,47 @@
     if (declaresNumbering && domain) domain.dispose();
   });
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 3.3): one line —
-  // tone resolves through the family contract (the literal slot: own
-  // 'default' declared in SectionCardDefaults, auditable in one place)
-  const d = $derived(SectionCardDefaults.resolve({ tone }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 3.3 + W3-D3):
+  // one record — tone resolves through the family contract (the
+  // literal slot: own 'default' declared in SectionCardDefaults,
+  // auditable in one place) and the eight universal axes ride the
+  // same record (all no-own — the bordered section is a no-own
+  // container surface; the size axis scales the section root and the
+  // supply chain is the point). The anchor rides the SAME sectionEl
+  // the numbering tree binds (declared above — the W3-C TDZ law)
+  const d = $derived(
+    SectionCardDefaults.resolve({
+      tone,
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  provideQueryAnchor(() => sectionEl ?? null);
+  const rootStyle = $derived(carriers || undefined);
 
-  const titleClassName = $derived(
-    d.tone === 'hero'
-      ? 'font-nav max-w-[24ch] text-balance text-[clamp(1.58rem,2.55vw,2.7rem)] tracking-normal leading-[1.2] sm:max-w-[22ch] lg:max-w-[24ch]'
-      : 'font-nav text-balance text-[1.05rem] tracking-tight leading-tight sm:text-[1.22rem]',
-  );
-  const summaryClassName = $derived(
-    d.tone === 'hero'
-      ? 'max-w-[62ch] text-pretty text-[13px] leading-6 text-foreground/78 sm:text-[14px] sm:leading-6'
-      : 'max-w-[64ch] text-pretty [font-size:var(--jx-text)] [line-height:var(--jx-line)] text-muted-foreground',
-  );
+  // tailwindless one-shot (2026-09-16): the title/summary voices ride
+  // the family's REGISTERED data-hook rules (section-card.css — the
+  // sizes/leadings/tracking hold no token step, so the atoms layer
+  // cannot carry them); the tone discriminator is the root's
+  // data-tone. Everything mappable is a stylex atom below.
 </script>
 
 <section
   data-jx-section
+  data-tone={d.tone}
   bind:this={sectionEl}
-  class={`border border-border bg-card shadow-2xs ${className}`}
+  class={cn(cx(sectionCardStyles.card), className)}
+  style={rootStyle}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   id={frozen.id}
   data-family={family}
   data-region={region}
@@ -265,35 +358,65 @@
 >
   <div
     data-jx-section-header
-    class="flex flex-col [gap:calc(var(--jx-stack)_+_var(--jx-unit))] [padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_var(--jx-unit))]"
+    class={cx(sectionCardStyles.header)}
     data-region={headerRegion}
   >
-    {#if eyebrow}
-      <p
-        class="font-nav text-primary [font-size:calc(var(--jx-text-secondary)_-_calc(var(--jx-unit)_/_4))] uppercase tracking-[0.24em]"
-      >
-        {eyebrow}
-      </p>
+    {#if headerAside}
+      <!-- the two-wing header (the hero's terminal seat): text stack
+           LEFT, the consumer's aside RIGHT at the wide tier; the aside
+           stacks below on narrow. The body below stays full-width -->
+      <div class={cx(sectionCardStyles.headerRow)}>
+        <div class={cx(sectionCardStyles.headerText)}>
+          {#if eyebrow}
+            <p class={cx(sectionCardStyles.eyebrow)}>
+              {eyebrow}
+            </p>
+          {/if}
+          <div class={cx(sectionCardStyles.titleBlock)}>
+            {#if headingLevel === 1 && number}
+              <h1 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h1>
+            {:else if headingLevel === 1}
+              <h1 data-jx-section-title="">{title}</h1>
+            {:else if number}
+              <h2 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h2>
+            {:else}
+              <h2 data-jx-section-title="">{title}</h2>
+            {/if}
+            {#if summary}
+              <p data-jx-section-summary="">{summary}</p>
+            {/if}
+          </div>
+        </div>
+        <div class={cx(sectionCardStyles.headerAsideCell)}>
+          {@render headerAside()}
+        </div>
+      </div>
+    {:else}
+      {#if eyebrow}
+        <p class={cx(sectionCardStyles.eyebrow)}>
+          {eyebrow}
+        </p>
+      {/if}
+      <div class={cx(sectionCardStyles.titleBlock)}>
+        {#if headingLevel === 1 && number}
+          <h1 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h1>
+        {:else if headingLevel === 1}
+          <h1 data-jx-section-title="">{title}</h1>
+        {:else if number}
+          <h2 data-jx-section-title=""><span data-jx-number>{number}</span>{'\u00A0'}{title}</h2>
+        {:else}
+          <h2 data-jx-section-title="">{title}</h2>
+        {/if}
+        {#if summary}
+          <p data-jx-section-summary="">{summary}</p>
+        {/if}
+      </div>
     {/if}
-    <div class="flex flex-col [gap:calc(var(--jx-stack)_+_calc(var(--jx-unit)_/_2))]">
-      {#if headingLevel === 1 && number}
-        <h1 class={titleClassName}><span data-jx-number>{number}</span>{'\u00A0'}{title}</h1>
-      {:else if headingLevel === 1}
-        <h1 class={titleClassName}>{title}</h1>
-      {:else if number}
-        <h2 class={titleClassName}><span data-jx-number>{number}</span>{'\u00A0'}{title}</h2>
-      {:else}
-        <h2 class={titleClassName}>{title}</h2>
-      {/if}
-      {#if summary}
-        <p class={summaryClassName}>{summary}</p>
-      {/if}
-    </div>
   </div>
   <Separator data-jx-section-sep aria-hidden="true" />
   <div
     data-jx-section-body
-    class="[padding-inline:calc(var(--jx-inset)_+_var(--jx-unit))] [padding-block:calc(var(--jx-stack)_+_calc(var(--jx-unit)_*_2))]"
+    class={cx(sectionCardStyles.body)}
   >
     {@render children()}
   </div>

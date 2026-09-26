@@ -17,6 +17,7 @@ import { describe, expect, it } from 'vitest';
 
 import Accordion from '../src/lib/ui/accordion/accordion.svelte';
 import Alert from '../src/lib/ui/alert/alert.svelte';
+import { alertStyles } from '../src/lib/ui/alert/alert.stylex';
 import Avatar from '../src/lib/ui/avatar/avatar.svelte';
 import Badge from '../src/lib/ui/badge/badge.svelte';
 import Separator from '../src/lib/ui/separator/separator.svelte';
@@ -25,6 +26,11 @@ import AccordionHost from './fixtures/accordion-host.svelte';
 import AvatarHost from './fixtures/avatar-host.svelte';
 import EmptyTabsHost from './fixtures/empty-tabs-host.svelte';
 import TabsHost from './fixtures/tabs-host.svelte';
+// compile-lane re-pin (W5-r2, 2026-09-21): the dev-names contract died at
+// 012335c4 (dev:false — "hashed classes everywhere"); atom membership is
+// asserted through the compiled atom string of the SAME source module the
+// component rides (the carved-action-band cx-join precedent)
+import { cx } from './helpers/stylex-atom';
 
 // ---------------------------------------------------------------------------
 // Badge — the inline status chip
@@ -167,9 +173,11 @@ describe('Alert', () => {
     });
     const alert = container.querySelector('[role="status"]')!;
     expect(alert.getAttribute('data-jx-alert')).toBe('outline');
-    // ladder surface: transparent ground + --jx-outline border (no card bg)
-    expect(alert.className).toContain('bg-transparent');
-    expect(alert.className).toContain('[border-color:var(--jx-outline)]');
+    // ladder surface: transparent ground + --jx-outline border (no
+    // card bg) — the StyleX edition (tailwindless W1 batch 3): the
+    // surfaceOutline atom carries the recipe; utility-shaped
+    // expectations went with the utilities
+    expect(alert.className).toContain(cx(alertStyles.surfaceOutline));
     expect(alert.querySelector('[data-jx-alert-title]')?.textContent).toContain('Deployed');
   });
 
@@ -186,10 +194,12 @@ describe('Alert', () => {
     const alert = container.querySelector('[role="alert"]')!;
     expect(alert.getAttribute('data-jx-alert')).toBe('tonal');
     // design.md §1 tonal recipe + the §3 STATUS injection riding class
-    expect(alert.className).toContain('bg-[color-mix(in_oklab,var(--jx-tonal)_12%,transparent)]');
+    // (StyleX edition: surfaceTonal carries the 12% recipe, titleTonal
+    // the variant ink)
+    expect(alert.className).toContain(cx(alertStyles.surfaceTonal));
     expect(alert.className).toContain('jx-hue-error');
     const title = alert.querySelector('[data-jx-alert-title]')!;
-    expect(title.className).toContain('[color:var(--jx-tonal)]');
+    expect(title.className).toContain(cx(alertStyles.titleTonal));
   });
 });
 

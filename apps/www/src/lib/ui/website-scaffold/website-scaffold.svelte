@@ -63,6 +63,40 @@
   import { onMount, setContext } from 'svelte';
   import './website-scaffold.css';
   import type { Snippet } from 'svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { WebsiteScaffoldDefaults } from './website-scaffold-defaults.svelte';
+  import { scaffoldStyles } from './website-scaffold.stylex';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev — composition goes through THIS joiner (all string
+  // values except $$css, space-joined; plain strings pass through)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /** Semantic placement roles for adopted float nodes. The physical grid
    *  cell is resolved per container form by website-scaffold.css — one
@@ -80,6 +114,12 @@
 
   interface Props {
     header: Snippet;
+    /** the BOOT SPLASH seat (the FOUC round, 2026-09-19 — Owner
+     *  design): rendered at the HOST ROOT, above every layer, before
+     *  the shell — the splash's own styles ride the HTML itself
+     *  (inline attributes + a head-carried style block), so it paints
+     *  before any async stylesheet and masks the unstyled window */
+    splash?: Snippet;
     /** Static chrome, SSR-stable (Owner + Codex ruling, 2026-08-24): the
      *  toc rail and the catalog tree render HERE — authored in their final
      *  position from the first paint, never moved by hydration. Dynamic
@@ -88,9 +128,68 @@
     chrome?: Snippet;
     children: Snippet;
     footer?: Snippet;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (the site-level type-scale
+     *  seam: one number scales the whole scaffold) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
-  let { header, chrome, children, footer }: Props = $props();
+  let {
+    header,
+    splash,
+    chrome,
+    children,
+    footer,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
+  }: Props = $props();
+
+  // ── the eight-axis surface (W3-D3 — FIRST-TIME contract, all
+  // no-own, a NO-OWN CONTAINER): the scaffold's zones/regions stay
+  // structural; the size axis scales the HOST root and every axis
+  // supplies downward (header, toc rail and page content are the
+  // consumers — 吃也供)
+  const d = $derived(
+    WebsiteScaffoldDefaults.resolve({
+      density,
+      size,
+      shape,
+      radius,
+      color,
+      theme,
+      elevation,
+      motion,
+    }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  const rootStyle = $derived(carriers || undefined);
 
   // dynamic float plane state — the ORDERED set of adopted nodes
   // (scaffold-float portals; static chrome never passes through here)
@@ -108,6 +207,9 @@
   });
 
   let hostEl = $state<HTMLElement | null>(null);
+  // the query() anchor rides the HOST root (declared above — the
+  // W3-C TDZ law)
+  provideQueryAnchor(() => hostEl ?? null);
   let shellEl = $state<HTMLElement | null>(null);
   let headerEl = $state<HTMLElement | null>(null);
   let floatSlotEl = $state<HTMLElement | null>(null);
@@ -188,12 +290,22 @@
   });
 </script>
 
-<div class="jx-shell-host" bind:this={hostEl} data-hidden={hidden || undefined}>
+<div
+  class="jx-shell-host"
+  bind:this={hostEl}
+  data-hidden={hidden || undefined}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+>
+  {#if splash}
+    {@render splash()}
+  {/if}
   <a href="#main" class="jx-skip-link">Skip to content</a>
 
   <div class="jx-shell" bind:this={shellEl}>
     <div class="jx-shell-body" bind:this={bodyEl}>
-      <main id="main" class="jx-page-main flex-1">
+      <main id="main" class={cx('jx-page-main', scaffoldStyles.main)}>
         {@render children()}
       </main>
       {#if footer}

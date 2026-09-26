@@ -3,18 +3,13 @@
  * Real-wasm golden tests: viewport tracking through writes, DECSCUSR
  * style switching, and the null path (cursor off-viewport).
  */
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { loadGhosttyVT } from '../../../registry/files/lib/ghostty-vt';
-
-const wasmPath =
-  process.env.JIXOAI_GHOSTTY_WASM_PATH ?? '/tmp/ghostty-research/ghostty-vt.wasm';
+import { acquireWasmBytes } from './helpers/ghostty-wasm';
 
 describe('readCursor (live wasm)', () => {
   it('tracks the cursor through writes and DECSCUSR styles', async () => {
-    const vt = await loadGhosttyVT({ bytes: readFileSync(resolve(wasmPath)) });
+    const vt = await loadGhosttyVT({ bytes: await acquireWasmBytes() });
     vt.new(80, 24);
     const c0 = vt.readCursor();
     expect(c0).not.toBeNull();

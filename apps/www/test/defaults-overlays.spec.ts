@@ -116,9 +116,11 @@ describe('zone + density providers', () => {
   it("the density provider's opinion stamps every consumer family", () => {
     const { container } = render(Host);
     const zone = byTestid(container, 'zone');
-    // (alert's density slot is DECLARATION-only — the banner carries
-    // no density prop and stamps nothing, the dialog precedent)
-    expect(zone.querySelector('[data-jx-alert]')!.getAttribute('data-density')).toBeNull();
+    // (W3-D5: alert joined the eight-axis surface — the ambient density
+    // now FLOWS through the widened contract and stamps the banner
+    // root, the fleet law live; the pre-W3 declaration-only posture
+    // retired with the hole round)
+    expect(zone.querySelector('[data-jx-alert]')!.getAttribute('data-density')).toBe('sm');
     expect(zone.querySelector('[data-jx-empty]')!.getAttribute('data-density')).toBe('sm');
     expect(zone.querySelector('[data-jx-result]')!.getAttribute('data-density')).toBe('sm');
     expect(zone.querySelector('[data-jx-fab]')!.getAttribute('data-density')).toBe('sm');
@@ -201,53 +203,85 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     return holder.value;
   };
 
-  it('the floating-surface trio: own auto, no density opinion (ambient silent, no throw)', () => {
+  it('the floating-surface trio: own auto + own elevation levels (W3-C), axes silent-auto', () => {
     expect(resolveInWindow(() => TooltipDefaults.resolve({}))).toEqual({
       variant: 'auto',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level1',
+      motion: 'auto',
     });
-    expect(resolveInWindow(() => PopoverDefaults.resolve({}))).toEqual({
+    expect(resolveInWindow(() => PopoverDefaults.resolve({}))).toMatchObject({
       variant: 'auto',
-      density: undefined,
+      elevation: 'level2',
     });
-    expect(resolveInWindow(() => HoverCardDefaults.resolve({ variant: 'solid' }))).toEqual({
+    expect(resolveInWindow(() => HoverCardDefaults.resolve({ variant: 'solid' }))).toMatchObject({
       variant: 'solid',
-      density: undefined,
+      elevation: 'level2',
     });
   });
 
-  it('Alert: frozen own outline; system-dialog: the two-vocabulary split', () => {
+  it('Alert: frozen own outline; system-dialog: the two-vocabulary split + the level3 own', () => {
+    // W3-D5: the alert contract carries the eight-axis surface (the
+    // silent window resolves 'auto' — the §0.1 no-opinion spelling)
     expect(resolveInWindow(() => AlertDefaults.resolve({}))).toEqual({
       variant: 'outline',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
     // tone rides the contract since c46d357b (the confirm rung's paint
     // family, own 'destructive') — re-recorded here when
-    // spin-ora-svg-lane V1 re-ran this battery
+    // spin-ora-svg-lane V1 re-ran this battery; W3-C adds the eight
+    // axes with the alert's own elevation level3 (6dp — one rung under
+    // the modal dialog)
     expect(resolveInWindow(() => SystemDialogDefaults.resolve({}))).toEqual({
       variant: 'auto',
       actionVariant: 'fill',
       tone: 'destructive',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level3',
+      motion: 'auto',
     });
-    expect(resolveInWindow(() => SystemDialogDefaults.resolve({ actionVariant: 'tonal' }))).toEqual({
+    expect(resolveInWindow(() => SystemDialogDefaults.resolve({ actionVariant: 'tonal' }))).toMatchObject({
       variant: 'auto',
       actionVariant: 'tonal',
       tone: 'destructive',
-      density: undefined,
+      elevation: 'level3',
     });
   });
 
-  it('toast: a push IS the explicit lane — own outline/popover, no density opinion', () => {
+  it('toast: a push IS the explicit lane — own outline/popover; the viewport axis surface (level3 own)', () => {
     expect(resolveInWindow(() => ToastDefaults.resolve({}))).toEqual({
       variant: 'outline',
       material: 'popover',
-      density: undefined,
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level3',
+      motion: 'auto',
     });
-    expect(resolveInWindow(() => ToastDefaults.resolve({ variant: 'tonal', material: 'glass' }))).toEqual({
+    expect(resolveInWindow(() => ToastDefaults.resolve({ variant: 'tonal', material: 'glass' }))).toMatchObject({
       variant: 'tonal',
       material: 'glass',
-      density: undefined,
+      elevation: 'level3',
     });
   });
 
@@ -266,14 +300,104 @@ describe('in-window unit resolution — the own-defaults projection', () => {
       // spin review rounds (2026-09-12): the three absent slots — size
       // (absent rides the density ruler's var(--jx-icon)), interval and
       // linger (absent = the catalog step / the component's 'auto').
-      // ABSENT IS the state: unset resolves undefined, explicit wins
-      { density: undefined, size: undefined, interval: undefined, linger: undefined },
-      { density: undefined, size: 24, interval: undefined, linger: undefined },
-      { density: undefined },
-      { density: undefined },
-      { variant: 'fused', density: undefined },
-      { variant: 'auto', density: undefined },
-      { variant: 'auto', density: undefined },
+      // ABSENT IS the state: unset resolves undefined, explicit wins.
+      // W3-B (explicit-props): the seven axis slots joined (density
+      // rides the universal lane — silent 'auto' now); lingerType was
+      // always the fourth absent slot
+      {
+        density: 'auto',
+        size: undefined,
+        interval: undefined,
+        linger: undefined,
+        lingerType: undefined,
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      {
+        density: 'auto',
+        size: 24,
+        interval: undefined,
+        linger: undefined,
+        lingerType: undefined,
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      // progress W3-D2: the eight-axis surface joined the readout
+      // family's contract — every axis silent-'auto' (the zero-hit
+      // ruling stands: value/max/label are data semantics)
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      // skeleton W3-D5 (the hole round): the placeholder's contract
+      // gains the seven sibling axes — every axis silent-'auto' (the
+      // component wiring landed with them; geometry stays the
+      // consumer's, the axis surface never manufactures it)
+      {
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      // separator W3-B: the eight-axis surface joined the ink-geometry
+      // literal — every axis silent-'auto'
+      {
+        variant: 'fused',
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'auto',
+        motion: 'auto',
+      },
+      // popconfirm W3-C: the eight axes joined the confirm bubble's
+      // contract (own level2, the anchored menu rung)
+      {
+        variant: 'auto',
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level2',
+        motion: 'auto',
+      },
+      // W3-D1 (explicit-props, task 3.4): command's contract gained
+      // the seven non-variant axis members — density rides the
+      // bridged lane (silent 'auto'), elevation carries the modal's
+      // OWN level4 (the batch C dialog law)
+      {
+        variant: 'auto',
+        density: 'auto',
+        size: 'auto',
+        shape: 'auto',
+        radius: 'auto',
+        color: 'auto',
+        theme: 'auto',
+        elevation: 'level4',
+        motion: 'auto',
+      },
     ]);
   });
 });

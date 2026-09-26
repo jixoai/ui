@@ -1,57 +1,78 @@
-<!-- scroll-area blueprint: the two scrollbar variants side by side. Left:
-     native — the theme law (thin themed bar over a transparent track,
-     both-edges gutter, symmetric compensated inset). Right: overlay — the
-     custom virtual scrollbar (square theme-token thumb floating over
-     full-width content, fine pointers only). -->
+<!-- scroll-area blueprint: the family after the 2026-09-15 rework — one
+     hand-drawn law + a platform sibling on the shared kit. Left: the
+     styled component — ALWAYS hand-drawn (capsule thumb, full radius,
+     the scrollbar-token law's currentColor family; idle-fades with the
+     four auto-hide pins). Right: the native-scroll-area sibling — zero
+     drawn chrome, the platform bar under the same token law with the
+     packaged capability styles (stable gutter, scoped color-scheme).
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms; the
+     row opacity ladder rides ternary atoms in the cx slot.) -->
 <script lang="ts">
+  import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
   const rows = ['layout shell', 'release notes', 'terminal log', 'data table', 'command palette'];
 </script>
 
-<div class="flex h-full w-full items-center justify-center gap-10 p-10">
-  <!-- native variant -->
-  <div class="flex w-[300px] flex-none flex-col gap-2">
-    <span class="font-nav text-muted-foreground text-[10px] uppercase tracking-[0.24em]"
-      >scrollbar="native" · the theme law</span
+<Stack align="center" justify="center" gap="40" class={cx(bpB.scrollAreaStage)}>
+  <!-- the hand-drawn law (scroll-area) -->
+  <Stack direction="column" gap="8" class={cx(bpB.scrollAreaRail)}>
+    <span class={cx(bpB.scrollAreaLabel)}
+      >scroll-area · hand-drawn, always</span
     >
-    <div class="border-border relative h-[210px] border">
-      <div class="flex h-full flex-col px-3.5 py-2">
+    <div class={cx(bpB.scrollAreaPort)}>
+      <Stack direction="column" class={cx(bpB.scrollAreaListPad)} }>
         {#each rows as row, i (row)}
           <div
-            class={`border-border/40 bg-muted/40 mb-1.5 border px-2 py-2.5 text-[10.5px] ${i === 2 ? 'opacity-100' : 'opacity-80'}`}
+            class={cx(bpB.scrollAreaRow, i === 2 ? bpB.scrollAreaRowLit : bpB.scrollAreaRowDim)}
           >
             {row}
           </div>
         {/each}
-      </div>
-      <!-- the thin themed bar + the mirrored empty gutter -->
-      <div class="bg-primary absolute bottom-1 right-0.5 top-1 w-[9px] opacity-80"></div>
-      <div class="border-border/50 absolute bottom-1 left-0.5 top-1 w-[9px] border"></div>
-      <span class="text-primary font-nav absolute bottom-2 left-2.5 text-[9px]"
-        >both-edges gutter · pad compensated</span
+      </Stack>
+      <!-- the capsule thumb — full radius over full-width content -->
+      <div class={cx(bpB.scrollAreaThumb)}></div>
+      <span class={cx(bpB.scrollAreaCaption)}
+        >capsule · idle fade · the four pins</span
       >
     </div>
-  </div>
+  </Stack>
 
-  <!-- overlay variant -->
-  <div class="flex w-[300px] flex-none flex-col gap-2">
-    <span class="font-nav text-muted-foreground text-[10px] uppercase tracking-[0.24em]"
-      >scrollbar="overlay" · the virtual bar</span
+  <!-- the platform sibling (native-scroll-area) -->
+  <Stack direction="column" gap="8" class={cx(bpB.scrollAreaRail)}>
+    <span class={cx(bpB.scrollAreaLabel)}
+      >native-scroll-area · the platform bar</span
     >
-    <div class="border-border relative h-[210px] border">
-      <div class="flex h-full flex-col px-2 py-2">
+    <div class={cx(bpB.scrollAreaPort)}>
+      <Stack direction="column" class={cx(bpB.scrollAreaListSlim)} }>
         {#each rows as row, i (row)}
           <div
-            class={`border-border/40 bg-muted/40 mb-1.5 border px-2 py-2.5 text-[10.5px] ${i === 2 ? 'opacity-100' : 'opacity-60'}`}
+            class={cx(bpB.scrollAreaRow, i === 2 ? bpB.scrollAreaRowLit : bpB.scrollAreaRowFaint)}
           >
             {row}
           </div>
         {/each}
-      </div>
-      <!-- the floating square thumb — full-width content beneath -->
-      <div class="bg-primary absolute right-1 top-[52px] h-[64px] w-[9px]"></div>
-      <span class="text-primary font-nav absolute bottom-2 left-2.5 text-[9px]"
-        >(pointer: fine) only · touch keeps native</span
+      </Stack>
+      <!-- the platform bar + the mirrored reserved gutter -->
+      <div class={cx(bpB.scrollAreaBar)}></div>
+      <div class={cx(bpB.scrollAreaGutter)}></div>
+      <span class={cx(bpB.scrollAreaCaption)}
+        >stable gutter · scoped scheme · no drawn chrome</span
       >
     </div>
-  </div>
-</div>
+  </Stack>
+</Stack>

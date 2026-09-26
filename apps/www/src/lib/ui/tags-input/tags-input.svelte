@@ -67,7 +67,7 @@
   Surface motion kernel (2026-08-25): popover.svelte law adopted — the
   toggle seam drives the shared WAAPI kernel (lib/surface-motion.ts)
   against the live wrap anchor; the panel carries jx-waapi behind
-  motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
+  panelMotion.supported plus the REAL .jx-surface-shadow child; jixoai.css
   owns every visible formula.
 
   Standard-layer adoption (2026-08-28, ui-plugin-followup B5): the
@@ -100,16 +100,57 @@
   import { cn } from '$lib/utils';
   import { getContext } from 'svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { TagsInputDefaults, type TagsInputSurfaceVariant } from './tags-input-defaults.svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import { tagsStyles } from './tags-input.stylex';
   import './tags-input.css';
 
-  interface Props extends Omit<HTMLInputAttributes, 'value' | 'type'> {
+  interface Props extends Omit<HTMLInputAttributes, 'value' | 'type' | 'size' | 'color'> {
     /** the committed tag set; bind:tags */
     tags?: Tag[];
     /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** optional suggestion list filtered into the popover while typing */
     suggestions?: Tag[];
     /** form field name — the bridge submits the tag VALUES as one JSON
@@ -142,6 +183,13 @@
   let {
     tags = $bindable([]),
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     suggestions = [],
     name,
@@ -157,6 +205,22 @@
     chrome: chromeProp = undefined,
     ...rest
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // the chrome axis ambient (inline read — see lib/control-chrome.svelte.ts)
   const ambientChrome = getContext<{ chrome?: ControlChrome }>(CONTROL_CHROME_KEY)?.chrome;
@@ -176,7 +240,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): variant rides the literal slot (own 'auto', ambient
   // when a surface axis opens), density the no-opinion axis slot
-  const d = $derived(TagsInputDefaults.resolve({ variant, density }));
+  const d = $derived(
+    TagsInputDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
   const invalid = $derived(error != null && error !== '');
   const describedBy = $derived(invalid ? errorId : undefined);
   const invalidAttr = $derived(invalid ? 'true' : undefined);
@@ -226,12 +299,12 @@
   function onPanelToggle(): void {
     open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     } else {
       panelEl?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
     }
   }
 
@@ -239,8 +312,8 @@
   // lib/surface-motion.ts): WAAPI animates ONE @property number (--jx-p);
   // every visible property is a CSS formula of it (jixoai.css). Here it
   // wires only this panel's toggle seam and live wrap anchor
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
-  onDestroy(() => motion.destroy());
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  onDestroy(() => panelMotion.destroy());
 
   function syncPanel(): void {
     if (filtered.length > 0) {
@@ -381,7 +454,12 @@
   });
 </script>
 
-<div class="jx-field" data-density={d.density}>
+<div
+  bind:this={uniRoot}
+  class="jx-field"
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}>
   <!-- faceless form bridge (form-field.ts law): the tag VALUES ride
        ElementInternals into FormData as one JSON array string; the
        typing input carries NO name. jx-reset / jx-disabled bubble the
@@ -392,7 +470,7 @@
        semantics for custom elements and would render disabled="false"
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
-    class="contents"
+    class={cx(tagsStyles.bridge)}
     aria-hidden="true"
     {name}
     value={formValue}
@@ -405,8 +483,9 @@
     <div
       data-jx-tags-invalid={invalid ? '' : undefined}
       class={cn(
-        'jx-tags-shell flex flex-wrap items-center gap-[var(--jx-gap)] w-full max-w-full min-h-[var(--jx-hit)] px-[var(--jx-inset)] py-[var(--jx-gap)] border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
-        invalid && 'border-dashed',
+        'jx-tags-shell',
+        cx(tagsStyles.shell),
+        invalid && cx(tagsStyles.shellInvalid),
         className,
       )}
       role="listbox"
@@ -418,16 +497,17 @@
           role="option"
           aria-selected="true"
           class={cn(
-            'jx-tags-tag inline-flex items-center gap-[var(--jx-gap)] min-h-[var(--jx-row-min)] ps-[var(--jx-inset)] border border-border bg-muted text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] transition-[border-color] duration-100 ease-out',
-            tag.removable === false && 'pe-2',
-            tag.value === flashValue && 'jx-tags-flash border-primary animate-[jx-tags-shake_150ms_ease-in-out]',
+            'jx-tags-tag',
+            cx(tagsStyles.chip),
+            tag.removable === false && cx(tagsStyles.chipFixedEnd),
+            tag.value === flashValue && 'jx-tags-flash ' + cx(tagsStyles.chipFlash),
           )}
         >
-          <span data-jx-tags-tag-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{tag.label ?? tag.value}</span>
+          <span data-jx-tags-tag-label class={cx(tagsStyles.chipLabel)}>{tag.label ?? tag.value}</span>
           {#if tag.removable !== false}
             <button
               type="button"
-              class="jx-tags-remove inline-flex items-center justify-center self-stretch min-w-[var(--jx-hit)] p-0 border-0 bg-transparent text-[length:var(--jx-text)] leading-none cursor-pointer transition-[color,transform] duration-100 ease-out disabled:cursor-not-allowed"
+              class={cn('jx-tags-remove', cx(tagsStyles.remove))}
               aria-label={`remove ${tag.label ?? tag.value}`}
               disabled={isDisabled}
               onclick={() => removeAt(index)}
@@ -440,7 +520,7 @@
         </span>
       {/each}
       {#if full}
-          <span data-jx-tags-full class="text-muted-foreground text-[length:var(--jx-text)] leading-[var(--jx-row-min)]">{tags.length}/{maxTags} tags</span>
+          <span data-jx-tags-full class={cx(tagsStyles.full)}>{tags.length}/{maxTags} tags</span>
       {:else}
         <input
           bind:this={inputEl}
@@ -460,7 +540,7 @@
           autocapitalize="off"
           spellcheck="false"
           data-jx-tags-input
-          class="jx-html-control-lane flex-[1_1_0%] min-w-0 min-h-[var(--jx-row-min)] p-0 border-0 outline-none bg-transparent text-foreground text-[length:var(--jx-text)] leading-[var(--jx-leading)] placeholder:text-muted-foreground placeholder:opacity-100"
+          class={cn('jx-html-control-lane', cx(tagsStyles.input))}
           {placeholder}
           disabled={isDisabled}
           oninput={onInput}
@@ -475,9 +555,9 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class={cn('jx-tags-panel jx-surface', motion.supported && 'jx-waapi')}
+    class={cn('jx-tags-panel jx-surface', panelMotion.supported && 'jx-waapi')}
     data-variant={d.variant}
-    data-density={d.density}
+    data-density={densityRungOf(d.density)}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
   >
@@ -488,14 +568,14 @@
          unreachable from WAAPI — the kernel animates it in lockstep
          (Owner ruling r18) -->
     <div data-jx-tags-panel-body class="jx-surface-body">
-    <div data-jx-tags-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
+    <div data-jx-tags-scroll class={cx(tagsStyles.scroll)}>
     {#if filtered.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
       <ul
         id={listboxId}
         data-jx-tags-list
-        class="m-0 p-0 list-none"
+        class={cx(tagsStyles.list)}
         role="listbox"
         aria-label={label ? `${label} suggestions` : 'suggestions'}
         onmousedown={(event) => event.preventDefault()}
@@ -511,9 +591,10 @@
             aria-selected={tags.some((tag) => tag.value === suggestion.value) ? 'true' : 'false'}
             data-jx-tags-suggestion-active={index === active ? '' : undefined}
             class={cn(
-              'jx-tags-suggestion px-[var(--jx-inset)] py-[var(--jx-gap)] min-h-[var(--jx-hit)] text-[length:var(--jx-text)] leading-[var(--jx-leading)] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
-              index === active && 'bg-terminal-hover text-terminal-foreground',
-              tags.some((tag) => tag.value === suggestion.value) && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
+              'jx-tags-suggestion',
+              cx(tagsStyles.suggestion),
+              index === active && cx(tagsStyles.rowActive),
+              tags.some((tag) => tag.value === suggestion.value) && cx(tagsStyles.rowActive, tagsStyles.rowAddedEdge),
             )}
             onclick={() => addTag(suggestion)}
           >

@@ -36,6 +36,7 @@
   import { cn } from '$lib/utils';
   import { MENUBAR_KEY, type MenubarApi, type MenubarPanelHandles } from './menubar.svelte';
   import { MENUBAR_ITEM_KEY, type MenubarItemApi } from './menubar-item.svelte';
+  import { menubarStyles } from './menubar.stylex';
   import './menubar.css';
 
   interface Props {
@@ -44,6 +45,22 @@
   }
 
   let { class: className = '', children }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const bar = getContext<MenubarApi>(MENUBAR_KEY);
   const item = getContext<MenubarItemApi>(MENUBAR_ITEM_KEY);
@@ -132,6 +149,17 @@
   }
 </script>
 
+<!-- position-area law (W5 sweep, 2026-09-15 — spec-true): the panel
+     occupies the region BELOW its item, START-aligned — `bottom
+     span-right` names exactly that (spanning from the item's
+     inline-start edge rightward: left edges together), the
+     navigation-menu-panel law for bars. `bottom span-right` also
+     keeps flip-block ENGAGED near the viewport bottom: the pre-sweep
+     `bottom span-left` rendered end-aligned, which overflows the
+     inline-start edge for a bar near the screen's left and left the
+     engine no fitting fallback (clamped overlap instead of the
+     flip). ONE literal feeds BOTH emissions (position-area + the
+     legacy inset-area alias) -->
 <div
   id={panelId}
   popover="manual"
@@ -141,7 +169,7 @@
   data-variant={bar.variant}
   data-density={bar.density}
   bind:this={panelEl}
-  style="position-anchor: {item.anchorName}; inset-area: bottom span-left; position-area: bottom span-left;"
+  style="position-anchor: {item.anchorName}; inset-area: bottom span-right; position-area: bottom span-right;"
   onkeydown={handleKeydown}
   ontoggle={handleToggle}
 >
@@ -150,7 +178,7 @@
   <div data-jx-bar-shadow="" class="jx-surface-shadow" aria-hidden="true"></div>
   <!-- the REAL shadow layer: a DOM child because pseudo-elements are
        unreachable from WAAPI — the kernel animates it in lockstep -->
-  <div data-jx-bar-surface="" class="jx-surface-body p-1">
+  <div data-jx-bar-surface="" class={cn('jx-surface-body', cx(menubarStyles.panelBody))}>
     {@render children()}
   </div>
 </div>

@@ -16,21 +16,39 @@
  *     at the provider).
  *   - shape: the literal family (own 'square' declared, ambient
  *     capability pends a future shape axis — auditable today,
- *     promotable when that axis opens).
- *   - density: the no-opinion axis slot. The chip carries NO density
- *     own (the badge-twin law rides the secondary line at every
- *     density): no provider and no explicit prop resolve undefined,
+ *     promotable when that axis opens). W3-B NOTE: the universal
+ *     §2 shape axis is NOT adopted here — the silhouette vocabulary
+ *     (square|pill) collides with the axis name and design §13 rules
+ *     no mapping for it; an unruled rename/absorption is out of
+ *     bounds (the orchestrator folds the ruling). The other seven
+ *     axes landed (below).
+ *   - density: the universal §4 axis slot (W3-B — the legacy
+ *     densitySlot semantics ride the bridged lane). The chip carries
+ *     NO density own (the badge-twin law rides the secondary line at
+ *     every density): no provider and no explicit prop resolve 'auto',
  *     stamp nothing, and the ambient css scope channel keeps flowing
  *     (fleet law).
+ *   - the other universal axes (§0/§11, W3-B, all no-own): size ·
+ *     radius · color · theme · elevation · motion — the eight-axis
+ *     surface minus the collided shape name.
  *
  * 惰性律: construction captures own/values only; context reads happen
  * at resolve time inside the consumer's $derived window. This file is
  * a member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults, defineLiteralSlot } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  defineLiteralSlot,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import { definePaintSlot } from '$lib/paint.svelte';
-import { densitySlot } from '$lib/density.svelte';
 
 /** the grammar's four-step ladder — the frozen table's Chip row
  *  (all four rungs; link never reaches Chip); the values tuple is
@@ -45,5 +63,11 @@ export type ChipShape = ReturnType<typeof chipShapeSlot>;
 export const ChipDefaults = defineComponentDefaults({
   variant: chipVariantSlot,
   shape: chipShapeSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

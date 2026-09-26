@@ -9,6 +9,7 @@
 <script lang="ts">
   import Icon from '$lib/ui/icon';
   import Tooltip from '$lib/ui/tooltip/tooltip.svelte';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   interface Props {
     /** Command text to copy (and to show in the tooltip). */
@@ -38,6 +39,22 @@
         timer = setTimeout(() => (failed = false), 1600);
       });
   };
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <Tooltip text={copied ? 'copied' : failed ? 'copy failed — clipboard blocked' : command} placement="bottom">
@@ -45,10 +62,11 @@
     type="button"
     onclick={copy}
     aria-label={`copy ${command}`}
-    class="jx-press border-border bg-card hover:bg-muted text-foreground/80 hover:text-foreground
-      pointer-events-auto inline-grid size-7 place-items-center border
-      {copied ? 'bg-secondary text-secondary-foreground' : ''}
-      {failed ? 'border-destructive text-destructive' : ''}"
+    class={cx(
+      'jx-press',
+      siteChrome.cibBtn,
+      failed ? siteChrome.cibFailed : copied ? siteChrome.cibCopied : siteChrome.cibIdle,
+    )}
   >
     {#if copied}
       <Icon name="check" size={13} strokeWidth={2.25} />

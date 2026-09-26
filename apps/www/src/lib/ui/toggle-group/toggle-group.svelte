@@ -63,13 +63,27 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
-  import type { Density } from '$lib/density.svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { ToggleGroupDefaults } from './toggle-group-defaults.svelte';
   import { getContext, setContext } from 'svelte';
   import { cn } from '$lib/utils';
 
-  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onchange'> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'onchange' | 'color'> {
     /** form field name — REQUIRED for single (radio grouping), optional for multiple */
     name?: string;
     /** one value (single) or many (multiple) */
@@ -79,7 +93,28 @@
     disabled?: boolean;
     /** single mode only: native group-required forwards to every input */
     required?: boolean;
-    density?: Density;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     'data-density'?: string;
     /** frame posture: explicit ?? the integration ambient ?? 'frame'
      *  (the control-chrome axis — a frame-owning row declares its
@@ -106,6 +141,13 @@
     disabled = false,
     required = false,
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     chrome: chromeProp = undefined,
     label,
@@ -133,8 +175,15 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): explicit ?? ambient scope per slot, one line, no
   // legacy helper channels (the group provides family STATE on its own
-  // key — never the density axis)
-  const d = $derived(ToggleGroupDefaults.resolve({ density }));
+  // key — never the density axis) — W3-B: the eight universal axes
+  // ride the same record, supplied to the item lanes via the §11
+  // broadcast
+  const d = $derived(ToggleGroupDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }));
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // `root` is already the group's DOM anchor (form-reset wiring) — the
+  // query anchor rides the SAME binding
+  provideQueryAnchor(() => root ?? null);
 
   const activeValues = $derived(
     type === 'single'
@@ -208,8 +257,10 @@
 <div
   bind:this={root}
   data-jx-tgroup
-  data-density={d.density}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
   class={cn('jx-html-tgroup', className)}
+  style={carriers || undefined}
   {...rest}
   role={type === 'single' ? 'radiogroup' : 'group'}
   aria-label={ariaLabelledBy ? undefined : label}

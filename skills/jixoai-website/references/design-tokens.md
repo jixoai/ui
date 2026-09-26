@@ -21,7 +21,8 @@ LAW; only the primary hue varies per project.
 | Token | Light | Dark |
 | ----- | ----- | ---- |
 | `--primary` | `oklch(0.6489 0.237 var(--brand-hue))` | `oklch(0.7044 0.1872 calc(var(--brand-hue) - 4))` |
-| `--primary-foreground` | `oklch(1 0 0)` | `oklch(0 0 0)` |
+| `--primary-foreground` | `oklch(0 0 0)` | `oklch(0 0 0)` |
+| `--primary-text` | `oklch(0.55 0.12 var(--brand-hue))` | `var(--primary)` |
 | `--secondary` | `oklch(0.968 0.211 109.7692)` | `oklch(0.9691 0.2005 109.6228)` |
 | `--secondary-foreground` | `oklch(0 0 0)` | `oklch(0 0 0)` |
 | `--accent` | `oklch(0.5635 0.2408 260.8178)` | `oklch(0.6755 0.1765 252.2592)` |
@@ -85,7 +86,8 @@ them with grays except where `--muted` is defined.
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0 0 0);
   --primary: oklch(0.6489 0.237 var(--brand-hue));
-  --primary-foreground: oklch(1 0 0);
+  --primary-foreground: oklch(0 0 0);
+  --primary-text: oklch(0.55 0.12 var(--brand-hue));
   --secondary: oklch(0.968 0.211 109.7692);
   --secondary-foreground: oklch(0 0 0);
   --muted: oklch(0.9551 0 0);
@@ -154,6 +156,7 @@ them with grays except where `--muted` is defined.
   /* the primary hue drifts -4° toward dark, mirroring the reference */
   --primary: oklch(0.7044 0.1872 calc(var(--brand-hue) - 4));
   --primary-foreground: oklch(0 0 0);
+  --primary-text: var(--primary);
   --secondary: oklch(0.9691 0.2005 109.6228);
   --secondary-foreground: oklch(0 0 0);
   --muted: oklch(0.2178 0 0);

@@ -4,36 +4,52 @@
      hacks. -->
 <script lang="ts">
   import Icon from '$lib/ui/icon';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
 
   const sizes = [12, 16, 24, 32] as const;
   const strokes = [1.5, 2, 2.5] as const;
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center gap-4 p-10">
-  <div class="font-nav text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+<Stack direction="column" justify="center" gap="16" class={cx(bpA.iconStage)}>
+  <div class={cx(bpA.iconEyebrow)}>
     &lt;Icon name&gt; · size / strokeWidth — per-instance, no wrapper classes
   </div>
-  <div class="flex items-end gap-4">
+  <Stack align="end" gap="16">
     {#each sizes as s (s)}
-      <div class="flex flex-col items-center gap-2">
+      <Stack direction="column" align="center" gap="8">
         <Icon name="search" size={s} />
-        <span class="font-mono text-[10px] text-muted-foreground">{s}</span>
-      </div>
+        <span class={cx(bpA.iconCellLabel)}>{s}</span>
+      </Stack>
     {/each}
-  </div>
-  <div class="flex items-center gap-4">
+  </Stack>
+  <Stack align="center" gap="16" }>
     {#each strokes as sw (sw)}
-      <div class="flex flex-col items-center gap-2">
+      <Stack direction="column" align="center" gap="8">
         <Icon name="check" size={20} strokeWidth={sw} />
-        <span class="font-mono text-[10px] text-muted-foreground">sw {sw}</span>
-      </div>
+        <span class={cx(bpA.iconCellLabel)}>sw {sw}</span>
+      </Stack>
     {/each}
-  </div>
-  <div class="flex items-center gap-3 text-muted-foreground">
+  </Stack>
+  <Stack align="center" gap="12" class={cx(bpA.iconNameRow)} }>
     <Icon name="folderOpen" size={14} />
     <Icon name="chevronRight" size={14} />
     <Icon name="fileCode" size={14} />
     <Icon name="braces" size={14} />
-    <span class="font-mono text-[10px]">name: IconName — typo ⇒ compile error</span>
-  </div>
-</div>
+    <span class={cx(bpA.iconNameRowLabel)}>name: IconName — typo ⇒ compile error</span>
+  </Stack>
+</Stack>

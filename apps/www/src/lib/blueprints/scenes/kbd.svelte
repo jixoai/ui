@@ -1,15 +1,31 @@
 <!-- kbd blueprint: a keyboard shortcut row. -->
 <script lang="ts">
   import Kbd from '$lib/ui/kbd/kbd.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-start justify-center gap-5 p-10">
-  <div class="flex items-center gap-2 text-sm">
+<Stack direction="column" align="start" justify="center" gap="20" class={cx(bpA.kbdStage)}>
+  <Stack align="center" gap="8" class={cx(bpA.kbdRow)} }>
     <Kbd density="lg">⌘</Kbd><Kbd density="lg">K</Kbd>
-    <span class="text-muted-foreground">open the command surface</span>
-  </div>
-  <div class="flex items-center gap-2 text-sm">
+    <span class={cx(bpA.kbdNote)}>open the command surface</span>
+  </Stack>
+  <Stack align="center" gap="8" class={cx(bpA.kbdRow)} }>
     <Kbd>⌘</Kbd><Kbd>⇧</Kbd><Kbd>P</Kbd>
-    <span class="text-muted-foreground">preview deployment</span>
-  </div>
-</div>
+    <span class={cx(bpA.kbdNote)}>preview deployment</span>
+  </Stack>
+</Stack>

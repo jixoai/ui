@@ -64,8 +64,25 @@ import { ColorPickerDefaults } from '../src/lib/ui/color-picker/color-picker-def
 import { ToggleDefaults } from '../src/lib/ui/toggle/toggle-defaults.svelte';
 import { ToggleGroupDefaults } from '../src/lib/ui/toggle-group/toggle-group-defaults.svelte';
 import { DescriptionsDefaults } from '../src/lib/ui/descriptions/descriptions-defaults.svelte';
+import { descriptionsStyles } from '../src/lib/ui/descriptions/descriptions.stylex';
 
 import Descriptions from '../src/lib/ui/descriptions/descriptions.svelte';
+
+// tailwindless one-shot Wave 1b batch A (2026-09-17): the families'
+// paint rides stylex atoms now — membership asserted through the same
+// cx join the components ride (utility-shaped expectations went with
+// the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 import Select from '../src/lib/ui/select/select.svelte';
 
 const byTestid = (container: HTMLElement, id: string) =>
@@ -98,80 +115,153 @@ describe('the nineteen contract surfaces', () => {
     return holder.value;
   };
 
-  const densityOnly = {
-    input: InputDefaults,
-    'native-select': NativeSelectDefaults,
-    checkbox: CheckboxDefaults,
-    radio: RadioDefaults,
-    range: RangeDefaults,
-    textarea: TextareaDefaults,
-    'input-group': InputGroupDefaults,
-    'input-otp': InputOtpDefaults,
-    'number-input': NumberInputDefaults,
-    toggle: ToggleDefaults,
-    'toggle-group': ToggleGroupDefaults,
+  // the W3 batch A universal surface (explicit-props §0/§11): the
+  // eight axis members join the contract — density leads (the
+  // pre-existing slot), the seven others follow; every axis resolves
+  // 'auto' with no opinion (无意见不盖章). native-select is SEVEN axes
+  // (the native size attribute stays the rows-count passthrough)
+  const UNIVERAL_AXES = ['size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'];
+  const axisSurface = (axes: string[]): string[] => ['density', ...axes];
+  const autoProjection = (axes: string[]): Record<string, unknown> => ({
+    density: 'auto',
+    ...Object.fromEntries(axes.map((axis) => [axis, 'auto'])),
+  });
+
+  const universalDensityOnly = {
+    input: { defaults: InputDefaults, axes: UNIVERAL_AXES },
+    'native-select': { defaults: NativeSelectDefaults, axes: UNIVERAL_AXES.filter((a) => a !== 'size') },
+    checkbox: { defaults: CheckboxDefaults, axes: UNIVERAL_AXES },
+    radio: { defaults: RadioDefaults, axes: UNIVERAL_AXES },
+    range: { defaults: RangeDefaults, axes: UNIVERAL_AXES },
+    textarea: { defaults: TextareaDefaults, axes: UNIVERAL_AXES },
+    'input-group': { defaults: InputGroupDefaults, axes: UNIVERAL_AXES },
+    'input-otp': { defaults: InputOtpDefaults, axes: UNIVERAL_AXES },
+    'number-input': { defaults: NumberInputDefaults, axes: UNIVERAL_AXES },
+    // W3 batch B: the toggle pair joins (its kernel formulas are the
+    // §4 frozen effective-operand exception — the AXIS surface still
+    // applies verbatim)
+    toggle: { defaults: ToggleDefaults, axes: UNIVERAL_AXES },
+    'toggle-group': { defaults: ToggleGroupDefaults, axes: UNIVERAL_AXES },
   } as const;
 
-  it.each(Object.entries(densityOnly))(
-    '%s declares exactly { density }, shallow-frozen, no-opinion',
-    (_name, defaults) => {
+  it.each(Object.entries(universalDensityOnly))(
+    '%s declares the universal surface (density + the axis members), shallow-frozen',
+    (_name, { defaults, axes }) => {
       expect(Object.isFrozen(defaults.slots)).toBe(true);
-      expect(Object.keys(defaults.slots)).toEqual(['density']);
-      expect(resolveInWindow(() => defaults.resolve({}))).toEqual({ density: undefined });
+      expect(Object.keys(defaults.slots)).toEqual(axisSurface([...axes]));
+      expect(resolveInWindow(() => defaults.resolve({}))).toEqual(autoProjection([...axes]));
     },
   );
 
+  // W3-D3: select joined the eight-axis surface (elevation own
+  // level2 — the portaled listbox's menu rung); variant keeps its
+  // literal own 'auto' and every union literal passes through
   it.each([
     ['select', SelectDefaults],
+  ] as const)('%s declares { variant } + the universal surface, own ' + "'auto'", (_name, defaults) => {
+    expect(Object.isFrozen(defaults.slots)).toBe(true);
+    expect(Object.keys(defaults.slots).sort()).toEqual(
+      [...axisSurface([...UNIVERAL_AXES]), 'variant'].sort(),
+    );
+    expect(resolveInWindow(() => defaults.resolve({}))).toEqual({
+      variant: 'auto',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level2',
+      motion: 'auto',
+    });
+    // the literal slot never reads context: every union literal passes through
+    expect(resolveInWindow(() => defaults.resolve({ variant: 'solid' }))).toEqual({
+      variant: 'solid',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level2',
+      motion: 'auto',
+    });
+    expect(resolveInWindow(() => defaults.resolve({ variant: 'acrylic' }))).toEqual({
+      variant: 'acrylic',
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'level2',
+      motion: 'auto',
+    });
+  });
+
+  // the W3 batch A surface over the variant families: variant keeps
+  // its literal own; the axis members resolve 'auto'
+  it.each([
     ['combobox', ComboboxDefaults],
     ['date-picker', DatePickerDefaults],
     ['tags-input', TagsInputDefaults],
     ['color-picker', ColorPickerDefaults],
-  ] as const)('%s declares { variant, density }, surface own ' + "'auto'", (_name, defaults) => {
+  ] as const)('%s declares { variant } + the universal surface, own ' + "'auto'", (_name, defaults) => {
     expect(Object.isFrozen(defaults.slots)).toBe(true);
-    expect(Object.keys(defaults.slots).sort()).toEqual(['density', 'variant']);
-    expect(resolveInWindow(() => defaults.resolve({}))).toEqual({ variant: 'auto', density: undefined });
+    expect(Object.keys(defaults.slots).sort()).toEqual(
+      [...axisSurface([...UNIVERAL_AXES]), 'variant'].sort(),
+    );
+    expect(resolveInWindow(() => defaults.resolve({}))).toEqual({
+      variant: 'auto',
+      ...autoProjection([...UNIVERAL_AXES]),
+    });
     // the literal slot never reads context: every union literal passes through
     expect(resolveInWindow(() => defaults.resolve({ variant: 'solid' }))).toEqual({
       variant: 'solid',
-      density: undefined,
+      ...autoProjection([...UNIVERAL_AXES]),
     });
     expect(resolveInWindow(() => defaults.resolve({ variant: 'acrylic' }))).toEqual({
       variant: 'acrylic',
-      density: undefined,
+      ...autoProjection([...UNIVERAL_AXES]),
     });
   });
 
-  it("file-input declares { variant, density }, presentation own 'drop'", () => {
+  it("file-input declares { variant } + the universal surface, presentation own 'drop'", () => {
     expect(Object.isFrozen(FileInputDefaults.slots)).toBe(true);
-    expect(Object.keys(FileInputDefaults.slots).sort()).toEqual(['density', 'variant']);
+    expect(Object.keys(FileInputDefaults.slots).sort()).toEqual(
+      [...axisSurface([...UNIVERAL_AXES]), 'variant'].sort(),
+    );
     expect(resolveInWindow(() => FileInputDefaults.resolve({}))).toEqual({
       variant: 'drop',
-      density: undefined,
+      ...autoProjection([...UNIVERAL_AXES]),
     });
     expect(resolveInWindow(() => FileInputDefaults.resolve({ variant: 'button' }))).toEqual({
       variant: 'button',
-      density: undefined,
+      ...autoProjection([...UNIVERAL_AXES]),
     });
   });
 
-  it('descriptions declares { bordered, density }, literal bordered owns false', () => {
+  it('descriptions declares { bordered, density } + the seven axis members (W3-D1), literal bordered owns false', () => {
     expect(Object.isFrozen(DescriptionsDefaults.slots)).toBe(true);
-    expect(Object.keys(DescriptionsDefaults.slots).sort()).toEqual(['bordered', 'density']);
+    expect(Object.keys(DescriptionsDefaults.slots).sort()).toEqual(
+      ['bordered', ...axisSurface([...UNIVERAL_AXES])].sort(),
+    );
     expect(resolveInWindow(() => DescriptionsDefaults.resolve({}))).toEqual({
       bordered: false,
-      density: undefined,
+      ...autoProjection([...UNIVERAL_AXES]),
     });
     expect(resolveInWindow(() => DescriptionsDefaults.resolve({ bordered: true }))).toEqual({
       bordered: true,
-      density: undefined,
+      ...autoProjection([...UNIVERAL_AXES]),
     });
   });
 
-  it('cascader (zero vocabulary hits) still declares its density-manageability', () => {
+  it('cascader (zero pre-W3 vocabulary hits) declares the universal surface day one', () => {
     expect(Object.isFrozen(CascaderDefaults.slots)).toBe(true);
-    expect(Object.keys(CascaderDefaults.slots)).toEqual(['density']);
-    expect(resolveInWindow(() => CascaderDefaults.resolve({}))).toEqual({ density: undefined });
+    expect(Object.keys(CascaderDefaults.slots)).toEqual(axisSurface([...UNIVERAL_AXES]));
+    expect(resolveInWindow(() => CascaderDefaults.resolve({}))).toEqual(
+      autoProjection([...UNIVERAL_AXES]),
+    );
   });
 });
 
@@ -207,7 +297,7 @@ describe('bare — no providers', () => {
     });
     const frame = bordered.container.querySelector('dl')!;
     expect(frame.hasAttribute('data-jx-desc-bordered')).toBe(true);
-    expect(frame.className).toContain('border');
+    expect(frame.className).toContain(cx(descriptionsStyles.bordered));
   });
 });
 
@@ -290,6 +380,6 @@ describe('meta-protected families — the inline defaults stay, the contract lan
         children,
       },
     });
-    expect(framed.container.querySelector('dl')!.className).toContain('bg-card');
+    expect(framed.container.querySelector('dl')!.className).toContain(cx(descriptionsStyles.bordered));
   });
 });

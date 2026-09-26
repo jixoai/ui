@@ -6,13 +6,29 @@
 <script lang="ts">
   import MathBlock from '$lib/ui/math-block/math-block.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
-  <MathBlock class="w-full max-w-[520px]" copyable={false} tex={'e^{i\\pi} + 1 = 0'} />
-  <div class="flex flex-wrap gap-2">
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpA.katexStage)}>
+  <MathBlock class={cx(bpA.katexBlock)} copyable={false} tex={'e^{i\\pi} + 1 = 0'} />
+  <Stack wrap gap="8" }>
     <Badge>isomorphic renderToString</Badge>
     <Badge>fonts ride the npm css</Badge>
     <Badge>MathML a11y path</Badge>
-  </div>
-</div>
+  </Stack>
+</Stack>

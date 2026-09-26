@@ -37,16 +37,23 @@ export async function serializeStageInPage(selector) {
   document.body.appendChild(probe);
   const colorCache = new Map();
   const parseRgb = (out) => {
+    // the srgb legs accept NEGATIVE/>1 components: color-mix(in srgb)
+    // on an out-of-gamut oklch (the theme's warning/info/accent are
+    // wide-gamut) emits e.g. color(srgb 0.97 0.72 -0.18) — clamped
+    // into [0,1] here (satori paints srgb; the clamp is the closest
+    // representable color, and the blueprint bake is grayscale)
+    const cl = (v) => Math.max(0, Math.min(1, parseFloat(v)));
     const m = out.match(
-      /rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)\s*(?:[,/]\s*([\d.%]+))?\s*\)|color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*(?:\/\s*([\d.%]+))?\s*\)/i,
+      /rgba?\(\s*(-?[\d.]+)[\s,]+(-?[\d.]+)[\s,]+(-?[\d.]+)\s*(?:[,/]\s*([\d.%]+))?\s*\)|color\(srgb\s+(-?[\d.-]+)\s+(-?[\d.-]+)\s+(-?[\d.-]+)\s*(?:\/\s*([\d.%]+))?\s*\)/i,
     );
     if (!m) return null;
     if (m[1] !== undefined) {
       const a = m[4] === undefined || m[4] === '' ? 1 : m[4].endsWith('%') ? parseFloat(m[4]) / 100 : parseFloat(m[4]);
-      return `rgba(${Math.round(+m[1])},${Math.round(+m[2])},${Math.round(+m[3])},${round(a)})`;
+      const b255 = (v) => Math.max(0, Math.min(255, parseFloat(v)));
+      return `rgba(${Math.round(b255(m[1]))},${Math.round(b255(m[2]))},${Math.round(b255(m[3]))},${round(a)})`;
     }
     const a = m[8] === undefined || m[8] === '' ? 1 : m[8].endsWith('%') ? parseFloat(m[8]) / 100 : parseFloat(m[8]);
-    return `rgba(${Math.round(+m[5] * 255)},${Math.round(+m[6] * 255)},${Math.round(+m[7] * 255)},${round(a)})`;
+    return `rgba(${Math.round(cl(m[5]) * 255)},${Math.round(cl(m[6]) * 255)},${Math.round(cl(m[7]) * 255)},${round(a)})`;
   };
   const color = (str) => {
     if (!str) return null;

@@ -4,7 +4,8 @@
   bounded quantities. The shell is one bordered row — 1px var(--border),
   radius 0, var(--background) fill, min-height 2.5rem (the 40px family
   law every text-like control shares) — split into two full-height
-  28px-wide stepper buttons (their own 1px borders form the dividers,
+  stepper squares riding the density hit channel (24/28/32/40/48px across
+  the rungs — measured; their own 1px borders form the dividers,
   negative margins overlap the shell border so every line stays 1px)
   around a borderless, centered native <input type="number">. The native
   spinners are hidden (appearance:none) but native behavior is kept:
@@ -72,15 +73,55 @@
   import { cn } from '$lib/utils';
   import { getContext } from 'svelte';
   import { CONTROL_CHROME_KEY, type ControlChrome } from '$lib/control-chrome.svelte';
-  import type { Density } from '$lib/density.svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { NumberInputDefaults } from './number-input-defaults.svelte';
+  import { numberInputStyles } from './number-input.stylex';
   import './number-input.css';
 
-  interface Props extends HTMLInputAttributes {
+  interface Props extends Omit<HTMLInputAttributes, 'size' | 'color'> {
     /** committed quantity; bind:value — undefined renders empty */
     value?: number;
-    /** density policy: explicit, inherited, then default */
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). SUPPLY-ONLY — zero family
+     *  readers (grep-receipted; the native element NEVER receives a size
+     *  attribute — the §1 native collision rule; everything the family
+     *  does not own still rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). SUPPLY-ONLY —
+     *  zero family readers (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** lower bound; stepping and the change-commit clamp into it */
     min?: number;
     /** upper bound; stepping and the change-commit clamp into it */
@@ -107,6 +148,13 @@
   let {
     value = $bindable(),
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     min,
     max,
@@ -129,7 +177,16 @@
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): explicit ?? ambient scope per slot, one line, no
   // legacy helper channels
-  const d = $derived(NumberInputDefaults.resolve({ density }));
+  const d = $derived(
+    NumberInputDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
   const invalid = $derived(error != null && error !== '');
   // the Input merge law: the own error wiring wins, the caller's
   // relations survive otherwise (the ItemField adapters own the text)
@@ -206,15 +263,41 @@
     // forward a caller-supplied change handler from the rest props
     (rest as { onchange?: (event: Event) => void }).onchange?.(event);
   }
+
+  // the payload's own join (separator's serialize law): every string
+  // declaration except the $$css marker, space-joined — atoms are
+  // objects in dev, raw interpolation would render [object Object]
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="jx-field" data-density={d.density} data-self-inset="">
+<div
+  bind:this={uniRoot}
+  class="jx-field"
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  data-self-inset="">
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
   <div
     class={cn(
-      'jx-num flex items-stretch w-full max-w-full min-h-[var(--jx-hit)] border border-border rounded-none bg-background text-foreground transition-[box-shadow] duration-150 ease-out',
-      invalid && 'border-dashed',
-      disabled && 'jx-num-off opacity-50 cursor-not-allowed',
+      'jx-num',
+      cx(
+        numberInputStyles.shell,
+        invalid && numberInputStyles.shellInvalid,
+        disabled && numberInputStyles.shellOff,
+      ),
       className,
     )}
     data-jx-num-invalid={invalid ? '' : undefined}
@@ -223,7 +306,7 @@
     <button
       type="button"
       data-jx-num-minus
-      class="jx-num-btn flex-none min-w-[var(--jx-hit)] min-h-[var(--jx-hit)] -ms-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-[length:var(--jx-text)] leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
+      class={cn('jx-num-btn', cx(numberInputStyles.stepper, numberInputStyles.stepStart))}
       aria-label="decrease"
       {disabled}
       onpointerdown={beginHold.bind(null, -1)}
@@ -234,14 +317,14 @@
          jx-html-control-lane (the STANDARD layer's lane law, B6
          2026-08-28 — previously the face's .jx-control-lane, an @apply
          of the same utility) owns the chromeless typography + placeholder
-         distinction; the utilities here only center the text and flex the
+         distinction; the atoms here only center the text and flex the
          cell (appearance:textfield pins the spinner OFF — this composite
          owns its own [- +] pair, the platform stepper law) -->
     <input
       {...rest}
       {id}
       type="number"
-      class={'jx-html-control-lane ' + cn('jx-num-input flex-1 min-w-0 text-center [appearance:textfield]', disabled && 'cursor-not-allowed')}
+      class={'jx-html-control-lane ' + cn('jx-num-input', cx(numberInputStyles.cell, disabled && numberInputStyles.cellOff))}
       {min}
       {max}
       {step}
@@ -254,7 +337,7 @@
     <button
       type="button"
       data-jx-num-plus
-      class="jx-num-btn flex-none min-w-[var(--jx-hit)] min-h-[var(--jx-hit)] -me-px inline-flex items-center justify-center p-0 border border-border rounded-none bg-background text-foreground font-nav font-bold text-[length:var(--jx-text)] leading-none cursor-pointer touch-manipulation transition-[background-color,transform] duration-150 ease-out disabled:cursor-not-allowed"
+      class={cn('jx-num-btn', cx(numberInputStyles.stepper, numberInputStyles.stepEnd))}
       aria-label="increase"
       {disabled}
       onpointerdown={beginHold.bind(null, 1)}

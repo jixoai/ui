@@ -1,0 +1,156 @@
+{
+  "run": "2026-09-16T07:31:48.732Z",
+  "results": [
+    {
+      "name": "gallery · the shimmer stage is a LIGHT scope carrying the light token",
+      "ok": true,
+      "detail": "theme=light token=oklch(1 0 0) hosts=3/3"
+    },
+    {
+      "name": "gallery · the shimmer band is the OPAQUE dark scenery (rgb(16,16,20), token #101014)",
+      "ok": true,
+      "detail": "bandBg=rgb(16, 16, 20) bandToken=#101014"
+    },
+    {
+      "name": "gallery · the shimmer hosts' painted fill layer is the scope's LIGHT token, NEVER the band",
+      "ok": true,
+      "detail": "fills=[\"rgb(255 255 255)\",\"rgb(255 255 255)\",\"rgb(255 255 255)\"] band=rgb(16, 16, 20)"
+    },
+    {
+      "name": "gallery · the shimmer fill parses LIGHT",
+      "ok": true,
+      "detail": "lum=1.000"
+    },
+    {
+      "name": "gallery · the rainbow stage is a LIGHT scope carrying the light token",
+      "ok": true,
+      "detail": "theme=light token=oklch(1 0 0) hosts=3/3"
+    },
+    {
+      "name": "gallery · the rainbow band is the OPAQUE dark scenery (rgb(16,16,20), token #101014)",
+      "ok": true,
+      "detail": "bandBg=rgb(16, 16, 20) bandToken=#101014"
+    },
+    {
+      "name": "gallery · the rainbow hosts' painted fill layer is the scope's LIGHT token, NEVER the band",
+      "ok": true,
+      "detail": "fills=[\"rgb(255 255 255)\",\"rgb(255 255 255)\",\"rgb(255 255 255)\"] band=rgb(16, 16, 20)"
+    },
+    {
+      "name": "gallery · the rainbow fill parses LIGHT",
+      "ok": true,
+      "detail": "lum=1.000"
+    },
+    {
+      "name": "gallery · the live stage flip re-resolves to the DARK token without a remount",
+      "ok": true,
+      "detail": "before=rgb(255 255 255) dark=rgb(0 0 0) darkToken=oklch(0 0 0) sameHost=true"
+    },
+    {
+      "name": "gallery · the flip back restores the light fill",
+      "ok": true,
+      "detail": "restored=rgb(255 255 255)"
+    },
+    {
+      "name": "A · light scope + OS-dark → the context is LIGHT (the scope, not the OS)",
+      "ok": true,
+      "detail": "contextIsDark=false osDark=true"
+    },
+    {
+      "name": "A · the auto fill parses the scope light token (both kernels)",
+      "ok": true,
+      "detail": "shimmer=rgb(255 255 255) rainbow=rgb(255 255 255)"
+    },
+    {
+      "name": "A · PIXEL: the shimmer face samples LIGHT on the light scope",
+      "ok": true,
+      "detail": "face pixel rgb(255, 255, 255)"
+    },
+    {
+      "name": "B · dark scope → dark context, the dark token (both kernels)",
+      "ok": true,
+      "detail": "contextIsDark=true shimmer=rgb(0 0 0) rainbow=rgb(0 0 0)"
+    },
+    {
+      "name": "B · PIXEL: the shimmer face samples DARK on the dark scope",
+      "ok": true,
+      "detail": "face pixel rgb(0, 0, 0)"
+    },
+    {
+      "name": "C · slash-alpha: / 1 proceeds",
+      "ok": true,
+      "detail": "token=\"oklch(0 0 0 / 1)\" shimmer=rgb(0 0 0) rainbow=rgb(0 0 0)"
+    },
+    {
+      "name": "C · slash-alpha: / 100% proceeds",
+      "ok": true,
+      "detail": "token=\"oklch(0 0 0 / 100%)\" shimmer=rgb(0 0 0) rainbow=rgb(0 0 0)"
+    },
+    {
+      "name": "C · slash-alpha: rgb() / 1 proceeds",
+      "ok": true,
+      "detail": "token=\"rgb(16 16 20 / 1)\" shimmer=rgb(16 16 20) rainbow=rgb(16 16 20)"
+    },
+    {
+      "name": "C · slash-alpha: rgb() / 100% proceeds",
+      "ok": true,
+      "detail": "token=\"rgb(16 16 20 / 100%)\" shimmer=rgb(16 16 20) rainbow=rgb(16 16 20)"
+    },
+    {
+      "name": "C · slash-alpha: / 0.5 falls back (light scope)",
+      "ok": true,
+      "detail": "token=\"oklch(0 0 0 / 0.5)\" shimmer=#ffffff rainbow=#ffffff"
+    },
+    {
+      "name": "C · slash-alpha: rgb() / 50% falls back (light scope)",
+      "ok": true,
+      "detail": "token=\"rgb(16 16 20 / 50%)\" shimmer=#ffffff rainbow=#ffffff"
+    },
+    {
+      "name": "C · slash-alpha: / none falls back (light scope)",
+      "ok": true,
+      "detail": "token=\"oklch(0 0 0 / none)\" shimmer=#ffffff rainbow=#ffffff"
+    },
+    {
+      "name": "C · slash-alpha: unparsable alpha falls back (light scope)",
+      "ok": true,
+      "detail": "token=\"oklch(0 0 0 / junk)\" shimmer=#ffffff rainbow=#ffffff"
+    },
+    {
+      "name": "C · slash-alpha: / 0.5 falls back to the ladder BLACK arm on a dark scope",
+      "ok": true,
+      "detail": "shimmer=#000000 rainbow=#000000"
+    },
+    {
+      "name": "D · unscoped chain → the ROOT element token (light), OS-dark notwithstanding",
+      "ok": true,
+      "detail": "rootToken=oklch(1 0 0) shimmer=rgb(255 255 255) rainbow=rgb(255 255 255) osDark=true"
+    },
+    {
+      "name": "D · the hostless mint rides the same ladder (contextCanvasCss/solidFill with no host)",
+      "ok": true,
+      "detail": "canvas=rgb(255 255 255) mint=0xff8080"
+    },
+    {
+      "name": "E · class-scoped light starts light",
+      "ok": true,
+      "detail": "shimmer=rgb(255 255 255)"
+    },
+    {
+      "name": "E · the CLASS flip re-resolves LIVE to the dark token, no remount (both kernels)",
+      "ok": true,
+      "detail": "shimmer=rgb(0 0 0) rainbow=rgb(0 0 0) hostStamped=true"
+    },
+    {
+      "name": "E · the DATA-THEME attr flip wakes the observer (re-resolve reads the new token)",
+      "ok": true,
+      "detail": "before=rgb(255 255 255) after=rgb(0 0 0) sameHost=true"
+    },
+    {
+      "name": "F · teardown: vars stripped, later flips re-stamp nothing",
+      "ok": true,
+      "detail": "var=\"\" stamped=false"
+    }
+  ],
+  "failed": 0
+}

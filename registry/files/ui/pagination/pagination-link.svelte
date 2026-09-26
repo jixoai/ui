@@ -6,7 +6,7 @@
   is a lie to every input mode). `isActive` paints the current chip
   and sets aria-current="page".
 
-  child({ props }) contract (design.md): ANCHOR-form only — the
+  child({ props: linkProps }) contract (design.md): ANCHOR-form only — the
   escape renders exclusively on the href branch (single concrete
   element-kind law, Codex impl-r1 P1-4). The onclick-only button is
   not replaceable (a link that goes nowhere is a lie to every input
@@ -19,6 +19,8 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { paginationStyles } from './pagination.stylex';
+  import './pagination.css';
 
   interface Props extends Omit<HTMLAnchorAttributes, 'aria-current'> {
     /** which page this link is (its default label) */
@@ -46,40 +48,57 @@
     ...rest
   }: Props = $props();
 
-
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   // chip geometry + press poses (the closed component's law: the
-  // current page rides the press, never its shadow)
-  const chipPose =
-    '[--jx-press-shadow:none] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]';
-  const chipPoseCurrent =
-    '[--jx-press-shadow:none] [--jx-press-shadow-hover:none] [--jx-press-shadow-active:none]';
-  const chipBase =
-    'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center box-border border px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
+  // current page rides the press, never its shadow) — tailless: the
+  // geometry is the chip atom, the press channel poses + hover/focus
+  // pseudos live in pagination.css keyed on the data hooks
 
-  const props = $derived({
+  const linkProps = $derived({
     'data-jx-page': '',
     'data-jx-page-current': isActive ? '' : undefined,
     class: cn(
       'jx-press',
-      chipBase,
-      isActive ? chipPoseCurrent : chipPose,
-      isActive
-        ? 'border-primary bg-primary text-primary-foreground'
-        : 'border-border bg-card text-foreground hover:border-primary hover:text-primary',
+      cx(paginationStyles.chip),
+      isActive ? cx(paginationStyles.chipCurrent) : cx(paginationStyles.chipIdle),
       className,
     ),
     'aria-current': isActive ? ('page' as const) : undefined,
     href,
     onclick,
     ...rest,
-  });
+  } as HTMLAnchorAttributes & { class: string });
 </script>
 
 {#if child && href !== undefined}
-  {@render child({ props })}
+  {@render child({ props: linkProps })}
 {:else if href !== undefined}
-  <a {...props} href={href}>{#if children}{@render children()}{:else}{page}{/if}</a>
+  <a {...linkProps} href={href}>{#if children}{@render children()}{:else}{page}{/if}</a>
 {:else}
-  <button type="button" {...props}>{#if children}{@render children()}{:else}{page}{/if}</button>
+  <!-- the button branch ENUMERATES its legal members — never spreads the
+       anchor-typed bag (a cast would launder invalid HTML onto a <button>;
+       the T141 adjudication) -->
+  <button
+    data-jx-page=""
+    data-jx-page-current={isActive ? '' : undefined}
+    class={linkProps.class}
+    aria-current={isActive ? 'page' : undefined}
+    onclick={onclick}
+    type="button"
+  >{#if children}{@render children()}{:else}{page}{/if}</button>
 {/if}

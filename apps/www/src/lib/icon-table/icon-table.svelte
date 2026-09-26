@@ -15,7 +15,7 @@
   contract stays untouched for its many existing consumers).
 -->
 <script lang="ts">
-  import { cn } from '$lib/utils';
+  import { siteChrome } from '$lib/surface/site-chrome.stylex';
 
   export interface IconRow {
     /** the vocabulary variable, e.g. '--jx-icon-calendar' */
@@ -54,41 +54,57 @@
     paintsAsMask(row.technique)
       ? `background-color: currentColor; -webkit-mask: ${row.paint} center / contain no-repeat; mask: ${row.paint} center / contain no-repeat;`
       : `background: ${row.paint} center / contain no-repeat;`;
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class={cn('w-full overflow-x-auto', className)}>
-  <table class="w-full border-collapse text-left" data-jx-icon-table>
+<div class={cx(siteChrome.itScroller, className)}>
+  <table class={cx(siteChrome.itTable)} data-jx-icon-table>
     <thead>
-      <tr class="border-b border-border">
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Glyph</th>
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Slot</th>
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Consumer</th>
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Technique</th>
-        <th class="font-nav py-[var(--jx-stack)] px-[var(--jx-inset)] text-[length:var(--jx-text-secondary)] uppercase tracking-[0.14em]">Overridable</th>
+      <tr class={cx(siteChrome.itHeadRow)}>
+        <th class={cx(siteChrome.itHeadCell)}>Glyph</th>
+        <th class={cx(siteChrome.itHeadCell)}>Slot</th>
+        <th class={cx(siteChrome.itHeadCell)}>Consumer</th>
+        <th class={cx(siteChrome.itHeadCell)}>Technique</th>
+        <th class={cx(siteChrome.itHeadCell)}>Overridable</th>
       </tr>
     </thead>
     <tbody>
       {#each rows as row (row.slot)}
-        <tr class="border-b border-border/50">
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)]">
+        <tr class={cx(siteChrome.itRow)}>
+          <td class={cx(siteChrome.itCell)}>
             <span
               data-jx-icon-preview=""
               data-jx-icon-preview-slot={row.slot}
               aria-hidden="true"
               style={previewStyle(row)}
-              class="block size-5 rounded-[2px] bg-clip-border"
+              class={cx(siteChrome.itPreview)}
             ></span>
           </td>
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)] whitespace-nowrap">
+          <td class={cx(siteChrome.itSlotCell)}>
             {row.slot}
           </td>
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground">
+          <td class={cx(siteChrome.itConsumerCell)}>
             {row.consumer}
           </td>
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text-secondary)] text-muted-foreground whitespace-nowrap">
+          <td class={cx(siteChrome.itTechniqueCell)}>
             {row.technique}
           </td>
-          <td class="py-[var(--jx-stack)] px-[var(--jx-inset)] font-mono text-[length:var(--jx-text)]">
+          <td class={cx(siteChrome.itConceptCell)}>
             {row.concept}
           </td>
         </tr>

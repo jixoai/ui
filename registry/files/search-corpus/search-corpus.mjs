@@ -85,7 +85,12 @@ const firstElement = (node, name) => {
       (deriveTocOutline, mounted root-layout-wide) writes the slug onto
       every id-less heading, so the heading's own stamped id is always
       the live target; counting wrapper ids in the dedup set produced
-      anchors nothing owns (chip/press-button usage-2) ───────────── */
+      anchors nothing owns (chip/press-button usage-2). ANCHOR LAW v2.1
+      (2026-09-22, LAW #19 WRAPPER-TWIN): the runtime stamper ADOPTS —
+      unstamped — the nearest ancestor's id when it owns exactly the
+      slug both sides compute (the docs archetype twin collision); the
+      corpus needs no change: it mints the same slug, which resolves to
+      the wrapper containing the heading ──────────────────────────── */
 
 export function headingIds(headings) {
   const used = new Set();

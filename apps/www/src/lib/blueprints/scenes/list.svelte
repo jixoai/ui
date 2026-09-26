@@ -3,10 +3,26 @@
 <script lang="ts">
   import List from '$lib/ui/list/list.svelte';
   import Badge from '$lib/ui/badge/badge.svelte';
+  import { bpA } from '$lib/surface/blueprints-a.stylex';
+  import Stack from '$lib/ui/stack';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col items-center justify-center gap-4 p-10">
-  <div class="flex w-full max-w-[520px] justify-center gap-14">
+<Stack direction="column" align="center" justify="center" gap="16" class={cx(bpA.listStage)}>
+  <div class={cx(bpA.listRow)}>
     <List>
       <li>prefix keys freeze</li>
       <li>the tail mutates in place</li>
@@ -18,9 +34,9 @@
       <li>start shifts the run</li>
     </List>
   </div>
-  <div class="flex flex-wrap gap-2">
+  <Stack wrap gap="8" }>
     <Badge>disc | decimal</Badge>
     <Badge>styles the list, never the row</Badge>
     <Badge>start = ol passthrough</Badge>
-  </div>
-</div>
+  </Stack>
+</Stack>

@@ -26,15 +26,33 @@ import { describe, expect, it } from 'vitest';
 
 import { resolveTypoStyle, getTypographyScope } from '../src/lib/typography.svelte';
 import { ProseDefaults } from '../src/lib/ui/prose/prose-defaults.svelte';
+import { chipStyles } from '../src/lib/ui/chip/chip.stylex';
+import { headingStyles } from '../src/lib/ui/heading/heading.stylex';
 import Host from './fixtures/prose-scope-host.svelte';
 import PluginHost from './fixtures/prose-plugin-host.svelte';
 import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
+
+// tailwindless Wave 1 (2026-09-17): the chip's paint rides stylex
+// atoms now — asserted through the same cx join the component rides
+// (the progressive-blur.spec precedent)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const repoRoot = resolve(fileURLToPath(import.meta.url), '../../../..');
 const proseCss = readFileSync(resolve(repoRoot, 'registry/files/ui/prose/prose.css'), 'utf8');
 const markdownCss = readFileSync(resolve(repoRoot, 'registry/files/ui/markdown/markdown.css'), 'utf8');
 const faceCss = readFileSync(resolve(repoRoot, 'registry/files/theme/jx-pure.css'), 'utf8');
 const headingSrc = readFileSync(resolve(repoRoot, 'registry/files/ui/heading/heading.svelte'), 'utf8');
+const headingStylexSrc = readFileSync(resolve(repoRoot, 'registry/files/ui/heading/heading.stylex.ts'), 'utf8');
 
 const byTestid = (container: HTMLElement, id: string) =>
   container.querySelector(`[data-testid="${id}"]`)!;
@@ -67,7 +85,7 @@ const resolveInWindow = <T,>(compute: () => T): T => {
 describe('unit — resolveTypoStyle', () => {
   it('the 11-knob bag: inheritance declarations, var mirrors, presence attrs', () => {
     const bag = resolveTypoStyle({
-      size: '1.125rem',
+      measure: '1.125rem',
       leading: 1.9,
       family: 'serif',
       ink: 'primary',
@@ -158,9 +176,9 @@ describe('unit — resolveTypoStyle', () => {
 // 2 · unit — the Defaults audit surface
 // =========================================================================
 describe('unit — ProseDefaults', () => {
-  it('resolve({}) — every one of the 11 knobs absent (no own, no fallback)', () => {
+  it('resolve({}) — every one of the 11 knobs absent (no own, no fallback); the axis lanes rest at auto', () => {
     expect(resolveInWindow(() => ProseDefaults.resolve({}))).toEqual({
-      size: undefined,
+      measure: undefined,
       leading: undefined,
       family: undefined,
       ink: undefined,
@@ -171,12 +189,22 @@ describe('unit — ProseDefaults', () => {
       initialLetter: undefined,
       wrap: undefined,
       hyphens: undefined,
+      // the W3-D2 eight-axis lanes (§0.1: every axis defaults 'auto' —
+      // no opinion, nothing stamps)
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
     });
   });
 
-  it('every knob set — the absentSlot identity passthrough', () => {
+  it('every knob set — the absentSlot identity passthrough (the axis lanes rest at auto)', () => {
     const knobs = {
-      size: '2rem',
+      measure: '2rem',
       leading: 2,
       family: 'mono' as const,
       ink: 'muted' as const,
@@ -188,13 +216,27 @@ describe('unit — ProseDefaults', () => {
       wrap: 'stable' as const,
       hyphens: 'manual' as const,
     };
-    expect(resolveInWindow(() => ProseDefaults.resolve(knobs))).toEqual(knobs);
+    expect(resolveInWindow(() => ProseDefaults.resolve(knobs))).toEqual({
+      ...knobs,
+      // the W3-D2 eight-axis lanes (§0.1: 'auto' — no opinion)
+      density: 'auto',
+      size: 'auto',
+      shape: 'auto',
+      radius: 'auto',
+      color: 'auto',
+      theme: 'auto',
+      elevation: 'auto',
+      motion: 'auto',
+    });
   });
 
-  it('the slots surface is exactly the 11 knobs — density deliberately missing', () => {
+  it('the slots surface is the 11 knobs + the eight axis lanes (W3-D2)', () => {
     expect(Object.keys(ProseDefaults.slots).sort()).toEqual(
       [
         'align',
+        'color',
+        'density',
+        'elevation',
         'family',
         'gradient',
         'ground',
@@ -203,13 +245,19 @@ describe('unit — ProseDefaults', () => {
         'initialLetter',
         'ink',
         'leading',
+        'measure',
+        'motion',
+        'radius',
+        'shape',
         'size',
+        'theme',
         'wrap',
       ].sort(),
     );
-    // the trio's own naming argument, shared: prose has no density
-    // opinion and stamps no data-density
-    expect('density' in ProseDefaults.slots).toBe(false);
+    // the trio's founding naming argument SURVIVES at the stamp level
+    // (W3-D2, revised): the universal density LANE exists (no-own),
+    // but the region stamps a rung only for an EXPLICIT lane —
+    // ambient control chrome inside the region keeps flowing
   });
 });
 
@@ -266,7 +314,7 @@ describe('the provider', () => {
     expect(byTestid(container, 'reader-inner').textContent).toBe('ink=muted');
     // the outer provider's bag reads from OUTSIDE the inner region
     // but inside its own — the nearest provider, not the outermost
-    expect(byTestid(container, 'reader-outer-mid').textContent).toBe('size=16px|leading=1.8');
+    expect(byTestid(container, 'reader-outer-mid').textContent).toBe('measure=16px|leading=1.8');
     // outside every prose region: no provider, no opinion
     expect(byTestid(container, 'reader-outer-after').textContent).toBe('NONE');
   });
@@ -319,18 +367,21 @@ describe('nested prose', () => {
 // 5 · the heading consumption seam (F5)
 // =========================================================================
 describe('heading ink', () => {
-  it('the heading utility follows --jx-ty-ink with the foreground fallback', () => {
+  // tailwindless one-shot W1b batch C (2026-09-17): the ink seam moved
+  // from the markup's utility string into heading.stylex's base atom —
+  // membership + source audits replace the utility-string assertions
+  it('the heading atom follows --jx-ty-ink with the foreground fallback', () => {
     const { container } = render(Host);
-    const inkUtility = 'text-[var(--jx-ty-ink,var(--foreground))]';
     const scoped = byTestid(container, 'heading-wrap').querySelector('h2[data-jx-heading]')!;
-    // scoped: the region ships the token the utility resolves
-    expect(scoped.classList.contains(inkUtility)).toBe(true);
+    // scoped: the region ships the token the atom resolves
+    // (compile-lane re-pin W5-r2 — the atom STRING after 012335c4)
+    expect(scoped.className).toContain(cx(headingStyles.base));
     const host = byTestid(container, 'heading-wrap').querySelector('[data-jx-prose]')!;
     expect(styleOf(host)).toContain('--jx-ty-ink: var(--muted-foreground)');
     expect(styleOf(host)).toContain('color: var(--muted-foreground)');
-    // unscoped: the same utility, the fallback arm (no --jx-ty-ink anywhere)
+    // unscoped: the same atom, the fallback arm (no --jx-ty-ink anywhere)
     const unscoped = byTestid(container, 'heading-wrap').querySelectorAll('h2[data-jx-heading]')[1]!;
-    expect(unscoped.classList.contains(inkUtility)).toBe(true);
+    expect(unscoped.className).toContain(cx(headingStyles.base));
   });
 
   it('the consumer text utility overrides last-wins (dedup-verified F5)', () => {
@@ -339,14 +390,12 @@ describe('heading ink', () => {
       'h3[data-jx-heading]',
     )!;
     expect(overridden.classList.contains('text-primary')).toBe(true);
-    expect(
-      overridden.classList.contains('text-[var(--jx-ty-ink,var(--foreground))]'),
-    ).toBe(false);
   });
 
-  it('the edit is the ONE seam: heading.svelte carries the utility and not text-foreground', () => {
-    expect(headingSrc).toContain('text-[var(--jx-ty-ink,var(--foreground))]');
+  it('the edit is the ONE seam: the heading stylex module carries the var-fallback ink, never a bare foreground utility', () => {
+    expect(headingStylexSrc).toContain("'var(--jx-ty-ink, var(--foreground))'");
     expect(headingSrc).not.toMatch(/'text-foreground'|text-foreground'/);
+    expect(headingStylexSrc).not.toMatch(/'text-foreground'|text-foreground'/);
   });
 });
 
@@ -494,10 +543,11 @@ describe('orthogonality + family', () => {
     // the region's ink is a WRAPPER declaration only — the host style
     // is the only place the muted token appears
     expect(styleOf(host)).toContain('color: var(--muted-foreground)');
-    // the chip carries its OWN element-level ink utilities (the
-    // cascade fact that beats inheritance in a browser); the prose
-    // scope stamps nothing on it
-    expect(chip.classList.contains('text-[color:var(--jx-tonal)]')).toBe(true);
+    // the chip carries its OWN element-level ink atoms (the cascade
+    // fact that beats inheritance in a browser — the default tonal
+    // rung's color rides the chip's own member); the prose scope
+    // stamps nothing on it
+    expect(chip.className).toContain(cx(chipStyles.tonal));
     expect(styleOf(chip)).toBe(''); // no inline style leaked onto chrome
     for (const attr of chip.getAttributeNames()) {
       expect(attr.startsWith('data-jx-ty-')).toBe(false);

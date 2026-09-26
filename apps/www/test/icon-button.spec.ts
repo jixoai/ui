@@ -17,6 +17,16 @@ import IconButtonHost from './fixtures/icon-button-host.svelte';
 import IconZoneHost from './fixtures/icon-zone-host.svelte';
 import { pressEffect } from '../src/lib/ui/press-button/press-effect-runtime';
 import { shimmer } from '../src/lib/ui/press-button/press-button.svelte';
+import { pressButtonStyles } from '../src/lib/ui/press-button/press-button.stylex';
+
+// tailwindless Wave 1 (2026-09-17): the composed press-button paint
+// rides stylex atoms — "carries" checks the member's emitted classes
+const carries = (className: string, member: Record<string, unknown>): boolean =>
+  Object.entries(member).every(
+    ([key, value]) =>
+      key === '$$css' ||
+      (typeof value === 'string' && className.split(/\s+/).includes(value)),
+  );
 
 describe('IconButton', () => {
   it('text posture: label renders beside the decorative glyph', () => {
@@ -35,7 +45,8 @@ describe('IconButton', () => {
     await tick();
     const btn = container.querySelector('button')!;
     expect(btn.getAttribute('aria-label')).toBe('copy command');
-    expect(btn.className).toContain('min-h-[var(--jx-hit)]'); // the 42px press-button band
+    expect(carries(btn.className, pressButtonStyles.base)).toBe(true); // the press-button band
+    expect(carries(btn.className, pressButtonStyles.baseSquare)).toBe(true); // the 42px square pose
     expect(btn.textContent).not.toContain('copy command'); // label never doubles
     const tip = container.querySelector('[role="tooltip"]')!;
     expect(tip.textContent).toContain('copy command');
@@ -57,7 +68,7 @@ describe('IconButton', () => {
   it('inherits the paint variants verbatim (fill token paint + the press law)', () => {
     const { container } = render(IconButtonHost, { props: { variant: 'fill' } });
     const btn = container.querySelector('button')!;
-    expect(btn.className).toContain('[background:var(--jx-fill)]');
+    expect(carries(btn.className, pressButtonStyles.fill)).toBe(true);
     expect(btn.className).toContain('jx-press');
     // the variant rides the valued hook through the composition
     expect(btn.getAttribute('data-jx-press-button')).toBe('fill');
@@ -132,10 +143,8 @@ describe('icon-button physics axis — the foot-flat context through the composi
     const { container } = render(IconButtonHost, { props: { raised: false } });
     const btn = container.querySelector('button')!;
     expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
-    expect(btn.className).toContain('[--jx-press-shadow:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-hover:none]');
-    expect(btn.className).toContain('[--jx-press-shadow-active:var(--shadow-engrave)]');
-    expect(btn.className).toContain('[--jx-press-move:none]');
+    // the four seams ride press-button.css keyed on the flat stamp
+    // (custom-property seams never ride atoms)
   });
 
   it('the iconOnly square rides the same axis (flat stamp on the square band)', () => {
@@ -147,7 +156,6 @@ describe('icon-button physics axis — the foot-flat context through the composi
     const { container } = render(IconZoneHost, { props: { zoneRaised: false } });
     const btn = container.querySelector('button')!;
     expect(btn.hasAttribute('data-jx-press-flat')).toBe(true);
-    expect(btn.className).toContain('[--jx-press-move:none]');
   });
 
   it('an explicit raised={true} wins inside a flat zone — chrome stays convex', () => {

@@ -49,7 +49,23 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { FIGURE_LABELS, targetRegistryFromContext } from '$lib/ui/figure/numbering.svelte';
+  import { ReferenceDefaults } from './reference-defaults.svelte';
 
   interface Props {
     /** the target's explicit id — numbers are display currency and
@@ -58,9 +74,50 @@
     /** escape hatch: replaces the anchor's label text (author copy
      *  such as connectives); the href + data-ref-to semantics remain */
     children?: Snippet;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() (an INLINE anchor: the lane
+     *  scales the label through plain inheritance) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
-  let { to, children }: Props = $props();
+  let { to, children, density, size, shape, radius, color, theme, elevation, motion }: Props =
+    $props();
+
+  // ── the eight-axis surface (W3-D2 — FIRST-TIME contract, all
+  // no-own: the citation is an inline anchor, never a paint surface;
+  // the size axis scales the label, the rest forward through the
+  // ambient chain — the document-ontology machinery is structural
+  // context, orthogonal to the axes)
+  const d = $derived(
+    ReferenceDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let refEl = $state<HTMLElement>();
+  provideQueryAnchor(() => refEl ?? null);
+  const rootStyle = $derived(carriers || undefined);
+  // the anchor-OR-span duality: whichever branch renders is the
+  // family root — both bind the same anchor element below
 
   // context binds at component init — the route-page provider must be
   // an ancestor. Escaping it degrades the whole render to the missing
@@ -129,11 +186,11 @@
 {#if entry === undefined && (registry === undefined || settled)}
   <!-- settled-missing, or the provider-escape degrade: loud, not
        navigable, and no data-ref-to edge claim -->
-  <span>{`??(${to})`}</span>
+  <span bind:this={refEl} data-density={densityRungOf(d.density)} class:dark={d.theme === 'dark'} style={rootStyle}>{`??(${to})`}</span>
 {:else}
   <!-- resolved, or the pre-settle/SSR fallback claim: a native anchor
        whose edge stays claimed until settle proves the target dead -->
-  <a href={'#' + to} data-ref-to={to}>
+  <a href={'#' + to} data-ref-to={to} bind:this={refEl} data-density={densityRungOf(d.density)} class:dark={d.theme === 'dark'} style={rootStyle}>
     {#if children}{@render children()}{:else}{label}{/if}
   </a>
 {/if}

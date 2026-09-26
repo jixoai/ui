@@ -87,7 +87,13 @@ describe('kernel-print.css — the AST gate', () => {
     // the DEFAULT print variant: block border → separator, paper is
     // the frame; the boxed opt-out keeps a frame; the code card's
     // embedded frame drops
-    const card = /:where\(section\.bg-card\)\s*\{([^}]*)\}/.exec(kernelClean);
+    // selector vocabulary re-pinned W5-r2 (012335c4, the scope-stamp
+    // round): sections stamp data-jx-section — the retired 'bg-card'
+    // utility key matched ZERO cards on a fresh dist (that commit's
+    // own receipt: "All selectors migrated to section[data-jx-section]
+    // (boxed opt-out re-keyed, semantics unchanged)"); this gate
+    // follows the live vocabulary
+    const card = /:where\(section\[data-jx-section\]\)\s*\{([^}]*)\}/.exec(kernelClean);
     expect(card, 'missing the section-card borderless rule').not.toBeNull();
     expect(card![1]).toContain('border: none');
     // purely typographic (2026-09-03): the section's own end hairline
@@ -111,8 +117,8 @@ describe('kernel-print.css — the AST gate', () => {
     expect(kernelClean).toMatch(
       /\[data-jx-section-sep\],\s*\[data-jx-card-sep\]\s*\{[^}]*break-after: avoid/,
     );
-    expect(kernelClean).toMatch(/\.pagedjs_page section\.bg-card\s*\{[^}]*display: block/);
-    const boxed = /:where\(section\.bg-card\[data-jx-print='boxed'\]\)\s*\{([^}]*)\}/.exec(kernelClean);
+    expect(kernelClean).toMatch(/\.pagedjs_page section\[data-jx-section\]\s*\{[^}]*display: block/);
+    const boxed = /:where\(section\[data-jx-section\]\[data-jx-print='boxed'\]\)\s*\{([^}]*)\}/.exec(kernelClean);
     expect(boxed, 'missing the boxed opt-out').not.toBeNull();
     expect(boxed![1]).toContain('border: 1px solid');
     const codeCard = /:where\(\.jx-code-card\)\s*\{([^}]*)\}/.exec(kernelClean);
@@ -140,7 +146,7 @@ describe('kernel-print.css — the AST gate', () => {
     // joined 2026-09-03 — a component table's h4 strands like a
     // section's h2)
     expect(kernelClean).toMatch(/h1,\s*\nh2,\s*\nh3,\s*\nh4,\s*\nh5,\s*\nh6\s*\{[^}]*break-after: avoid/);
-    expect(kernelClean).toMatch(/section\.bg-card > div:first-child\s*\{[^}]*break-after: avoid/);
+    expect(kernelClean).toMatch(/section\[data-jx-section\] > div:first-child\s*\{[^}]*break-after: avoid/);
     expect(kernelClean).toMatch(/\.jx-code-card > figcaption\s*\{[^}]*break-after: avoid/);
     expect(kernelClean).toMatch(/\[data-jx-code-card-foot\]\s*\{[^}]*break-before: avoid/);
     // pagedjs's break parser splits selectors on BARE commas — a
@@ -240,10 +246,10 @@ describe('kernel-print.css — the AST gate', () => {
     // ZERO invented spacing (2026-09-03): the section's end margin
     // and the sibling compensation margin are GONE — the component's
     // own rhythm (stack gap, authored py) is the only spacing law
-    expect(kernelClean).toMatch(/:where\(section\.bg-card\) > div\s*\{[^}]*padding-inline: 0/);
-    expect(kernelClean).not.toMatch(/:where\(section\.bg-card\) > div\s*\{[^}]*padding: 0/);
-    expect(kernelClean).not.toMatch(/:where\(section\.bg-card\)\s*\{[^}]*margin-block-end/);
-    expect(kernelClean).not.toMatch(/:where\(section\.bg-card\) > div \+ div/);
+    expect(kernelClean).toMatch(/:where\(section\[data-jx-section\]\) > div\s*\{[^}]*padding-inline: 0/);
+    expect(kernelClean).not.toMatch(/:where\(section\[data-jx-section\]\) > div\s*\{[^}]*padding: 0/);
+    expect(kernelClean).not.toMatch(/:where\(section\[data-jx-section\]\)\s*\{[^}]*margin-block-end/);
+    expect(kernelClean).not.toMatch(/:where\(section\[data-jx-section\]\) > div \+ div/);
   });
 });
 

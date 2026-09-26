@@ -1,0 +1,31 @@
+{
+  "name": "stylex-spike-coexist",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "build:o1": "STYLEX_LAYER=after vite build --outDir dist-o1",
+    "build:o2": "STYLEX_LAYER=before vite build --outDir dist-o2",
+    "build:control": "STYLEX_LAYER=off vite build --outDir dist-control",
+    "build:all": "npm run sync-css && npm run build:control && npm run build:o1 && npm run build:o2",
+    "sync-css": "bash scripts/sync-app-css.sh",
+    "probe:d2": "node scripts/probe-d2.mjs",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "build:o1h": "LAYER_HOIST=1 bash scripts/sync-app-css.sh && STYLEX_LAYER=after vite build --outDir dist-o1h && bash scripts/sync-app-css.sh"
+  },
+  "dependencies": {
+    "@stylexjs/stylex": "0.19.0",
+    "svelte": "5.57.0"
+  },
+  "devDependencies": {
+    "@stylexjs/babel-plugin": "0.19.0",
+    "@stylexjs/unplugin": "0.19.0",
+    "@sveltejs/vite-plugin-svelte": "7.3.0",
+    "@tailwindcss/vite": "4.3.3",
+    "playwright-core": "1.62.1",
+    "svelte-check": "4.7.6",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vite": "8.3.0"
+  }
+}

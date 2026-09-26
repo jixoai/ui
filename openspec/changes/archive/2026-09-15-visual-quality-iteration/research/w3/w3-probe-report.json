@@ -1,0 +1,330 @@
+{
+  "checks": 148,
+  "failures": [],
+  "matrix": [
+    {
+      "variant": "v-ltr",
+      "rtl": false,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 10 22.33 L 10 74.98 L 10 127.66",
+      "centers": [
+        {
+          "x": 10,
+          "y": 22.328125
+        },
+        {
+          "x": 10,
+          "y": 74.984375
+        },
+        {
+          "x": 10,
+          "y": 127.65625
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "v-revert",
+      "rtl": false,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 243.33 22.33 L 243.33 74.98 L 243.33 127.66",
+      "centers": [
+        {
+          "x": 243.328125,
+          "y": 22.328125
+        },
+        {
+          "x": 243.328125,
+          "y": 74.984375
+        },
+        {
+          "x": 243.328125,
+          "y": 127.65625
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "v-interlaced",
+      "rtl": false,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 126.67 22.33 L 126.67 74.98 L 126.67 127.66",
+      "centers": [
+        {
+          "x": 126.671875,
+          "y": 22.328125
+        },
+        {
+          "x": 126.671875,
+          "y": 74.984375
+        },
+        {
+          "x": 126.671875,
+          "y": 127.65625
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "h-ltr",
+      "rtl": false,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 66.66 10 L 207.98 10 L 349.31 10",
+      "centers": [
+        {
+          "x": 66.65625,
+          "y": 10
+        },
+        {
+          "x": 207.984375,
+          "y": 10
+        },
+        {
+          "x": 349.3125,
+          "y": 10
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "h-revert",
+      "rtl": false,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 66.66 140 L 207.98 140 L 349.31 140",
+      "centers": [
+        {
+          "x": 66.65625,
+          "y": 140
+        },
+        {
+          "x": 207.984375,
+          "y": 140
+        },
+        {
+          "x": 349.3125,
+          "y": 140
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "h-interlaced",
+      "rtl": false,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 66.66 75 L 207.98 75 L 349.31 75",
+      "centers": [
+        {
+          "x": 66.65625,
+          "y": 75
+        },
+        {
+          "x": 207.984375,
+          "y": 75
+        },
+        {
+          "x": 349.3125,
+          "y": 75
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "v-ltr-rtl",
+      "rtl": true,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 243.33 22.33 L 243.33 74.98 L 243.33 127.66",
+      "centers": [
+        {
+          "x": 243.328125,
+          "y": 22.328125
+        },
+        {
+          "x": 243.328125,
+          "y": 74.984375
+        },
+        {
+          "x": 243.328125,
+          "y": 127.65625
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "v-interlaced-rtl",
+      "rtl": true,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 126.67 22.33 L 126.67 74.98 L 126.67 127.66",
+      "centers": [
+        {
+          "x": 126.671875,
+          "y": 22.328125
+        },
+        {
+          "x": 126.671875,
+          "y": 74.984375
+        },
+        {
+          "x": 126.671875,
+          "y": 127.65625
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "h-ltr-rtl",
+      "rtl": true,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 349.34 10 L 208.02 10 L 66.69 10",
+      "centers": [
+        {
+          "x": 349.34375,
+          "y": 10
+        },
+        {
+          "x": 208.015625,
+          "y": 10
+        },
+        {
+          "x": 66.6875,
+          "y": 10
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "h-revert-rtl",
+      "rtl": true,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 349.34 140 L 208.02 140 L 66.69 140",
+      "centers": [
+        {
+          "x": 349.34375,
+          "y": 140
+        },
+        {
+          "x": 208.015625,
+          "y": 140
+        },
+        {
+          "x": 66.6875,
+          "y": 140
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "h-interlaced-rtl",
+      "rtl": true,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 349.34 75 L 208.02 75 L 66.69 75",
+      "centers": [
+        {
+          "x": 349.34375,
+          "y": 75
+        },
+        {
+          "x": 208.015625,
+          "y": 75
+        },
+        {
+          "x": 66.6875,
+          "y": 75
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    },
+    {
+      "variant": "v-revert-rtl",
+      "rtl": true,
+      "spine": "drawn",
+      "svgFirst": true,
+      "ariaHidden": "true",
+      "pointerEvents": "none",
+      "hostGrid": "grid",
+      "isolation": "isolate",
+      "baseD": "M 10 22.33 L 10 74.98 L 10 127.66",
+      "centers": [
+        {
+          "x": 10,
+          "y": 22.328125
+        },
+        {
+          "x": 10,
+          "y": 74.984375
+        },
+        {
+          "x": 10,
+          "y": 127.65625
+        }
+      ],
+      "floorVisible": 0,
+      "items": 3
+    }
+  ]
+}

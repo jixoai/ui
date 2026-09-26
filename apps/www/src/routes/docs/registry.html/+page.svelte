@@ -9,6 +9,7 @@
 -->
 <script lang="ts">
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
   import { flatComponents, installTargets } from '$lib/docs-route-model';
   import Icon from '$lib/ui/icon';
@@ -23,6 +24,23 @@
   // rows are page data (each-driven) and page-scoped styles, not a
   // component demo — the same-source lane is the model file itself.
   import routeModelSource from '$lib/docs-route-model?raw';
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -33,8 +51,8 @@
   />
 </svelte:head>
 
-<div class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8">
-  <div class="flex flex-col gap-10">
+<div class={cx(rt.shell)}>
+  <div class={cx(rt.flex, rt.col, rt.gap40)}>
     <div data-reveal="">
       <SectionCard
         headingLevel={1}
@@ -43,7 +61,7 @@
         title="Registry — what is installable"
         summary="One registry, two kinds of payload: UI modules (the Components listing) and non-UI install targets — the theme sheet, the lib engines and the file payloads. Install targets have no docs chapters: their documentation lives on the pages they power, and this table is their inventory."
       >
-        <div class="flex flex-wrap gap-3">
+        <div class={cx(rt.wrap12)}>
           <span class="pill">{CATALOG.length} registry items</span>
           <span class="pill">{uiCount} ui modules</span>
           <span class="pill">{installTargets.length} install targets</span>
@@ -53,23 +71,23 @@
 
     <!-- UI modules: one row, routing into the Components listing -->
     <section aria-label="ui modules" data-reveal="">
-      <h2 class="font-nav mb-4 flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]">
+      <h2 class={cx(rt.rgHeading)}>
         UI modules
-        <span class="bg-border h-px flex-1" aria-hidden="true"></span>
+        <span class={cx(rt.grow, rt.rgRule)} aria-hidden="true"></span>
       </h2>
       <a class="jx-invrow" href="/docs/components.html">
         <span class="jx-inv-name">all ui modules</span>
         <span data-jx-inv-type>registry:ui</span>
-        <span class="jx-inv-docs inline-flex items-center gap-1">the Components listing <Icon name="arrowRight" size={12} /></span>
+        <span class="jx-inv-docs {cx(rt.rowC4)}">the Components listing <Icon name="arrowRight" size={12} /></span>
         <span class="jx-inv-cmd">npx jixoai-ui add &lt;name&gt;</span>
       </a>
     </section>
 
     <!-- the install targets: the engines' one discoverable surface -->
     <section aria-label="install targets" data-reveal="">
-      <h2 class="font-nav mb-4 flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]">
+      <h2 class={cx(rt.rgHeading)}>
         Install targets
-        <span class="bg-border h-px flex-1" aria-hidden="true"></span>
+        <span class={cx(rt.grow, rt.rgRule)} aria-hidden="true"></span>
       </h2>
       <ComponentCanvas
         title="the install-target inventory"
@@ -95,8 +113,8 @@
           {/each}
         </div>
       </ComponentCanvas>
-      <p class="text-muted-foreground mt-4 flex items-start gap-1.5 font-mono text-xs leading-5">
-        <span class="text-primary mt-0.5 flex-none" aria-hidden="true"><Icon name="arrowRight" size={12} /></span>
+      <p class={cx(rt.inkMuted, rt.mt16, rt.flex, rt.itemsStart, rt.gap6, rt.fontMono, rt.text12, rt.lead5)}>
+        <span class={cx(rt.inkPrimary, rt.rgMt2, rt.flexNone)} aria-hidden="true"><Icon name="arrowRight" size={12} /></span>
         <span>jx-pure additionally carries its own chapter under Sections (the componentless face)
         — it is the one install target that is also a standalone destination.</span>
       </p>

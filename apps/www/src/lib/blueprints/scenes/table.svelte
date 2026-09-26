@@ -1,9 +1,26 @@
-<!-- table blueprint: a dense semantic table with caption and footer. -->
+<!-- table blueprint: a dense semantic table with caption and footer.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import Table from '$lib/ui/table/table.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center p-10">
+<Stack direction="column" justify="center" class={cx(bpB.tableStage)}>
   <Table density="lg" caption="Registry items" dense>
     <thead>
       <tr><th>name</th><th>type</th><th>files</th></tr>
@@ -18,4 +35,4 @@
       <tr><td colspan="3">4 of 77 items</td></tr>
     </tfoot>
   </Table>
-</div>
+</Stack>

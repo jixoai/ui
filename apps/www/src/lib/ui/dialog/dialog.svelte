@@ -2,9 +2,15 @@
   jixoai dialog (registry/files/ui/dialog/dialog.svelte).
 
   NativeHTML base (2026-08-20): the native <dialog> element driven by
-  showModal()/close(). The platform supplies the focus trap, the Escape
-  key (cancel event), an inert page behind, top-layer rendering, and
+  showModal()/close(). The platform supplies Escape
+  key (cancel event), top-layer rendering, and
   closed-by-default (no-JS page loads never paint dialog contents inline).
+  The modal focus trap holds for the in-dialog cycle but LEAKS every
+  second Tab to the host page's skip link (measured per-press,
+  docs-eight-axes-mdn task 85 — the one page focusable the modal
+  inertness does not cover; the next press returns inside the dialog).
+  The repair (inert polyfill or scaffold-side skip-link handling) is
+  queued W-next; until then consumers should not claim a full trap.
   The component adds exactly two things: bindable open state, and the
   shared WAAPI surface timeline (460ms, --jx-p — skipped under
   prefers-reduced-motion) whose layer choreography (surface sinks, shadow
@@ -62,12 +68,51 @@
   import IconButton from '$lib/ui/icon-button/icon-button.svelte';
   import CardBody from '$lib/ui/card/card-body.svelte';
   import CardHeader from '$lib/ui/card/card-header.svelte';
+  import {
+    densityRungOf,
+    elevationSurfaceOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   // THE STICKER'S RULE SET (the load-bearing import, the review catch:
   // stamping data-jx-card without this sheet loads NOTHING — jsdom
   // can't see it, a real browser renders the fallback geometry)
   import '$lib/ui/card/card.css';
   import { DialogDefaults, type DialogSurfaceVariant } from './dialog-defaults.svelte';
+  import { dialogStyles } from './dialog.stylex';
   import './dialog.css';
+
+  // the payload's own join (separator's serialize law): atoms are
+  // objects in dev (dev names + the $$css marker) — Svelte's class
+  // interpolation stringifies objects, so composition goes through
+  // THIS joiner (all string values except $$css, space-joined; plain
+  // strings — the css hooks, the consumer's platformClass — pass
+  // through verbatim)
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          // the `?? {}` is load-bearing: filter(Boolean) does NOT narrow,
+          // so the undefined arm reaches Object.entries' parameter type
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   interface Props {
     /** Heading shown in the header bar; omit for a chrome-less body. */
@@ -116,6 +161,34 @@
      * animated shutdown.
      */
     cancelGuard?: () => boolean;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size — an explicit lane
+     *  makes the panel the CONCENTRIC ANCHOR (the carrier stamps
+     *  --jx-radius-effective on the top-layered root — self-carried
+     *  across the promotion, the batch C portal law); auto consumes
+     *  the broadcast against the panel's own ancestors */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() — the consumption pair composes the theme's level
+     *  table (shadow recipe + the PAIRED ladder-rung surface); own
+     *  level4 = the modal's historic z-feel (8dp) */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** Dialog body. */
     children: Snippet;
   }
@@ -129,15 +202,46 @@
     footer,
     scroll = true,
     cancelGuard,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     children,
   }: Props = $props();
 
-  // THE DEFAULTS READ POINT (context-defaults-economy 2.2): one line —
-  // the family contract resolves the panel's style props (variant's
-  // own 'auto' lives in DialogDefaults, auditable in one place;
-  // density is the no-opinion axis slot — nothing stamps, the ambient
-  // css scope channel keeps flowing)
-  const d = $derived(DialogDefaults.resolve({ variant }));
+  // THE DEFAULTS READ POINT (context-defaults-economy 2.2 + W3-C):
+  // one record — the family contract resolves the panel's style props
+  // (variant's own 'auto' and the modal's own elevation level4 live in
+  // DialogDefaults, auditable in one place; the seven other axes are
+  // no-own — the ambient context flows through the top-layered
+  // <dialog>, which stays a DOM descendant for cascade purposes)
+  const d = $derived(DialogDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor. PORTAL LAW (W3-C): the
+  // top-layer promotion moves PAINT, not DOM — but the carriers stamp
+  // the panel's OWN root either way, so the resolved axes are
+  // SELF-CARRIED (a trigger ancestor's stamps never span the boundary)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  // §3/§14 radius consumption (the card's law, the overlay's dialect):
+  // an explicit lane composes radius-effective × the factor; auto
+  // computes the concentric max(0px, R − P) against the panel's own
+  // ancestors (the var() fallbacks load-bearing — IACVT never lands)
+  const radiusConsumed = $derived(
+    d.radius !== undefined && d.radius !== 'auto'
+      ? '--jx-radius-consumed: calc(var(--jx-radius-effective, 0px) * var(--jx-radius-factor-effective, 1))'
+      : '--jx-radius-consumed: calc(max(0px, calc(var(--jx-radius-effective, 0px) - var(--jx-inset-effective, 0px))) * var(--jx-radius-factor-effective, 1))',
+  );
+  // §7's consumption pair: the resolved level's shadow recipe + the
+  // PAIRED ladder-rung surface, through the level-table indirection
+  const elevationConsumed = $derived(elevationSurfaceOf(d.elevation));
+  const rootStyle = $derived(
+    [carriers, radiusConsumed, elevationConsumed].filter(Boolean).join('; ') || undefined,
+  );
 
   // THE ENTITY LAW (2026-09-01): the dialog panel IS the solid object —
   // form shells inside dissolve (border + ground transparent; the well
@@ -157,6 +261,7 @@
   const hasFoot = $derived(footer !== undefined);
 
   let dialog = $state<HTMLDialogElement | null>(null);
+  provideQueryAnchor(() => dialog ?? null);
 
   // the shared declarative motion kernel (r29): the dialog rides the
   // SAME timeline law as the popover — --jx-p drives every formula in
@@ -165,21 +270,21 @@
   // default (bottom-right). dialog.close() fires IMMEDIATELY on the
   // falling edge — the allow-discrete display window holds the panel
   // rendered through the whole exit, exactly like hidePopover
-  const motion = createSurfaceMotion(() => dialog);
+  const panelMotion = createSurfaceMotion(() => dialog);
 
   // state -> element. Rising edge opens; falling edge tears down
   // through the same animated path as the x button and Escape.
   $effect(() => {
     if (open) {
       if (dialog && !dialog.open) dialog.showModal();
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     } else {
       untrack(() => shut());
     }
   });
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
 
   // Native close paths we did not initiate (form method="dialog", an
   // external .close()) land here — adopt the state so bind:open stays
@@ -196,9 +301,9 @@
 
   const shut = (): void => {
     if (!dialog || !dialog.open) return;
-    motion.stopTracking();
+    panelMotion.stopTracking();
     dialog.classList.remove('jx-rest');
-    motion.play(0);
+    panelMotion.play(0);
     dialog.close(); // the discrete window carries the exit
   };
 </script>
@@ -211,9 +316,19 @@
 
 <dialog
   bind:this={dialog}
-  class="jx-dialog jx-surface m-auto p-0 w-[min(92vw,26rem)] max-w-full text-popover-foreground {motion.supported ? 'jx-waapi' : ''} {platformClass}"
+  class={cx(
+    'jx-dialog jx-surface',
+    dialogStyles.platform,
+    // the ternary (not `&&`) keeps the false arm out of cx's string
+    // union — `false | 'jx-waapi'` is not assignable to the joiner
+    panelMotion.supported ? 'jx-waapi' : undefined,
+    platformClass,
+  )}
   data-variant={d.variant}
   data-jx-entity={entityDepth}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
   aria-label={title}
   onclose={handleClose}
   oncancel={handleCancel}
@@ -234,7 +349,7 @@
     data-jx-card=""
     data-sep-head=""
     data-sep-foot={hasFoot ? '' : undefined}
-    class="max-h-[calc(100dvh-2rem)]"
+    class={cx(dialogStyles.heightCap)}
   >
     <!-- the head band is FLUSH (the r14 tuning): a consumer head
          snippet (the palette's search Input in a col-start-1
@@ -260,9 +375,15 @@
              (r14-4, Owner): an IconButton with NO variant — the
              default path inherits the band's ghost scope; nothing
              hand-painted -->
+        <!-- the cast bridges the toolchain's dual svelte-copy identity
+             split (the snippet's branded type resolves from the other
+             copy than IconButton's `Snippet` import — structurally
+             identical, identity-branded; canvas-playground carries the
+             same class at its glyph seats). Runtime: the value passes
+             through untouched. -->
         <div class="jx-card-end-action-slot">
           <IconButton
-            icon={xGlyph}
+            icon={xGlyph as unknown as Snippet}
             text="Close"
             iconOnly
             tip={false}
@@ -282,7 +403,10 @@
     <CardBody {scroll}>
       {@render children()}
     </CardBody>
-    {#if hasFoot}
+    {#if footer}
+      <!-- the render gate is `footer` ITSELF (not the hasFoot derived):
+           TS cannot narrow the optional snippet through a $derived, and
+           the {@render} below needs the defined arm -->
       <Separator data-jx-card-sep="foot" aria-hidden="true" />
       <div data-jx-card-foot="">
         <!-- THE RAW FOOT BAND (r14-9, Owner correction): the footer

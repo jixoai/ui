@@ -132,6 +132,7 @@
   import { getContext } from 'svelte';
   import { cn } from '$lib/utils';
   import { TABS_KEY, type TabsApi } from './tabs.svelte';
+  import { tabsStyles } from './tabs.stylex';
   import ScrollChrome from '../scroll-run/scroll-chrome.svelte';
   import { createScrollStamp, nudgeRun, isRtlElement, type ScrollStamp } from '../scroll-run/scroll-run.svelte';
   // the glass/liquid materials ride the SHARED stamp channel
@@ -148,11 +149,12 @@
      *  the paint while the engine keeps owning the measured geometry */
     indicator?: TabsIndicatorMaterial | Snippet<[TabsIndicatorGeo]>;
     /** which INLINE edge the vertical line indicator rides — 'end' (the
-     *  historical default) or 'start' (the left-rail/sidenav posture,
-     *  walkthrough-r6 2026-09-21). LOGICAL: the physical side flips with
-     *  the writing direction, and the passive host rule flips with it
-     *  (border-s/border-e — the pre-r6 border-r was physical-only, so a
-     *  rtl strip's 'end' now correctly paints inline-end/left). Horizontal
+     *  historical default: the host's physical right rule) or 'start'
+     *  (the left-rail/sidenav posture, walkthrough-r6 2026-09-21).
+     *  LOGICAL: 'start' resolves through the family's ONE rtl verdict
+     *  (inline-start is physical LEFT in ltr, RIGHT in rtl) and its
+     *  passive rule rides border-inline-start (a logical css property —
+     *  the side flips with the writing direction on its own). Horizontal
      *  lists ignore it: their bar rides the block-end edge */
     indicatorEdge?: 'start' | 'end';
     /** inline: natural sizes · grow: triggers share the strip · scroll: a
@@ -177,6 +179,22 @@
     children,
     ...rest
   }: Props = $props();
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   /** name-collision law: a function IS the override snippet (Svelte's
    *  own runtime check for snippets); a string selects a built-in */
@@ -310,13 +328,20 @@
         orientation,
       };
     }
-    // vertical line (walkthrough-r6): the bar rides the INLINE edge
-    // indicatorEdge names — logical, resolved through the family's ONE
-    // rtl verdict (inline-start is the physical LEFT in ltr, RIGHT in
-    // rtl; 'end' mirrors it)
+    // vertical line (walkthrough-r6): the default 'end' keeps the
+    // host's PHYSICAL right rule (the historical posture, byte-stable
+    // with the pre-r6 kernel); 'start' rides the INLINE-START edge —
+    // logical, resolved through the family's ONE rtl verdict (physical
+    // LEFT in ltr, RIGHT in rtl), matching the logical border atom
     const atInlineStart = (indicatorEdge === 'start') !== isRtl(list);
     return {
-      x: layout === 'wrap' ? (atInlineStart ? t.offsetLeft : t.offsetLeft + t.offsetWidth - 2) : atInlineStart ? 0 : box.clientWidth - 2,
+      x: layout === 'wrap'
+        ? atInlineStart
+          ? t.offsetLeft
+          : t.offsetLeft + t.offsetWidth - 2
+        : atInlineStart
+          ? 0
+          : box.clientWidth - 2,
       y: t.offsetTop,
       w: 2,
       h: t.offsetHeight,
@@ -580,7 +605,7 @@
   data-indicator={material}
   data-layout={layout}
   class={cn(
-    'relative box-border',
+    cx(tabsStyles.host),
     // the ONE-CELL GRID HOST (Owner law): the tablist scroller, the
     // veil layer and the chevron buttons stack in the same cell —
     // grid positions them, z-index layers them, never position:*
@@ -588,17 +613,19 @@
     // var family + verdict gates key on it — caught live on the docs
     // page as always-visible ghost chips with no ink and no glyph)
     orientation === 'horizontal'
-      ? 'jx-scroll-host jx-tabs-horizontal grid [grid-template-columns:minmax(0,1fr)]'
-      : 'jx-tabs-vertical flex flex-col items-stretch [gap:var(--jx-gap)]',
+      ? 'jx-scroll-host jx-tabs-horizontal ' + cx(tabsStyles.hostHorizontal)
+      : 'jx-tabs-vertical ' + cx(tabsStyles.hostVertical),
     material === 'line' &&
       (orientation === 'vertical'
-        ? // the passive rule rides the SAME logical edge as the bar
-          // (border-s/border-e — physical side flips with direction)
+        ? // the passive rule rides the SAME edge as the bar: the default
+          // stays the historical PHYSICAL right atom; indicatorEdge=
+          // 'start' flips to the logical inline-start atom (its css
+          // side follows the writing direction on its own)
           indicatorEdge === 'start'
-          ? 'border-s border-border'
-          : 'border-e border-border'
-        : 'border-b border-border'),
-    orientation === 'vertical' && layout === 'wrap' && 'flex-wrap',
+          ? cx(tabsStyles.hostBorderInlineStart)
+          : cx(tabsStyles.hostBorderRight)
+        : cx(tabsStyles.hostBorderBottom)),
+    orientation === 'vertical' && layout === 'wrap' ? cx(tabsStyles.wrap) : '',
     className,
   )}
   style={hostStyle}
@@ -614,15 +641,15 @@
     aria-orientation={orientation}
     tabindex="-1"
     class={cn(
-      'box-border',
+      cx(tabsStyles.listBase),
       // horizontal: THE run — role=tablist IS the scroller (the a11y
       // scroll region and the DOM scroller are one element); it is the
       // indicator's containing block (position: relative — offsets are
       // run-relative, the bar scrolls WITH the content). Vertical
       // strips keep the flat flex column
       orientation === 'horizontal'
-        ? 'jx-tabs-run relative flex items-stretch overflow-x-auto [gap:var(--jx-gap)]' + (layout === 'wrap' ? ' flex-wrap' : '')
-        : 'flex flex-col',
+        ? 'jx-tabs-run ' + cx(tabsStyles.listRun) + (layout === 'wrap' ? ' ' + cx(tabsStyles.wrap) : '')
+        : cx(tabsStyles.listColumn),
     )}
     data-layout={orientation === 'horizontal' ? layout : undefined}
     onkeydown={handleKeydown}

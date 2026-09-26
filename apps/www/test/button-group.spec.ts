@@ -43,6 +43,23 @@ import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/svelte';
 import ButtonGroupDivider from '$lib/ui/button-group/button-group-divider.svelte';
 import Host from './fixtures/button-group-host.svelte';
+import { buttonGroupStyles } from '$lib/ui/button-group/button-group.stylex';
+import { pressButtonStyles } from '$lib/ui/press-button/press-button.stylex';
+
+// tailwindless W1b (2026-09-17): the grid container's flow law rides
+// the family's stylex atoms — asserted through the same cx join the
+// component rides (utility-shaped expectations went with the utilities)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 import LawsHost from './fixtures/button-group-laws-host.svelte';
 
 // the css law is read from the mirror (same-source: byte-identical to
@@ -174,12 +191,11 @@ describe('ButtonGroup · the grid container (r13: grid replaces flex)', () => {
   it('is an inline grid flowing COLUMN with auto columns (horizontal — the no-template flow law, pinned on Chromium)', () => {
     const { container } = render(Host);
     const row = container.querySelector('[data-testid="row-group"]')!;
-    expect(row.classList.contains('inline-grid')).toBe(true);
-    // flow COLUMN grows the one implicit row with columns (the
-    // horizontal line); flow ROW would stack every button in one
-    // column — the Codex B1 regression
-    expect(row.classList.contains('grid-flow-col')).toBe(true);
-    expect(row.classList.contains('auto-cols-auto')).toBe(true);
+    // the root atom pair + the COLUMN flow group (the cx join the
+    // component rides): flow COLUMN grows the one implicit row with
+    // columns — flow ROW would stack every button in one column (the
+    // Codex B1 regression)
+    expect(row.className).toContain(cx(buttonGroupStyles.root, buttonGroupStyles.flowCol));
     // flex is retired — the Owner ruling, not a regression
     expect(row.className).not.toContain('inline-flex');
     expect(row.className).not.toContain('flex-row');
@@ -188,9 +204,7 @@ describe('ButtonGroup · the grid container (r13: grid replaces flex)', () => {
   it('vertical groups flow ROW (the default) with auto rows — one column, implicit rows', () => {
     const { container } = render(Host);
     const col = container.querySelector('[data-testid="col-group"]')!;
-    expect(col.classList.contains('inline-grid')).toBe(true);
-    expect(col.classList.contains('grid-flow-row')).toBe(true);
-    expect(col.classList.contains('auto-rows-auto')).toBe(true);
+    expect(col.className).toContain(cx(buttonGroupStyles.root, buttonGroupStyles.flowRow));
   });
 
   it('the -1px seam law survives the grid swap verbatim (margins carry into auto tracks)', () => {
@@ -448,12 +462,15 @@ describe('ButtonGroup · the cluster shadow (Owner 2026-09-04)', () => {
     const { container } = render(LawsHost);
     // the zone resolution's context face: the group WRITES the texture
     // default (raised=false) — the buttons adopt it with no prop
+    // (tailwindless W1: the flat seams live in press-button.css keyed
+    // on the data-jx-press-flat stamp — the card.spec dialect)
     const flat = container.querySelector('[data-testid="plain-group"] [data-jx-press-button]')!;
-    expect(flat.className).toContain('[--jx-press-shadow:none]');
-    expect(flat.className).toContain('[--jx-press-move:none]');
+    expect(flat.hasAttribute('data-jx-press-flat')).toBe(true);
+    // compile-lane re-pin (W5-r2; the dev-name prefix died at 012335c4):
+    // the base atom every press-button carries, joined through cx
+    expect(flat.className).toContain(cx(pressButtonStyles.base));
     // explicit beats the zone — the escape hatch stays open
     const convex = container.querySelector('[data-testid="raised-child-group"] [data-jx-press-button]')!;
-    expect(convex.className).not.toContain('--jx-press-move');
-    expect(convex.className).not.toContain('engrave');
+    expect(convex.hasAttribute('data-jx-press-flat')).toBe(false);
   });
 });

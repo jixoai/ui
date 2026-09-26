@@ -1,13 +1,31 @@
 <!-- native-select blueprint: the platform picker — a committed value on
-     the closed control, and the multiple listbox posture beside it. -->
+     the closed control, and the multiple listbox posture beside it.
+     (tailwindless BP-B 2026-09-16: utilities → surface atoms.) -->
 <script lang="ts">
   import NativeSelect from '$lib/ui/native-select/native-select.svelte';
+  import { bpB } from '../../surface/blueprints-b.stylex';
+  import Stack from '$lib/ui/stack';
+  import Grid from '$lib/ui/grid';
+
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   let plan = $state('pro');
 </script>
 
-<div class="flex h-full w-full flex-col justify-center p-10">
-  <div class="grid w-full max-w-[520px] grid-cols-2 gap-8">
+<Stack direction="column" justify="center" class={cx(bpB.nativeSelectStage)}>
+  <Grid cols={2} gap="32" class={cx(bpB.nativeSelectGrid)}>
     <NativeSelect id="bp-native-select" label="plan" bind:value={plan}>
       <option value="free">free</option>
       <option value="pro">pro</option>
@@ -19,5 +37,5 @@
       <option>npm/rc</option>
       <option>jsr/latest</option>
     </NativeSelect>
-  </div>
-</div>
+  </Grid>
+</Stack>

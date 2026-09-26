@@ -133,6 +133,26 @@ export interface ComponentLaw {
   readonly states?: readonly StateRule[];
 
   /**
+   * composition retirement (delta-only, honored by composeLaw): state
+   * rules from the BASE law whose selector CONTAINS any of these
+   * substrings are dropped. The exemplar: radio composes checkbox but
+   * must not inherit its tri-state branches — per the HTML spec a
+   * radio matches :indeterminate whenever NO member of its name-group
+   * is checked (a RESTING group, not a selection state); the
+   * checkbox-derived pair would paint every all-unchecked group as a
+   * solid blob (the task-94 finding, now held at the source).
+   */
+  readonly omitStateSelectors?: readonly string[];
+
+  /**
+   * composition retirement for pseudo-build STATES (delta-only):
+   * pseudo name → state names dropped from the base law's build
+   * (e.g. { before: ['indeterminate'] } — radio retires checkbox's
+   * dash glyph morph alongside its solid-fill pair).
+   */
+  readonly omitPseudoStates?: Readonly<Record<string, readonly string[]>>;
+
+  /**
    * attribute-gated override rungs (the chrome axis, 2026-09-14): a
    * gated variant of the law — e.g. [data-chrome='bare'] — that
    * overrides the law's base declarations AND its subtree rules under
@@ -218,11 +238,37 @@ export function composeLaw(base: ComponentLaw, delta: ComponentLaw): ComponentLa
     return out;
   };
 
+  // composition retirement: drop base state rules the delta retires
+  // (substring match on the selector — see omitStateSelectors)
+  const retireStates = (states: readonly StateRule[] | undefined) =>
+    delta.omitStateSelectors?.length
+      ? (states ?? []).filter(
+          (s) => !delta.omitStateSelectors!.some((needle) => s.selector.includes(needle)),
+        )
+      : (states ?? []);
+  // and the pseudo-build states the delta retires by name
+  const retirePseudoStates = (pseudos: Readonly<Record<string, PseudoBuild>> | undefined) => {
+    if (!pseudos || !delta.omitPseudoStates) return pseudos;
+    const out: Record<string, PseudoBuild> = {};
+    for (const [k, v] of Object.entries(pseudos)) {
+      const retired = delta.omitPseudoStates[k];
+      if (!retired?.length) {
+        out[k] = v;
+        continue;
+      }
+      const states = v.states
+        ? Object.fromEntries(Object.entries(v.states).filter(([sk]) => !retired.includes(sk)))
+        : undefined;
+      out[k] = { declarations: v.declarations, ...(states && Object.keys(states).length ? { states } : {}) };
+    }
+    return out;
+  };
+
   return {
     name: delta.name,
     base: mergeDecls(base.base, delta.base),
-    pseudos: mergePseudos(base.pseudos, delta.pseudos),
-    states: [...(base.states ?? []), ...(delta.states ?? [])],
+    pseudos: mergePseudos(retirePseudoStates(base.pseudos), delta.pseudos),
+    states: [...retireStates(base.states), ...(delta.states ?? [])],
     subtrees: [...(base.subtrees ?? []), ...(delta.subtrees ?? [])],
     customProperties: mergeDecls(base.customProperties, delta.customProperties),
     media: [...(base.media ?? []), ...(delta.media ?? [])],

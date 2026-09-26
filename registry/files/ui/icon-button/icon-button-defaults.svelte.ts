@@ -21,16 +21,33 @@
  *     passes the RESOLVED values down (the restate lane); the pilot
  *     reviews this form — X2-11's fallback is a documented exemption,
  *     only with evidence.
- *   - density: the no-opinion axis slot, restated — no own, undefined
- *     resolves unstamped (fleet law).
+ *   - density: the universal §4 axis slot, restated (explicit-props
+ *     W3-B) — no own, 'auto' resolves unstamped (fleet law); the
+ *     resolved lane flows down as press-button's explicit prop (the
+ *     restate lane below).
+ *   - the seven other universal axes (§0/§11, all no-own, W3-B):
+ *     size · shape · radius · color · theme · elevation · motion —
+ *     resolved HERE in the restate window and SUPPLIED downward via
+ *     provideUniversalLanes (the wrapped press-button reads them as
+ *     ambient in the same tree; its carriers stamp them on the
+ *     shared control root).
  *
  * 惰性律: construction captures own/values only; context reads happen
  * at resolve time inside the consumer's $derived window. Member of the
  * registry:ui item (installs with the family, byte mirrored, zero
  * kernel imports).
  */
-import { defineComponentDefaults } from '$lib/defaults.svelte';
-import { densitySlot } from '$lib/density.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import { definePaintSlot } from '$lib/paint.svelte';
 
 /**
@@ -49,5 +66,12 @@ export type IconButtonVariant = ReturnType<typeof iconButtonVariantSlot>;
 export const IconButtonDefaults = defineComponentDefaults({
   // the restate: the child's own, restated — never a local choice
   variant: iconButtonVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

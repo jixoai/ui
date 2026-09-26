@@ -20,15 +20,31 @@
  *     own: no provider and no explicit prop resolve undefined, stamp
  *     nothing, and the ambient css scope channel keeps flowing (fleet
  *     law).
+ *   - size · shape · radius · color · theme · elevation · motion: the
+ *     seven sibling axis members (explicit-props W3-D5, FIRST-TIME on
+ *     this contract) — the banner is a no-own in-flow surface: every
+ *     axis forwards through the ambient chain, an explicit lane (a
+ *     size number scaling the notice, a radius supplying the
+ *     concentric anchor for the alert's own 4px rung) stamps the §10
+ *     carriers on the banner root (吃也供).
  *
  * 惰性律: construction captures own/values only; context reads happen
  * at resolve time inside the consumer's $derived window. This file is
  * a member of the registry:ui item (installs with the family, byte
  * mirrored, zero kernel imports).
  */
-import { defineComponentDefaults } from '$lib/defaults.svelte';
+import {
+  colorAxisSlot,
+  defineComponentDefaults,
+  densityAxisSlot,
+  elevationAxisSlot,
+  motionAxisSlot,
+  radiusAxisSlot,
+  shapeAxisSlot,
+  sizeAxisSlot,
+  themeAxisSlot,
+} from '$lib/defaults.svelte';
 import { definePaintSlot } from '$lib/paint.svelte';
-import { densitySlot } from '$lib/density.svelte';
 
 /** the banner's prominence ladder — the frozen table's Alert row
  *  (the badge ladder minus fill: a banner never shouts from a fill);
@@ -38,5 +54,12 @@ export type AlertVariant = ReturnType<typeof alertVariantSlot>;
 
 export const AlertDefaults = defineComponentDefaults({
   variant: alertVariantSlot,
-  density: densitySlot(),
+  density: densityAxisSlot(),
+  size: sizeAxisSlot(),
+  shape: shapeAxisSlot(),
+  radius: radiusAxisSlot(),
+  color: colorAxisSlot(),
+  theme: themeAxisSlot(),
+  elevation: elevationAxisSlot(),
+  motion: motionAxisSlot(),
 });

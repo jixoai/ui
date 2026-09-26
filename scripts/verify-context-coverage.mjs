@@ -87,7 +87,11 @@ for (const p of [join(root, 'registry.json'), configPath, exemptionsPath]) {
   if (!existsSync(p)) die(`missing input: ${relative(root, p)}`);
 }
 const config = JSON.parse(readFileSync(configPath, 'utf8'));
-if (config.version !== 1) die(`unknown config version ${config.version} — this engine speaks v1 only`);
+// v1 → v2 (2026-09-19, the Context round): v2 adds 'theme' to the
+  // detection vocabulary — the same engine, the vocabulary itself is
+  // the config's single source; every older semantics is unchanged
+  if (config.version !== 1 && config.version !== 2)
+    die(`unknown config version ${config.version} — this engine speaks v1/v2 only`);
 const VOCAB = new Set(config.vocabulary);
 const PAINT_UNION = new Set(config.paintVariantUnion);
 const FROZEN = config.frozenAvailability ?? {};

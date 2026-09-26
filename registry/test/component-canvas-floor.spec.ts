@@ -6,13 +6,16 @@
  * 1. OUTLINE — the canvas root carries data-toc-skip, the title is a
  *    styled paragraph (no h2), and deriveTocOutline over a page wrapper
  *    yields the page's own sections only.
- * 2. STAGE CHROME (unified-chrome ruling 2026-09-08) — the dock head's
- *    icon button (theme, aria-pressed) + native select (density, the
- *    repo-standard xs/sm/default/lg union stamped DIRECTLY) set
- *    data-theme/data-density on the STAGE element only, with the theme
- *    sheet's dark/jx-light token-scope class riding along;
- *    bind:theme/bind:density write back to the page (ownership law);
- *    sibling canvases are untouched; the head ships on EVERY canvas.
+ * 2. STAGE CHROME (the EIGHT-AXIS BAR, the Owner's post-acceptance
+ *    directive 2026-09-21 — successor of the unified-chrome ruling
+ *    2026-09-08) — the dock head ships one control per axis: the
+ *    theme cycle button (aria-pressed) sets data-theme + the theme
+ *    sheet's dark/jx-light token-scope class on the STAGE element
+ *    only; the SEVEN menu axes (size · shape · radius · density ·
+ *    color · elevation · motion, `auto` + the named steps) ride the
+ *    canvas root's SUPPLY (carriers + ambient lanes — the legacy
+ *    rung select RETIRED; bind:theme/bind:density stay page-owned);
+ *    sibling canvases are untouched; the bar ships on EVERY canvas.
  * 3. DRAWER SHAPE — the tree pane is the ONE drawer shape (Owner revert
  *    2026-09-01: the two-file tabs floor is gone): every canvas renders
  *    the tree over/aside ONE CodeCard, no tablist anywhere. Drawer
@@ -90,37 +93,49 @@ describe('floor: stage theme/density chrome (the dock head)', () => {
     expect(treeStage.getAttribute('data-theme')).toBe('light');
   });
 
-  it('the dock density select stamps the Density union DIRECTLY onto the stage', async () => {
+  // RE-PINNED (the Owner's eight-axis bar directive, 2026-09-21): the
+  // dock-head density select RETIRED — the density control is the axis
+  // grammar's menu and its lane rides the canvas root's SUPPLY, so the
+  // STAGE's data-density rung keeps its page-owned bindable value (the
+  // ownership law: only bind:density writes it) while a lane-consuming
+  // specimen in the stage re-densifies through the ambient lane
+  it('the dock density axis speaks the grammar and rides the SUPPLY (the stage rung stays page-owned)', async () => {
     const { container } = render(CanvasFloorHost);
     const [floorStage] = stages(container);
     expect(floorStage.getAttribute('data-density')).toBe('default');
 
-    const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-density-select]')!;
-    await fireEvent.change(select, { target: { value: 'sm' } });
-    expect(floorStage.getAttribute('data-density')).toBe('sm');
-    expect(
-      container.querySelector<HTMLElement>('[data-testid="stage-demo"]')!.getAttribute('data-density'),
-    ).toBe('sm');
-
-    await fireEvent.change(select, { target: { value: 'lg' } });
-    expect(floorStage.getAttribute('data-density')).toBe('lg');
+    const entries = [...container.querySelectorAll<HTMLButtonElement>(
+      '#jx-canvas-floor-widget-axis-density [data-axis-value]',
+    )];
+    expect(entries.map((el) => el.getAttribute('data-axis-value'))).toEqual([
+      'auto', 'small', 'medium', 'large',
+    ]);
+    await fireEvent.click(entries[1]!); // small
+    // the STAGE's rung is untouched (the retired select's old channel)
+    expect(floorStage.getAttribute('data-density')).toBe('default');
+    // the lane-consuming specimen (the stage's press-button) resolves
+    // the ambient density lane and stamps its own rung: small → sm
+    const seat = container.querySelector<HTMLElement>('[data-testid="density-seat"]');
+    expect(seat?.getAttribute('data-density')).toBe('sm');
   });
 
-  it('the dock head is the unified chrome: one icon button + one native select, on EVERY canvas', () => {
+  it('the dock head is the eight-axis bar: theme + seven menu axes, on EVERY canvas', () => {
     const { container } = render(CanvasFloorHost);
     const themeButtons = [...container.querySelectorAll<HTMLButtonElement>('[data-jx-canvas-theme-toggle]')];
-    const selects = [...container.querySelectorAll<HTMLSelectElement>('[data-jx-canvas-density-select]')];
-    // two canvases on the page → both ship the chrome row (the
-    // body-less tree canvas included — no chevron, chrome only)
-    expect(themeButtons.length).toBe(2);
-    expect(selects.length).toBe(2);
-    expect(themeButtons[0].getAttribute('aria-label')).toBe('Toggle theme');
-    expect(selects[0].getAttribute('aria-label')).toBe('Density');
-    expect([...selects[0].options].map((o) => o.value)).toEqual(['xs', 'sm', 'default', 'lg']);
-    // the body-less canvas has no chevron and no collapse region
     const canvases = [...container.querySelectorAll('[data-jx-canvas]')];
-    expect(canvases[1].querySelector('[data-jx-canvas-dock-toggle]')).toBeNull();
-    expect(canvases[1].querySelector('.jx-canvas-dock-collapse')).toBeNull();
+    // two canvases on the page → both ship the eight-axis bar (the
+    // body-less tree canvas included — no chevron, the bar alone)
+    expect(themeButtons.length).toBe(2);
+    expect(themeButtons[0]!.getAttribute('aria-label')).toBe('Toggle theme');
+    for (const c of canvases) {
+      expect(c.querySelectorAll('[data-jx-canvas-axis]').length).toBe(7);
+      expect(c.querySelector('[data-jx-canvas-dock-axes]')).not.toBeNull();
+      // the smaller bar: the joined run rides the compact density rung
+      expect(c.querySelector('[data-jx-canvas-dock-axes] [data-jx-canvas-theme-toggle]')!.getAttribute('data-density')).toBe('xs');
+    }
+    // the body-less canvas has no chevron and no collapse region
+    expect(canvases[1]!.querySelector('[data-jx-canvas-dock-toggle]')).toBeNull();
+    expect(canvases[1]!.querySelector('.jx-canvas-dock-collapse')).toBeNull();
   });
 });
 
@@ -197,7 +212,7 @@ describe('floor: the lab follows the controls (typed state object)', () => {
 
     // flip the variant select → snippet + projection follow (the kit row
     // rides ItemField — the select lives inside the dock BODY, not the
-    // head's density chrome)
+    // head's axis bar)
     const select = container.querySelector<HTMLSelectElement>('[data-jx-canvas-dock-scroll] select')!;
     await fireEvent.change(select, { target: { value: 'tonal' } });
     expect(outputRows[0].querySelector('dd')!.textContent).toBe('tonal');
@@ -239,9 +254,9 @@ describe('floor: the real pilot pages (dialog, component-canvas)', () => {
       'npx jixoai-ui add dialog',
     );
     expect(container.querySelector('.jx-canvas-tree')).not.toBeNull();
-    // the unified-chrome dock head (theme button + density select)
+    // the eight-axis bar (theme button + the seven menu axes)
     expect(container.querySelector('[data-jx-canvas-theme-toggle]')).not.toBeNull();
-    expect(container.querySelector('[data-jx-canvas-density-select]')).not.toBeNull();
+    expect(container.querySelectorAll('[data-jx-canvas-axis]').length).toBeGreaterThanOrEqual(7);
 
     // the REAL outline probe: SectionCard h2s join, canvas chrome never
     const labels = deriveTocOutline(container).map((e) => e.label.toLowerCase());

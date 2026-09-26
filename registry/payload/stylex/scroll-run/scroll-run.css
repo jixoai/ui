@@ -1,0 +1,22 @@
+@layer properties, theme, base, components, components.stylex.priority1, components.stylex.priority2;
+
+@layer components.stylex.priority1 {
+  .x15r89dc {
+    grid-area: 1 / 1;
+  }
+}
+
+@layer components.stylex.priority2 {
+  .xrvj5dj {
+    display: grid;
+  }
+
+  .x47corl {
+    pointer-events: none;
+  }
+
+  .x17dzmu4 {
+    transform: translateZ(0);
+  }
+}
+/* buildId: fa64ecad5239b9c22987268e54d1df02526b078881da49e0c55932e51dfdb0e9 · generator: @jixoai/ui-vite-plugin@0.6.0 · engine: @stylexjs/unplugin@0.19.0 */

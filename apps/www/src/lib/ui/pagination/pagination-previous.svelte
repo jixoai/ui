@@ -6,7 +6,7 @@
   dead link): the consumer who passes nothing at the first page gets
   the closed component's bound behavior verbatim.
 
-  child({ props }) contract per design.md: ANCHOR-form only — the
+  child({ props: linkProps }) contract per design.md: ANCHOR-form only — the
   child escape renders exclusively on the href branch (the single
   concrete element-kind law, Codex impl-r1 P1-4). The onclick-only
   button and the honest disabled span are not replaceable; the
@@ -17,6 +17,8 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes, HTMLAnchorAttributes } from 'svelte/elements';
   import { cn } from '$lib/utils';
+  import { paginationStyles } from './pagination.stylex';
+  import './pagination.css';
 
   type Props = HTMLAttributes<HTMLElement> & {
     /** the previous page's URL; omit at the first page */
@@ -31,38 +33,43 @@
 
   let { href, onclick, child, children, class: className = '', ...rest }: Props = $props();
 
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
-
-  const chipPose =
-    '[--jx-press-shadow:none] [--jx-press-shadow-hover:var(--shadow-xs)] [--jx-press-shadow-active:var(--shadow-xs-press)]';
-  const chipBase =
-    'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center box-border border px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] no-underline tracking-[0.08em] cursor-pointer focus-visible:outline-1 focus-visible:outline-ring focus-visible:-outline-offset-1';
   const edgeChip = cn(
     'jx-press',
-    chipBase,
-    chipPose,
-    'border-border bg-card text-foreground hover:border-primary hover:text-primary',
+    cx(paginationStyles.chip, paginationStyles.chipIdle, paginationStyles.chipUpper),
   );
 
-  const props = $derived({ class: cn(edgeChip, 'uppercase', className), href, onclick, ...rest });
+  const linkProps = $derived({ class: cn(edgeChip, className), href, onclick, ...rest });
 </script>
 
 {#if child && href !== undefined}
-  {@render child({ props })}
+  {@render child({ props: linkProps })}
 {:else if href !== undefined}
-  <a data-jx-page-edge="" {...props} href={href}>{#if children}{@render children()}{:else}‹ prev{/if}</a>
+  <a data-jx-page-edge="" {...linkProps} href={href}>{#if children}{@render children()}{:else}‹ prev{/if}</a>
 {:else if onclick !== undefined}
-  <button type="button" data-jx-page-edge="" {...props} onclick={onclick}>
+  <button type="button" data-jx-page-edge="" {...linkProps} onclick={onclick}>
     {#if children}{@render children()}{:else}‹ prev{/if}
   </button>
 {:else}
   <span
     data-jx-page-edge=""
     data-jx-page-edge-off=""
-    class={cn(
-      'inline-flex min-h-[var(--jx-hit)] min-w-[var(--jx-hit)] items-center justify-center box-border border border-border bg-card px-[var(--jx-inset)] font-nav text-[length:var(--jx-text)] leading-[var(--jx-line)] uppercase tracking-[0.08em] text-foreground opacity-45 shadow-none cursor-not-allowed',
-      className,
-    )}
+    class={cn(cx(paginationStyles.chipOff), className)}
     {...rest}
     aria-disabled="true"
   >

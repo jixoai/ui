@@ -14,6 +14,7 @@ const toc: TocSection[] = [
   { id: 'chart-donut-total', label: 'with a center total' },
   { id: 'chart-stat-cards', label: 'composed in stat cards' },
   { id: 'accessibility', label: 'Accessibility' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
   { id: 'theming', label: 'Theming' },
   { id: 'see-also', label: 'See also' },

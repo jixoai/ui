@@ -160,11 +160,13 @@ describe('geometry consistency gate (C4)', () => {
 
   it('the artifact embeds lucide geometry for every built-in (d payload, byte-exact)', () => {
     expect(builtInNames.length, 'the built-in manifest is the 39').toBe(39);
-    // 45 = 39 built-ins + 4 scanned channel canonicals (md:copy_all,
-    // md:home, ph:atom, rx:system:add-line) + 1 alias (copy2) + 1
+    // 49 = 39 built-ins + 8 scanned channel canonicals (md:copy_all,
+    // md:home, ph:atom, rx:system:add-line + the timeline git-activity
+    // family's lucide:git-compare-arrows / git-fork / git-merge /
+    // git-pull-request, 2026-09-16 r2) + 1 alias (copy2) + 1
     // equivalence key (lucide:check → the packed check — icon-channel-api
     // design §1: the scanned lucide ref dedupes, ONE payload)
-    expect(ICON_NAMES.length, 'dogfood era: the artifact also carries the scanned set').toBe(45);
+    expect(ICON_NAMES.length, 'dogfood era: the artifact also carries the scanned set').toBe(49);
     for (const name of builtInNames) {
       const data = getIcon(name);
       expect(data, `${name} present in the artifact`).not.toBeNull();

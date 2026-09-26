@@ -43,6 +43,16 @@
 // / density axis / literal family) appended to that prop's node — the
 // docs table's three-state Default-column marker. Slot facts come from
 // the family Defaults contract; slot owns never synthesize IR defaults.
+//
+// Universal merge (explicit-props W1 1.9, design §17): a FINAL merge
+// step stamps `meta.universal = UNIVERSAL_AXES` for every family whose
+// directory appears in the promoted inventory
+// (apps/www/src/lib/universal-props.inventory.json); exempt families
+// (the ledger, EMPTY today) legally omit the block; a family in
+// NEITHER list is a hard failure — this closes the
+// empty-on-missing-defaults hole. UNIVERSAL_AXES is loaded from the
+// ONE shared artifact (universal-props.schema.ts) by transpiling it —
+// the schema is the single source, never duplicated here.
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { createRequire } from 'node:module';
@@ -69,6 +79,37 @@ const ts = wwwRequire('typescript');
 const { parse: parseSvelte } = await import(
   new URL('./src/compiler/index.js', pathToFileURL(wwwRequire.resolve('svelte/package.json'))).href
 );
+
+// ── the universal merge inputs (explicit-props §17, W1 1.9) ─────────
+// UNIVERSAL_AXES from the ONE shared artifact: transpile the schema
+// module (types-only + the frozen const tables, zero imports) and
+// import it as a data: module — the generator never re-declares the
+// rows, so the schema cannot drift from the emitted meta zone.
+const SCHEMA_PATH = join(root, 'apps/www/src/lib/universal-props.schema.ts');
+const INVENTORY_PATH = join(root, 'apps/www/src/lib/universal-props.inventory.json');
+const schemaJs = ts.transpileModule(readFileSync(SCHEMA_PATH, 'utf8'), {
+  compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
+}).outputText;
+const schemaModule = await import(
+  'data:text/javascript;base64,' + Buffer.from(schemaJs).toString('base64')
+);
+const UNIVERSAL_AXES = schemaModule.UNIVERSAL_AXES;
+if (
+  !Array.isArray(UNIVERSAL_AXES) ||
+  UNIVERSAL_AXES.length !== 8 ||
+  !UNIVERSAL_AXES.every((d) => d && typeof d.axis === 'string' && typeof d.label === 'string')
+) {
+  die(`universal-props.schema.ts did not yield the eight-axis table (got ${typeof UNIVERSAL_AXES})`);
+}
+const inventoryDoc = JSON.parse(readFileSync(INVENTORY_PATH, 'utf8'));
+const INVENTORY_FAMILIES = new Set(inventoryDoc.families ?? []);
+// the exemption ledger's entry shape (design §17.4's frozen fixture):
+// { "family": "<name>", "reason": "<citation>" } — bare strings from
+// the W0 empty-open era stay legal (normalized to names)
+const INVENTORY_EXEMPT_ENTRIES = (inventoryDoc.exemptions ?? []).map((entry) =>
+  typeof entry === 'string' ? { family: entry, reason: '' } : entry,
+);
+const INVENTORY_EXEMPT = new Set(INVENTORY_EXEMPT_ENTRIES.map((e) => e.family));
 
 // ── source splitting ────────────────────────────────────────────────
 function splitScripts(source) {
@@ -265,6 +306,17 @@ let SLOT_FACTORIES_CACHE;
 const AMBIENT_OF_FACTORY = {
   definePaintSlot: 'zone',
   densitySlot: 'scope',
+  // the universal axis slots (explicit-props W3 batch A): the §9.1
+  // lanes resolve explicit ?? ambient ?? 'auto' — the same
+  // ambient-scope semantics the legacy density slot carries
+  sizeAxisSlot: 'scope',
+  shapeAxisSlot: 'scope',
+  radiusAxisSlot: 'scope',
+  densityAxisSlot: 'scope',
+  colorAxisSlot: 'scope',
+  themeAxisSlot: 'scope',
+  elevationAxisSlot: 'scope',
+  motionAxisSlot: 'scope',
 };
 
 function slotFactories() {
@@ -426,7 +478,14 @@ export const annotations = defineAnnotations({});
 
 function emitGenerated(meta) {
   const json = JSON.stringify(
-    { source: meta.source, props: meta.props, hooks: meta.hooks },
+    {
+      source: meta.source,
+      props: meta.props,
+      hooks: meta.hooks,
+      // §17 merge output for a normal family: existing fields untouched
+      // + universal === UNIVERSAL_AXES (exempt families omit the key)
+      ...(meta.universal ? { universal: meta.universal } : {}),
+    },
     null,
     2,
   );
@@ -467,10 +526,30 @@ function resolveComponentInput(input) {
 const metaTargetOf = (sourcePath) =>
   join(META_DIR, `${basename(sourcePath).replace(/\.svelte$/, '')}.meta.ts`);
 
+/**
+ * The §17.1 FINAL merge step, isolated so generate() and the fixtures
+ * gate (4.6) share ONE implementation: exempt families pass through
+ * untouched; a family in NEITHER the inventory nor the ledger is a
+ * hard failure; otherwise meta.universal = UNIVERSAL_AXES — existing
+ * fields never perturbed (the additive-injection law).
+ */
+function applyUniversalMerge(meta, family) {
+  if (INVENTORY_EXEMPT.has(family)) return meta;
+  if (!INVENTORY_FAMILIES.has(family)) {
+    die(
+      `family '${family}' is in NEITHER the universal-props inventory nor the exemption ledger ` +
+        `(design §17.2) — add it to apps/www/src/lib/universal-props.inventory.json ` +
+        `or file an exemptions[] entry with a reason`,
+    );
+  }
+  return { ...meta, universal: UNIVERSAL_AXES };
+}
+
 function generate(sourcePath) {
   const abs = resolve(root, sourcePath);
   if (!existsSync(abs)) die(`component source not found: ${sourcePath}`);
-  return extractMeta(readFileSync(abs, 'utf8'), sourcePath, ambientSlotsOf(sourcePath));
+  const meta = extractMeta(readFileSync(abs, 'utf8'), sourcePath, ambientSlotsOf(sourcePath));
+  return applyUniversalMerge(meta, basename(dirname(sourcePath)));
 }
 
 function writeOne(sourcePath) {
@@ -497,6 +576,88 @@ function checkOne(sourcePath, targetOverride) {
   const fresh = emitGenerated(generate(sourcePath));
   return zone === fresh ? undefined : target;
 }
+
+// ── the fixtures gate (explicit-props W4 4.6, design §17.4) ─────────
+//
+// The --check gate LOADS and asserts BOTH committed fixtures: the
+// NORMAL family's REAL extract (card — the generator's own pre-merge
+// output, byte-frozen at the extraction boundary) plus the universal
+// merge delta, and the EXEMPT shape (the ledger's entry contract +
+// the no-universal law for exempt families). The fixtures live under
+// the change's research/ dir — read-only inputs, never rewritten.
+const FIXTURES_DIR = join(root, 'openspec/changes/explicit-props/research');
+const CARD_FIXTURE = join(FIXTURES_DIR, 'card-generated-zone.json');
+const CARD_SOURCE = 'registry/files/ui/card/card.svelte';
+
+function runFixtureGate() {
+  const failures = [];
+  const raw = existsSync(CARD_FIXTURE) ? readFileSync(CARD_FIXTURE, 'utf8') : null;
+  if (raw === null) {
+    return [`fixtures: ${rel(CARD_FIXTURE)} missing — design §17.4's committed pair`];
+  }
+
+  // the frozen boundary itself (Codex r7 B3): 740 bytes, NO trailing
+  // newline — a reformatted fixture is a gate-visible delta
+  if (raw.length !== 740) {
+    failures.push(`card fixture: byte count ${raw.length} (the frozen boundary binds 740)`);
+  }
+  if (raw.endsWith('\n')) {
+    failures.push('card fixture: carries a trailing newline (the frozen boundary binds none)');
+  }
+
+  // Fixture N — the normal family's merge mechanics: the committed
+  // pre-merge extract is a FIXED INPUT; the merge step applied over it
+  // must yield input + universal — props/hooks byte-equal through a
+  // JSON round-trip, the eight rows member-for-member UNIVERSAL_AXES
+  const fixture = JSON.parse(raw);
+  const merged = applyUniversalMerge(fixture, 'card');
+  if (JSON.stringify(merged.props) !== JSON.stringify(fixture.props)) {
+    failures.push('card: merge perturbed props (the injection is ADDITIVE)');
+  }
+  if (JSON.stringify(merged.hooks) !== JSON.stringify(fixture.hooks)) {
+    failures.push('card: merge perturbed hooks (the injection is ADDITIVE)');
+  }
+  if (
+    !Array.isArray(merged.universal) ||
+    JSON.stringify(normalize(merged.universal)) !== JSON.stringify(normalize(UNIVERSAL_AXES))
+  ) {
+    failures.push('card: merged universal is not UNIVERSAL_AXES member-for-member');
+  }
+
+  // Fixture E — the exempt shape: every ledger entry carries a family
+  // AND a reason; an exempt family's committed meta (when one exists)
+  // carries NO universal block; the exemption must name a real family
+  // dir. Absent block + absent ledger entry stays the generate() die.
+  for (const entry of INVENTORY_EXEMPT_ENTRIES) {
+    const bad =
+      !entry ||
+      typeof entry !== 'object' ||
+      typeof entry.family !== 'string' ||
+      !entry.family ||
+      typeof entry.reason !== 'string' ||
+      !entry.reason.trim();
+    if (bad) {
+      failures.push(`exemption ledger entry malformed: ${JSON.stringify(entry)}`);
+      continue;
+    }
+    if (applyUniversalMerge({ source: 'x', props: {}, hooks: [] }, entry.family).universal !== undefined) {
+      failures.push(`${entry.family}: ledgered exemption did not suppress the universal block`);
+    }
+    const target = join(META_DIR, `${entry.family}.meta.ts`);
+    if (existsSync(target) && /"universal"/.test(readFileSync(target, 'utf8'))) {
+      failures.push(`${entry.family}: exempt meta carries a universal block`);
+    }
+    if (!existsSync(join(root, 'apps/www/src/lib/ui', entry.family))) {
+      failures.push(`${entry.family}: exempt family dir not found under apps/www/src/lib/ui`);
+    }
+  }
+  if (!existsSync(join(FIXTURES_DIR, 'universal-props-fixtures.md'))) {
+    failures.push('fixtures: universal-props-fixtures.md missing (design §17.4 names the pair)');
+  }
+  return failures;
+}
+
+const rel = (p) => p.slice(root.length + 1);
 
 function sourceOfMetaFile(text) {
   return text.match(/"source":\s*"([^"]+)"/)?.[1];
@@ -693,6 +854,14 @@ export const annotations = defineAnnotations({
 if (selfTestMode) {
   runSelfTest();
 } else if (checkMode) {
+  // the fixtures gate FIRST (design §17.4 — W4 4.6 wiring): both
+  // committed fixtures load and assert before any drift scan
+  const fixtureFailures = runFixtureGate();
+  if (fixtureFailures.length) {
+    for (const line of fixtureFailures) console.error(`[component-metadata-gen] fixtures: ${line}`);
+    die(`fixtures gate: ${fixtureFailures.length} divergence(s) (design §17.4)`);
+  }
+  console.log('[component-metadata-gen] fixtures: boundary bytes frozen + merge additive + exempt ledger valid');
   const stale = [];
   if (inputs.length === 0) {
     if (!existsSync(META_DIR)) {

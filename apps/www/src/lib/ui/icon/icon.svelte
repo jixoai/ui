@@ -63,15 +63,52 @@
 <script lang="ts">
   import type { SVGAttributes } from 'svelte/elements';
   import { getIcon, loadIcon, type IconData, type IconName } from '$lib/icon-set.gen';
+  import {
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { IconDefaults } from './icon-defaults.svelte';
 
-  interface Props extends SVGAttributes<SVGSVGElement> {
+  interface Props extends Omit<SVGAttributes<SVGSVGElement>, 'color' | 'radius' | 'elevation'> {
     /** REQUIRED — the glyph's name in the generated set (typo = compile error) */
     name: IconName;
-    /** the square edge: svg width/height; a lazy pending box reserves the same square */
+    /** the square edge: svg width/height; a lazy pending box reserves the same square.
+     *  §13/W3-B: a NUMBER is the universal size axis' number lane verbatim
+     *  (px — it additionally stamps the §1 carrier); a string is any CSS
+     *  length ('0.8em'); absent rides the density ruler through CSS */
     size?: number | string;
     /** stroke weight (stroke nature only — inert on fill artwork) */
     strokeWidth?: number | string;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the svg's presentation color never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
   }
 
   // the component OWNS the root's decorative contract — the owned
@@ -84,7 +121,15 @@
     name,
     size,
     strokeWidth = 2,
+    density,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style: callerStyle,
     xmlns: _xmlns,
     viewBox: _viewBox,
     width: _width,
@@ -100,8 +145,23 @@
   }: Props = $props();
 
   // the family's single read point (A1/A3): explicit ?? own 16 — the
-  // open literal form, chart precedent, no ambient axis by design
-  const resolved = $derived(IconDefaults.resolve({ size }));
+  // open literal form, chart precedent, no ambient size axis by
+  // design (§13: the number lane verbatim) — W3-B: the seven other
+  // universal axes ride the same record
+  const resolved = $derived(IconDefaults.resolve({ size, density, shape, radius, color, theme, elevation, motion }));
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor. The SIZE lane rides the
+  // carriers only for EXPLICIT NUMBERS (the axis' number lane, §13;
+  // strings, the absent state and the own 16 stay the family's own —
+  // the glyph takes no §1 font-size opinion it was not given)
+  const carriers = $derived(
+    stampCarriersForLanes({ ...resolved, size: typeof size === 'number' ? size : undefined }),
+  );
+  provideUniversalLanes({ density, size: typeof size === 'number' ? size : undefined, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<SVGSVGElement | HTMLElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
+  // the #4 composition: carriers first, the caller's own style LAST
+  const rootStyle = $derived([carriers, callerStyle].filter(Boolean).join('; ') || undefined);
 
   // inline-core hit → sync render (the SSR path); null → the lazy chunks
   const data = $derived(getIcon(name));
@@ -115,6 +175,7 @@
   <!-- rest carries only non-owned keys (stripped in the props
        destructure) — the contract below cannot be raced -->
   <svg
+    bind:this={uniRoot}
     {...rest}
     xmlns="http://www.w3.org/2000/svg"
     viewBox={icon.v}
@@ -128,6 +189,7 @@
     fill={icon.n === 'fill' ? 'currentColor' : 'none'}
     stroke={icon.n === 'fill' ? 'none' : 'currentColor'}
     class={className}
+    style={rootStyle}
   >{@html icon.d}</svg>
 {/snippet}
 

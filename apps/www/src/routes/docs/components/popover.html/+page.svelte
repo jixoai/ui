@@ -1,11 +1,12 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import ComponentCanvas from '$lib/ui/component-canvas/component-canvas.svelte';
   import Input from '$lib/ui/input/input.svelte';
   import PressButton from '$lib/ui/press-button/press-button.svelte';
   import Popover from '$lib/ui/popover/popover.svelte';
   import SectionCard from '$lib/ui/section-card/section-card.svelte';
-  import DocsInstall from '$lib/docs-install.svelte';
+  import TerminalCard from '$lib/ui/terminal-card/terminal-card.svelte';
   import DocsSeeAlso from '$lib/docs-see-also.svelte';
   import { meta as popoverMeta } from '$lib/meta/popover.meta';
   import { POPOVER_DOCS } from '$lib/ui/props-table/docs/popover.docs';
@@ -220,6 +221,10 @@ ${close}
   </div>
 </Popover>`);
 
+  // canvasUsageLive captured into canvasFiles BY DESIGN (the drawer mirrors the
+  // live usage; resolveCanvasUsage re-reads it per render so the $derived value
+  // is current when the file tree re-renders — the state_referenced_locally
+  // warning below is the deliberate initial-snapshot capture, not a bug)
   const resolveCanvasUsage = (file: TreeFile): string =>
     file.name.endsWith('usage.svelte') ? canvasUsageLive : file.content;
 
@@ -229,35 +234,71 @@ ${close}
   ];
 
   // ToC outline: pairs with the section ids below, in page order.
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+  // ---- the universal props demo (explicit-props W3-C) --------------------
+  const universalUsage = `<Popover id="p-default" triggerLabel="level2 · default">…</Popover>
+<Popover id="p-l3" triggerLabel="level3" elevation="level3">…</Popover>
+<Popover id="p-dp" triggerLabel="8dp" elevation={8}>…</Popover>
+<Popover id="p-concave" triggerLabel="level-1" elevation="level-1">…</Popover>`;
+  const universalFiles: TreeFile[] = [
+    { name: 'src/lib/ui/popover-universal.svelte', content: universalUsage },
+  ];
+
 </script>
 
 <svelte:head>
   <title>Popover · jixoai-ui</title>
   <meta
     name="description"
-    content="The jixoai popover component: the native Popover API — popover=&quot;auto&quot; light dismiss, a declarative popovertarget trigger, top-layer rendering — in a zero-script component. Anchored placement is the named extension direction."
+    content="The jixoai popover component: the native Popover API — popover=&quot;auto&quot; light dismiss, a declarative popovertarget trigger, top-layer rendering — in a component whose default trigger path runs zero positioning script. Anchored placement ships — the placement prop."
   />
 </svelte:head>
 
 <div
-  class="mx-auto w-full max-w-[90rem] px-4 py-10 sm:px-6 lg:px-8"
+  class={cx(rt.shell)}
 >
 
-  <div class="flex min-w-0 flex-col gap-8">
+  <div class={cx(rt.shellCol)}>
   <div data-reveal="">
     <SectionCard
       headingLevel={1}
       tone="hero"
       eyebrow="registry:ui · NativeHTML"
       title="popover — declarative, zero script"
-      summary="The native Popover API does everything: the panel carries popover=&quot;auto&quot; and the trigger is wired with popovertarget, so light dismiss, Escape, aria-expanded, and top-layer rendering come from the browser. The component ships no JavaScript at all — open this page's view source and check."
+      summary="The native Popover API does everything: the panel carries popover=&quot;auto&quot; and the trigger is wired with popovertarget, so light dismiss, Escape, aria-expanded, and top-layer rendering come from the browser. The default trigger path runs zero listeners and zero positioning script — the browser owns open/close, light dismiss, and the top layer; the component's script is one aria toggle seam plus the shared surface-motion kernel (view source and count)."
     >
-      <div class="flex flex-wrap gap-3">
+      {#snippet headerAside()}
+        <div data-doc-install="" aria-label="install popover">
+          <TerminalCard
+            barTitle="install — popover"
+            command="npx jixoai-ui add popover"
+            outputs={['https://ui.jixoai.com/r/popover.json']}
+          />
+        </div>
+      {/snippet}
+
+      <div class={cx(rt.wrap12)}>
         <span class="pill">popover="auto"</span>
         <span class="pill">popovertarget trigger</span>
         <span class="pill">light dismiss · Escape</span>
         <span class="pill">top layer</span>
-        <span class="pill">0 lines of JS</span>
+        <span class="pill">0 positioning JS</span>
       </div>
     </SectionCard>
   </div>
@@ -265,9 +306,6 @@ ${close}
   <!-- the demo-standard skeleton (2026-08-30): Install then Usage sit
        ABOVE the demos — Intro → Install → Usage → Examples → API →
        See Also is the page law; the sections between stay page-local. -->
-  <div data-reveal="">
-    <DocsInstall name="popover" />
-  </div>
 
   <div id="usage" data-reveal=""><SectionCard family="usage" headerRegion="usage" eyebrow="usage" title="Usage" summary="Menu rows repeat popovertarget to close on select — still zero JavaScript on the close path."><CodeBlock code={menuUsage} lang="svelte" meta="Popover usage" /></SectionCard></div>
 
@@ -286,7 +324,7 @@ ${close}
       ]}
       resolveFileContent={resolveCanvasUsage}
     >
-      <div class="flex flex-col items-center gap-4">
+      <div class={cx(rt.col16, rt.itemsCenter)}>
         <!-- the panel lives in the stage; the top layer lifts it on open -->
         <Popover
           id="canvas-pop"
@@ -296,7 +334,7 @@ ${close}
           {tryFallbacks}
           gap={canvasGapProp}
         >
-          <div class="flex w-52 flex-col">
+          <div class={cx(rt.pvPanel13)}>
             <button type="button" class="pop-row" popovertarget="canvas-pop"
               onclick={() => (canvasChoice = 'renamed')}>Rename…</button>
             <button type="button" class="pop-row" popovertarget="canvas-pop"
@@ -314,7 +352,7 @@ ${close}
             <Input
               placeholder="Actions"
               aria-label="triggerLabel"
-              class="w-36 text-[12.5px]"
+              class={cx(rt.pvW36, rt.text125)}
               bind:value={canvasTriggerLabel}
             />
           </PlayRow>
@@ -339,7 +377,7 @@ ${close}
             the MOST RECENTLY lit cell is the panel's initial position; the rest are the
             <code>@position-try</code> fallback chain, tried in order
             when the initial overflows. the center cell is the master switch
-            (all ⇄ none); a live panel reopens itself on toggle.
+            (all ⇄ none); the placement change applies from the NEXT open — toggling mid-open closes the panel (the rAF reopen silently no-ops during the hide window, measured).
           </PlayHelp>
           <PlayRow label="gap (px)">
             <PlayRange bind:value={canvasGap} min={0} max={16} step={1} />
@@ -375,10 +413,10 @@ ${close}
       title="Menu type"
       summary="Action rows inside the children snippet. Each row repeats popovertarget so selecting closes the panel — still no JavaScript on the close path; only the row's own onclick does its work."
     >
-      <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-4">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.rowC16, rt.wrap)}>
           <Popover id="demo-menu" triggerLabel="Actions">
-            <div class="flex w-52 flex-col">
+            <div class={cx(rt.pvPanel13)}>
               <button type="button" class="pop-row" popovertarget="demo-menu"
                 onclick={() => (choice = 'renamed')}>Rename…</button>
               <button type="button" class="pop-row" popovertarget="demo-menu"
@@ -391,13 +429,13 @@ ${close}
                 onclick={() => (choice = 'deleted')}>Delete</button>
             </div>
           </Popover>
-          <span class="text-muted-foreground text-[12.5px]">
-            last action: <code class="text-accent">{choice ?? '—'}</code>
+          <span class={cx(rt.noteSmall)}>
+            last action: <code class={cx(rt.inkAccent)}>{choice ?? '—'}</code>
           </span>
         </div>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">
+        <p class={cx(rt.para)}>
           Click anywhere outside, press Escape, or pick a row — three exits, all native. While
-          open, the caret flips via <code class="text-accent">:has(+ :popover-open)</code> where
+          open, the caret flips via <code class={cx(rt.inkAccent)}>:has(+ :popover-open)</code> where
           the engine supports it.
         </p>
         <CodeBlock code={menuUsage} lang="svelte" meta="usage" />
@@ -414,23 +452,23 @@ ${close}
       title="Card type"
       summary="The children snippet is the whole panel body, so richer content — status facts and a link out — composes with the same one-element base."
     >
-      <div class="flex flex-col gap-5">
-        <div class="flex flex-wrap items-center gap-4">
+      <div class={cx(rt.col20)}>
+        <div class={cx(rt.rowC16, rt.wrap)}>
           <Popover id="demo-card" triggerLabel="Registry status">
-            <div class="flex flex-col gap-3">
-              <p class="font-nav text-primary text-[11px] uppercase tracking-[0.24em]">
+            <div class={cx(rt.col12)}>
+              <p class={cx(rt.eyebrowPrimary)}>
                 registry status
               </p>
-              <p class="text-[13px] leading-6">
+              <p class={cx(rt.body13)}>
                 Components are served as same-source files from this domain — nothing here is a
                 runtime dependency.
               </p>
-              <dl class="grid grid-cols-[auto_1fr] gap-x-6 gap-y-1 text-[12.5px]">
-                <dt class="text-muted-foreground">items</dt>
-                <dd class="tabular-nums">12</dd>
-                <dt class="text-muted-foreground">runtime deps</dt>
-                <dd class="tabular-nums">0</dd>
-                <dt class="text-muted-foreground">license</dt>
+              <dl class={cx(rt.pvDl)}>
+                <dt class={cx(rt.inkMuted)}>items</dt>
+                <dd class={cx(rt.tabular)}>12</dd>
+                <dt class={cx(rt.inkMuted)}>runtime deps</dt>
+                <dd class={cx(rt.tabular)}>0</dd>
+                <dt class={cx(rt.inkMuted)}>license</dt>
                 <dd>MIT</dd>
               </dl>
               <div>
@@ -451,39 +489,40 @@ ${close}
       headerRegion="popover-base"
       eyebrow="W3C foundation"
       title="What the platform gives, what we add"
-      summary="The component is styling and structure over two native attributes. Everything behavioral is the browser's; the one design decision we own is the placement strategy, and anchoring is left as a named extension direction."
+      summary="The component is styling and structure over two native attributes. Everything behavioral is the browser's; the one design decision we own is the placement strategy — anchored placement SHIPPED 2026-08-21 (the placement prop, nine positions, demoed above)."
+
     >
-      <div class="grid gap-4 min-[760px]:grid-cols-2">
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">platform-native, free</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">popover="auto"</code> — light dismiss: outside click or focus loss closes; only one auto popover stays open at a time</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">popovertarget=&#123;id&#125;</code> — declarative trigger wiring; Enter/Space toggle, and the browser exposes <code class="text-accent">aria-expanded</code> on the button</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>top layer — the panel renders above sticky headers, transforms, and open dialogs</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
+      <div class={cx(rt.grid760b)}>
+        <div class={cx(rt.notePanel)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>platform-native, free</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>popover="auto"</code> — light dismiss: outside click closes (Tab-out does NOT close on Chromium — an interop gap; Escape and click-out are the reliable exits); only one auto popover stays open at a time</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>popovertarget=&#123;id&#125;</code> — declarative trigger wiring; Enter/Space toggle, and the browser exposes <code class={cx(rt.inkAccent)}>aria-expanded</code> on the button</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>top layer — the panel renders above sticky headers, transforms, and open dialogs (engine-dependent at the top layer's hit-testing edge: true on system Chrome, not on Chrome for Testing 153 — the z-order seam is the platform's, re-verify per engine)</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
               <span>Escape closes natively; focus returns to the trigger</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span><code class="text-accent">::backdrop</code> ships with popovers too — kept transparent so dismissing never dims the page</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span><code class={cx(rt.inkAccent)}>::backdrop</code> ships with popovers too — kept transparent so dismissing never dims the page</span></li>
           </ul>
         </div>
-        <div class="border border-border bg-muted/40 px-4 py-4">
-          <h3 class="font-nav mb-3 text-[13px] tracking-tight">jixoai strategy &amp; extensions</h3>
-          <ul class="flex flex-col gap-2 text-[13px] leading-6">
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>zero-script component — markup and styles only, no state, no effects</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>placement v1 — authored centering: <code class="text-accent">inset-area: center</code> with an inset + margin fallback (the UA default centers via <code class="text-accent">margin: auto</code>)</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>extension: anchored placement next to the trigger — CSS Anchor Positioning (<code class="text-accent">anchor-name</code> + <code class="text-accent">position-anchor</code>/<code class="text-accent">inset-area</code>), a future <code class="text-accent">placement</code> prop</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>floating-surface law: the hard offset shadow is a REAL <code class="text-accent">::after</code> layer; <code class="text-accent">@starting-style</code> + <code class="text-accent">allow-discrete</code> run the open/close pull-apart — layers press together, then separate into elevation</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>surface variants: <code class="text-accent">variant="solid | acrylic | auto"</code> — solid keeps the opaque surface with the original-color translucent shadow (black in light mode, white in dark); acrylic is a dual-layer <code class="text-accent">backdrop-filter</code> (surface blur + shadow-layer brightness); auto picks acrylic unless the environment asks for reduced transparency</span></li>
-            <li class="flex gap-2"><span class="text-primary" aria-hidden="true">&gt;</span>
-              <span>extension: <code class="text-accent">popover="manual"</code> variant for toast-like panels that ignore light dismiss</span></li>
+        <div class={cx(rt.notePanel)}>
+          <h3 class={cx(rt.fontNav, rt.mb12, rt.text13, rt.trackTight)}>jixoai strategy &amp; extensions</h3>
+          <ul class={cx(rt.col8, rt.body13)}>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>zero positioning script — the open/close path is native; the component's script is the aria toggle seam + the motion kernel (no effects on the trigger path)</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>placement v1 — authored centering: <code class={cx(rt.inkAccent)}>inset-area: center</code> with an inset + margin fallback (the UA default centers via <code class={cx(rt.inkAccent)}>margin: auto</code>)</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>SHIPPED: anchored placement next to the trigger — CSS Anchor Positioning (<code class={cx(rt.inkAccent)}>anchor-name</code> + <code class={cx(rt.inkAccent)}>position-anchor</code>/<code class={cx(rt.inkAccent)}>inset-area</code>) behind the live <code class={cx(rt.inkAccent)}>placement</code> prop (nine positions, demoed above)</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>floating-surface law: the hard offset shadow is a REAL <code class={cx(rt.inkAccent)}>::after</code> layer; <code class={cx(rt.inkAccent)}>@starting-style</code> + <code class={cx(rt.inkAccent)}>allow-discrete</code> run the open/close pull-apart — layers press together, then separate into elevation</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>surface variants: <code class={cx(rt.inkAccent)}>variant="solid | acrylic | auto"</code> — solid keeps the opaque surface with the original-color translucent shadow (black in light mode, white in dark); acrylic is a dual-layer <code class={cx(rt.inkAccent)}>backdrop-filter</code> (surface blur + shadow-layer brightness); auto picks acrylic unless the environment asks for reduced transparency</span></li>
+            <li class={cx(rt.row8)}><span class={cx(rt.inkPrimary)} aria-hidden="true">&gt;</span>
+              <span>extension: <code class={cx(rt.inkAccent)}>popover="manual"</code> variant for toast-like panels that ignore light dismiss</span></li>
           </ul>
         </div>
       </div>
@@ -492,25 +531,49 @@ ${close}
   </div>
 </div>
 
-<div class="mx-auto flex w-full max-w-[90rem] flex-col gap-8 px-4 pb-10 sm:px-6 lg:px-8">
+<div class={cx(rt.shellFlush)}>
   <div id="types" data-reveal=""><SectionCard family="types" headerRegion="types" eyebrow="types" title="Popover variants" summary="Panel content is free; the variant axes are surface paint, placement, and the trigger.">
-    <div class="grid gap-4 md:grid-cols-3">
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">variant</p>
-        <p class="text-[13px] leading-6"><code class="text-accent">solid | acrylic | auto</code> (default) — acrylic is a dual-layer backdrop-filter; auto defers to the environment's transparency preference.</p>
+    <div class={cx(rt.gridMd3)}>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb8, rt.inkMuted)}>variant</p>
+        <p class={cx(rt.body13)}><code class={cx(rt.inkAccent)}>solid | acrylic | auto</code> (default) — acrylic is a dual-layer backdrop-filter; auto defers to the environment's transparency preference.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">placement — nine positions</p>
-        <p class="text-[13px] leading-6">The six classic sides plus <code class="text-accent">left | right | center</code>; default <code class="text-accent">bottom-end</code> — under the trigger, right edges aligned.</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb8, rt.inkMuted)}>placement — nine positions</p>
+        <p class={cx(rt.body13)}>The six classic sides plus <code class={cx(rt.inkAccent)}>left | right | center</code>; default <code class={cx(rt.inkAccent)}>bottom-end</code> — under the trigger, right edges aligned.</p>
       </div>
-      <div class="border border-border p-4">
-        <p class="font-nav mb-2 text-[11px] uppercase tracking-[0.24em] text-muted-foreground">trigger</p>
-        <p class="text-[13px] leading-6">The default button carries popovertarget; a custom <code class="text-accent">trigger</code> snippet renders your own control (drive it via the imperative handle).</p>
+      <div class={cx(rt.panel)}>
+        <p class={cx(rt.eyebrow, rt.mb8, rt.inkMuted)}>trigger</p>
+        <p class={cx(rt.body13)}>The default button carries popovertarget; a custom <code class={cx(rt.inkAccent)}>trigger</code> snippet renders your own control (drive it via the imperative handle).</p>
       </div>
     </div>
   </SectionCard></div>
   <div id="accessibility" data-reveal=""><SectionCard family="accessibility" headerRegion="accessibility" eyebrow="a11y" title="Accessibility" summary="Light dismiss, Escape, and top-layer focus order are the browser's; one native toggle seam mirrors aria-expanded."><A11yTable keys={[{ key: 'Enter / Space', action: 'Toggle the panel from the popovertarget trigger (native button)' }, { key: 'Escape', action: 'Close the panel; focus returns to the trigger' }, { key: 'Tab', action: 'Moves through the panel body content while open' }]} aria={[{ name: 'aria-expanded', value: 'true/false', description: 'On the default trigger — mirrored live from :popover-open by the toggle seam.' }, { name: 'popover', value: '"auto"', description: 'Light dismiss (outside click / focus loss) and one-at-a-time are native.' }, { name: 'position-visibility', value: 'anchors-visible', description: 'A panel whose anchor scrolled away hides instead of floating stale.' }]} /></SectionCard></div>
-  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The anchored panel rides the shared motion kernel; the scroll ring's padding is token-overridable."><div class="flex flex-col gap-5"><DensityDemo><Popover id="density-pop" triggerLabel="density"><p class="w-52 text-[12.5px] leading-6">The trigger rhythm follows the scope; the panel pad rides --jx-pop-pad tokens.</p></Popover></DensityDemo><TokenTable tokens={[{ name: '--jx-pop-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-pop-gap', default: '0px (gap prop)', source: 'component', description: 'Anchor gap with margin semantics; 0 = the flush law.' }, { name: '--jx-pop-pad / -inline', default: '12px 14px / 14px', source: 'component', description: 'The scroll ring’s padding; consumer-overridable.' }, { name: '--jx-surface-in-x/y · -ox/-oy', default: 'direction vectors', source: 'component', description: 'Slide-in and shadow offsets, measured live against the anchor.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Stable-gutter scrollbar compensation in the scroll ring.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density' }]} /></div></SectionCard></div>
+  <div id="theming" data-reveal=""><SectionCard family="theming" headerRegion="theming" eyebrow="theming" title="Density and tokens" summary="The anchored panel rides the shared motion kernel; the scroll ring's padding is token-overridable."><div class={cx(rt.col20)}><DensityDemo>
+          {#snippet childrenScoped(scope)}
+            <Popover id={`density-pop-${scope}`} triggerLabel="density ({scope})"><p class={cx(rt.pvW52, rt.text125, rt.lead6)}>Density-FLAT by family mechanism (measured): the scope stamps re-derive on the wrapper (the --jx-hit arithmetic 28/32/40/48) but this family's trigger and panel consume no density lane — the trigger stays 43px and the panel pad 12px 14px across every rung; each rung's panel is its OWN instance (density-pop-xs/sm/default/lg — per-rung ids, LAW #19).</p></Popover>
+            {/snippet}
+        </DensityDemo><TokenTable tokens={[{ name: '--jx-pop-{id}', default: 'anchor-name', source: 'component', description: 'Per-instance CSS anchor the panel positions against.' }, { name: '--jx-pop-gap', default: '0px (gap prop)', source: 'component', description: 'Anchor gap with margin semantics; 0 = the flush law.' }, { name: '--jx-pop-pad / -inline', default: '12px 14px / 14px', source: 'component', description: 'The scroll ring’s padding; consumer-overridable.' }, { name: '--jx-surface-in-x/y · -ox/-oy', default: 'direction vectors', source: 'component', description: 'Slide-in and shadow offsets, measured live against the anchor.' }, { name: '--jx-scrollbar-thin', default: 'thin lane', source: 'component', description: 'Stable-gutter scrollbar compensation in the scroll ring.' }, { name: '--jx-text', default: '11 / 12 / 13 / 15px', source: 'density' }, { name: '--jx-hit', default: '28 / 32 / 40 / 48px', source: 'density', description: 'Stamps re-derive on the wrapper with the rung arithmetic but NO family surface consumes the lane (trigger 43px, panel pad constant — measured flat).' }]} /></div></SectionCard></div>
+
+  <div id="universal-props" data-reveal="">
+    <SectionCard
+      family="universal-props"
+      headerRegion="universal-props"
+      eyebrow="axes"
+      title="Universal props"
+      summary="The eight-axis surface (explicit-props): size · shape · radius · density · color · theme · elevation · motion — each axis takes named steps, auto (inherit the ambient context; stamps nothing), an exact number (px · coefficient · dp · hue per axis), or query() for responsive/container-conditional values. The anchored panel carries its OWN elevation — level2 (3dp, M3's menu rung): the theme's level table pairs the shadow recipe with the ladder rung; an explicit lane or a dp number steps both. The carriers stamp the promoted panel root — self-carried across the top layer."
+    >
+      <ComponentCanvas title="Popover · universal props" stage="fill" files={universalFiles}>
+<div class={cx(rt.wrap12)}>
+          <Popover id="univ-default" triggerLabel="level2 · default"><p class={cx(rt.text13)}>3dp + the surface-container-low rung.</p></Popover>
+          <Popover id="univ-l3" triggerLabel="level3" elevation="level3"><p class={cx(rt.text13)}>6dp + the surface-container rung.</p></Popover>
+          <Popover id="univ-dp" triggerLabel="8dp" elevation={8}><p class={cx(rt.text13)}>Exact dp snaps down — 8dp IS level4.</p></Popover>
+          <Popover id="univ-concave" triggerLabel="level-1" elevation="level-1"><p class={cx(rt.text13)}>The concave: inset shadow + the deepest rung.</p></Popover>
+        </div>
+      </ComponentCanvas>
+    </SectionCard>
+  </div>
+
   <div id="api" data-reveal=""><SectionCard family="api" headerRegion="api" eyebrow="api" title="API" summary="Ten props plus the bind:this imperative handle — no controlled state model."><PropsTable meta={popoverMeta} docs={POPOVER_DOCS} /></SectionCard></div>
 
   <!-- the skeleton's closing section: related components, derived from

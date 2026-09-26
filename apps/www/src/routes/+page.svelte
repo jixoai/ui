@@ -1,5 +1,6 @@
 <script lang="ts">
   import CodeBlock from '$lib/code-block.svelte';
+  import { rt } from '$lib/surface/routes.stylex';
   import CopyCommand from '$lib/copy-command.svelte';
   import CardGrid from '$lib/ui/card-grid/card-grid.svelte';
   import HeroSection from '$lib/ui/hero-section/hero-section.svelte';
@@ -43,6 +44,23 @@ npx jixoai-ui add press-button section-card toc`;
       body: 'This page is built from the exact files the registry ships: the token sheet, the data-reveal + CSS entrance law (scroll-triggered by the theme sheet — static markup, no runtime action), press buttons, section cards, and the Combo ToC on the Components page. If the registry regresses, this site visibly regresses with it.',
     },
   ];
+
+  // the page's local join (the separator serialize law): plain
+  // strings pass through whole; stylex objects contribute their
+  // string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
 <svelte:head>
@@ -70,7 +88,7 @@ npx jixoai-ui add press-button section-card toc`;
     <PressButton variant="outline" href="/tokens.html">Get started</PressButton>
     <PressButton variant="outline" href={GITHUB_URL} external>
       GitHub
-      <span class="ml-0.5 inline-flex flex-none align-[-0.125em]" aria-hidden="true"><Icon name="externalLink" /></span>
+      <span class={cx(rt.inlineFlex, rt.flexNone, rt.hmMl2, rt.hmAlign)} aria-hidden="true"><Icon name="externalLink" /></span>
     </PressButton>
   {/snippet}
   {#snippet terminal()}
@@ -87,43 +105,40 @@ npx jixoai-ui add press-button section-card toc`;
 </HeroSection>
 
 <!-- Why: three law cards. -->
-<section class="mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-8" aria-label="Why this exists">
-  <h2
-    class="font-nav flex items-baseline gap-4 text-lg uppercase tracking-[0.3em]"
-    data-reveal=""
-  >
+<section class={cx(rt.hmShell)} aria-label="Why this exists">
+  <h2 class={cx(rt.hmHeading)} data-reveal="">
     Why
-    <span class="bg-border h-px flex-1" aria-hidden="true"></span>
+    <span class={cx(rt.grow, rt.hmRule)} aria-hidden="true"></span>
   </h2>
-  <CardGrid class="mt-6">
+  <CardGrid class={cx(rt.mt24)}>
     {#each why as card (card.id)}
       <SectionCard eyebrow={card.eyebrow} title={card.title}>
-        <p class="text-muted-foreground text-pretty text-[13px] leading-6">{card.body}</p>
+        <p class={cx(rt.para)}>{card.body}</p>
       </SectionCard>
     {/each}
   </CardGrid>
 </section>
 
 <!-- Install card. -->
-<div class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="">
+<div class={cx(rt.hmShellPt)} data-reveal="">
   <SectionCard
     eyebrow="Install"
     title="Two commands and the design language is yours"
     summary="The CLI extends shadcn's components.json, installs the token sheet, and writes your hue. Components arrive as same-source files in your repo — no package to depend on, nothing to upgrade against your will."
   >
-    <div class="flex flex-col gap-5">
-      <div class="flex flex-wrap items-center gap-3">
+    <div class={cx(rt.col20)}>
+      <div class={cx(rt.wrapRow12)}>
         <CopyCommand command="npx jixoai-ui init --hue 330" />
       </div>
       <CodeBlock code={initCode} lang="sh" meta="shell" />
       <CodeBlock code={registryCode} lang="json" meta="components.json" />
-      <p class="text-muted-foreground text-[13px] leading-5">
-        Non-Svelte projects still benefit: <code class="text-accent">jixoai-theme</code> and
-        <code class="text-accent">toc-engine</code> are framework-free. Read the full law on the
-        <a href="/tokens.html" class="text-primary underline underline-offset-2">tokens page</a> and
+      <p class={cx(rt.inkMuted, rt.text13, rt.lead5)}>
+        Non-Svelte projects still benefit: <code class={cx(rt.inkAccent)}>jixoai-theme</code> and
+        <code class={cx(rt.inkAccent)}>toc-engine</code> are framework-free. Read the full law on the
+        <a href="/tokens.html" class={cx(rt.inkPrimary, rt.underline, rt.underlineOffset2)}>tokens page</a> and
         every component live on the
         <!-- docs-restructure D5: the homepage is the brand overview — its main entry is /docs.html -->
-        <a href="/docs.html" class="text-primary underline underline-offset-2">docs page</a>.
+        <a href="/docs.html" class={cx(rt.inkPrimary, rt.underline, rt.underlineOffset2)}>docs page</a>.
       </p>
     </div>
   </SectionCard>
@@ -131,7 +146,7 @@ npx jixoai-ui add press-button section-card toc`;
 
 <!-- Catalog table: the curated featured projection (catalog.ts), under a
      REGISTRY-TOTAL heading — the two counts are never equated. -->
-<section class="mx-auto w-full max-w-[90rem] px-4 pt-8 sm:px-6 lg:px-8" data-reveal="">
+<section class={cx(rt.hmShellPt)} data-reveal="">
   <SectionCard
     eyebrow="Catalog"
     title={`${REGISTRY_TOTAL} items, one grammar — registry total`}

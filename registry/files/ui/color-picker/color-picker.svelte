@@ -79,6 +79,12 @@
   component hooks (D1-exempt residue under the layer law — the
   range.css precedent).
 
+  tailwindless one-shot W1 (2026-09-17): static paint rides the
+  family's stylex atoms (color-picker.stylex.ts). The trigger's
+  transition utilities died — the css well state machine already owns
+  box-shadow/border-color; the chevron's flip transition moved into
+  the css (rotate 150ms ease-out on its hook).
+
   Motion kernel (2026-08-25): the panel rides the shared surface
   motion kernel (lib/surface-motion.ts; popover.svelte wiring law) —
   WAAPI animates the single --jx-p progress number, jixoai.css
@@ -94,7 +100,22 @@
   import { onDestroy, type Snippet } from 'svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
-  import type { Density } from '$lib/density.svelte';
+  import { colorPickerStyles } from './color-picker.stylex';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { ColorPickerDefaults, type ColorPickerSurfaceVariant } from './color-picker-defaults.svelte';
   import Editor from './editor.svelte';
   import './color-picker.css';
@@ -104,7 +125,7 @@
   // platform's own attribute surface; the rest spread lands on the
   // FIELD — the labeled, named, focusable value surface of the lane
   // (the swatch and the chevron keep their own chrome wiring)
-  interface Props extends HTMLInputAttributes {
+  interface Props extends Omit<HTMLInputAttributes, 'size' | 'color'> {
     /** committed color string; bind:value — notation follows `format` */
     value?: string;
     /** output/input notation (default 'hex') */
@@ -140,7 +161,33 @@
     /** wired into label[for] / error[id]; auto-generated when omitted */
     id?: string;
     class?: string;
-    density?: Density;
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     'data-density'?: string;
     /** caller-supplied validation relations — used only when the
         control's own error wiring is absent (the input.svelte merge) */
@@ -165,16 +212,49 @@
     variant,
     class: className = '',
     density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     'data-density': _callerDensity,
     'aria-invalid': ariaInvalid,
     'aria-describedby': ariaDescribedBy,
     ...rest
   }: Props = $props();
 
+  // the payload's own join (separator's serialize law): objects in
+  // dev, joined strings in payloads — never a raw interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
+
+
   // the family Defaults is the single read point (context-defaults-
   // economy 3.1): variant rides the literal slot (own 'auto', ambient
   // when a surface axis opens), density the no-opinion axis slot
-  const d = $derived(ColorPickerDefaults.resolve({ variant, density }));
+  const d = $derived(
+    ColorPickerDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
 
   const panelId = $derived(`${id}-panel`);
   // CSS custom-ident-safe anchor name (select.svelte law)
@@ -304,12 +384,12 @@
   function onPanelToggle(): void {
     open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     } else {
       panelEl?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
       fieldEl?.focus(); // focus restitution on every close path
     }
   }
@@ -319,12 +399,17 @@
   // (--jx-p); every visible property is a CSS formula of it (the
   // declarative motion law in jixoai.css). The kernel here only wires
   // the panel's toggle seam and live anchor
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
 
-  onDestroy(() => motion.destroy());
+  onDestroy(() => panelMotion.destroy());
 </script>
 
-<div data-density={d.density} class={'jx-field ' + className}>
+<div
+  bind:this={uniRoot}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}
+  class={'jx-field ' + className}>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
 
   <!-- the trigger lane: the shell owns the box law (input.svelte law);
@@ -332,7 +417,7 @@
        the span itself so the panel centers on the whole lane -->
   <span
     data-jx-color-picker-wrap
-    class="jx-color-picker-trigger relative flex items-center w-full border border-border rounded-none bg-background text-foreground transition-[box-shadow,border-color] duration-150 ease-out"
+    class="jx-color-picker-trigger {cx(colorPickerStyles.trigger)}"
     style="anchor-name: {anchorName}"
     bind:this={anchorEl}
   >
@@ -366,7 +451,7 @@
       {...rest}
       type="text"
       data-jx-color-picker-field
-      class={cn('font-mono', (!showValue || lane) && 'sr-only')}
+      class={cn(cx(colorPickerStyles.fieldMono), (!showValue || lane) && cx(colorPickerStyles.srOnly))}
       {name}
       {disabled}
       bind:value={fieldText}
@@ -381,15 +466,15 @@
       <!-- the Owner's slot lane (2026-09-02 rebase): consumer content
            owns the visible spot; the native field above went sr-only —
            one truth (the bindable value), any face -->
-      <div data-jx-color-picker-lane="" class="flex min-w-0 flex-1 items-center gap-2">
+      <div data-jx-color-picker-lane="" class={cx(colorPickerStyles.laneSlot)}>
         {@render lane({ text: fieldText, open, disabled })}
       </div>
     {/if}
     <button
       type="button"
       class={cn(
-        'jx-color-picker-chevron flex-none w-3 h-3 border-0 bg-transparent p-0 text-muted-foreground transition-transform duration-150 ease-out',
-        open && 'rotate-180',
+        cx(colorPickerStyles.chevron),
+        open && cx(colorPickerStyles.chevronOpen),
       )}
       popovertarget={panelId}
       aria-label="open color picker"
@@ -404,7 +489,7 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class={cn('jx-color-picker-panel jx-surface', motion.supported && 'jx-waapi')}
+    class={cn('jx-color-picker-panel jx-surface', panelMotion.supported && 'jx-waapi')}
     data-variant={d.variant}
     role="group"
     aria-label="color picker"
@@ -418,7 +503,7 @@
     <!-- surface body (bezel paint + ::after shadow + the flex column);
          the popover element paints nothing (floating-surface law arch
          r3) — the column content is the embeddable Editor -->
-    <div data-jx-color-picker-surface class="jx-surface-body flex flex-col gap-2.5 p-3">
+    <div data-jx-color-picker-surface class="jx-surface-body {cx(colorPickerStyles.surfaceBody)}">
     <Editor value={editorValue} onpick={handlePick} />
     </div>
   </div>

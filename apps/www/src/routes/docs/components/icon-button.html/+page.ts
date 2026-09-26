@@ -5,11 +5,12 @@ import type { TocSection } from '$lib/ui/toc/toc.svelte';
 
 const toc: TocSection[] = [
   { id: 'icon-only', label: 'icon-only — the tooltip law' },
-  { id: 'law', label: 'One label, two postures' },
+  { id: 'law', label: 'One label, a full button' },
   { id: 'types', label: 'Types' },
   { id: 'usage', label: 'Usage' },
   { id: 'accessibility', label: 'Accessibility' },
   { id: 'theming', label: 'Theming' },
+  { id: 'universal-props', label: 'Universal props' },
   { id: 'api', label: 'API' },
 ];
 

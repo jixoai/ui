@@ -54,6 +54,22 @@
   } from '$lib/toc-outline';
   import Icon from '$lib/ui/icon';
   import { cn } from '$lib/utils';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { TocDefaults } from './toc-defaults.svelte';
   import TocList from './toc-list.svelte';
   import TocItem from './toc-item.svelte';
   import TocLink from './toc-link.svelte';
@@ -82,7 +98,7 @@
     levels?: readonly number[];
   }
 
-  interface Props extends HTMLAttributes<HTMLDivElement> {
+  interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'color'> {
     /** AUTO mode: derive the outline from a content root's headings */
     outline?: TocOutlineConfig;
     /** the desktop rail label */
@@ -92,6 +108,29 @@
     scrollRoot?: string | HTMLElement | null;
     /** MANUAL mode: the composed TocList tree */
     children?: Snippet;
+    /** density policy: the universal §4 lane (named rungs + the
+     *  documented small/medium/large aliases · auto · a coefficient
+     *  number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query() */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp ·
+     *  query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive ·
+     *  a coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -100,9 +139,32 @@
     title = 'reading progress',
     scrollRoot = null,
     children,
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
+    style: consumerStyle,
     ...rest
   }: Props = $props();
+
+  // ── the eight-axis surface (W3-D3 — FIRST-TIME contract, all
+  // no-own): the rail is placement chrome; the size axis scales the
+  // rail root and the List/Item/Link parts ride the ambient chain
+  // (吃也供). The anchor + carriers ride the RAIL root (declared
+  // above — the W3-C TDZ law); carriers join the consumer style
+  const d = $derived(
+    TocDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  const rootStyle = $derived(
+    [carriers, consumerStyle ?? undefined].filter(Boolean).join('; ') || undefined,
+  );
 
   // outline mode: sections + extents derived on the client, refreshed by a
   // MutationObserver on the content root (add/remove/move of headings)
@@ -115,6 +177,10 @@
   let open = $state(false);
   let currentPick = $state<string | null>(null);
   let rootEl = $state<HTMLElement | null>(null);
+
+  // the query() anchor rides the RAIL root (declared above — the
+  // W3-C TDZ law)
+  provideQueryAnchor(() => rootEl ?? null);
 
   /** the own-rail law (Codex impl-r2 P1-1): a link belongs to THIS
    *  rail when its closest rail root is rootEl — a nested Toc's links
@@ -348,7 +414,16 @@
   {/if}
 {/snippet}
 
-<div class={cn('jx-toc', className)} data-area="toc" bind:this={rootEl} {...rest} data-jx-toc-root="">
+<div
+  class={cn('jx-toc', className)}
+  data-area="toc"
+  bind:this={rootEl}
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={rootStyle}
+  {...rest}
+  data-jx-toc-root=""
+>
   <nav class="jx-toc-desktop" aria-label="Table of contents">
     <span class="jx-spine"><span class="jx-spine-fill" bind:this={spineFill}></span></span>
     <p class="jx-toc-title">{title}</p>

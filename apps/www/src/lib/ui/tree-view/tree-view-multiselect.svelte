@@ -34,6 +34,19 @@
 <script lang="ts" generics="T = unknown">
   import type { Snippet } from 'svelte';
   import { cn } from '$lib/utils';
+  import { treeStyles } from './tree-view.stylex';
+  import {
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
+  import { TreeViewDefaults } from './tree-view-defaults.svelte';
   import TreeView, {
     buildTreeIndex,
     collectFrozenPaths,
@@ -61,6 +74,19 @@
     /** px per level (passed through) */
     indent?: number;
     ariaLabel?: string;
+    /** the EIGHT universal axes (§0/§11, W3-D3): forwarded VERBATIM to
+     *  the composed TreeView (the composition law — the composed tree
+     *  root resolves, stamps, supplies and anchors); all no-own on
+     *  this wrapper's own contract (tree-view-defaults.svelte.ts, the
+     *  family's read point) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    size?: SizeLane | QueryResult<SizeLane>;
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    color?: ColorLane | QueryResult<ColorLane>;
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    motion?: MotionLane | QueryResult<MotionLane>;
     class?: string;
   }
 
@@ -75,8 +101,40 @@
     lines = false,
     indent = 16,
     ariaLabel = 'tree (multiselect)',
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     class: className = '',
   }: Props = $props();
+
+  // the family Defaults is the single read point (the A3 law) — the
+  // record exists to unwrap query() media lanes at the boundary and
+  // keep the wrapper an audited consumer; the resolved lanes forward
+  // to the composed TreeView, which owns carriers/anchor/supply
+  const d = $derived(
+    TreeViewDefaults.resolve({ density, size, shape, radius, color, theme, elevation, motion }),
+  );
+
+  // the payload's own join (the separator serialize law): plain strings
+  // pass through whole; dev objects contribute their string members ($$css dropped).
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 
   const index = $derived(buildTreeIndex(nodes));
   const checkedSet = $derived(new Set(checked));
@@ -142,6 +200,14 @@
   {indent}
   ariaLabel={ariaLabel}
   class={className}
+  density={d.density}
+  size={d.size}
+  shape={d.shape}
+  radius={d.radius}
+  color={d.color}
+  theme={d.theme}
+  elevation={d.elevation}
+  motion={d.motion}
   {onactivate}
 >
   {#snippet prefix(ctx: TreeItemCtx<T>)}
@@ -149,8 +215,9 @@
     <input
       type="checkbox"
       class={cn(
-        'jx-tree-check appearance-none [-webkit-appearance:none] relative m-0 w-3 h-3 flex-none bg-background border border-border transition-[background-color,border-color] duration-150 ease-out disabled:opacity-50',
-        ctx.disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+        'jx-tree-check',
+        cx(treeStyles.check),
+        ctx.disabled ? cx(treeStyles.checkDisabled, treeStyles.checkDisabledInk) : cx(treeStyles.checkEnabled),
       )}
       tabindex={-1}
       checked={state === 'on'}

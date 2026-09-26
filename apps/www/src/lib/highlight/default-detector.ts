@@ -136,7 +136,7 @@ export function defaultLangDetector(
           detail:
             structure !== null
               ? `a structural probe answered (${structure.source})`
-              : 'no XML/HTML/SVG/JSON/YAML/TOML/INI shape — and the markdown guard kept programming fingerprints out',
+              : 'no XML / HTML / SVG / JSON / YAML / TOML / INI shape — and the markdown guard kept programming fingerprints out',
           ms: now() - t0,
         });
         if (structure !== null) return structure;

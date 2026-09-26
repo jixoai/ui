@@ -67,7 +67,7 @@
   Surface motion kernel (2026-08-25): popover.svelte law adopted — the
   toggle seam drives the shared WAAPI kernel (lib/surface-motion.ts)
   against the live wrap anchor; the panel carries jx-waapi behind
-  motion.supported plus the REAL .jx-surface-shadow child; jixoai.css
+  panelMotion.supported plus the REAL .jx-surface-shadow child; jixoai.css
   owns every visible formula.
 
   MULTIPLE + SHOWCLEAR (2026-08-30, expand-form-family F1):
@@ -116,12 +116,55 @@
   import type { FormField } from '$lib/form-field';
   import { onDestroy } from 'svelte';
   import type { HTMLInputAttributes } from 'svelte/elements';
+  import {
+    densityRungOf,
+    provideQueryAnchor,
+    provideUniversalLanes,
+    stampCarriersForLanes,
+    type ColorLane,
+    type DensityLane,
+    type ElevationLane,
+    type MotionLane,
+    type QueryResult,
+    type RadiusLane,
+    type ShapeLane,
+    type SizeLane,
+    type ThemeLane,
+  } from '$lib/defaults.svelte';
   import { createSurfaceMotion } from '$lib/surface-motion';
   import { cn } from '$lib/utils';
   import { ComboboxDefaults } from './combobox-defaults.svelte';
+  import { cbxStyles } from './combobox.stylex';
   import './combobox.css';
 
-  interface Props extends Omit<HTMLInputAttributes, 'value'> {
+  interface Props extends Omit<HTMLInputAttributes, 'value' | 'size' | 'color'> {
+    /** density policy: explicit, inherited, then default — the
+     *  universal §4 lane (named rungs + the documented small/medium/
+     *  large aliases · auto · a coefficient number · query()) */
+    density?: DensityLane | QueryResult<DensityLane>;
+    /** universal size axis (§1): root font-size — named steps · auto
+     *  (inherit) · a px number · query(). CONSUMED by the family (the
+     *  native element NEVER receives a size attribute from it — the §1
+     *  native collision rule; everything the family does not own still
+     *  rides {...rest}) */
+    size?: SizeLane | QueryResult<SizeLane>;
+    /** universal shape axis (§2): corner geometry; auto = inherit */
+    shape?: ShapeLane | QueryResult<ShapeLane>;
+    /** universal radius axis (§3): corner size; auto = the concentric
+     *  broadcast */
+    radius?: RadiusLane | QueryResult<RadiusLane>;
+    /** universal color axis (§5): the hue axis of the oklch system —
+     *  semantic names · hue degrees · raw values · query(). CONSUMED by
+     *  the family (the native attribute never receives it, §1) */
+    color?: ColorLane | QueryResult<ColorLane>;
+    /** universal theme axis (§6): light/dark/system; auto = tree
+     *  inheritance (the .dark class bridge) */
+    theme?: ThemeLane | QueryResult<ThemeLane>;
+    /** universal elevation axis (§7): official M3 levels · dp · query() */
+    elevation?: ElevationLane | QueryResult<ElevationLane>;
+    /** universal motion axis (§8): intensity — reduced…expressive · a
+     *  coefficient · query() */
+    motion?: MotionLane | QueryResult<MotionLane>;
     /** the full option list (order = panel order) */
     options: ComboboxOption[];
     /** committed value; bind:value — SINGLE mode: a listed option's
@@ -161,6 +204,14 @@
   const autoId = $props.id();
 
   let {
+    density,
+    size,
+    shape,
+    radius,
+    color,
+    theme,
+    elevation,
+    motion,
     options,
     value = $bindable(),
     multiple = false,
@@ -187,7 +238,16 @@
   // this Props interface feeds the GENERATED meta chain (drift-locked),
   // whose ambient annotation is the doc batch's 先破再立 — the
   // contract's own 'auto' is the same value (combobox-defaults.svelte.ts)
-  const d = $derived(ComboboxDefaults.resolve({ variant }));
+  const d = $derived(
+    ComboboxDefaults.resolve({ variant, density, size, shape, radius, color, theme, elevation, motion }),
+  );
+  // the §11 carrier stamp (inline style vars, static per render) + the
+  // broadcast supply + the query() anchor (the root's ANCESTORS are
+  // the candidate containers)
+  const carriers = $derived(stampCarriersForLanes(d));
+  provideUniversalLanes({ density, size, shape, radius, color, theme, elevation, motion });
+  let uniRoot = $state<HTMLDivElement>();
+  provideQueryAnchor(() => uniRoot ?? null);
   let formDisabled = $state(false);
   const isDisabled = $derived(disabled || formDisabled);
 
@@ -308,12 +368,12 @@
   function onPanelToggle(): void {
     open = panelEl?.matches(':popover-open') ?? false;
     if (open) {
-      motion.play(1);
-      motion.startTracking();
+      panelMotion.play(1);
+      panelMotion.startTracking();
     } else {
       panelEl?.classList.remove('jx-rest');
-      motion.play(0);
-      motion.stopTracking();
+      panelMotion.play(0);
+      panelMotion.stopTracking();
     }
   }
 
@@ -321,8 +381,8 @@
   // lib/surface-motion.ts): WAAPI animates ONE @property number (--jx-p);
   // every visible property is a CSS formula of it (jixoai.css). Here it
   // wires only this panel's toggle seam and live wrap anchor
-  const motion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
-  onDestroy(() => motion.destroy());
+  const panelMotion = createSurfaceMotion(() => panelEl, { anchor: () => anchorEl });
+  onDestroy(() => panelMotion.destroy());
 
   function showPanel(): void {
     if (panelEl?.isConnected && !panelEl.matches(':popover-open')) {
@@ -515,15 +575,38 @@
       document.getElementById(optionId(active))?.scrollIntoView({ block: 'nearest' });
     }
   });
+
+  // the payload's own join (the separator serialize law): every
+  // stylex.create member is an OBJECT in dev and the joined string in
+  // shipped payloads — composition goes through THIS joiner, never a
+  // raw class={styles.x} interpolation
+  const cx = (
+    ...styles: ({ readonly [key: string]: string | object } | undefined | string)[]
+  ): string =>
+    styles
+      .filter(Boolean)
+      .map((style) =>
+        typeof style === 'string'
+          ? style
+          : Object.entries(style ?? {}).flatMap(([key, value]) =>
+              key !== '$$css' && typeof value === 'string' ? [value] : [],
+            ).join(' '),
+      )
+      .join(' ');
 </script>
 
-<div class="jx-field">
+<div
+  bind:this={uniRoot}
+  class="jx-field"
+  data-density={densityRungOf(d.density)}
+  class:dark={d.theme === 'dark'}
+  style={carriers || undefined}>
   <!-- faceless form bridge (form-field.ts law): the committed VALUE (not
        the display text) rides ElementInternals into FormData; the native
        input carries NO name of its own. jx-reset / jx-disabled bubble the
        form lifecycle back into this component. Owns no box, no content —
-       the `contents` utility keeps the prerendered HTML from flashing an
-       extra flex gap pre-upgrade.
+       the display:contents atom keeps the prerendered HTML from flashing
+       an extra flex gap pre-upgrade.
        MULTIPLE: the string value attribute stays EMPTY — the committed
        array crosses through the `values` PROPERTY (setValues, the
        MULTIVALUE seam) instead, which commits repeated same-name FormData
@@ -533,7 +616,7 @@
        as a PRESENT attribute (presence = true in HTML). -->
   <jx-form-field
     bind:this={bridgeEl}
-    class="contents"
+    class={cx(cbxStyles.bridge)}
     aria-hidden="true"
     {name}
     value={multiple ? undefined : (value ?? '')}
@@ -542,13 +625,14 @@
     onjx-disabled={(event: CustomEvent<boolean>) => (formDisabled = event.detail)}
   ></jx-form-field>
   {#if label}<label class="jx-label" for={id}>{label}</label>{/if}
-  <span data-jx-combobox-wrap class="relative block w-full max-w-full" style="anchor-name: {anchorName}" bind:this={anchorEl}>
+  <span data-jx-combobox-wrap class={cx(cbxStyles.wrap)} style="anchor-name: {anchorName}" bind:this={anchorEl}>
     <div
       data-jx-combobox-invalid={invalid ? '' : undefined}
       class={cn(
-        'jx-combobox-shell flex items-center gap-2 w-full max-w-full min-h-10 px-3 border border-border rounded-none bg-background scheme-light dark:scheme-dark transition-[box-shadow] duration-150 ease-out',
-        multiple && 'flex-wrap',
-        invalid && 'border-dashed',
+        'jx-combobox-shell',
+        cx(cbxStyles.shell),
+        multiple && cx(cbxStyles.shellWrap),
+        invalid && cx(cbxStyles.shellInvalid),
         className,
       )}
     >
@@ -558,11 +642,11 @@
                border, 12px text, per-chip remove ×). The × keeps the
                pointer from blurring the input (the panel law) so removal
                never trips a blur-commit. -->
-          <span data-jx-combobox-chip class="inline-flex flex-none items-center gap-1 ps-2 border border-border bg-muted text-foreground text-xs leading-none h-6">
-            <span data-jx-combobox-chip-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{options.find((option) => option.value === member)?.label ?? member}</span>
+          <span data-jx-combobox-chip class={cx(cbxStyles.chip)}>
+            <span data-jx-combobox-chip-label class={cx(cbxStyles.chipLabel)}>{options.find((option) => option.value === member)?.label ?? member}</span>
             <button
               type="button"
-              class="jx-combobox-x inline-flex items-center justify-center self-stretch w-6 p-0 border-0 bg-transparent cursor-pointer text-muted-foreground transition-colors duration-100 ease-out hover:text-foreground disabled:cursor-not-allowed"
+              class={cx(cbxStyles.chipRemove)}
               aria-label="remove {options.find((option) => option.value === member)?.label ?? member}"
               disabled={isDisabled}
               onmousedown={(event) => event.preventDefault()}
@@ -601,8 +685,9 @@
         spellcheck="false"
         data-jx-combobox-input
         class={cn(
-          'jx-html-control-lane p-0',
-          multiple && 'flex-[1_1_6rem] min-w-[6rem]',
+          'jx-html-control-lane',
+          cx(cbxStyles.lane),
+          multiple && cx(cbxStyles.laneMultiple),
         )}
         {placeholder}
         disabled={isDisabled}
@@ -619,7 +704,7 @@
              input keeps focus. -->
         <button
           type="button"
-          class="jx-combobox-x flex-none inline-flex items-center justify-center w-5 h-5 p-0 border-0 bg-transparent text-muted-foreground cursor-pointer transition-colors duration-100 ease-out hover:text-foreground disabled:cursor-not-allowed"
+          class={cx(cbxStyles.clearBtn)}
           tabindex="-1"
           aria-label="clear selection"
           disabled={isDisabled}
@@ -631,7 +716,7 @@
       {/if}
       <button
         type="button"
-        class="jx-combobox-toggle flex-none inline-flex items-center justify-center w-5 h-5 p-0 border-0 bg-transparent text-muted-foreground cursor-pointer disabled:cursor-not-allowed"
+        class="jx-combobox-toggle {cx(cbxStyles.toggleBtn)}"
         tabindex="-1"
         aria-hidden="true"
         popovertarget={panelId}
@@ -649,10 +734,7 @@
              inline lucide SVG fallback default keeps the glyph without
              the sheet. -->
         <span
-          class={cn(
-            'jx-combobox-chevron w-3 h-3 pointer-events-none transition-transform duration-150 ease-out',
-            open && 'rotate-180',
-          )}
+          class={cn('jx-combobox-chevron', cx(cbxStyles.chevron), open && cx(cbxStyles.chevronOpen))}
           aria-hidden="true"
         ></span>
       </button>
@@ -663,7 +745,7 @@
     bind:this={panelEl}
     id={panelId}
     popover="auto"
-    class={cn('jx-combobox-panel jx-surface', motion.supported && 'jx-waapi')}
+    class={cn('jx-combobox-panel jx-surface', panelMotion.supported && 'jx-waapi')}
     data-variant={d.variant}
     style="position-anchor: {anchorName}; inset-area: bottom span-all; position-area: bottom span-all;"
     ontoggle={onPanelToggle}
@@ -675,14 +757,14 @@
          unreachable from WAAPI — the kernel animates it in lockstep
          (Owner ruling r18) -->
     <div data-jx-combobox-panel-body class="jx-surface-body">
-    <div data-jx-combobox-scroll class="max-h-[60vh] overflow-auto overscroll-contain [scrollbar-gutter:stable_both-edges] py-1 px-[max(4px_-_var(--jx-scrollbar-thin,0px),0px)]">
+    <div data-jx-combobox-scroll class={cx(cbxStyles.scroll)}>
     {#if rows.length > 0}
       <!-- mousedown is prevented so click-to-choose never blurs the input
            into a premature blur-commit -->
       <ul
         id={listboxId}
         data-jx-combobox-list
-        class="m-0 p-0 list-none"
+        class={cx(cbxStyles.list)}
         role="listbox"
         aria-label={label ?? placeholder}
         aria-multiselectable={multiple ? 'true' : undefined}
@@ -702,20 +784,21 @@
             data-jx-combobox-selected={row.kind === 'option' && isSelected(row.option.value) ? '' : undefined}
             data-jx-combobox-disabled={row.kind === 'option' && row.option.disabled ? '' : undefined}
             class={cn(
-              'jx-combobox-option relative flex flex-col gap-0.5 px-[10px] py-[6px] text-[13px] leading-[1.45] text-[color-mix(in_oklab,var(--terminal-foreground)_72%,transparent)] cursor-pointer border-s-2 [border-inline-start-color:transparent] transition-[background-color,color] duration-100 ease-out',
-              index === active && 'bg-terminal-hover text-terminal-foreground',
-              row.kind === 'option' && isSelected(row.option.value) && 'bg-terminal-hover text-terminal-foreground [border-inline-start-color:var(--primary)]',
-              row.kind === 'option' && row.option.disabled && 'opacity-50 pointer-events-none',
+              'jx-combobox-option',
+              cx(cbxStyles.option),
+              index === active && cx(cbxStyles.optionActive),
+              row.kind === 'option' && isSelected(row.option.value) && cx(cbxStyles.optionSelected),
+              row.kind === 'option' && row.option.disabled && cx(cbxStyles.optionDisabled),
             )}
             onclick={() => chooseRow(row)}
           >
             {#if row.kind === 'option'}
-              <span data-jx-combobox-option-label class="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">{row.option.label}</span>
+              <span data-jx-combobox-option-label class={cx(cbxStyles.optionLabel)}>{row.option.label}</span>
               {#if row.option.description}
-                <span data-jx-combobox-option-desc class="text-[11px] leading-[1.4] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">{row.option.description}</span>
+                <span data-jx-combobox-option-desc class={cx(cbxStyles.optionDesc)}>{row.option.description}</span>
               {/if}
             {:else}
-              <span data-jx-combobox-use class="text-primary">Use “{row.text}”</span>
+              <span data-jx-combobox-use class={cx(cbxStyles.optionUse)}>Use “{row.text}”</span>
             {/if}
             {#if multiple && row.kind === 'option' && isSelected(row.option.value)}
               <!-- the multiple check glyph: a CSS-mask icon slot
@@ -728,7 +811,7 @@
         {/each}
       </ul>
     {:else}
-      <p data-jx-combobox-empty class="m-0 px-[10px] py-[6px] text-[13px] text-[color-mix(in_oklab,var(--terminal-foreground)_55%,transparent)]">No results for “{query}”</p>
+      <p data-jx-combobox-empty class={cx(cbxStyles.empty)}>No results for “{query}”</p>
     {/if}
     </div>
     </div>

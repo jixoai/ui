@@ -34,8 +34,26 @@ import { describe, expect, it } from 'vitest';
 import Host from './fixtures/defaults-kbd-badge-chip-host.svelte';
 import UnitResolveHost from './fixtures/unit-resolve-host.svelte';
 import { BadgeDefaults } from '../src/lib/ui/badge/badge-defaults.svelte';
+import { badgeStyles } from '../src/lib/ui/badge/badge.stylex';
 import { ChipDefaults } from '../src/lib/ui/chip/chip-defaults.svelte';
 import { KbdDefaults } from '../src/lib/ui/kbd/kbd-defaults.svelte';
+import { chipStyles } from '../src/lib/ui/chip/chip.stylex';
+
+// tailwindless Wave 1 batch 3 (2026-09-17): the chip's silhouette
+// rides stylex atoms now — asserted through the same cx join the
+// component rides (utility-shaped expectations went with the
+// utilities; the shape LAWS are unchanged)
+const cx = (
+  ...styles: ({ readonly [key: string]: string | object } | undefined)[]
+): string =>
+  styles
+    .filter(Boolean)
+    .map((style) =>
+      Object.entries(style).flatMap(([key, value]) =>
+        key !== '$$css' && typeof value === 'string' ? [value] : [],
+      ).join(' '),
+    )
+    .join(' ');
 
 const byTestid = (container: HTMLElement, id: string) =>
   container.querySelector(`[data-testid="${id}"]`)!;
@@ -67,13 +85,13 @@ describe('bare — no providers', () => {
   it("the literal shape slots: own 'square' renders the site radius, explicit pill rounds fully", () => {
     const { container } = render(Host);
     const bare = byTestid(container, 'bare');
-    expect(bare.querySelector('[data-jx-badge]')!.className).toContain('rounded-(--radius)');
+    expect(bare.querySelector('[data-jx-badge]')!.className).toContain(cx(badgeStyles.square));
     expect(bare.querySelector('[data-jx-badge="tonal"] + [data-jx-badge]')!.className).toContain(
-      'rounded-full',
+      cx(badgeStyles.pill),
     );
-    expect(bare.querySelector('[data-jx-chip]')!.className).toContain('rounded-(--radius)');
+    expect(bare.querySelector('[data-jx-chip]')!.className).toContain(cx(chipStyles.square));
     expect(bare.querySelector('button[data-jx-chip] ~ button[data-jx-chip]')!.className).toContain(
-      'rounded-full',
+      cx(chipStyles.pill),
     );
   });
 });
@@ -149,16 +167,27 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     return holder.value;
   };
 
+  // W3-B (explicit-props): kbd/badge/chip joined the eight-axis surface
+  // MINUS shape on badge/chip (the square|pill corner-law collides with
+  // the axis name; design §13 rules no mapping — unruled, left out).
+  // Every axis resolves 'auto' in a silent window (无意见不盖章).
+  const KBD_AXES = ['size', 'shape', 'radius', 'color', 'theme', 'elevation', 'motion'];
+  const NO_SHAPE_AXES = KBD_AXES.filter((a) => a !== 'shape');
+  const autoProj = (axes: string[]): Record<string, unknown> => ({
+    density: 'auto',
+    ...Object.fromEntries(axes.map((axis) => [axis, 'auto'])),
+  });
+
   it('BadgeDefaults: own tonal/square, no density opinion (ambient silent, no throw)', () => {
     expect(resolveInWindow(() => BadgeDefaults.resolve({}))).toEqual({
       variant: 'tonal',
       shape: 'square',
-      density: undefined,
+      ...autoProj(NO_SHAPE_AXES),
     });
     expect(resolveInWindow(() => BadgeDefaults.resolve({ variant: 'fill' }))).toEqual({
       variant: 'fill',
       shape: 'square',
-      density: undefined,
+      ...autoProj(NO_SHAPE_AXES),
     });
   });
 
@@ -166,19 +195,19 @@ describe('in-window unit resolution — the own-defaults projection', () => {
     expect(resolveInWindow(() => ChipDefaults.resolve({}))).toEqual({
       variant: 'tonal',
       shape: 'square',
-      density: undefined,
+      ...autoProj(NO_SHAPE_AXES),
     });
   });
 
   it('KbdDefaults: own tonal (the literal family), no density opinion', () => {
     expect(resolveInWindow(() => KbdDefaults.resolve({}))).toEqual({
       variant: 'tonal',
-      density: undefined,
+      ...autoProj(KBD_AXES),
     });
     // the literal slot never reads context: an explicit value passes through
     expect(resolveInWindow(() => KbdDefaults.resolve({ variant: 'outline' }))).toEqual({
       variant: 'outline',
-      density: undefined,
+      ...autoProj(KBD_AXES),
     });
   });
 });
