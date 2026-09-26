@@ -5,7 +5,7 @@ name: Ghostty wasm pin sync
 # design.md D2: pin manifest + GitHub Actions; binaries never enter git).
 #
 # Mechanism:
-# - Weekly (Monday 03:00 UTC) + manual dispatch. The pinned "tip" release
+# - Daily (03:00 UTC, the nightly-rotation cadence) + manual dispatch. The pinned "tip" release
 #   is the only ghostty release carrying wasm and its assets are replaced
 #   nightly, so the pin tracks content hashes, not the release object
 #   (tip's publishedAt is frozen in 2022 and useless as a version).
@@ -32,7 +32,11 @@ name: Ghostty wasm pin sync
 
 on:
   schedule:
-    - cron: "0 3 * * 1"
+    # daily 03:00 UTC, matching the upstream tip release's nightly asset
+    # rotation (weekly left a 6-day window where a deploy could hit a
+    # drifted pin; with probes-green auto-merge in place, the matching
+    # cadence closes the loop — no-drift days are quiet no-ops)
+    - cron: "0 3 * * *"
   workflow_dispatch:
 
 permissions:
