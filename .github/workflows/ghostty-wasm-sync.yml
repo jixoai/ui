@@ -21,9 +21,14 @@ name: Ghostty wasm pin sync
 #   updated in place while one stays open (create-pull-request reuses
 #   the branch). No secrets: everything runs on the default GITHUB_TOKEN.
 # - The repo's only supply-chain artifact is the text pin manifest
-#   (reviewable, revertable, auditable). Merging the PR is the Owner's
-#   human review point: sha256 gives integrity, authenticity rides on
-#   the fixed ghostty-org release URLs plus this merge gate.
+#   (reviewable, revertable, auditable). Owner ruling 2026-09-26
+#   ("探针绿即自动合并"): the probe battery IS the review — the job
+#   reaches the PR step only after both variants passed the ABI
+#   sentinel, so the workflow merges its own PR the moment it exists.
+#   Holding the merge for a human click only let the nightly asset
+#   rotation block deploys for a day (PR #50/#51 evidence). sha256
+#   integrity, the fixed ghostty-org release URLs and the probe gate
+#   remain the trust chain; revert the merge commit to roll back.
 
 on:
   schedule:
@@ -156,7 +161,7 @@ jobs:
             row('full'),
             row('small'),
             '',
-            'Merging is the only way the pin changes; revert this PR to roll back to the previous assets.',
+            'This PR auto-merges once opened (Owner ruling 2026-09-26: probes green = merged); revert the merge commit to roll back to the previous assets.',
           ].join('\n');
           writeFileSync(`${tmp}/pr-body.md`, body);
 
@@ -189,3 +194,19 @@ jobs:
           body-path: ${{ runner.temp }}/pr-body.md
           commit-message: "chore(ghostty): sync pinned tip wasm (probe-verified by ghostty-wasm-sync)"
           delete-branch: true
+
+      # "探针绿即自动合并" (Owner ruling 2026-09-26): this step is only
+      # reachable after the ABI probe passed on BOTH variants — the probe
+      # battery is the entire review this PR ever needed. Merging on the
+      # spot closes the nightly-rotation race that blocked deploys twice
+      # (PR #50/#51); the merge push itself re-fires deploy.yml, so a
+      # mid-week drift self-heals the site end to end.
+      - name: Auto-merge the pin-update PR (probes already green)
+        if: steps.candidate.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh pr merge automation/ghostty-pin-update \
+            --squash --delete-branch --repo "$GITHUB_REPOSITORY" \
+            --subject "chore(ghostty): sync pinned tip wasm (full ${{ steps.candidate.outputs.full8 }}, small ${{ steps.candidate.outputs.small8 }}) (probe-verified by ghostty-wasm-sync)"
