@@ -52,6 +52,7 @@ export const docsSections: DocsSection[] = [
       // question every consumer brings (stylex-kernel-phase0 P0.7 —
       // one css entry; engine tooling optional for consumers' own use)
       { title: 'install', subtitle: 'the zero-tooling prerequisite', href: '/docs/install.html' },
+      { title: 'design agent', subtitle: 'the studio that edits your components', href: '/docs/design-agent.html' },
       { title: 'theming & tokens', href: '/tokens.html' },
       { title: 'recipes', subtitle: 'where wrapping stops', href: '/docs/recipes.html' },
       { title: 'jx-pure', subtitle: 'the componentless face', href: '/docs/jx-pure.html' },

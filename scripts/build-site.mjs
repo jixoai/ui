@@ -238,7 +238,7 @@ function generateAiExports() {
     sections: [
       {
         title: "Docs — the learning path",
-        include: ["index.html", "docs.html", "tokens.html", "docs/recipes.html", "docs/jx-pure.html"],
+        include: ["index.html", "docs.html", "docs/install.html", "docs/design-agent.html", "tokens.html", "docs/recipes.html", "docs/jx-pure.html"],
       },
       {
         title: "Docs tooling",

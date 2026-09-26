@@ -122,11 +122,25 @@
     <SectionCard
       family="transitional"
       headerRegion="transitional"
-      eyebrow="transition"
-      title="The transitional state: legacy items still want Tailwind v4"
-      summary="Not every family has migrated yet. Utility-authored items (the standing registry) keep their documented prerequisite — tailwindcss v4 with @tailwindcss/vite and the jixoai sheet imported after it — until their family's migration lands. The migration is staged; this page's compiled-payload lane grows as it advances."
+      eyebrow="transition closed"
+      title="The transitional state is closed — the Tailwind prerequisite retired"
+      summary="The atom-authored migration landed fleet-wide in kernel 0.6.0: every item ships its compiled payload, the tailwind engine died everywhere in this repository (a verify gate enforces zero imports), and no consumer owes it for OUR components any more. The entry below is the historical record of the retired lane — keep it only as archaeology."
     >
-      <CodeBlock code={legacyEntry} lang="css" meta="the legacy entry (utility-authored items)" />
+      <CodeBlock code={legacyEntry} lang="css" meta="the retired legacy entry (historical)" />
+      <A11yTable
+        keys={[
+          {
+            key: 'what changed in 0.6.0',
+            action:
+              'Utility-authored chrome became per-item StyleX payload modules compiled on our side; consumers import plain css and plain class strings (the compiled-payload lane above is now the only lane)',
+          },
+          {
+            key: 'next step',
+            action:
+              'Put the components on a canvas and edit them live — the design agent turns the installed catalog into a working studio (see docs/design-agent)',
+          },
+        ]}
+      />
     </SectionCard>
   </div>
 
