@@ -74,6 +74,31 @@ Owner 架构裁决（2026-09-27，两轮对话定形）。此前 Codex 讨论把
 6. **内核跟 alpha 通道最新**（@deepseek-ai/dsh-* 始终最新 alpha，
    非 rc 非钉死；升级配桥接契约测试）。
 
+
+## Owner 裁决（grilling Round 2，2026-09-27）
+
+7. **导出模型定形**（Q1 重述）：导出物是一个 **readonly 结构，
+   消费者是 AI**——design 导出的代码是**参考代码**，只承载交互/
+   布局等基本逻辑；拿到它的 AI 需要自行重补语言支持、数据绑定、
+   交互细节、动态渲染等。全量导出为默认；**增量导出依赖设计项目
+   本身基于 Git 管理**（算 diff 出增量）。设计项目与前端项目的
+   物理关系开发者自由（Owner 习惯：design 文件夹 + 可设
+   git-submodule）。
+8. 导出形态 = 纯净源码树（Q2:a）——零 design 工具依赖。
+9. changesets 范围 = 三包发版火车为基线（Q3:a）；apps/www 独立
+   演进、版本节奏不与内核锁步。
+10. alpha 跟进 = 每次开干前手动 bump 最新 alpha + 桥接契约测试
+    （Q4:a），生产化后再议自动化。
+
+## 共识快照（grilling 收口）
+
+设计树全分支已访：内核内嵌（dsh-app-boot alpha）→ 无旗标产品态 →
+设计项目=git 管理的 agent 全权工作区（出区 proposal）→ 导出=
+AI 消费的 readonly 参考代码（全量默认/git 增量）→ 组件全部按本仓
+规范重写进 registry（demo-standard 页 + ego-browser 交互走查）→
+分发=@jixoai/ui-plugin-design 插件 + changesets 三包火车 →
+apps/www 独立版本线 → 生产级质量前不并 main（main 已暂停）。
+
 ## Non-Goals
 
 - 不做第三方 agent 的适配器插件（协作走 mcp+skills，非本变更）。
