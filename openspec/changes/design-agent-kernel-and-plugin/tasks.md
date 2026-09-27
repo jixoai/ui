@@ -22,8 +22,9 @@ Explore 报告全文见会话记录；下列条目直接引用两项目的模块
       自托管 MCP（`/mcp` streamable-http + token 经 env 模板不落盘，
       内核 dsh-mcp-client 反连）；mutation 能力只注册 `*_propose`
       变体产 proposal 等人批（skill-creator `mcp/proposals.ts` 蓝本）
-- [ ] T1.5 `--agent dsh` 对外更名（内核名不外露；候选名随实现提报
-      Owner 拍板），echo/none 内置不变
+- [ ] T1.5 `--agent` 旗标**整体删除**（Owner Round 1：破坏性更新）——
+      server 默认即产品态；只读=未配路由时 typed unavailable；
+      探针/走查改环境变量开关；probe 脚本与文档同步清理
 
 ## Phase 2 — Agent 对话面板（前台全量对接）
 
@@ -72,7 +73,8 @@ Explore 报告全文见会话记录；下列条目直接引用两项目的模块
       包（exports 含 `./ui-design-plugin` 面），dist-studio 随 tarball；
       `jixoai-ui design` ≡ `jixoai-ui use design` 等价直达
 - [ ] T4.3 release.yml 三包对齐（CLI + vite-plugin + ui-plugin-design
-      锁步 0.6.x）
+      锁步 0.6.x）+ **pnpm 12 原生 changesets** 发版流程落地（Owner
+      Round 1 裁决：成为最佳实践）
 
 ## Phase 5 — 对外协作面与官网
 
