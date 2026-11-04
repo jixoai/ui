@@ -1,5 +1,5 @@
 {
-  "pinnedAt": "2026-11-03T10:20:42Z",
+  "pinnedAt": "2026-11-04T10:13:58Z",
   "source": {
     "repo": "ghostty-org/ghostty",
     "tag": "tip",
@@ -8,14 +8,14 @@
   "variants": {
     "full": {
       "url": "https://github.com/ghostty-org/ghostty/releases/download/tip/ghostty-vt.wasm",
-      "sha256": "f836c4d762550575be834d40bebcee0ee19b187a3a116aba934f07ec104291c3",
-      "size": 1214353,
+      "sha256": "ac3768f026faf40f40e5c3ecd30a49f8b2de84ba047eb0953fdd254f8309e9cf",
+      "size": 1214261,
       "buildInfo": "0.1.0-dev"
     },
     "small": {
       "url": "https://github.com/ghostty-org/ghostty/releases/download/tip/ghostty-vt-small.wasm",
-      "sha256": "1a474fcc9e7e1a2f846ef257fad2ec8bb65118a037ccf91c1e79ca939756457f",
-      "size": 815916,
+      "sha256": "2be3b6582640d863a7bf3dd89bbc9ac913c1b04a24888a746660d75666629a70",
+      "size": 815813,
       "buildInfo": "0.1.0-dev"
     }
   }
